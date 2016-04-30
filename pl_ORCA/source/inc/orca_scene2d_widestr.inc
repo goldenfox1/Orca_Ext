@@ -866,12 +866,12 @@ end;
 procedure TD2WideStringList.QuickSort(L,R:integer);
 var
   I,J:integer;
-  P:WideString;
+  //P:WideString;
 begin
   repeat
     I:=L;
     J:=R;
-    P:=FList[(L + R) shr 1].FString;
+    //P:=FList[(L + R) shr 1].FString;
     repeat
       {$IFDEF KS_COMPILER6_UP}
       while WideCompareText(FList[I].FString,P) < 0 do System.Inc(I);

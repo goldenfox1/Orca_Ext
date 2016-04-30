@@ -529,8 +529,8 @@ begin
 end;
 
 procedure TD2Popup.ClosePopup;
-var
-  Idx,i:integer;
+//var
+  //Idx,i:integer;
 begin
   if FAnimating then Exit;
   if (PlacementScene=d2PlacementSceneNew) and (FPopupScene=nil) then Exit;

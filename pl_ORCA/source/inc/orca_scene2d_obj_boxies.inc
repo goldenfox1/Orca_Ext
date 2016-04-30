@@ -324,7 +324,7 @@ end;
 
 function TD2CustomTextBox.GetCoordinatePosition(x:single):integer;
 var
-  CurX:double;
+  //CurX:double;
   TmpX,
   WholeTextWidth,
   EditRectWidth :single;
@@ -569,9 +569,9 @@ begin
 end;
 
 procedure TD2CustomTextBox.PasteFromClipboard;
-var
-  Data:THandle;
-  Insertion:WideString;
+//var
+  //Data:THandle;
+  //Insertion:WideString;
 begin
   if ReadOnly then Exit;
 
@@ -844,7 +844,7 @@ begin
   Change;
 end;
 
-procedure TD2CustomTextBox.SetText(const Value:WideString);
+procedure TD2CustomTextBox.SetTextW(const Value:WideString);
 begin
   if FText <> Value then
   begin
@@ -865,12 +865,13 @@ begin
   SetText(ss);
 end;
 
-Function TD2CustomTextBox.GetText:WideString;
+Function TD2CustomTextBox.GetTextW:WideString;
 begin
   Result:=ftext;
 end;
 
 Function TD2CustomTextBox.GetText:string;
+var s: string;
 begin
   Result:=UTF8Encode(ftext);
 end;

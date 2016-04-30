@@ -499,7 +499,7 @@ end;
 procedure TD2GradientAnimation.ProcessAnimation;
 var
   i:integer;
-  G:TD2Gradient;
+  //G:TD2Gradient;
 begin
   if FInstance <> nil then
   begin
@@ -685,7 +685,7 @@ end;
 
 procedure TD2BitmapAnimation.ProcessAnimation;
 var
-  Persistent,Path:string;
+  Persistent{,Path}:string;
   Value:TObject;
 begin
   if (Parent <> nil) and (FPropertyName <> '')  then
@@ -693,7 +693,7 @@ begin
     if FInstance=nil then
     begin
       FInstance:=Parent;
-      Path:=FPropertyName;
+      //Path:=FPropertyName;
       while Pos('.',FPropertyName) > 0 do
       begin
         Persistent:=d2GetToken(FPropertyName,'.');
@@ -766,7 +766,7 @@ end;
 
 procedure TD2BitmapListAnimation.ProcessAnimation;
 var
-  Persistent,Path:string;
+  Persistent{,Path}:string;
   Value:TObject;
   LeftPos,CurrentIndex:integer;
   NowValue:single;
@@ -776,7 +776,7 @@ begin
     if FInstance=nil then
     begin
       FInstance:=Parent;
-      Path:=FPropertyName;
+      //Path:=FPropertyName;
       while Pos('.',FPropertyName) > 0 do
       begin
         Persistent:=d2GetToken(FPropertyName,'.');

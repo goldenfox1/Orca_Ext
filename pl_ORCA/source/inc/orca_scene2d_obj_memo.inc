@@ -52,7 +52,7 @@ end;
 
 //=============== TD2Memo ===============================================
 
-constructor TD2Memo.Create(AOwner:TComponent);
+constructor TD2CustomMemo.Create(AOwner:TComponent);
 begin
   inherited Create(AOwner);
   FTextAlign:=d2TextAlignNear;
@@ -105,7 +105,7 @@ begin
   Width:=100;
 end;
 
-destructor TD2Memo.Destroy;
+destructor TD2CustomMemo.Destroy;
 begin
   if FUnwrapLines <> nil then
     FUnwrapLines.Free;
@@ -118,7 +118,7 @@ begin
   inherited;
 end;
 
-procedure TD2Memo.EnterFocus;
+procedure TD2CustomMemo.EnterFocus;
 begin
   inherited;
   FNeedChange:=false;
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.Killfocus;
+procedure TD2CustomMemo.Killfocus;
 begin
   FScene.HideKeyboardForControl(Self);
   inherited;
@@ -148,7 +148,7 @@ begin
   Change;
 end;
 
-function TD2Memo.TextWidth(const Str:WideString):single;
+function TD2CustomMemo.TextWidth(const Str:WideString):single;
 var
   R:TD2Rect;
 begin
@@ -159,7 +159,7 @@ begin
   Result:=d2RectWidth(R);
 end;
 
-function TD2Memo.GetPositionPoint(ACaretPos :TCaretPosition):TD2Point;
+function TD2CustomMemo.GetPositionPoint(ACaretPos :TCaretPosition):TD2Point;
 var
   WholeTextWidth :single;
   EditRectWidth :single;
@@ -193,7 +193,7 @@ begin
   Result.X:=Result.X - HScrollBarValue;
 end;
 
-function TD2Memo.GetPointPosition(Pt :TD2Point):TCaretPosition;
+function TD2CustomMemo.GetPointPosition(Pt :TD2Point):TCaretPosition;
 var
   CurX:double;
   TmpX,
@@ -271,7 +271,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);
+procedure TD2CustomMemo.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);
 var
   TmpS:WideString;
   OldCaretPosition:TCaretPosition;
@@ -421,7 +421,7 @@ begin
   UpdateCaretPosition(true);
 end;
 
-procedure TD2Memo.MouseDown(Button:TMouseButton; Shift:TShiftState; x,y:single);
+procedure TD2CustomMemo.MouseDown(Button:TMouseButton; Shift:TShiftState; x,y:single);
 begin
   inherited;
   if (Button=mbLeft) and  (ssDouble in Shift) then
@@ -442,7 +442,7 @@ begin
   end;
 end;
 
-function TD2Memo.ContentPos:TD2Point;
+function TD2CustomMemo.ContentPos:TD2Point;
 var
   T:TD2Object;
 begin
@@ -453,16 +453,16 @@ begin
   end;
 end;
 
-procedure TD2Memo.DoContentPaint(Sender:TObject; const Canvas:TD2Canvas; const ARect:TD2Rect);
+procedure TD2CustomMemo.DoContentPaint(Sender:TObject; const Canvas:TD2Canvas; const ARect:TD2Rect);
 var
   R,TmpRect:TD2Rect;
   LSelArea :TSelArea;
   CurSelRect :integer;
   SaveIndex:integer;
-  CurChar,CurLine,LEndLine:integer;
+  {CurChar,}CurLine,LEndLine:integer;
   TmpPt :TD2Point;
   LPageSize :single;
-  LLeftTopCharPt :TD2Point;
+  //LLeftTopCharPt :TD2Point;
 begin
   with Canvas do
   begin
@@ -478,8 +478,8 @@ begin
     Canvas.Font.Assign(Font);
     LPageSize:=GetPageSize;
 
-    LLeftTopCharPt.X:=TmpRect.Left;
-    LLeftTopCharPt.Y:=TmpRect.Top;
+    //LLeftTopCharPt.X:=TmpRect.Left;
+    //LLeftTopCharPt.Y:=TmpRect.Top;
 
     CurLine:=trunc(VScrollBarValue / GetLineHeight);
     if round(VScrollBarValue / GetLineHeight) + LPageSize - 1 < Lines.Count-1 then
@@ -512,7 +512,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.ApplyStyle;
+procedure TD2CustomMemo.ApplyStyle;
 var
   T:TD2Object;
 begin
@@ -533,7 +533,7 @@ begin
     FFontFill.Assign(TD2BrushObject(T).Brush);
 end;
 
-procedure TD2Memo.UpdateHScrlBarByCaretPos;
+procedure TD2CustomMemo.UpdateHScrlBarByCaretPos;
 var
   LEdiTD2Rect:TD2Rect;
   LCaretLinePos :integer;
@@ -569,16 +569,16 @@ begin
     HScrollBar.Value:=TextWidth(Copy(Lines[LCaretLine],1,FFirstVisibleChar-1));
 end;
 
-procedure TD2Memo.MouseMove(Shift:TShiftState; x,y,dx,dy:single);
-var
-  LEdiTD2Rect :TD2Rect;
+procedure TD2CustomMemo.MouseMove(Shift:TShiftState; x,y,dx,dy:single);
+//var
+  //LEdiTD2Rect :TD2Rect;
 begin
   inherited;
   FOldMPt:=d2Point(x,y);
 
   if FLMouseSelecting then
   begin
-    LEdiTD2Rect:=ContentRect;
+    //LEdiTD2Rect:=ContentRect;
 
 {    if y < LEdiTD2Rect.Top then
       VScrollBar.AutoScrollUp:=true
@@ -594,7 +594,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.MouseUp(Button:TMouseButton; Shift:TShiftState;
+procedure TD2CustomMemo.MouseUp(Button:TMouseButton; Shift:TShiftState;
   x,y:single);
 begin
   inherited;
@@ -603,22 +603,22 @@ begin
     FSelected:=false;
 end;
 
-procedure TD2Memo.CopyToClipboard;
-var
-  Data:THandle;
-  DataPtr:Pointer;
-  Size:Cardinal;
-  S:WideString;
+procedure TD2CustomMemo.CopyToClipboard;
+//var
+  //Data:THandle;
+  //DataPtr:Pointer;
+  //Size:Cardinal;
+  //S:WideString;
 begin
   if SelText <> '' then
     Clipbrd.Clipboard.AsText:=UTF8Encode(SelText);
 end;
 
-procedure TD2Memo.PasteFromClipboard;
+procedure TD2CustomMemo.PasteFromClipboard;
 var
   WasSelection :boolean;
-  Data:THandle;
-  Insertion:WideString;
+  //Data:THandle;
+  //Insertion:WideString;
 begin
   if ReadOnly then Exit;
   try
@@ -638,7 +638,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.CreatePopupMenu;
+procedure TD2CustomMemo.CreatePopupMenu;
 var
   TmpItem:TMenuItem;
 begin
@@ -698,27 +698,27 @@ begin
   FPopupMenu.Items.Add(TmpItem);
 end;
 
-procedure TD2Memo.DoCut(Sender:TObject);
+procedure TD2CustomMemo.DoCut(Sender:TObject);
 begin
   CutToClipboard;
 end;
 
-procedure TD2Memo.DoCopy(Sender:TObject);
+procedure TD2CustomMemo.DoCopy(Sender:TObject);
 begin
   CopyToClipboard;
 end;
 
-procedure TD2Memo.DoDelete(Sender:TObject);
+procedure TD2CustomMemo.DoDelete(Sender:TObject);
 begin
   ClearSelection;
 end;
 
-procedure TD2Memo.DoPaste(Sender:TObject);
+procedure TD2CustomMemo.DoPaste(Sender:TObject);
 begin
   PasteFromClipboard;
 end;
 
-procedure TD2Memo.UpdatePopupMenuItems;
+procedure TD2CustomMemo.UpdatePopupMenuItems;
 var
   SelTextEmpty:boolean;
 begin
@@ -731,7 +731,7 @@ begin
   FPopupMenu.Items.Find('Select All').Enabled:=SelText <> TextW;
 end;
 
-function TD2Memo.GetNextWordBeging(StartPosition:TCaretPosition):TCaretPosition;
+function TD2CustomMemo.GetNextWordBeging(StartPosition:TCaretPosition):TCaretPosition;
 var
   SpaceFound,
   WordFound:boolean;
@@ -774,7 +774,7 @@ begin
   end
 end;
 
-function TD2Memo.GetPrivWordBeging(StartPosition:TCaretPosition):TCaretPosition;
+function TD2CustomMemo.GetPrivWordBeging(StartPosition:TCaretPosition):TCaretPosition;
 var
   WordFound:boolean;
   LLineText :WideString;
@@ -810,19 +810,19 @@ begin
 end;
 
 
-procedure TD2Memo.ClearSelection;
+procedure TD2CustomMemo.ClearSelection;
 begin
   if not ReadOnly then
     DeleteFrom(GetSelBeg,SelLength,[doMoveCaret,doCanUndo]);
 end;
 
-procedure TD2Memo.CutToClipboard;
+procedure TD2CustomMemo.CutToClipboard;
 begin
   CopyToClipboard;
   ClearSelection;
 end;
 
-procedure TD2Memo.SelectAll;
+procedure TD2CustomMemo.SelectAll;
 begin
   FSelStart:=TextPosToPos(Length(FText));
   FSelEnd:=ComposeCaretPos(0,0);
@@ -831,12 +831,12 @@ begin
   Repaint;
 end;
 
-procedure TD2Memo.DoSelectAll(Sender:TObject);
+procedure TD2CustomMemo.DoSelectAll(Sender:TObject);
 begin
   SelectAll;
 end;
 
-procedure TD2Memo.DrawPasswordChar(SymbolRect:TD2Rect; Selected:boolean);
+procedure TD2CustomMemo.DrawPasswordChar(SymbolRect:TD2Rect; Selected:boolean);
 var
   LRect :TD2Rect;
 begin
@@ -844,13 +844,13 @@ begin
   Canvas.Font.Assign(Font);
 end;
 
-function TD2Memo.CanAutoSize(var NewWidth,NewHeight:integer):boolean;
+function TD2CustomMemo.CanAutoSize(var NewWidth,NewHeight:integer):boolean;
 begin
   Result:=True;
   NewHeight:=Round(GetLineHeight + ContentRect.Top*2);
 end;
 
-procedure TD2Memo.SelectWord;
+procedure TD2CustomMemo.SelectWord;
 begin
   FSelStart:=GetPrivWordBeging(CaretPosition);
   FSelEnd:=GetNextWordBeging(CaretPosition);
@@ -858,7 +858,7 @@ begin
   Repaint;
 end;
 
-procedure TD2Memo.Change;
+procedure TD2CustomMemo.Change;
 begin
   if FNeedChange then
   begin
@@ -869,7 +869,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.ContextMenu(const ScreenPosition:TD2Point);
+procedure TD2CustomMemo.ContextMenu(const ScreenPosition:TD2Point);
 begin
   inherited;
   if csDesigning in ComponentState then Exit;
@@ -879,7 +879,7 @@ begin
   FPopupMenu.Popup(round(ScreenPosition.X),round(ScreenPosition.Y));
 end;
 
-procedure TD2Memo.FontChanged(Sender:TObject);
+procedure TD2CustomMemo.FontChanged(Sender:TObject);
 begin
   inherited;
   if not (csLoading in ComponentState) then
@@ -891,7 +891,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.SetText(const Value:WideString);
+procedure TD2CustomMemo.SetText(const Value:WideString);
 begin
   if not ValidText(Value) then Exit;
 
@@ -919,24 +919,24 @@ begin
   end;
 end;
 
-procedure TD2Memo.SetText(const Value:String);
+procedure TD2CustomMemo.SetText(const Value:String);
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
   SetText(ss);
 end;
 
-Function TD2Memo.GetText:WideString;
+Function TD2CustomMemo.GetText:WideString;
 begin
   Result:=Ftext;
 end;
 
-Function TD2Memo.GetText:string;
+Function TD2CustomMemo.GetText:string;
 begin
   Result:=UTF8Encode(Ftext);
 end;
 
-procedure TD2Memo.SetCaretPosition(const Value:TCaretPosition);
+procedure TD2CustomMemo.SetCaretPosition(const Value:TCaretPosition);
 begin
   if Value.Line > Lines.Count-1 then
     FCaretPosition.Line:=Lines.Count-1
@@ -957,23 +957,23 @@ begin
   UpdateCaretPosition(true);
 end;
 
-procedure TD2Memo.SetSelLength(const Value:integer);
+procedure TD2CustomMemo.SetSelLength(const Value:integer);
 begin
   FSelEnd:=TextPosToPos(PosToTextPos(FSelStart)+value);
 end;
 
-procedure TD2Memo.SetSelStart(const Value:integer);
+procedure TD2CustomMemo.SetSelStart(const Value:integer);
 begin
   FSelStart:=TextPosToPos(value);
 end;
 
-procedure TD2Memo.SetAutoSelect(const Value:boolean);
+procedure TD2CustomMemo.SetAutoSelect(const Value:boolean);
 begin
   if FAutoSelect <> Value then
     FAutoSelect:=Value;
 end;
 
-function TD2Memo.GetSelStart:integer;
+function TD2CustomMemo.GetSelStart:integer;
 begin
   if FSelected then
     Result:=PosToTextPos(GetSelBeg)
@@ -981,7 +981,7 @@ begin
     Result:=PosToTextPos(CaretPosition);
 end;
 
-function TD2Memo.GetSelArea:TSelArea;
+function TD2CustomMemo.GetSelArea:TSelArea;
 var
   BegLine,EndLine,CurLine :integer;
   LPageSize :single;
@@ -1038,7 +1038,7 @@ begin
   end;
 end;
 
-function TD2Memo.GetSelLength:integer;
+function TD2CustomMemo.GetSelLength:integer;
 begin
   if FSelected then
     Result:=PosToTextPos(GetSelEnd)-PosToTextPos(GetSelBeg)
@@ -1046,7 +1046,7 @@ begin
     Result:=0;
 end;
 
-function TD2Memo.GetSelText:WideString;
+function TD2CustomMemo.GetSelText:WideString;
 var
   LSelStart,
   LSelLength :integer;
@@ -1059,16 +1059,16 @@ begin
     Result:='';
 end;
 
-procedure TD2Memo.SetCharCase(const Value:TEditCharCase);
-var
-  TmpS:WideString;
+procedure TD2CustomMemo.SetCharCase(const Value:TEditCharCase);
+//var
+  //TmpS:WideString;
 begin
   if FCharCase <> Value then
   begin
     FCharCase:=Value;
     if TextW <> '' then
     begin
-      TmpS:=TextW;
+      //TmpS:=TextW;
 {      case Value of
         vgecUpperCase:TextW:=WideString(CharUpper(PChar(TmpS)));
         vgecLowerCase:TextW:=WideString(CharLower(PChar(TmpS)));
@@ -1077,7 +1077,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.SetHideSelection(const Value:boolean);
+procedure TD2CustomMemo.SetHideSelection(const Value:boolean);
 begin
   if FHideSelection <> Value then
   begin
@@ -1086,7 +1086,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.SetMaxLength(const Value:integer);
+procedure TD2CustomMemo.SetMaxLength(const Value:integer);
 begin
   if FMaxLength <> Value then
   begin
@@ -1094,12 +1094,12 @@ begin
   end;
 end;
 
-function TD2Memo.ValidText(NewText:WideString):boolean;
+function TD2CustomMemo.ValidText(NewText:WideString):boolean;
 begin
   Result:=true;
 end;
 
-procedure TD2Memo.SetTextAlignment(const Value:TAlignment);
+procedure TD2CustomMemo.SetTextAlignment(const Value:TAlignment);
 begin
   if FTextAlignment <> Value then
   begin
@@ -1108,7 +1108,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.UpdateCaretPosition(UpdateScrllBars :boolean);
+procedure TD2CustomMemo.UpdateCaretPosition(UpdateScrllBars :boolean);
 var
   TmpPt :TD2Point;
   TmpRect :TD2Rect;
@@ -1127,7 +1127,7 @@ begin
   SetCaretColor(FFontFill.SolidColor);
 end;
 
-function TD2Memo.GetLineRealEnd(AStartPos :TCaretPosition; PText :PWideString) :TCaretPosition;
+function TD2CustomMemo.GetLineRealEnd(AStartPos :TCaretPosition; PText :PWideString) :TCaretPosition;
 begin
   Result.Line:=AStartPos.Line;
   while (Result.Line+1 <= Lines.Count-1) and
@@ -1140,19 +1140,19 @@ begin
     Result.Pos:=0;
 end;
 
-function TD2Memo.FillLocalLinesBegs(PText:PWideString; ABegChar,AEndChar :integer; TmpLinesBegs :PLinesBegs):integer;
+function TD2CustomMemo.FillLocalLinesBegs(PText:PWideString; ABegChar,AEndChar :integer; TmpLinesBegs :PLinesBegs):integer;
 var
   WStartChar,WSaveChar,WCurChar:integer;
-  LCurChar,LSaveChar:integer;
+  LCurChar{,LSaveChar}:integer;
   TmpS :WideString;
   TmpSWidth,WWidth:single;
-  LTmpWidth:single;
+  //LTmpWidth:single;
   LEditRectWidth :single;
   Tok:WideString;
   LLongestLineWidth :single;
-  CurLineIsEmpty :boolean;
+  //CurLineIsEmpty :boolean;
   LWidth:single;
-  i:integer;
+  //i:integer;
   LLocalWidesLineWidth:integer;
 begin
   Result:=0;
@@ -1163,8 +1163,8 @@ begin
 
   LCurChar:=ABegChar;
   TmpS:='';
-  LTmpWidth:=0;
-  CurLineIsEmpty:=true;
+  //LTmpWidth:=0;
+  //CurLineIsEmpty:=true;
 
   with ContentRect do
     LEditRectWidth:=Right-Left;
@@ -1175,7 +1175,7 @@ begin
   begin
     if (PText^[LCurChar]=#13) or (PText^[LCurChar]=#10) then
     begin
-      LSaveChar:=LCurChar - 1; // before #13
+      //LSaveChar:=LCurChar - 1; // before #13
       if (PText^[LCurChar]=#13) and (LCurChar + 1 <= Length(PText^)) then
         if PText^[LCurChar + 1]=#10 then
           Inc(LCurChar);
@@ -1213,12 +1213,12 @@ begin
       TmpLinesBegs^[Length(TmpLinesBegs^)-1]:=LCurChar + 1;
 
       TmpS:='';
-      LTmpWidth:=0;
-      CurLineIsEmpty:=true;
+      //LTmpWidth:=0;
+      //CurLineIsEmpty:=true;
     end
     else
     begin
-      CurLineIsEmpty:=false;
+      //CurLineIsEmpty:=false;
       TmpS:=TmpS + PText^[LCurChar];
     end;
     Inc(LCurChar);
@@ -1254,20 +1254,20 @@ begin
     Result:=0;
 end;
 
-procedure TD2Memo.UpdateLines;
+procedure TD2CustomMemo.UpdateLines;
 const
   Sep:WideString=' ,-.;:'#65292;
 var
   WStartChar,WSaveChar,WCurChar:integer;
-  LCurChar,LSaveChar:integer;
+  LCurChar{,LSaveChar}:integer;
   TmpS :WideString;
   TmpSWidth,WWidth:single;
-  LTmpWidth:single;
+  //LTmpWidth:single;
   LEditRectWidth :single;
   Tok,LText:WideString;
   LLongestLineWidth :single;
-  CurLineIsEmpty :boolean;
-  i:integer;
+  //CurLineIsEmpty :boolean;
+  //i:integer;
 begin
   FWidesLineIndex:=0;
   SetLength(FLinesBegs,0);
@@ -1284,15 +1284,15 @@ begin
   LText:=TextW;
   TmpS:='';
   LCurChar:=1;
-  LTmpWidth:=0;
-  CurLineIsEmpty:=true;
+  //LTmpWidth:=0;
+  //CurLineIsEmpty:=true;
   FLinesBegs[0]:=1;
   LLongestLineWidth:=0;
   while LCurChar <= Length(LText) do
   begin
     if (LText[LCurChar]=#13) or (LText[LCurChar]=#10) then
     begin
-      LSaveChar:=LCurChar - 1; // before #13
+      //LSaveChar:=LCurChar - 1; // before #13
       if (LText[LCurChar]=#13) and (LCurChar + 1 <= Length(LText)) then
         if LText[LCurChar + 1]=#10 then
           Inc(LCurChar);
@@ -1330,12 +1330,12 @@ begin
       FLinesBegs[Length(FLinesBegs) - 1]:=LCurChar + 1;
 
       TmpS:='';
-      LTmpWidth:=0;
-      CurLineIsEmpty:=true;
+      //LTmpWidth:=0;
+      //CurLineIsEmpty:=true;
     end
     else
     begin
-      CurLineIsEmpty:=false;
+      //CurLineIsEmpty:=false;
       TmpS:=TmpS + LText[LCurChar];
     end;
     Inc(LCurChar);
@@ -1367,7 +1367,7 @@ begin
       FWidesLineIndex:=Length(FLinesBegs) - 1;
 end;
 
-procedure TD2Memo.UpdateRngLinesBegs(PText:PWideString; AUpdBegLine,AUpdEndLine,AUpdBegChar,AUpdEndChar,ACharDelta,AOldWideslLineWidth:integer);
+procedure TD2CustomMemo.UpdateRngLinesBegs(PText:PWideString; AUpdBegLine,AUpdEndLine,AUpdBegChar,AUpdEndChar,ACharDelta,AOldWideslLineWidth:integer);
 var
   LUpdEndChar,
   LNewWidesLineIndex,
@@ -1415,7 +1415,7 @@ begin
     Realign;
 end;
 
-procedure TD2Memo.InsertAfter(Position:TCaretPosition; S:WideString; Options :TInsertOptions);
+procedure TD2CustomMemo.InsertAfter(Position:TCaretPosition; S:WideString; Options :TInsertOptions);
 var
   LText :WideString;
   Insertion :WideString;
@@ -1479,7 +1479,7 @@ begin
     Realign;
 end;
 
-procedure TD2Memo.DeleteFrom(Position :TCaretPosition; ALength:integer; Options :TDeleteOptions);
+procedure TD2CustomMemo.DeleteFrom(Position :TCaretPosition; ALength:integer; Options :TDeleteOptions);
 var
   LUpdBegLine,LUpdEndLine,
   LUpdBegChar,LUpdEndChar :integer;
@@ -1543,17 +1543,17 @@ begin
     Realign;
 end;
 
-procedure TD2Memo.DoUndo(Sender:TObject);
+procedure TD2CustomMemo.DoUndo(Sender:TObject);
 begin
   UnDo;
 end;
 
-procedure TD2Memo.UnDo;
+procedure TD2CustomMemo.UnDo;
 begin
   FActionStack.RollBackAction;
 end;
 
-function TD2Memo.GetContentBounds:TD2Rect;
+function TD2CustomMemo.GetContentBounds:TD2Rect;
 begin
   Result:=inherited GetContentBounds;
   if FWordWrap then
@@ -1570,12 +1570,12 @@ begin
   UpdateHScrlBarByCaretPos;
 end;
 
-procedure TD2Memo.SetLines(const Value:TD2WideStrings);
+procedure TD2CustomMemo.SetLines(const Value:TD2WideStrings);
 begin
   FLines.Assign(Value);
 end;
 
-function TD2Memo.TextPosToPos(APos :integer) :TCaretPosition;
+function TD2CustomMemo.TextPosToPos(APos :integer) :TCaretPosition;
 var
   CurRangeBeg,CurRangeEnd :integer;
   TmpI :integer;
@@ -1632,39 +1632,39 @@ begin
     Result.Pos:=APos-FLinesBegs[Result.Line]+1;
 end;
 
-procedure TD2Memo.MoveCaretLeft;
+procedure TD2CustomMemo.MoveCaretLeft;
 begin
   MoveCareteBy(-1);
 end;
 
-procedure TD2Memo.MoveCaretRight;
+procedure TD2CustomMemo.MoveCaretRight;
 begin
   MoveCareteBy(1);
 end;
 
-procedure TD2Memo.MoveCareteBy(Delta :integer);
+procedure TD2CustomMemo.MoveCareteBy(Delta :integer);
 begin
   CaretPosition:=GetPositionShift(CaretPosition,Delta);
 end;
 
-procedure TD2Memo.VScrollChange(Sender:TObject);
+procedure TD2CustomMemo.VScrollChange(Sender:TObject);
 begin
   inherited ;
   UpdateCaretPosition(false);
 end;
 
-function TD2Memo.GetLineHeight:single;
+function TD2CustomMemo.GetLineHeight:single;
 begin
   Result:=round(FFont.Size * (1.25));
 end;
 
-procedure TD2Memo.HScrlBarChange(Sender:TObject);
+procedure TD2CustomMemo.HScrlBarChange(Sender:TObject);
 begin
   Repaint;
   UpdateCaretPosition(false);
 end;
 
-procedure TD2Memo.UpdateVScrlBarByCaretPos;
+procedure TD2CustomMemo.UpdateVScrlBarByCaretPos;
 var
   LCaretPosLine :integer;
   LPageSize :single;
@@ -1679,7 +1679,7 @@ begin
     VScrollBar.Value:=(LCaretPosLine - LPageSize + 1) * GetLineHeight;
 end;
 
-procedure TD2Memo.SetWordWrap(const Value:boolean);
+procedure TD2CustomMemo.SetWordWrap(const Value:boolean);
 begin
   if FWordWrap <> Value then
   begin
@@ -1691,7 +1691,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.GetLineBounds(LineIndex:integer; var LineBeg,
+procedure TD2CustomMemo.GetLineBounds(LineIndex:integer; var LineBeg,
   LineLength:integer);
 begin
   if Length(FLinesBegs)=0 then
@@ -1716,7 +1716,7 @@ begin
   end;
 end;
 
-function TD2Memo.GetLineCount:integer;
+function TD2CustomMemo.GetLineCount:integer;
 begin
   if TextW <> '' then
     Result:=Length(FLinesBegs)
@@ -1724,7 +1724,7 @@ begin
     Result:=0;
 end;
 
-function TD2Memo.GetLine(Index:integer):WideString;
+function TD2CustomMemo.GetLine(Index:integer):WideString;
 begin
   Result:=GetLineInternal(Index);
   if Length(Result) > 0 then
@@ -1735,7 +1735,7 @@ begin
       Delete(Result,Length(Result),1);
 end;
 
-procedure TD2Memo.InsertLine(Index:integer; const S:WideString);
+procedure TD2CustomMemo.InsertLine(Index:integer; const S:WideString);
 begin
   if Index < GetLineCount then
     InsertAfter(ComposeCaretPos(Index,0),S+#13+#10,[])
@@ -1748,7 +1748,7 @@ begin
       InsertAfter(ComposeCaretPos(Index,0),S,[]);
 end;
 
-procedure TD2Memo.DeleteLine(Index:integer);
+procedure TD2CustomMemo.DeleteLine(Index:integer);
 begin
   if Index=GetLineCount - 1 then
     DeleteFrom(ComposeCaretPos(Index-1,Length(GetLineInternal(Index-1))){LLineBeg-1} ,Length(GetLineInternal(Index))+1,[])
@@ -1756,12 +1756,12 @@ begin
     DeleteFrom(ComposeCaretPos(Index,0){LLineBeg},Length(GetLineInternal(Index))+1,[]);
 end;
 
-procedure TD2Memo.ClearLines;
+procedure TD2CustomMemo.ClearLines;
 begin
   TextW:='';
 end;
 
-procedure TD2Memo.SelectAtMousePoint;
+procedure TD2CustomMemo.SelectAtMousePoint;
 var
   TmpPt :TD2Point;
   LEdiTD2Rect :TD2Rect;
@@ -1787,13 +1787,13 @@ begin
   Repaint;
 end;
 
-function TD2Memo.GetPageSize:single;
+function TD2CustomMemo.GetPageSize:single;
 begin
   with ContentRect do
     Result:=(Bottom-Top) / GetLineHeight;
 end;
 
-function TD2Memo.GetLineWidth(LineNum:integer):single;
+function TD2CustomMemo.GetLineWidth(LineNum:integer):single;
 begin
   if (LineNum >= 0) and (LineNum <= Lines.Count-1) then
   begin
@@ -1803,7 +1803,7 @@ begin
     Result:=0;
 end;
 
-function TD2Memo.PosToTextPos(APostion:TCaretPosition):integer;
+function TD2CustomMemo.PosToTextPos(APostion:TCaretPosition):integer;
 var
   LTmpLine :integer;
 begin
@@ -1830,7 +1830,7 @@ begin
   end;
 end;
 
-function TD2Memo.GetLineInternal(Index:integer):WideString;
+function TD2CustomMemo.GetLineInternal(Index:integer):WideString;
 var
   LLineBeg,LLineLength :integer;
 begin
@@ -1838,7 +1838,7 @@ begin
   Result:=Copy(TextW,LLineBeg,LLineLength);
 end;
 
-procedure TD2Memo.GoToTextBegin;
+procedure TD2CustomMemo.GoToTextBegin;
 begin
   with FCaretPosition do
   begin
@@ -1847,7 +1847,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.GoToTextEnd;
+procedure TD2CustomMemo.GoToTextEnd;
 begin
   with FCaretPosition do
   begin
@@ -1859,7 +1859,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.GoToLineEnd;
+procedure TD2CustomMemo.GoToLineEnd;
 begin
   with FCaretPosition do
   begin
@@ -1868,7 +1868,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.GoToLineBegin;
+procedure TD2CustomMemo.GoToLineBegin;
 begin
   with FCaretPosition do
   begin
@@ -1876,7 +1876,7 @@ begin
   end;
 end;
 
-function TD2Memo.GetSelBeg:TCaretPosition;
+function TD2CustomMemo.GetSelBeg:TCaretPosition;
 begin
   if FSelStart.Line < FSelEnd.Line then
     Result:=FSelStart
@@ -1890,7 +1890,7 @@ begin
         Result:=FSelEnd;
 end;
 
-function TD2Memo.GetSelEnd:TCaretPosition;
+function TD2CustomMemo.GetSelEnd:TCaretPosition;
 begin
   if FSelStart.Line > FSelEnd.Line then
     Result:=FSelStart
@@ -1904,7 +1904,7 @@ begin
         Result:=FSelEnd;
 end;
 
-procedure TD2Memo.SelectAtPos(APos:TCaretPosition);
+procedure TD2CustomMemo.SelectAtPos(APos:TCaretPosition);
 begin
   if not FSelected then begin
     FSelStart:=APos;
@@ -1915,7 +1915,7 @@ begin
   end;
 end;
 
-function TD2Memo.GetPositionShift(APos:TCaretPosition;
+function TD2CustomMemo.GetPositionShift(APos:TCaretPosition;
   Delta:integer):TCaretPosition;
 var
   LNewPos :TCaretPosition;
@@ -1981,7 +1981,7 @@ begin
   Result:=LNewPos;
 end;
 
-procedure TD2Memo.RestorePositions;
+procedure TD2CustomMemo.RestorePositions;
 begin
   if FOldCaretPos >= 0 then
     CaretPosition:=TextPosToPos(FOldCaretPos);
@@ -1992,7 +1992,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.StorePositions;
+procedure TD2CustomMemo.StorePositions;
 begin
   FOldCaretPos:=PosToTextPos(CaretPosition);
   if FSelected then begin
@@ -2001,7 +2001,7 @@ begin
   end;
 end;
 
-procedure TD2Memo.MoveCaretVertical(LineDelta:integer);
+procedure TD2CustomMemo.MoveCaretVertical(LineDelta:integer);
 var
   NewLine,NewY,OldX :integer;
 begin
@@ -2021,27 +2021,27 @@ begin
   end;
 end;
 
-procedure TD2Memo.MoveCaretDown;
+procedure TD2CustomMemo.MoveCaretDown;
 begin
   MoveCaretVertical(1);
 end;
 
-procedure TD2Memo.MoveCaretUp;
+procedure TD2CustomMemo.MoveCaretUp;
 begin
   MoveCaretVertical(-1);
 end;
 
-procedure TD2Memo.MoveCaretPageDown;
+procedure TD2CustomMemo.MoveCaretPageDown;
 begin
   MoveCaretVertical(round(GetPageSize));
 end;
 
-procedure TD2Memo.MoveCaretPageUp;
+procedure TD2CustomMemo.MoveCaretPageUp;
 begin
   MoveCaretVertical(-round(GetPageSize));
 end;
 
-function TD2Memo.GetWidestLine:integer;
+function TD2CustomMemo.GetWidestLine:integer;
 var
   i :integer;
   LWidth,LMaxWidth :single;
@@ -2059,12 +2059,12 @@ begin
   end;
 end;
 
-function TD2Memo.GetShowSelection:boolean;
+function TD2CustomMemo.GetShowSelection:boolean;
 begin
   Result:=IsFocused or not HideSelection;
 end;
 
-procedure TD2Memo.MouseWheel(Shift:TShiftState; WheelDelta:integer;
+procedure TD2CustomMemo.MouseWheel(Shift:TShiftState; WheelDelta:integer;
   var Handled:boolean);
 begin
   inherited;
@@ -2074,34 +2074,34 @@ begin
   end;
 end;
 
-function TD2Memo.GetData:Variant;
+function TD2CustomMemo.GetData:Variant;
 begin
   Result:=TextW;
 end;
 
-procedure TD2Memo.SetData(const Value:Variant);
+procedure TD2CustomMemo.SetData(const Value:Variant);
 begin
   TextW:=Value;
 end;
 
-procedure TD2Memo.SetFont(const Value:TD2Font);
+procedure TD2CustomMemo.SetFont(const Value:TD2Font);
 begin
   FFont.Assign(Value);
 end;
 
-procedure TD2Memo.SetTextAlign(const Value:TD2TextAlign);
+procedure TD2CustomMemo.SetTextAlign(const Value:TD2TextAlign);
 begin
   FTextAlign:=Value;
 end;
 
-procedure TD2Memo.SetUpdateState(Updating:boolean);
+procedure TD2CustomMemo.SetUpdateState(Updating:boolean);
 begin
   FUpdating:=Updating;
   if not Updating then
     Realign;
 end;
 
-function TD2Memo.GetUnwrapLines:TD2WideStrings;
+function TD2CustomMemo.GetUnwrapLines:TD2WideStrings;
 begin
   if FUnwrapLines=nil then
     FUnwrapLines:=TD2WideStringList.Create;

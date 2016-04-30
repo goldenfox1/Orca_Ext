@@ -51,6 +51,7 @@ end;
 constructor TD2VisualObject.Create(AOwner:TComponent);
 begin
   inherited;
+  FDragClipChildren:=false;		//Added by GoldenFox
   FTabOrder:=-1;
   FEnabled:=true;
   FRecalcEnabled:=true;
@@ -543,7 +544,8 @@ begin
       Obj:=TD2VisualObject(FChildren[i]);
       if (not Obj.Visible) and not (((FScene <> nil) and FScene.GetDesignTime)) then Continue;
       if FDesignHide and (((FScene <> nil) and FScene.GetDesignTime)) then Continue;
-      if ClipChildren and not PointInObject(APoint.X,APoint.Y) then Continue;
+      //if ClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Delete by GoldenFox
+	  if DragClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Added by GoldenFox
 
       NewObj:=Obj.FindTarget(APoint,Data);
       if NewObj <> nil then
@@ -1132,9 +1134,9 @@ type
 
   TD2AlignInfo=record
     AlignList:TList;
-    ControlIndex:integer;
-    Align:TD2Align;
-    Scratch:integer;
+    ControlIndex: Integer;
+    Align: TD2Align;
+    Scratch: Integer;
   end;
 
 procedure TD2VisualObject.BeginUpdate;
@@ -1178,7 +1180,7 @@ end;
 
 procedure TD2VisualObject.Realign;
 var
-  i:integer;
+  //i: integer;		//Delete by GoldenFox
   R:TD2Rect;
   AlignList:TList;
 
@@ -1514,6 +1516,7 @@ begin
   StartTriggerAnimation(Self,'IsMouseOver');
   ApplyTriggerEffect(Self,'IsMouseOver');
   if Assigned(FOnMouseEnter) then FOnMouseEnter(Self);
+  MouseEnterChildren;		//Added by GoldenFox
 end;
 
 procedure TD2VisualObject.MouseLeave;
@@ -1522,7 +1525,33 @@ begin
   StartTriggerAnimation(Self,'IsMouseOver');
   ApplyTriggerEffect(Self,'IsMouseOver');
   if Assigned(FOnMouseLeave) then FOnMouseLeave(Self);
+  MouseLeaveChildren;		//Added by GoldenFox
 end;
+
+{**********************************************************************
+                          This part Added by GoldenFox
+ **********************************************************************}
+procedure TD2VisualObject.MouseEnterChildren;
+begin
+  SetMouseOverChildren(Self, true);
+end;
+
+procedure TD2VisualObject.MouseLeaveChildren;
+begin
+  SetMouseOverChildren(Self, false);
+end;
+
+procedure TD2VisualObject.SetMouseOverChildren(Sender: TObject; Value: Boolean);
+begin
+  if (Parent<>nil) and (Parent.IsVisual)
+    then Parent.Visual.SetMouseOverChildren(Sender, Value);
+  FIsMouseOverChildren:=Value;
+  FMouseChildren:=Sender;
+  if FIsMouseOverChildren
+    then if Assigned(FOnMouseEnterChildren) then FOnMouseEnterChildren(Self)
+    else if Assigned(FOnMouseLeaveChildren) then FOnMouseLeaveChildren(Self);
+end;
+//======================= End part of Added by GoldenFox =======================
 
 function TD2VisualObject.EnterFocusChildren(AObject:TD2VisualObject):boolean;
 begin

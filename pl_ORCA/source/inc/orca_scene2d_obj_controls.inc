@@ -1587,7 +1587,7 @@ end;
 procedure TD2ColorPicker.SetColor(const Value:TD2Color);
 var
   H,S,L:single;
-  SaveChange:TNotifyEvent;
+  //SaveChange:TNotifyEvent;
 begin
   d2RGBtoHSL(Value,H,S,L);
   Hue:=H;

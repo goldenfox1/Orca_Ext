@@ -172,7 +172,7 @@ end;
 
 //=============== TD2Label =========================================
 
-constructor TD2Label.Create(AOwner:TComponent);
+constructor TD2CustomLabel.Create(AOwner:TComponent);
 begin
   inherited;
   FAutoTranslate:=true;
@@ -182,7 +182,7 @@ begin
   HitTest:=false;
 end;
 
-procedure TD2Label.ApplyStyle;
+procedure TD2CustomLabel.ApplyStyle;
 var
   T:TD2Object;
   S:TD2Align;
@@ -210,7 +210,7 @@ begin
   end;
 end;
 
-procedure TD2Label.SetWordWrap(const Value:boolean);
+procedure TD2CustomLabel.SetWordWrap(const Value:boolean);
 var
   T:TD2Object;
 begin
@@ -223,7 +223,7 @@ begin
   end;
 end;
 
-procedure TD2Label.SetAutoSize(const Value:boolean);
+procedure TD2CustomLabel.SetAutoSize(const Value:boolean);
 begin
   if FAutoSize <> Value then
   begin
@@ -235,11 +235,10 @@ begin
   end;
 end;
 
-procedure TD2Label.SetText(const Value:String); // 7777
+procedure TD2CustomLabel.SetText(const Value:String); // 7777
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
-
   if FText <> ss then                 // *** DB ***
   begin
     inherited;

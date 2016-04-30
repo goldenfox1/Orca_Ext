@@ -666,8 +666,8 @@ begin
 end;
 
 function TD2VertScrollBox.GetContentBounds:TD2Rect;
-var
-  i:integer;
+//var
+  //i:integer;
 begin
   if (FContent <> nil) and (ContentLayout <> nil) then
   begin

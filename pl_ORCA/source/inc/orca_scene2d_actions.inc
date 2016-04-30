@@ -107,7 +107,7 @@ end;
 
 //============== TEdtActionStack ===============================
 
-constructor TEdtActionStack.Create(AOwner:TD2Memo);
+constructor TEdtActionStack.Create(AOwner:TD2CustomMemo);
 begin
   inherited Create;
   FOwner:=AOwner;

@@ -351,7 +351,7 @@ var
   i:integer;
   P:TD2Point;
   R:TD2Rect;
-  Sel:boolean;
+  //Sel:boolean;
   SelRects:array of TD2Rect;
   Clone:TD2VisualObject;
   Vis:boolean;
@@ -360,7 +360,7 @@ begin
   if FSelection=nil then Exit;
   // calc rects
   Vis:=true;
-  Sel:=false;
+  //Sel:=false;
   SetLength(SelRects,0);
   for i:=0 to Count - 1 do
   begin
@@ -378,7 +378,7 @@ begin
         SetLength(SelRects,Length(SelRects) + 1);
         SelRects[High(SelRects)]:=R;
       end;
-      Sel:=true;
+      //Sel:=true;
     end;
   end;
   // Create selection list
@@ -1299,8 +1299,8 @@ end;
 
 procedure TD2ImageListBox.AddFile(const AFile:string);
 var
-  Dir,Ext:string;
-  SR:TSearchRec;
+  {Dir,}Ext:string;
+  //SR:TSearchRec;
   Item:TD2ListBoxItem;
   Thumb:TD2Image;
 begin

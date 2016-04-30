@@ -326,7 +326,7 @@ var
   procedure AlignItem(AItem:TD2TreeViewItem);
   var
     i:integer;
-    P:TD2Point;
+    //P:TD2Point;
   begin
     AItem.GlobalIndex:=GlobalIdx;
     GlobalIdx:=GlobalIdx + 1;
@@ -388,7 +388,7 @@ var
   i:integer;
   P:TD2Point;
   R:TD2Rect;
-  Sel:boolean;
+  //Sel:boolean;
   SelRects:array of TD2Rect;
   Clone:TD2VisualObject;
   Vis:boolean;
@@ -396,7 +396,7 @@ begin
   if FSelection=nil then Exit;
   // calc rects
   Vis:=true;
-  Sel:=false;
+  //Sel:=false;
   SetLength(SelRects,0);
   for i:=0 to GlobalCount - 1 do
   begin
@@ -413,7 +413,7 @@ begin
         SetLength(SelRects,Length(SelRects) + 1);
         SelRects[High(SelRects)]:=R;
       end;
-      Sel:=true;
+      //Sel:=true;
     end;
   end;
   // Create selection list
@@ -511,9 +511,9 @@ var
   end;
 var
   i:integer;
-  C:integer;
-  P:TD2Point;
-  Sel:TD2TreeViewItem;
+  //C:integer;
+  //P:TD2Point;
+  //Sel:TD2TreeViewItem;
 begin
   Result:=LocalRect;
   UpdateGlobalIndexes;
@@ -1021,4 +1021,4 @@ begin
   if (FContent <> nil) then
     Result:=FContent.ChildrenCount;
 end; 
-                   
+

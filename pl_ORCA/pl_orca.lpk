@@ -263,14 +263,14 @@
       </Item59>
     </Files>
     <RequiredPkgs Count="5">
-      <Item1 OSes="-* +win32 +win64">
-        <PackageName Value="pl_win_gdi"/>
+      <Item1>
+        <PackageName Value="IDEIntf"/>
       </Item1>
-      <Item2 OSes="-* +win32 +win64">
-        <PackageName Value="pl_win_directx11"/>
+      <Item2>
+        <PackageName Value="pl_win_gdi"/>
       </Item2>
       <Item3>
-        <PackageName Value="bs_ideintf"/>
+        <PackageName Value="pl_win_directx11"/>
       </Item3>
       <Item4>
         <PackageName Value="LCL"/>

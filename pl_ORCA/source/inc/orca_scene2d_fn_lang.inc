@@ -88,8 +88,8 @@ begin
 end;
 
 function Translate(const AText:WideString):WideString;
-var
-  Idx:integer;
+//var
+  //Idx:integer;
 begin
   if AText='' then
   begin

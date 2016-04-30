@@ -140,16 +140,16 @@
     </Files>
     <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="pl_orca"/>
+        <PackageName Value="IDEIntf"/>
       </Item1>
-      <Item2 OSes="-* +win32 +win64">
-        <PackageName Value="pl_win_directx11"/>
+      <Item2>
+        <PackageName Value="pl_orca"/>
       </Item2>
       <Item3>
-        <PackageName Value="pl_opengl"/>
+        <PackageName Value="pl_win_directx11"/>
       </Item3>
       <Item4>
-        <PackageName Value="bs_ideintf"/>
+        <PackageName Value="pl_opengl"/>
       </Item4>
       <Item5>
         <PackageName Value="LCL"/>
