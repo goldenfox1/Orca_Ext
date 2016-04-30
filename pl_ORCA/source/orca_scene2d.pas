@@ -7315,79 +7315,98 @@ TD2DBProgressColumn = class(TD2DBColumn)
   end;
 
 
-TD2CustomDBGridDataLink=class(TComponentDataLink)
-  published
-    property DataSource;
-  end;
+TD2CustomDBGridDataLink=class(TComponentDataLink);
+  //published
+  //  property DataSource;
+  //end;
 
 { TD2CustomDBGrid }
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
-    FDataLink: TD2CustomDBGridDataLink;
-    function GetDataSource: TDataSource;
-    procedure SetDataSource(const Value:TDataSource);
+    FDataLink: TD2CustomDBGridDataLink;  //
+    FDisableMove:boolean;                //
+    FEditValue:Variant;                  //
+    FNeedUpdate:boolean;                 //
+    function GetDataSource: TDataSource; //
+    procedure SetDataSource(const Value:TDataSource); //
+    function GetSelectedField: TField;                //
+    procedure SetSelectedField(const Value:TField);   //
+    procedure UpdateRowCount;                         //
+    procedure OnRecordChanged(Field:TField); virtual; //
+    procedure OnDataSetChanged(aDataSet: TDataSet); virtual; //
+    procedure OnEditingChanged(aDataSet: TDataSet); virtual; //
+    procedure OnUpdateData(aDataSet: TDataSet); virtual;     //
 
-    procedure OnRecordChanged(Field:TField); virtual;
-    procedure OnDataSetChanged(aDataSet: TDataSet); virtual;
-    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;
-    procedure OnDataSetClose(aDataSet: TDataSet); virtual;
-    procedure OnEditingChanged(aDataSet: TDataSet); virtual;
+    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;    //
+    procedure OnDataSetClose(aDataSet: TDataSet); virtual;   //
     procedure OnInvalidDataSet(aDataSet: TDataSet); virtual;
     procedure OnInvalidDataSource(aDataSet: TDataset); virtual;
-    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;
+    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;     //изменился состав или порядок полей в DataSet
     procedure OnNewDataSet(aDataSet: TDataset); virtual;
     procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual;
-    procedure OnUpdateData(aDataSet: TDataSet); virtual;
+
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    function  GetValue(Col, Row: integer): Variant;  override;  //
+    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
+    function  CanEditModify: Boolean;  override;  //
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //
+    procedure Reset;  override;  //
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
+    procedure Loaded;  override;  //
+    procedure DataChanged;  //
+    procedure LinkActive(Value:Boolean);  //
+    function  GetContentBounds: TD2Rect;  override;   //
+    procedure SetSelected(const Value:integer);  override;   //
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function ItemClass: string;  override;
-    property DataLink: TD2CustomDBGridDataLink read FDataLink;
+    constructor Create(AOwner: TComponent);  override;  //
+    destructor Destroy;  override;  //
+    function ItemClass: string;  override;  //
+    property DataLink: TD2CustomDBGridDataLink read FDataLink;  //
+    property SelectedField: TField read GetSelectedField write SetSelectedField;  //
   published
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataSource: TDataSource read GetDataSource write SetDataSource;   //
 end;
 
 TD2DBGrid = class(TD2CustomGrid)
   private
-    FDataLink: TD2GridDataLink;
-    FDisableMove:boolean;
-    FEditValue:Variant;
-    FNeedUpdate:boolean;
+    FDataLink: TD2GridDataLink; //
+    FDisableMove:boolean;       //
+    FEditValue:Variant;         //
+    FNeedUpdate:boolean;        //
     //FFirstRecord:integer;
-    function GetDataSource: TDataSource;
-    procedure SetDataSource(const Value:TDataSource);
-    function GetSelectedField: TField;
-    procedure SetSelectedField(const Value:TField);
-    procedure UpdateRowCount;
+    function GetDataSource: TDataSource;  //
+    procedure SetDataSource(const Value:TDataSource); //
+    function GetSelectedField: TField;  //
+    procedure SetSelectedField(const Value:TField);   //
+    procedure UpdateRowCount;  //
   protected
-    function  GetValue(Col, Row: integer): Variant;  override;
-    procedure SetValue(Col, Row:integer; const Value:Variant);  override;
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override;
-    function  CanEditModify: Boolean;  override;
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure Reset;  override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
-    procedure Loaded;  override;
-    procedure DataSetChanged;
-    procedure DataChanged;
-    procedure EditingChanged;
-    procedure RecordChanged(Field: TField);
-    procedure UpdateData;
-    procedure LinkActive(Value:Boolean);
-    function  GetContentBounds: TD2Rect;  override;
-    procedure VScrollChange(Sender: TObject);  override;
-    procedure SetSelected(const Value:integer);  override;
+    function  GetValue(Col, Row: integer): Variant;  override;  //
+    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
+    function  CanEditModify: Boolean;  override; //
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //
+    procedure Reset;  override;  //
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;   //
+    procedure Loaded;  override;  //
+    procedure DataSetChanged; //
+    procedure DataChanged;    //
+    procedure EditingChanged;  //
+    procedure RecordChanged(Field: TField); //
+    procedure UpdateData;  //
+    procedure LinkActive(Value:Boolean);    //
+    function  GetContentBounds: TD2Rect;  override;  //
+    procedure VScrollChange(Sender: TObject);  override;  //
+    procedure SetSelected(const Value:integer);  override; //
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function ItemClass: string;  override;
-    property DataLink: TD2GridDataLink read FDataLink;
-    property SelectedField: TField read GetSelectedField write SetSelectedField;
+    constructor Create(AOwner: TComponent);  override; //
+    destructor Destroy;  override;  //
+    function ItemClass: string;  override;  //
+    property DataLink: TD2GridDataLink read FDataLink;   //
+    property SelectedField: TField read GetSelectedField write SetSelectedField; //
   published
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataSource: TDataSource read GetDataSource write SetDataSource;  //
   end;
 
 {**********************************************************************

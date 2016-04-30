@@ -871,7 +871,7 @@ begin
 end;
 
 Function TD2CustomTextBox.GetText:string;
-var s: string;
+//var s: string;
 begin
   Result:=UTF8Encode(ftext);
 end;
