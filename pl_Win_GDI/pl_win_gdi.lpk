@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="pl_Win_GDI"/>
+    <Author Value="PilotLogic Software House"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="source"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/$(LCLWidgetType)"/>
+      </SearchPaths>
+      <Parsing>
+        <Style Value="1"/>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+          <CStyleOperator Value="False"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+    </CompilerOptions>
+    <Description Value="Windows GDI+ Library for CodeTyphon Studio"/>
+    <Version Major="5" Minor="2" Release="1"/>
+    <Files Count="4">
+      <Item1>
+        <Filename Value="source\GDICONST.pas"/>
+        <UnitName Value="GDICONST"/>
+      </Item1>
+      <Item2>
+        <Filename Value="source\GDIPAPI.pas"/>
+        <UnitName Value="GDIPAPI"/>
+      </Item2>
+      <Item3>
+        <Filename Value="source\GDIPOBJ.pas"/>
+        <UnitName Value="GDIPOBJ"/>
+      </Item3>
+      <Item4>
+        <Filename Value="source\GDIPUTIL.pas"/>
+        <UnitName Value="GDIPUTIL"/>
+      </Item4>
+    </Files>
+    <RequiredPkgs Count="2">
+      <Item1>
+        <PackageName Value="pl_win_directx"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="FCL"/>
+      </Item2>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

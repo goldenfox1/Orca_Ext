@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="pl_Win_DirectX11"/>
+    <Author Value="PilotLogic Software House"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <IncludeFiles Value="source"/>
+        <OtherUnitFiles Value="source"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/$(LCLWidgetType)"/>
+      </SearchPaths>
+      <Parsing>
+        <Style Value="1"/>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+          <CStyleOperator Value="False"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+    </CompilerOptions>
+    <Description Value="Windows DirectX 10 and 11 Library  for CodeTyphon Studio"/>
+    <Version Major="5" Minor="2" Release="1"/>
+    <Files Count="11">
+      <Item1>
+        <Filename Value="source\D2D1.pas"/>
+        <UnitName Value="D2D1"/>
+      </Item1>
+      <Item2>
+        <Filename Value="source\D3D10.pas"/>
+        <UnitName Value="D3D10"/>
+      </Item2>
+      <Item3>
+        <Filename Value="source\D3D10_1.pas"/>
+        <UnitName Value="D3D10_1"/>
+      </Item3>
+      <Item4>
+        <Filename Value="source\D3D11.pas"/>
+        <UnitName Value="D3D11"/>
+      </Item4>
+      <Item5>
+        <Filename Value="source\D3DCommon.pas"/>
+        <UnitName Value="D3DCommon"/>
+      </Item5>
+      <Item6>
+        <Filename Value="source\D3DCompiler.pas"/>
+        <UnitName Value="D3DCompiler"/>
+      </Item6>
+      <Item7>
+        <Filename Value="source\D3DX10.pas"/>
+        <UnitName Value="D3DX10"/>
+      </Item7>
+      <Item8>
+        <Filename Value="source\D3DX11.pas"/>
+        <UnitName Value="D3DX11"/>
+      </Item8>
+      <Item9>
+        <Filename Value="source\DirectWrite.pas"/>
+        <UnitName Value="DirectWrite"/>
+      </Item9>
+      <Item10>
+        <Filename Value="source\DXGI.pas"/>
+        <UnitName Value="DXGI"/>
+      </Item10>
+      <Item11>
+        <Filename Value="source\DXGITypes.pas"/>
+        <UnitName Value="DXGITypes"/>
+      </Item11>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

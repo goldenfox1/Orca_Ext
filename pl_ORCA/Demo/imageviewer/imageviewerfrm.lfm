@@ -1,0 +1,191 @@
+object frmImageViewer: TfrmImageViewer
+  Left = 401
+  Height = 729
+  Top = 152
+  Width = 728
+  Caption = 'ORCA ImageViewer'
+  ClientHeight = 729
+  ClientWidth = 728
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 729
+    Top = 0
+    Width = 728
+    Align = alClient
+    Style = ModernStyle
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 728
+      Height = 729
+      Margins.Rect = '(9,9,9,9)'
+      HitTest = False
+      object Layout1: TD2Layout
+        Align = vaTop
+        Position.Point = '(9,9)'
+        RotateAngle = 0
+        Width = 710
+        Height = 37
+        object Button1: TD2Button
+          Position.Point = '(133,3)'
+          RotateAngle = 0
+          Width = 226
+          Height = 26
+          OnClick = Button1Click
+          TabOrder = 0
+          StaysPressed = False
+          IsPressed = False
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          Text = 'Select Image Folder by openning file...'
+        end
+        object Label1: TD2Label
+          Position.Point = '(1,6)'
+          RotateAngle = 0
+          Width = 128
+          Height = 19
+          TabOrder = 1
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignNear
+          VertTextAlign = d2TextAlignCenter
+          Text = 'TD2HorzImageListBox:'
+        end
+        object StyleBox: TD2PopupBox
+          Position.Point = '(489,6)'
+          RotateAngle = 0
+          Width = 104.000007629395
+          Height = 21
+          TabOrder = 2
+          StaysPressed = False
+          IsPressed = False
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          Items.strings = (
+            'Dark'
+            'Modern'
+            'Vista'
+          )
+          ItemIndex = 1
+          OnChange = StyleBoxChange
+        end
+        object Label3: TD2Label
+          Position.Point = '(425,3)'
+          RotateAngle = 0
+          Width = 57
+          Height = 26
+          TabOrder = 3
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignFar
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Style:'
+        end
+      end
+      object Label2: TD2Label
+        Position.Point = '(11,164)'
+        RotateAngle = 0
+        Width = 243
+        Height = 17
+        TabOrder = 1
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'TD2Image and TD2ReflectionEffect'
+      end
+      object imageList: TD2HorzImageListBox
+        Align = vaTop
+        Position.Point = '(9,46)'
+        RotateAngle = 0
+        Width = 710
+        Height = 116
+        Resource = 'listboxstyle'
+        TabOrder = 2
+        ItemWidth = 110.000007629395
+        ItemHeight = 0
+        OnChange = imageListChange
+        ShowFileName = True
+      end
+      object imageList2: TD2ImageListBox
+        Align = vaLeft
+        Position.Point = '(9,180)'
+        RotateAngle = 0
+        Width = 243
+        Height = 435
+        Padding.Rect = '(0,18,0,5)'
+        Resource = 'listboxstyle'
+        TabOrder = 3
+        Columns = 2
+        ItemIndex = 0
+        ItemWidth = 0
+        ItemHeight = 100
+        OnChange = imageList2Change
+        ShowFileName = False
+      end
+      object imageList3: TD2HorzImageListBox
+        Align = vaBottom
+        Cursor = crHandPoint
+        Position.Point = '(9,620)'
+        RotateAngle = 0
+        Width = 710
+        Height = 100
+        Resource = 'ListBoxStyle'
+        TabOrder = 4
+        MouseTracking = True
+        ShowScrollBars = False
+        ItemWidth = 110
+        ItemHeight = 0
+        OnChange = imageList3Change
+        ShowFileName = False
+      end
+      object Label4: TD2Label
+        Position.Point = '(259,562)'
+        RotateAngle = 0
+        Width = 437
+        Height = 15
+        TabOrder = 5
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'MouseTracking=true  ShowScrollBars=false   Animated=true'
+      end
+      object ImageViewer1: TD2ImageViewer
+        Align = vaClient
+        Cursor = crHandPoint
+        Position.Point = '(257,180)'
+        RotateAngle = 0
+        Width = 462
+        Height = 415
+        Padding.Rect = '(5,18,0,25)'
+        Resource = 'framedscrollboxstyle'
+        TabOrder = 6
+        MouseTracking = True
+        Bitmap.PNG = {
+          89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4
+          89000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+          00097048597300000EC300000EC301C76FA8640000000B494441541857636000
+          020000050001AAD5C8510000000049454E44AE426082
+        }
+        BitmapScale = 1
+      end
+    end
+  end
+  object OpenPictureDialog1: TOpenDialog
+    left = 348
+    top = 64
+  end
+  object ModernStyle: TD2Resources
+    FileName = '..\..\styles\modern.d2style'
+    left = 548
+    top = 52
+  end
+  object VistaStyle: TD2Resources
+    FileName = '..\..\styles\vista.d2style'
+    left = 578
+    top = 52
+  end
+end

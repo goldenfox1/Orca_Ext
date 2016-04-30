@@ -1,0 +1,267 @@
+object Form11: TForm11
+  Left = 452
+  Height = 387
+  Top = 237
+  Width = 634
+  ActiveControl = d2Scene1
+  Caption = 'ORCA 2D Shapes,Stroke,Fill ...'
+  ClientHeight = 387
+  ClientWidth = 634
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 387
+    Top = 0
+    Width = 634
+    Align = alClient
+    Style = ModernStyle
+    ActiveControl = TrackBar1
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 634
+      Height = 387
+      HitTest = False
+      object Ellipse1: TD2Ellipse
+        Position.Point = '(19,111)'
+        RotateAngle = 0
+        Width = 141
+        Height = 148
+        Fill.Color = '#FFEC7E7E'
+        Stroke.Color = '#FF848484'
+        StrokeThickness = 4
+      end
+      object Rectangle1: TD2Rectangle
+        Position.Point = '(199,111)'
+        RotateAngle = 0
+        Width = 142
+        Height = 148
+        OnMouseUp = Rectangle1MouseUp
+        Fill.Color = '#FF626CFB'
+        Stroke.Color = '#FF828282'
+        StrokeThickness = 4
+        xRadius = 13
+        yRadius = 13
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object Text1: TD2Text
+          Align = vaCenter
+          Position.Point = '(46,49)'
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          HitTest = False
+          Font.Size = 11.0000009536743
+          Text = 'Fill...'
+        end
+      end
+      object Path1: TD2Path
+        Position.Point = '(369,111)'
+        RotateAngle = 0
+        Width = 153
+        Height = 148
+        Fill.Color = '#FF15C54D'
+        Stroke.Color = '#FF828282'
+        StrokeThickness = 4
+        Data.Path = {
+          16000000000000002449384437E5974301000000CC4E25440ABDA64301000000
+          C26B1C44D469CB430100000088B408449F1CC143010000006179ED43D755D443
+          01000000E9A0D343EED2B443010000009741AB43D640AF43010000005DDEA843
+          8291864301000000267B8B43A7A9544301000000A376A143C306104301000000
+          24499A43BC297F4201000000D43DC0432A6B084201000000E903D24326FB1CC2
+          010000005B72F943042395C10100000006B10E443F5B64C201000000419D1B44
+          3BE0BD4001000000EBCC2F448B9988410100000087FE3044B2E3C44201000000
+          23B03F4436EB1A430100000065B234441B8E5F43010000002449384437E59743
+          030000000000000000000000
+        }
+      end
+      object TrackBar1: TD2TrackBar
+        Position.Point = '(14,33)'
+        RotateAngle = 0
+        Width = 100
+        Height = 15
+        TabOrder = 3
+        Min = 1
+        Max = 9
+        Frequency = 0
+        Orientation = d2Horizontal
+        Value = 4
+        Tracking = True
+        OnChange = TrackBar1Change
+      end
+      object Label1: TD2Label
+        Position.Point = '(14,9)'
+        RotateAngle = 0
+        Width = 95
+        Height = 19
+        TabOrder = 4
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Stroke Thickness:'
+      end
+      object PopupBox1: TD2PopupBox
+        Position.Point = '(244,28)'
+        RotateAngle = 0
+        Width = 115
+        Height = 21
+        TabOrder = 6
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Items.strings = (
+          'Flat Cap'
+          'Round Cap'
+        )
+        ItemIndex = 0
+        OnChange = PopupBox1Change
+      end
+      object PopupBox2: TD2PopupBox
+        Position.Point = '(130,28)'
+        RotateAngle = 0
+        Width = 100
+        Height = 21
+        TabOrder = 5
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Items.strings = (
+          'Solid'
+          'Dash'
+          'Dot'
+          'DashDot'
+          'DashDotDot'
+        )
+        ItemIndex = 0
+        OnChange = PopupBox2Change
+      end
+      object Label2: TD2Label
+        Position.Point = '(130,9)'
+        RotateAngle = 0
+        Width = 100
+        Height = 19
+        TabOrder = 7
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Dash Style:'
+      end
+      object Label3: TD2Label
+        Position.Point = '(244,9)'
+        RotateAngle = 0
+        Width = 115
+        Height = 19
+        TabOrder = 8
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Cap Style:'
+      end
+      object PopupBox3: TD2PopupBox
+        Position.Point = '(375,28)'
+        RotateAngle = 0
+        Width = 100
+        Height = 21
+        TabOrder = 9
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Items.strings = (
+          'Miter Join'
+          'Round Join'
+          'Bevel Join'
+        )
+        ItemIndex = 0
+        OnChange = PopupBox3Change
+      end
+      object Label4: TD2Label
+        Position.Point = '(375,9)'
+        RotateAngle = 0
+        Width = 100
+        Height = 19
+        TabOrder = 12
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Join Style:'
+      end
+      object PopupBox4: TD2PopupBox
+        Position.Point = '(130,61)'
+        RotateAngle = 0
+        Width = 100
+        Height = 21
+        TabOrder = 11
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Items.strings = (
+          '50%'
+          '75%'
+          '100%'
+          '125%'
+          '150%'
+        )
+        ItemIndex = 2
+        OnChange = PopupBox4Change
+      end
+      object Label5: TD2Label
+        Position.Point = '(28,61)'
+        RotateAngle = 0
+        Width = 96
+        Height = 19
+        TabOrder = 13
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignFar
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Scene Scale:'
+      end
+      object StyleBox: TD2PopupBox
+        Position.Point = '(491,28)'
+        RotateAngle = 0
+        Width = 104.000007629395
+        Height = 21
+        TabOrder = 10
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Items.strings = (
+          'Dark'
+          'Modern'
+          'Air'
+        )
+        ItemIndex = 1
+        OnChange = StyleBoxChange
+      end
+      object Label6: TD2Label
+        Position.Point = '(491,9)'
+        RotateAngle = 0
+        Width = 104.000007629395
+        Height = 19
+        TabOrder = 14
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Style:'
+      end
+    end
+  end
+  object ModernStyle: TD2Resources
+    left = 548
+    top = 52
+  end
+  object VistaStyle: TD2Resources
+    left = 578
+    top = 52
+  end
+end

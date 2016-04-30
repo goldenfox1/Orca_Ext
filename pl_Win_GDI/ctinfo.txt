@@ -1,0 +1,7 @@
+=============================================
+  CodeTyphon Studio
+  Typhon IDE
+  Information file
+=============================================
+
+pl_Win_GDI Ver 5.2.1

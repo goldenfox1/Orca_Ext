@@ -1,0 +1,580 @@
+object frmAniDemo: TfrmAniDemo
+  Left = 397
+  Height = 632
+  Top = 208
+  Width = 807
+  Caption = 'ORCA Animation'
+  ClientHeight = 632
+  ClientWidth = 807
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 632
+    Top = 0
+    Width = 807
+    Align = alClient
+    Quality = d3HighQuality
+    FillColor = '#FF303030'
+    AmbientColor = '#FF202020'
+    RealTimeSleep = 0
+    DesignCameraPos = -20
+    DesignCameraZAngle = 1.19993329048157
+    DesignCameraXAngle = 27.1999568939209
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object Sphere1: TD3Sphere
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-0.32915,-3.50746,6.38636)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FFE5F34C'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object Text1: TD3Text
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          Position.Point = '(0,0,0.9)'
+          Locked = False
+          Width = 2.45654344558716
+          Height = 0.100000001490116
+          Depth = 0.438712596893311
+          DesignHide = False
+          Opacity = 1
+          ZWrite = False
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Material.Diffuse = '#FFD50BE3'
+          Material.Ambient = '#FF303030'
+          Material.Lighting = False
+          Material.BitmapMode = d3TexModulate
+          Material.BitmapTileX = 1
+          Material.BitmapTileY = 1
+          Material.BitmapRect.left = 0
+          Material.BitmapRect.top = 0
+          Material.BitmapRect.right = 0
+          Material.BitmapRect.bottom = 0
+          Material.FillMode = d3Solid
+          Font.Style = d3FontRegular
+          Text = 'Trigger IsMouseOver'
+          Quanternion = '(0,0,0,1)'
+        end
+        object ColorAnimation1: TD3ColorAnimation
+          Duration = 0.299999982118607
+          Delay = 0
+          Inverse = False
+          Loop = False
+          Trigger = 'IsMouseOver=true'
+          StartValue = '#FFE5F34C'
+          StartFromCurrent = False
+          StopValue = '#FFCD540D'
+          PropertyName = 'Material.Diffuse'
+        end
+        object ColorAnimation2: TD3ColorAnimation
+          Duration = 0.299999982118607
+          Delay = 0
+          Inverse = False
+          Loop = False
+          Trigger = 'IsMouseOver=false'
+          StartValue = '#FFCD540D'
+          StartFromCurrent = False
+          StopValue = '#FFE5F34C'
+          PropertyName = 'Material.Diffuse'
+        end
+      end
+      object Light1: TD3Light
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(4.32654,-8.53681,1.90735E-6)'
+        RotateAngle.Point = '(21.9872,0,24.5871)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        LightType = d3LightDirectional
+        Quanternion = '(-0.18633,0.0406,-0.20901,0.95914)'
+      end
+      object Sphere2: TD3Sphere
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-3.93942,-3.92127,6.31928)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF2D1679'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object Text2: TD3Text
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          Position.Point = '(0,0,1)'
+          Locked = False
+          Width = 1.96419525146484
+          Height = 0.100000001490116
+          Depth = 0.603928089141846
+          DesignHide = False
+          Opacity = 1
+          ZWrite = False
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Material.Diffuse = '#FFE5D12F'
+          Material.Ambient = '#FF303030'
+          Material.Lighting = False
+          Material.BitmapMode = d3TexModulate
+          Material.BitmapTileX = 1
+          Material.BitmapTileY = 1
+          Material.BitmapRect.left = 0
+          Material.BitmapRect.top = 0
+          Material.BitmapRect.right = 0
+          Material.BitmapRect.bottom = 0
+          Material.FillMode = d3Solid
+          Font.Style = d3FontRegular
+          Text = 'Loop'
+          Quanternion = '(0,0,0,1)'
+        end
+        object FloatAnimation1: TD3FloatAnimation
+          AutoReverse = True
+          Duration = 0.5
+          Delay = 0
+          Enabled = True
+          Inverse = False
+          Loop = True
+          StartValue = 1
+          StartFromCurrent = False
+          StopValue = 0.5
+          PropertyName = 'Opacity'
+        end
+      end
+      object StrokeCube1: TD3StrokeCube
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-5.24065,-4.35532,2.65377)'
+        Locked = False
+        Width = 1.97964477539063
+        Height = 1
+        Depth = 1.4833927154541
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF5BEACD'
+        Material.Ambient = '#FF303030'
+        Material.Lighting = False
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object FloatAnimation2: TD3FloatAnimation
+          AnimationType = d2AnimationInOut
+          AutoReverse = True
+          Duration = 2
+          Delay = 0
+          Enabled = True
+          Interpolation = d2InterpolationBack
+          Inverse = False
+          Loop = True
+          StartValue = 0
+          StartFromCurrent = False
+          StopValue = 360
+          PropertyName = 'RotateAngle.Y'
+        end
+        object Cube1: TD3Cube
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          Locked = False
+          Width = 1.79507827758789
+          Height = 1
+          Depth = 1.28311777114868
+          DesignHide = False
+          Opacity = 1
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Material.Diffuse = '#FF437410'
+          Material.Ambient = '#FF303030'
+          Material.BitmapMode = d3TexModulate
+          Material.BitmapTileX = 1
+          Material.BitmapTileY = 1
+          Material.BitmapRect.left = 0
+          Material.BitmapRect.top = 0
+          Material.BitmapRect.right = 0
+          Material.BitmapRect.bottom = 0
+          Material.FillMode = d3Solid
+          Quanternion = '(0,0,0,1)'
+        end
+      end
+      object Text3: TD3Text
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-4.95787,-4.49298,4.33981)'
+        Locked = False
+        Width = 2.50778412818909
+        Height = 0.100000001490116
+        Depth = 0.465808868408203
+        DesignHide = False
+        Opacity = 1
+        ZWrite = False
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF12DE4B'
+        Material.Ambient = '#FF303030'
+        Material.Lighting = False
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Font.Style = d3FontRegular
+        Text = 'Back Interpolation and AutoReverse'
+        Quanternion = '(0,0,0,1)'
+      end
+      object Plane1: TD3Plane
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(4.56539,-0.60363,-9.53674E-7)'
+        Locked = False
+        Width = 6.21469068527222
+        Height = 7.48085260391235
+        Depth = 0.00999999977648258
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FFE23A17'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object Text4: TD3Text
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          Position.Point = '(-0.12427,-3.6399,0.463)'
+          Locked = False
+          Width = 4.00370645523071
+          Height = 0.100000001490116
+          Depth = 0.559980392456055
+          DesignHide = False
+          Opacity = 1
+          ZWrite = False
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Material.Diffuse = '#FF1E1E1E'
+          Material.Ambient = '#FF303030'
+          Material.Lighting = False
+          Material.BitmapMode = d3TexModulate
+          Material.BitmapTileX = 1
+          Material.BitmapTileY = 1
+          Material.BitmapRect.left = 0
+          Material.BitmapRect.top = 0
+          Material.BitmapRect.right = 0
+          Material.BitmapRect.bottom = 0
+          Material.FillMode = d3Solid
+          Font.Style = d3FontRegular
+          Text = 'Elastic Interpolation'
+          Quanternion = '(0,0,0,1)'
+        end
+      end
+      object RoundCube1: TD3RoundCube
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(4.53502,-0.59462,5)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF0989ED'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object FloatAnimation3: TD3FloatAnimation
+          AnimationType = d2AnimationOut
+          AutoReverse = True
+          Duration = 1
+          Delay = 0
+          Enabled = True
+          Interpolation = d2InterpolationElastic
+          Inverse = False
+          Loop = True
+          StartValue = 5
+          StartFromCurrent = False
+          StopValue = 0.5
+          PropertyName = 'Position.Z'
+        end
+      end
+      object Text3D1: TD3Text3D
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-0.29463,-6.15147,-3.8147E-6)'
+        RotateAngle.Point = '(-55.0119,0,0)'
+        Locked = False
+        Width = 5.65073394775391
+        Height = 1.61937773227692
+        Depth = 0.299999982118607
+        DesignHide = False
+        Opacity = 1
+        TwoSide = True
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FFE78BE9'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Flatness = 2
+        Sides = [d3Shape3DFront, d3Shape3DBack, d3Shape3DLeft]
+        MaterialBack.Diffuse = '#FF66B479'
+        MaterialBack.Ambient = '#FF303030'
+        MaterialBack.BitmapMode = d3TexModulate
+        MaterialBack.BitmapTileX = 1
+        MaterialBack.BitmapTileY = 1
+        MaterialBack.BitmapRect.left = 0
+        MaterialBack.BitmapRect.top = 0
+        MaterialBack.BitmapRect.right = 0
+        MaterialBack.BitmapRect.bottom = 0
+        MaterialBack.FillMode = d3Solid
+        MaterialLeft.Diffuse = '#FF66B479'
+        MaterialLeft.Ambient = '#FF303030'
+        MaterialLeft.BitmapMode = d3TexModulate
+        MaterialLeft.BitmapTileX = 1
+        MaterialLeft.BitmapTileY = 1
+        MaterialLeft.BitmapRect.left = 0
+        MaterialLeft.BitmapRect.top = 0
+        MaterialLeft.BitmapRect.right = 0
+        MaterialLeft.BitmapRect.bottom = 0
+        MaterialLeft.FillMode = d3Solid
+        Font.Style = d3FontRegular
+        Text = 'Text3D'
+        Quanternion = '(0.46184,0,0,0.88696)'
+        object FloatAnimation4: TD3FloatAnimation
+          AnimationType = d2AnimationInOut
+          AutoReverse = True
+          Duration = 1
+          Delay = 0
+          Enabled = True
+          Interpolation = d2InterpolationExponential
+          Inverse = False
+          Loop = True
+          StartValue = 0
+          StartFromCurrent = False
+          StopValue = 360
+          PropertyName = 'RotateAngle.X'
+        end
+      end
+      object GUIText1: TD3GUIText
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(403.5,612,0)'
+        Locked = False
+        Width = 807
+        Height = 40
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerBottom
+        Font.Size = 15
+        Font.Style = d2FontBold
+        Fill.Color = '#FFFBC688'
+        Text = 'All animation made in CodeTyphon IDE. No lines in code.'
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+      end
+      object ObjectLayer1: TD3ObjectLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(-2.67032,0.92512,-1.90735E-6)'
+        RotateAngle.Point = '(66.3306,0,0.26737)'
+        Locked = False
+        Width = 7.55679225921631
+        Height = 1
+        Depth = 6.729172706604
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Fill.Style = d2BrushNone
+        Resolution = 50
+        Quanternion = '(-0.54705,0.00128,-0.00195,0.83709)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 378
+          Height = 336
+          object Background1: TD2Background
+            Align = vaClient
+            RotateAngle = 0
+            Width = 378
+            Height = 336
+            TabOrder = 0
+            Fill.Color = '#73184789'
+            Fill.Style = d2BrushSolid
+          end
+          object Path1: TD2Path
+            Position.Point = '(33.749,34.084)'
+            RotateAngle = 0
+            Width = 317.182556152344
+            Height = 292.920654296875
+            Fill.Style = d2BrushNone
+            StrokeThickness = 2
+            Data.Path = {
+              19000000000000007B147640A2455E4002000000E5D09A4054E3C44102000000
+              CBA1D14166E60B420200000000802B42F0A7F64102000000FABE8B42CFF7C041
+              02000000F252A4420E2D1CC102000000B633954202AB15C202000000CFF77F42
+              986E98C2020000009CC4BD41C5A0BAC202000000426015C164FBA0C202000000
+              811551C21D5A7FC20200000002AB8DC2426001C10200000048E15CC28B6C1642
+              020000009A990FC23749BC42020000000C02C341DF8FEC42020000007D3F9342
+              C1CAC04202000000689104436D678C420200000089811D43A470FDC002000000
+              3DAA05439A198FC202000000CBA1D34289E111C302000000986ECA412F1D31C3
+              02000000105820C2140E12C3020000004260BFC2C14AEFC202000000DBF901C3
+              CD4C5CC202000000C520FEC2FCA93741
+            }
+          end
+          object RoundRect1: TD2RoundRect
+            Position.Point = '(121.917,198.544)'
+            RotateAngle = 0
+            Width = 130
+            Height = 25
+            object PathAni: TD2PathAnimation
+              AnimationType = d2AnimationInOut
+              AutoReverse = True
+              Enabled = True
+              Delay = 0
+              Duration = 3
+              Interpolation = d2InterpolationCubic
+              Loop = True
+              Path.Path = {
+                19000000000000007B147640A2455E4002000000E5D09A4054E3C44102000000
+                CBA1D14166E60B420200000000802B42F0A7F64102000000FABE8B42CFF7C041
+                02000000F252A4420E2D1CC102000000B633954202AB15C202000000CFF77F42
+                986E98C2020000009CC4BD41C5A0BAC202000000426015C164FBA0C202000000
+                811551C21D5A7FC20200000002AB8DC2426001C10200000048E15CC28B6C1642
+                020000009A990FC23749BC42020000000C02C341DF8FEC42020000007D3F9342
+                C1CAC04202000000689104436D678C420200000089811D43A470FDC002000000
+                3DAA05439A198FC202000000CBA1D34289E111C302000000986ECA412F1D31C3
+                02000000105820C2140E12C3020000004260BFC2C14AEFC202000000DBF901C3
+                CD4C5CC202000000C520FEC2FCA93741
+              }
+            end
+            object Text5: TD2Text
+              Align = vaCenter
+              Position.Point = '(8,0)'
+              RotateAngle = 0
+              Width = 113.651184082031
+              Height = 26.0210723876953
+              Font.Size = 11.0000009536743
+              Text = 'Path Animation'
+            end
+          end
+        end
+      end
+    end
+  end
+end

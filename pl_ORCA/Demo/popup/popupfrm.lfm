@@ -1,0 +1,269 @@
+object frmPopup: TfrmPopup
+  Left = 462
+  Height = 394
+  Top = 253
+  Width = 675
+  Caption = 'ORCA 2D Popup'
+  ClientHeight = 394
+  ClientWidth = 675
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 394
+    Top = 0
+    Width = 675
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 675
+      Height = 394
+      Popup = ContextPopup
+      HelpType = htKeyword
+      object RoundRect1: TD2RoundRect
+        Align = vaBottomLeft
+        Position.Point = '(5,299)'
+        RotateAngle = 0
+        Width = 230
+        Height = 89
+        OnMouseUp = RoundRect1MouseUp
+        object Text1: TD2Text
+          Align = vaCenter
+          Position.Point = '(47,19)'
+          RotateAngle = 0
+          Width = 136
+          Height = 50
+          HitTest = False
+          Text = 'Click to show|hide Popup with TD2Path and bitmap effect. Placement = Bottom'
+        end
+      end
+      object RoundRect2: TD2RoundRect
+        Position.Point = '(5,4)'
+        RotateAngle = 0
+        Width = 230
+        Height = 89
+        OnMouseUp = RoundRect2MouseUp
+      end
+      object Text3: TD2Text
+        Position.Point = '(292,259)'
+        RotateAngle = 0
+        Width = 270
+        Height = 77
+        HitTest = False
+        Font.ClearType = False
+        Text = 'TD2Popup can be easy hidden in design-time. Just set DesignHide=true, or select "Hide in Design-Time" in object context menu.'
+        object ShadowEffect1: TD2ShadowEffect
+          Distance = 3
+          Direction = 45
+          Softness = 0.300000011920929
+          Opacity = 0.600000023841858
+          ShadowColor = '#FF000000'
+        end
+      end
+      object Text5: TD2Text
+        Position.Point = '(307,14)'
+        RotateAngle = 0
+        Width = 243
+        Height = 64
+        HitTest = False
+        Font.ClearType = False
+        Text = 'When StayOpen=false, TD2Popup window closed when popup focus changed.'
+      end
+      object Popup1: TD2Popup
+        Position.Point = '(39,247)'
+        RotateAngle = 0
+        Width = 179
+        Height = 174
+        HelpType = htKeyword
+        TabOrder = 4
+        IsOpen = False
+        HorizontalOffset = 0
+        VerticalOffset = 0
+        PlacementTarget = RoundRect1
+        StaysOpen = True
+        DragWithParent = True
+        object Path1: TD2CalloutPanel
+          Align = vaClient
+          Position.Point = '(9,1)'
+          RotateAngle = 0
+          Width = 161
+          Height = 164
+          Padding.Rect = '(9,1,9,9)'
+          Opacity = 0.899999976158142
+          HelpType = htKeyword
+          TabOrder = 0
+          CalloutWidth = 23
+          CalloutLength = 22
+          CalloutOffset = 0
+          object Text2: TD2Text
+            Align = vaCenter
+            Position.Point = '(7,40)'
+            RotateAngle = 0
+            Width = 146
+            Height = 83
+            Fill.Color = '#FFEAEAEA'
+            Text = 'DragWithParent = true StaysOpen=true'
+          end
+          object ShadowEffect2: TD2ShadowEffect
+            Distance = 3
+            Direction = 45
+            Softness = 0.300000011920929
+            Opacity = 0.600000023841858
+            ShadowColor = '#FF000000'
+          end
+        end
+      end
+      object Popup3: TD2Popup
+        Position.Point = '(-28,0)'
+        RotateAngle = 0
+        Width = 265
+        Height = 232
+        HitTest = False
+        HelpType = htKeyword
+        TabOrder = 5
+        IsOpen = False
+        HorizontalOffset = 0
+        VerticalOffset = 0
+        Placement = d2PlacementLeftCenter
+        PlacementTarget = RoundRect2
+        object ShowAnimation: TD2FloatAnimation
+          Delay = 0
+          Duration = 0.5
+          Trigger = 'IsOpen=true'
+          StartValue = 0
+          StopValue = 1
+          PropertyName = 'Opacity'
+        end
+        object HideAnimation: TD2FloatAnimation
+          Delay = 0
+          Duration = 0.5
+          Trigger = 'IsOpen=false'
+          StartValue = 1
+          StopValue = 0.00100000004749745
+          PropertyName = 'Opacity'
+        end
+        object CalloutRect1: TD2CalloutPanel
+          Align = vaClient
+          Position.Point = '(12,12)'
+          RotateAngle = 0
+          Width = 235
+          Height = 202
+          Padding.Rect = '(12,12,18,18)'
+          HitTest = False
+          HelpType = htKeyword
+          TabOrder = 0
+          CalloutWidth = 23
+          CalloutLength = 11
+          CalloutPosition = d2CalloutRight
+          CalloutOffset = 0
+          object HudStringListBox1: TD2HudStringListBox
+            Align = vaLeft
+            Position.Point = '(2,2)'
+            RotateAngle = 0
+            Width = 127
+            Height = 198
+            Padding.Rect = '(2,2,2,2)'
+            HelpType = htKeyword
+            Resource = 'hudlistboxstyle'
+            TabOrder = 0
+            ItemIndex = 0
+            ItemWidth = 0
+            ItemHeight = 19
+            Font.ClearType = False
+            Items.strings = (
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+              'list box item'
+            )
+          end
+          object Text4: TD2Text
+            Position.Point = '(129,62)'
+            RotateAngle = 0
+            Width = 102
+            Height = 74
+            Font.ClearType = False
+            Text = 'StaysOpen=false'
+          end
+          object ShadowEffect4: TD2ShadowEffect
+            Distance = 3
+            Direction = 45
+            Softness = 0.300000011920929
+            Opacity = 0.600000023841858
+            ShadowColor = '#FF000000'
+          end
+        end
+      end
+      object Text6: TD2Text
+        Position.Point = '(313,129)'
+        RotateAngle = 0
+        Width = 243
+        Height = 64
+        HitTest = False
+        Popup = Popup1
+        Fill.Color = '#FFE7E7E7'
+        Text = 'Right click on the client area to show Context Popup. Context Popup can be set using Popup property of control.'
+      end
+      object ContextPopup: TD2Popup
+        Position.Point = '(393,117)'
+        RotateAngle = 0
+        Width = 233
+        Height = 140
+        HelpType = htKeyword
+        TabOrder = 7
+        IsOpen = False
+        HorizontalOffset = 0
+        VerticalOffset = 0
+        Placement = d2PlacementMouseCenter
+        PlacementTarget = RoundRect1
+        StaysOpen = True
+        DragWithParent = True
+        object CalloutRect2: TD2CalloutPanel
+          Align = vaClient
+          Position.Point = '(9,1)'
+          RotateAngle = 0
+          Width = 215
+          Height = 130
+          Padding.Rect = '(9,1,9,9)'
+          Opacity = 0.949999988079071
+          HelpType = htKeyword
+          TabOrder = 0
+          CalloutWidth = 23
+          CalloutLength = 11
+          CalloutOffset = 0
+          object ShadowEffect6: TD2ShadowEffect
+            Distance = 3
+            Direction = 45
+            Softness = 0.300000011920929
+            Opacity = 0.600000023841858
+            ShadowColor = '#FF000000'
+          end
+        end
+      end
+    end
+  end
+end

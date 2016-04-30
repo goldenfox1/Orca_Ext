@@ -1,0 +1,347 @@
+object Form7: TForm7
+  Left = 547
+  Height = 403
+  Top = 226
+  Width = 382
+  BorderStyle = bsNone
+  Caption = 'ORCA 2D Clock'
+  ClientHeight = 403
+  ClientWidth = 382
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 403
+    Top = 0
+    Width = 382
+    Align = alClient
+    Transparency = True
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = False
+    object Root1: TD2Layout
+      RotateAngle = 0
+      Width = 382
+      Height = 403
+      Margins.Rect = '(20,20,20,20)'
+      object clockLayout: TD2Layout
+        Position.Point = '(45,41)'
+        RotateAngle = 0
+        Width = 207.999984741211
+        Height = 207.999984741211
+        object clockFace: TD2Ellipse
+          Align = vaClient
+          RotateAngle = 0
+          Width = 207.999984741211
+          Height = 207.999984741211
+          Margins.Rect = '(9,9,9,9)'
+          HitTest = False
+          Fill.Style = d2BrushGradient
+          Fill.Gradient.Points = <          
+            item
+              Color = '#FF4C4C4C'
+              Offset = 0
+            end          
+            item
+              Color = '#FF000000'
+              Offset = 1
+            end>
+          Fill.Gradient.Style = d2LinearGradient
+          Fill.Gradient.StopPosition.Point = '(1,1)'
+          Stroke.Style = d2BrushNone
+          object Ellipse2: TD2Ellipse
+            Align = vaClient
+            Position.Point = '(9,9)'
+            RotateAngle = 0
+            Width = 189.999984741211
+            Height = 189.999984741211
+            Margins.Rect = '(3,3,3,3)'
+            HitTest = False
+            Fill.Style = d2BrushGradient
+            Fill.Gradient.Points = <            
+              item
+                Color = '#FF4C4C4C'
+                Offset = 0
+              end            
+              item
+                Color = '#FF000000'
+                Offset = 1
+              end>
+            Fill.Gradient.Style = d2LinearGradient
+            Fill.Gradient.StartPosition.Point = '(1,1)'
+            Fill.Gradient.StopPosition.Point = '(0.100,0.100)'
+            Stroke.Style = d2BrushNone
+            object Ellipse3: TD2Ellipse
+              Align = vaClient
+              Position.Point = '(3,3)'
+              RotateAngle = 0
+              Width = 183.999984741211
+              Height = 183.999984741211
+              HitTest = False
+              Fill.Style = d2BrushGradient
+              Fill.Gradient.Points = <              
+                item
+                  Color = '#FFFFFFFF'
+                  Offset = 0.00361010828055441
+                end              
+                item
+                  Color = '#FF808080'
+                  Offset = 1
+                end>
+              Fill.Gradient.Style = d2LinearGradient
+              Fill.Gradient.StopPosition.Point = '(1,1)'
+              Stroke.Style = d2BrushNone
+              object Ellipse9: TD2Ellipse
+                Align = vaClient
+                Position.Point = '(8,8)'
+                RotateAngle = 0
+                Width = 167.999984741211
+                Height = 167.999984741211
+                Padding.Rect = '(8,8,8,8)'
+                HitTest = False
+                Fill.Style = d2BrushNone
+                Stroke.Color = '#4B1B5D10'
+                object Text1: TD2Text
+                  Position.Point = '(72,8)'
+                  RotateAngle = 0
+                  Width = 26
+                  Height = 17
+                  HitTest = False
+                  Font.Size = 13
+                  Font.Style = d2FontBold
+                  Text = '12'
+                end
+                object Text2: TD2Text
+                  Position.Point = '(147,78)'
+                  RotateAngle = 0
+                  Width = 20
+                  Height = 17
+                  HitTest = False
+                  Font.Size = 13
+                  Font.Style = d2FontBold
+                  Text = '3'
+                end
+                object Text3: TD2Text
+                  Position.Point = '(74,147)'
+                  RotateAngle = 0
+                  Width = 24
+                  Height = 17
+                  HitTest = False
+                  Font.Size = 13
+                  Font.Style = d2FontBold
+                  Text = '6'
+                end
+                object Text4: TD2Text
+                  Position.Point = '(4,78)'
+                  RotateAngle = 0
+                  Width = 17
+                  Height = 17
+                  HitTest = False
+                  Font.Size = 13
+                  Font.Style = d2FontBold
+                  Text = '9'
+                end
+              end
+              object Rectangle1: TD2Rectangle
+                Position.Point = '(74,40)'
+                RotateAngle = 0
+                Width = 38
+                Height = 21
+                HitTest = False
+                Fill.Color = '#FFE1E1E1'
+                Stroke.Color = '#FF909090'
+                xRadius = 2
+                yRadius = 2
+                Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                object dayText: TD2Text
+                  Align = vaClient
+                  Position.Point = '(2,2)'
+                  RotateAngle = 0
+                  Width = 34
+                  Height = 17
+                  Padding.Rect = '(2,2,2,2)'
+                  HitTest = False
+                  Font.Size = 11.0000009536743
+                  Font.Style = d2FontBold
+                  Text = '2'
+                end
+              end
+              object Layout1: TD2Layout
+                Position.Point = '(58,128)'
+                RotateAngle = 0
+                Width = 73
+                Height = 18
+                Margins.Rect = '(2,2,2,2)'
+                Opacity = 0.5
+              end
+              object Ellipse5: TD2Ellipse
+                Position.Point = '(4,90)'
+                RotateAngle = 0
+                Width = 8
+                Height = 8
+                Fill.Color = '#FFFCBFBF'
+              end
+              object Ellipse6: TD2Ellipse
+                Position.Point = '(171,90)'
+                RotateAngle = 0
+                Width = 8
+                Height = 8
+                Fill.Color = '#FFF78C8C'
+              end
+              object Ellipse7: TD2Ellipse
+                Position.Point = '(88,4)'
+                RotateAngle = 0
+                Width = 8
+                Height = 8
+                Fill.Color = '#FFF99C9C'
+              end
+              object Ellipse8: TD2Ellipse
+                Position.Point = '(90,171)'
+                RotateAngle = 0
+                Width = 8
+                Height = 8
+                Fill.Color = '#FFF79696'
+              end
+            end
+          end
+          object clockShadow: TD2ShadowEffect
+            Distance = 3
+            Direction = 45
+            Softness = 1
+            Opacity = 0.899999976158142
+            ShadowColor = '#FF000000'
+          end
+        end
+        object btnClose: TD2Ellipse
+          Position.Point = '(156,12)'
+          RotateAngle = 0
+          Width = 30
+          Height = 30
+          Opacity = 0.00100000004749745
+          OnMouseUp = btnCloseMouseUp
+          StrokeThickness = 2
+          object FloatAnimation1: TD2FloatAnimation
+            Delay = 0
+            Duration = 0.200000002980232
+            Trigger = 'IsMouseOver=true'
+            StartValue = 0.00100000004749745
+            StopValue = 1
+            PropertyName = 'Opacity'
+          end
+          object FloatAnimation2: TD2FloatAnimation
+            Delay = 0
+            Duration = 0.200000002980232
+            Trigger = 'IsMouseOver=false'
+            StartValue = 1
+            StopValue = 0.00100000004749745
+            PropertyName = 'Opacity'
+          end
+          object Path2: TD2Path
+            Align = vaClient
+            Position.Point = '(8,8)'
+            RotateAngle = 0
+            Locked = True
+            Width = 14
+            Height = 14
+            Padding.Rect = '(8,8,8,8)'
+            HitTest = False
+            Data.Path = {
+              10000000000000000000A0C00000704101000000000070410000A0C001000000
+              000048420000F041010000000000AA420000A0C0010000000000D24200007041
+              0100000000008C4200004842010000000000D2420000B442010000000000AA42
+              0000DC4202000000E9DE3442756F8C420200000055557D42ABAAB04202000000
+              000048420000964201000000000070410000DC42010000000000A0C00000B442
+              010000000000F04100005C42010000000000A0C0000070410300000000000000
+              00000000
+            }
+          end
+        end
+        object btnRotate: TD2Ellipse
+          Position.Point = '(17,16)'
+          RotateAngle = 0
+          Width = 30
+          Height = 30
+          Opacity = 0.00100000004749745
+          OnMouseDown = btnRotateMouseDown
+          OnMouseMove = btnRotateMouseMove
+          StrokeThickness = 2
+        end
+        object btnScale: TD2Ellipse
+          Position.Point = '(158,156)'
+          RotateAngle = 0
+          Width = 30
+          Height = 30
+          Opacity = 0.00100000004749745
+          OnMouseDown = btnScaleMouseDown
+          OnMouseMove = btnScaleMouseMove
+          StrokeThickness = 2
+        end
+        object Ellipse4: TD2Ellipse
+          Align = vaCenter
+          Position.Point = '(88,88)'
+          RotateAngle = 0
+          Width = 30
+          Height = 30
+          Fill.Color = '#FFB2B2B2'
+          Stroke.Style = d2BrushNone
+          object minutArrow: TD2Rectangle
+            Position.Point = '(13,-45)'
+            RotateAngle = -90
+            RotateCenter.Point = '(0.500,0.705)'
+            Width = 4
+            Height = 85
+            Fill.Color = '#FF088831'
+            Stroke.Style = d2BrushNone
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object hourArrow: TD2Rectangle
+            Position.Point = '(12,-40)'
+            RotateAngle = 0
+            RotateCenter.Point = '(0.500,0.680)'
+            Width = 6
+            Height = 80
+            Fill.Color = '#FF990505'
+            Stroke.Style = d2BrushNone
+            xRadius = 2
+            yRadius = 2
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object secondArrow: TD2Path
+            Position.Point = '(13,-63)'
+            RotateAngle = 90
+            RotateCenter.Point = '(0.500,0.710)'
+            Width = 4
+            Height = 110.000007629395
+            Fill.Color = '#FF0A28A6'
+            Stroke.Style = d2BrushNone
+            Data.Path = {
+              0500000000000000B76D0343E5840B44010000000000A043139C894301000000
+              0000FA432E170A4401000000B76D0343E5840B44030000000000000000000000
+            }
+          end
+          object Ellipse1: TD2Ellipse
+            Align = vaCenter
+            Position.Point = '(9,9)'
+            RotateAngle = 0
+            Width = 11.9999990463257
+            Height = 11.9999990463257
+            Fill.Color = '#FF171717'
+            Stroke.Style = d2BrushNone
+          end
+        end
+      end
+    end
+  end
+  object Timer1: TTimer
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 8
+    top = 150
+  end
+end

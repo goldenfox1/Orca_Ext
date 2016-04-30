@@ -1,0 +1,104 @@
+object frmMain: TfrmMain
+  Left = 450
+  Height = 594
+  Top = 197
+  Width = 716
+  ActiveControl = d3Scene1
+  Caption = 'ORCA Frame Demo'
+  ClientHeight = 594
+  ClientWidth = 716
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 594
+    Top = 0
+    Width = 716
+    Align = alClient
+    Quality = d3LowQuality
+    FillColor = '#FF303030'
+    AmbientColor = '#FF202020'
+    RealTimeSleep = 0
+    DesignCameraPos = -20
+    DesignCameraZAngle = 0
+    DesignCameraXAngle = 20
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object GUIText1: TD3GUIText
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(358,19,0)'
+        Locked = False
+        Width = 716
+        Height = 38.0000076293945
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerTop
+        Fill.Color = '#FFF6B85A'
+        Text = 'This demo show how to use another TD2Scene inside ObjectLayer, like VCL TFrame.  ObjectLayer have Frame object linked to another TD2Scene object.'
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+      end
+      object ObjectLayer1: TD3ObjectLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(1.01762,-2.5937,0.76336)'
+        RotateAngle.Point = '(0,0,-22.45)'
+        Locked = False
+        Width = 16.3407611846924
+        Height = 1
+        Depth = 9.80665969848633
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Fill.Style = d2BrushNone
+        Resolution = 50
+        Quanternion = '(0,0,0.19466,0.98087)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 817
+          Height = 490
+          object Frame1: TD2Frame
+            Align = vaClient
+            Position.Point = '(3,3)'
+            RotateAngle = 0
+            Width = 811
+            Height = 484
+            Padding.Rect = '(3,3,3,3)'
+            SceneObject = Form6.d2Scene1
+          end
+        end
+      end
+    end
+  end
+end

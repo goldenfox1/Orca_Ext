@@ -1,0 +1,65 @@
+#   File generated automatically by Typhon IDE Package Manager
+#
+#   Makefile.fpc for pl_orca3d 5.6.1
+#
+#   This file was generated on 24/10/2015
+
+[package]
+name=pl_orca3d
+version=5.6.1
+
+[compiler]
+unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM)
+unitdir=source source/inc source/editors ../../packager/units/$(CPU_TARGET)-$(OS_TARGET) ../BaseUtils/lib/$(CPU_TARGET)-$(OS_TARGET) ../pl_Win_DirectX/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../../lcl/units/$(CPU_TARGET)-$(OS_TARGET) ../pl_Win_GDI/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../../lcl/units/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../BaseControls/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../lz_Images/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../pl_Win_DirectX11/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../BaseIdeintf/units/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../pl_OpenGL/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) ../pl_ORCA/lib/$(CPU_TARGET)-$(OS_TARGET)/$(LCL_PLATFORM) .
+includedir=source source/inc source/editors
+options= -MDelphi -Sgi -O1 -g -gl -l -vewnhibq -dLCL -dLCL$(LCL_PLATFORM) $(DBG_OPTIONS)
+
+[target]
+units=pl_orca3d.pas
+
+[clean]
+files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(PPUEXT)) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(RSTEXT)) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*.lfm) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*.res) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*.compiled) \
+      $(wildcard *$(OEXT)) $(wildcard *$(PPUEXT)) $(wildcard *$(RSTEXT))
+
+[prerules]
+# LCL Platform
+ifndef LCL_PLATFORM
+ifeq ($(OS_TARGET),win32)
+LCL_PLATFORM=win32
+else
+ifeq ($(OS_TARGET),win64)
+LCL_PLATFORM=win32
+else
+ifeq ($(OS_TARGET),darwin)
+LCL_PLATFORM=carbon
+else
+LCL_PLATFORM=gtk2
+endif
+endif
+endif
+endif
+export LCL_PLATFORM
+
+DBG_OPTIONS=
+ifeq ($(OS_TARGET),darwin)
+DBG_OPTIONS=-gw
+endif
+
+[rules]
+.PHONY: cleartarget compiled all
+
+cleartarget:
+        -$(DEL) $(COMPILER_UNITTARGETDIR)/pl_orca3d$(PPUEXT)
+
+compiled:
+        $(CPPROG) -f Makefile.compiled $(COMPILER_UNITTARGETDIR)/pl_orca3d.compiled
+
+all: cleartarget $(COMPILER_UNITTARGETDIR) pl_orca3d$(PPUEXT) compiled
+
+distclean: clean
+        ${DELTREE} lib/*

@@ -1,0 +1,806 @@
+object frmMaterialDesign: TfrmMaterialDesign
+  Left = 488
+  Height = 422
+  Top = 212
+  Width = 640
+  BorderStyle = bsDialog
+  Caption = 'Material Designer'
+  ClientHeight = 422
+  ClientWidth = 640
+  Color = 3158064
+  Font.CharSet = RUSSIAN_CHARSET
+  Font.Color = 10526880
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 422
+    Top = 0
+    Width = 640
+    Align = alClient
+    Quality = d3HighQuality
+    FillColor = '#FF020202'
+    AmbientColor = '#FF202020'
+    RealTimeSleep = 0
+    DesignCameraPos = -20
+    DesignCameraZAngle = -45.5999526977539
+    DesignCameraXAngle = 16.10009765625
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object GUIImage1: TD3GUIImage
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(470,181,0)'
+        Locked = True
+        Width = 340
+        Height = 362
+        Depth = 3
+        DesignHide = False
+        Opacity = 1
+        TwoSide = True
+        LayerAlign = d3LayerClient
+        Bitmap.PNG = {
+          FFD8FFE000104A46494600010101006000600000FFDB00430001010101010101
+          0101010101010101010101010101010101010101010101010101010101010101
+          01010101010101010101010101010101010101010101010101FFDB0043010101
+          0101010101010101010101010101010101010101010101010101010101010101
+          010101010101010101010101010101010101010101010101010101010101FFC0
+          00110800C0014003012200021101031101FFC4001F0000010501010101010100
+          000000000000000102030405060708090A0BFFC400B510000201030302040305
+          0504040000017D01020300041105122131410613516107227114328191A10823
+          42B1C11552D1F02433627282090A161718191A25262728292A3435363738393A
+          434445464748494A535455565758595A636465666768696A737475767778797A
+          838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7
+          B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE1E2E3E4E5E6E7E8E9EAF1
+          F2F3F4F5F6F7F8F9FAFFC4001F01000301010101010101010100000000000001
+          02030405060708090A0BFFC400B5110002010204040304070504040001027700
+          0102031104052131061241510761711322328108144291A1B1C109233352F015
+          6272D10A162434E125F11718191A262728292A35363738393A43444546474849
+          4A535455565758595A636465666768696A737475767778797A82838485868788
+          898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4
+          C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE2E3E4E5E6E7E8E9EAF2F3F4F5F6F7F8F9
+          FAFFDA000C03010002110311003F00FE5DEB3E8AD0A002B3E8AD0A002B3E8AD0
+          A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8A
+          D0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E
+          8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B
+          3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A00
+          2B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A
+          002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD
+          0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8
+          AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3
+          E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002
+          B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A0
+          02B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0
+          A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8A
+          D0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E
+          8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B
+          3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A00
+          2B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A
+          002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD
+          0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8
+          AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3
+          E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002
+          B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A0
+          02B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0
+          A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8A
+          D0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E
+          8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B
+          3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A00
+          2B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A
+          002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD
+          0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8
+          AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3
+          E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002
+          B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A0
+          02B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0
+          A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8A
+          D0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E
+          8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B
+          3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A00
+          2B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A
+          002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD
+          0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8
+          AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A002B3E8AD0A00FFD9
+        }
+        WrapMode = d2ImageTile
+        Quanternion = '(0,0,0,1)'
+      end
+      object Light1: TD3Light
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(6.18068,-11.8728,2.14413)'
+        RotateAngle.Point = '(21.8747,0,-23.6022)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        LightType = d3LightDirectional
+        Quanternion = '(-0.15153,0.08274,0.20804,0.96276)'
+      end
+      object Cube1: TD3Cylinder
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(1.51941,7.35516,3.9327)'
+        Locked = False
+        Width = 5
+        Height = 5
+        Depth = 5
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF6839E4'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object rotate: TD3FloatAnimation
+          Duration = 10
+          Delay = 0
+          Enabled = True
+          Inverse = False
+          Loop = True
+          StartValue = 0
+          StartFromCurrent = False
+          StopValue = 360
+          PropertyName = 'RotateAngle.Z'
+        end
+      end
+      object GUIObjectLayer1: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(150,211,0)'
+        Locked = False
+        Width = 300
+        Height = 422
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerMostLeft
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 300
+          Height = 422
+          Margins.Rect = '(9,9,9,9)'
+          object Background1: TD2Background
+            Align = vaContents
+            RotateAngle = 0
+            Width = 300
+            Height = 422
+            HitTest = False
+            TabOrder = 0
+          end
+          object checkLight: TD2CheckBox
+            Align = vaTop
+            Position.Point = '(79,195.910)'
+            RotateAngle = 0
+            Width = 212
+            Height = 19
+            Padding.Rect = '(70,9,0,0)'
+            TabOrder = 1
+            IsChecked = False
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignNear
+            Text = 'Light Enabled'
+            OnChange = checkLightChange
+          end
+          object popupModulation: TD2CompoundPopupBox
+            Align = vaTop
+            Position.Point = '(9,14)'
+            RotateAngle = 0
+            Width = 282
+            Height = 21
+            Padding.Rect = '(0,5,0,0)'
+            TabOrder = 2
+            TextLabel.Align = vaLeft
+            TextLabel.RotateAngle = 0
+            TextLabel.Locked = True
+            TextLabel.Width = 70
+            TextLabel.Height = 21
+            TextLabel.Padding.Rect = '(0,0,5,0)'
+            TextLabel.TabOrder = 0
+            TextLabel.Font.Size = 11.0000009536743
+            TextLabel.TextAlign = d2TextAlignFar
+            TextLabel.VertTextAlign = d2TextAlignCenter
+            TextLabel.Text = 'Modulation:'
+            TextLabel.WordWrap = False
+            PopupBox.Align = vaVertCenter
+            PopupBox.RotateAngle = 0
+            PopupBox.Locked = True
+            PopupBox.Width = 207
+            PopupBox.Height = 21
+            PopupBox.TabOrder = 0
+            PopupBox.StaysPressed = False
+            PopupBox.IsPressed = False
+            PopupBox.Font.Size = 11.0000009536743
+            PopupBox.TextAlign = d2TextAlignCenter
+            PopupBox.Items.strings = (
+              'Modulate'
+              'Replace'
+            )
+            PopupBox.ItemIndex = 0
+            Value = 0
+            OnChange = rgModulationClick
+          end
+          object popupFillMode: TD2CompoundPopupBox
+            Align = vaTop
+            Position.Point = '(9,40)'
+            RotateAngle = 0
+            Width = 282
+            Height = 21
+            Padding.Rect = '(0,5,0,0)'
+            TabOrder = 3
+            TextLabel.Align = vaLeft
+            TextLabel.RotateAngle = 0
+            TextLabel.Locked = True
+            TextLabel.Width = 70
+            TextLabel.Height = 21
+            TextLabel.Padding.Rect = '(0,0,5,0)'
+            TextLabel.TabOrder = 0
+            TextLabel.Font.Size = 11.0000009536743
+            TextLabel.TextAlign = d2TextAlignFar
+            TextLabel.VertTextAlign = d2TextAlignCenter
+            TextLabel.Text = 'Fill Mode:'
+            TextLabel.WordWrap = False
+            PopupBox.Align = vaVertCenter
+            PopupBox.RotateAngle = 0
+            PopupBox.Locked = True
+            PopupBox.Width = 207
+            PopupBox.Height = 21
+            PopupBox.TabOrder = 0
+            PopupBox.StaysPressed = False
+            PopupBox.IsPressed = False
+            PopupBox.Font.Size = 11.0000009536743
+            PopupBox.TextAlign = d2TextAlignCenter
+            PopupBox.Items.strings = (
+              'Solid'
+              'Wire Frame'
+            )
+            PopupBox.ItemIndex = 0
+            Value = 0
+            OnChange = rgFillModeClick
+          end
+          object popupShadeMode: TD2CompoundPopupBox
+            Align = vaTop
+            Position.Point = '(9,66)'
+            RotateAngle = 0
+            Width = 282
+            Height = 21
+            Padding.Rect = '(0,5,0,0)'
+            TabOrder = 4
+            TextLabel.Align = vaLeft
+            TextLabel.RotateAngle = 0
+            TextLabel.Locked = True
+            TextLabel.Width = 70
+            TextLabel.Height = 21
+            TextLabel.Padding.Rect = '(0,0,5,0)'
+            TextLabel.TabOrder = 0
+            TextLabel.Font.Size = 11.0000009536743
+            TextLabel.TextAlign = d2TextAlignFar
+            TextLabel.VertTextAlign = d2TextAlignCenter
+            TextLabel.Text = 'Shade Mode:'
+            TextLabel.WordWrap = False
+            PopupBox.Align = vaVertCenter
+            PopupBox.RotateAngle = 0
+            PopupBox.Locked = True
+            PopupBox.Width = 207
+            PopupBox.Height = 21
+            PopupBox.TabOrder = 0
+            PopupBox.StaysPressed = False
+            PopupBox.IsPressed = False
+            PopupBox.Font.Size = 11.0000009536743
+            PopupBox.TextAlign = d2TextAlignCenter
+            PopupBox.Items.strings = (
+              'Flat'
+              'Gouraud'
+            )
+            PopupBox.ItemIndex = 0
+            Value = 0
+            OnChange = rgShadeModeClick
+          end
+          object GroupBox1: TD2GroupBox
+            Align = vaTop
+            Position.Point = '(9,87)'
+            RotateAngle = 0
+            Width = 284
+            Height = 99.9098815917969
+            Margins.Rect = '(4,15,10,4)'
+            Padding.Rect = '(0,0,-2,0)'
+            TabOrder = 5
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            Text = 'Texture:'
+            object popupBitmap: TD2CompoundPopupBox
+              Align = vaTop
+              Position.Point = '(4,20)'
+              RotateAngle = 0
+              Width = 200
+              Height = 21
+              Padding.Rect = '(0,5,70,0)'
+              TabOrder = 0
+              TextLabel.Align = vaLeft
+              TextLabel.RotateAngle = 0
+              TextLabel.Locked = True
+              TextLabel.Width = 70
+              TextLabel.Height = 21
+              TextLabel.Padding.Rect = '(0,0,5,0)'
+              TextLabel.TabOrder = 0
+              TextLabel.Font.Size = 11.0000009536743
+              TextLabel.TextAlign = d2TextAlignFar
+              TextLabel.VertTextAlign = d2TextAlignCenter
+              TextLabel.Text = 'Bitmap:'
+              TextLabel.WordWrap = False
+              PopupBox.Align = vaVertCenter
+              PopupBox.RotateAngle = 0
+              PopupBox.Locked = True
+              PopupBox.Width = 125
+              PopupBox.Height = 21
+              PopupBox.TabOrder = 0
+              PopupBox.StaysPressed = False
+              PopupBox.IsPressed = False
+              PopupBox.Font.Size = 11.0000009536743
+              PopupBox.TextAlign = d2TextAlignCenter
+              PopupBox.ItemIndex = -1
+              Value = -1
+              OnChange = cbBitmapListChange
+            end
+            object trackTileX: TD2CompoundTrackBar
+              Align = vaTop
+              Position.Point = '(4,44)'
+              RotateAngle = 0
+              Width = 270
+              Height = 20
+              Padding.Rect = '(0,3,0,0)'
+              TabOrder = 1
+              DecimalDigits = 1
+              TextLabel.Align = vaLeft
+              TextLabel.RotateAngle = 0
+              TextLabel.Locked = True
+              TextLabel.Width = 70
+              TextLabel.Height = 20
+              TextLabel.Padding.Rect = '(0,0,5,0)'
+              TextLabel.TabOrder = 0
+              TextLabel.Font.Size = 11.0000009536743
+              TextLabel.TextAlign = d2TextAlignFar
+              TextLabel.VertTextAlign = d2TextAlignCenter
+              TextLabel.Text = 'Tile X:'
+              TextLabel.WordWrap = False
+              TrackBar.Align = vaVertCenter
+              TrackBar.Position.Point = '(0,2)'
+              TrackBar.RotateAngle = 0
+              TrackBar.Locked = True
+              TrackBar.Width = 145
+              TrackBar.Height = 15
+              TrackBar.TabOrder = 0
+              TrackBar.Min = 0.200000002980232
+              TrackBar.Max = 10
+              TrackBar.Frequency = 0.200000002980232
+              TrackBar.Orientation = d2Horizontal
+              TrackBar.Value = 1
+              TrackBar.Tracking = True
+              ValueLabel.Align = vaVertCenter
+              ValueLabel.Position.Point = '(5,2)'
+              ValueLabel.RotateAngle = 0
+              ValueLabel.Locked = True
+              ValueLabel.Width = 45
+              ValueLabel.Height = 15
+              ValueLabel.Padding.Rect = '(5,0,0,0)'
+              ValueLabel.TabOrder = 0
+              ValueLabel.Font.Size = 11.0000009536743
+              ValueLabel.TextAlign = d2TextAlignCenter
+              ValueLabel.VertTextAlign = d2TextAlignCenter
+              ValueLabel.Text = '1.0 '
+              OnChange = tbBitmaptileXChange
+            end
+            object trackTileY: TD2CompoundTrackBar
+              Align = vaTop
+              Position.Point = '(4,67)'
+              RotateAngle = 0
+              Width = 270
+              Height = 20
+              Padding.Rect = '(0,3,0,0)'
+              TabOrder = 2
+              DecimalDigits = 1
+              TextLabel.Align = vaLeft
+              TextLabel.RotateAngle = 0
+              TextLabel.Locked = True
+              TextLabel.Width = 70
+              TextLabel.Height = 20
+              TextLabel.Padding.Rect = '(0,0,5,0)'
+              TextLabel.TabOrder = 0
+              TextLabel.Font.Size = 11.0000009536743
+              TextLabel.TextAlign = d2TextAlignFar
+              TextLabel.VertTextAlign = d2TextAlignCenter
+              TextLabel.Text = 'Tile Y:'
+              TextLabel.WordWrap = False
+              TrackBar.Align = vaVertCenter
+              TrackBar.Position.Point = '(0,2)'
+              TrackBar.RotateAngle = 0
+              TrackBar.Locked = True
+              TrackBar.Width = 145
+              TrackBar.Height = 15
+              TrackBar.TabOrder = 0
+              TrackBar.Min = 0.200000002980232
+              TrackBar.Max = 10
+              TrackBar.Frequency = 0.200000002980232
+              TrackBar.Orientation = d2Horizontal
+              TrackBar.Value = 1
+              TrackBar.Tracking = True
+              ValueLabel.Align = vaVertCenter
+              ValueLabel.Position.Point = '(5,2)'
+              ValueLabel.RotateAngle = 0
+              ValueLabel.Locked = True
+              ValueLabel.Width = 45
+              ValueLabel.Height = 15
+              ValueLabel.Padding.Rect = '(5,0,0,0)'
+              ValueLabel.TabOrder = 0
+              ValueLabel.Font.Size = 11.0000009536743
+              ValueLabel.TextAlign = d2TextAlignCenter
+              ValueLabel.VertTextAlign = d2TextAlignCenter
+              ValueLabel.Text = '1.0 '
+              OnChange = tbBitmaptileYChange
+            end
+            object btnAddBitmap: TD2Button
+              Position.Point = '(211,20)'
+              RotateAngle = 0
+              Width = 63.0000038146973
+              Height = 21
+              OnClick = btnAddBitmapClick
+              TabOrder = 3
+              StaysPressed = False
+              IsPressed = False
+              TextAlign = d2TextAlignCenter
+              Text = 'Add...'
+            end
+          end
+          object GroupBox2: TD2GroupBox
+            Align = vaTop
+            Position.Point = '(9,214.910)'
+            RotateAngle = 0
+            Width = 282
+            Height = 199.090103149414
+            Margins.Rect = '(10,15,10,4)'
+            TabOrder = 6
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            Text = 'Colors:'
+            object ColorBox1: TD2ColorBox
+              Position.Point = '(10,161.090)'
+              RotateAngle = 0
+              Width = 130
+              Height = 18.9999389648438
+              TabOrder = 0
+            end
+            object colorList: TD2StringListBox
+              Align = vaTop
+              Position.Point = '(10,15)'
+              RotateAngle = 0
+              Width = 262
+              Height = 25.090087890625
+              Resource = 'listboxstyle'
+              TabOrder = 1
+              Columns = 2
+              HideSelectionUnfocused = False
+              ItemIndex = 1
+              ItemWidth = 0
+              ItemHeight = 19
+              OnChange = colorListChange
+              Items.strings = (
+                'Ambient'
+                'Diffuse'
+              )
+            end
+            object ColorQuad1: TD2ColorQuad
+              Position.Point = '(10,40.090)'
+              RotateAngle = 0
+              Width = 128.999969482422
+              Height = 119.999992370605
+              TabOrder = 2
+              Hue = 0
+              Lum = 0
+              Sat = 0
+              Alpha = 1
+              ColorBox = ColorBox1
+              OnChange = ColorQuad1Change
+            end
+            object ColorPicker1: TD2ColorPicker
+              Position.Point = '(140,40.090)'
+              RotateAngle = 0
+              Width = 19
+              Height = 119.999992370605
+              TabOrder = 3
+              Hue = 0
+              ColorQuad = ColorQuad1
+            end
+            object Layout1: TD2Layout
+              Align = vaRight
+              Position.Point = '(166.000,40.090)'
+              RotateAngle = 0
+              Width = 106.000015258789
+              Height = 155.000015258789
+              object numR: TD2NumberBox
+                Align = vaTop
+                Position.Point = '(20,0)'
+                RotateAngle = 0
+                Width = 86.0000152587891
+                Height = 21
+                Padding.Rect = '(20,0,0,5)'
+                TabOrder = 0
+                Font.Size = 11.0000009536743
+                ReadOnly = False
+                OnChange = numRChange
+                Min = 0
+                Max = 255.000015258789
+                Value = 0
+                ValueType = d2ValueInteger
+                HorzIncrement = 1
+                VertIncrement = 5
+                object Label1: TD2Label
+                  Align = vaLeft
+                  Position.Point = '(-20,0)'
+                  RotateAngle = 0
+                  Width = 30
+                  Height = 21
+                  Padding.Rect = '(-20,0,0,0)'
+                  TabOrder = 0
+                  Font.Size = 11.0000009536743
+                  TextAlign = d2TextAlignNear
+                  VertTextAlign = d2TextAlignCenter
+                  Text = 'R:'
+                end
+              end
+              object numB: TD2NumberBox
+                Align = vaTop
+                Position.Point = '(20,52)'
+                RotateAngle = 0
+                Width = 86.0000152587891
+                Height = 21
+                Padding.Rect = '(20,0,0,5)'
+                TabOrder = 1
+                Font.Size = 11.0000009536743
+                ReadOnly = False
+                OnChange = numRChange
+                Min = 0
+                Max = 255.000015258789
+                Value = 0
+                ValueType = d2ValueInteger
+                HorzIncrement = 1
+                VertIncrement = 5
+                object TD2Label
+                  Align = vaLeft
+                  Position.Point = '(-20,0)'
+                  RotateAngle = 0
+                  Width = 30
+                  Height = 21
+                  Padding.Rect = '(-20,0,0,0)'
+                  TabOrder = 0
+                  Font.Size = 11.0000009536743
+                  TextAlign = d2TextAlignNear
+                  VertTextAlign = d2TextAlignCenter
+                  Text = 'B:'
+                end
+              end
+              object numG: TD2NumberBox
+                Align = vaTop
+                Position.Point = '(20,26)'
+                RotateAngle = 0
+                Width = 86.0000152587891
+                Height = 21
+                Padding.Rect = '(20,0,0,5)'
+                TabOrder = 2
+                Font.Size = 11.0000009536743
+                ReadOnly = False
+                OnChange = numRChange
+                Min = 0
+                Max = 255.000015258789
+                Value = 0
+                ValueType = d2ValueInteger
+                HorzIncrement = 1
+                VertIncrement = 5
+                object TD2Label
+                  Align = vaLeft
+                  Position.Point = '(-20,0)'
+                  RotateAngle = 0
+                  Width = 30
+                  Height = 21
+                  Padding.Rect = '(-20,0,0,0)'
+                  TabOrder = 0
+                  Font.Size = 11.0000009536743
+                  TextAlign = d2TextAlignNear
+                  VertTextAlign = d2TextAlignCenter
+                  Text = 'G:'
+                end
+              end
+              object Label2: TD2Label
+                Align = vaTop
+                Position.Point = '(0,104)'
+                RotateAngle = 0
+                Width = 106.000015258789
+                Height = 15
+                TabOrder = 3
+                Font.Size = 11.0000009536743
+                TextAlign = d2TextAlignNear
+                VertTextAlign = d2TextAlignCenter
+                Text = 'RGBA:'
+              end
+              object textRGBA: TD2TextBox
+                Align = vaTop
+                Position.Point = '(0,119)'
+                RotateAngle = 0
+                Width = 106.000015258789
+                Height = 21
+                TabOrder = 4
+                Font.Size = 11.0000009536743
+                ReadOnly = False
+                OnChange = textRGBAChange
+                Password = False
+                Text = 'TextBox'
+              end
+              object numA: TD2NumberBox
+                Align = vaTop
+                Position.Point = '(20,78)'
+                RotateAngle = 0
+                Width = 86.0000152587891
+                Height = 21
+                Padding.Rect = '(20,0,0,5)'
+                TabOrder = 5
+                Font.Size = 11.0000009536743
+                ReadOnly = False
+                OnChange = numRChange
+                Min = 0
+                Max = 255.000015258789
+                Value = 0
+                ValueType = d2ValueInteger
+                HorzIncrement = 1
+                VertIncrement = 5
+                object TD2Label
+                  Align = vaLeft
+                  Position.Point = '(-20,0)'
+                  RotateAngle = 0
+                  Width = 30
+                  Height = 21
+                  Padding.Rect = '(-20,0,0,0)'
+                  TabOrder = 0
+                  Font.Size = 11.0000009536743
+                  TextAlign = d2TextAlignNear
+                  VertTextAlign = d2TextAlignCenter
+                  Text = 'A:'
+                end
+              end
+            end
+          end
+        end
+      end
+      object Cube2: TD3Cube
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(4.75667,2.91498,-1.15283)'
+        Locked = False
+        Width = 4
+        Height = 4
+        Depth = 4
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FFC7D5B4'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object FloatAnimation1: TD3FloatAnimation
+          Duration = 10
+          Delay = 0
+          Enabled = True
+          Inverse = False
+          Loop = True
+          StartValue = 0
+          StartFromCurrent = False
+          StopValue = 360
+          PropertyName = 'RotateAngle.Z'
+        end
+      end
+      object modalLayout: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(470,392,0)'
+        Locked = False
+        Width = 340
+        Height = 60
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        Visible = False
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerBottom
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root3: TD2Layout
+          RotateAngle = 0
+          Width = 340
+          Height = 60
+          object Background2: TD2Background
+            Align = vaContents
+            RotateAngle = 0
+            Width = 340
+            Height = 60
+            TabOrder = 0
+            object Button1: TD2Button
+              Position.Point = '(220,19)'
+              RotateAngle = 0
+              Width = 80
+              Height = 22
+              OnClick = Button1Click
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              ModalResult = 1
+              TextAlign = d2TextAlignCenter
+              Text = 'OK'
+            end
+            object Button2: TD2Button
+              Position.Point = '(71,19)'
+              RotateAngle = 0
+              Width = 80
+              Height = 22
+              TabOrder = 1
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              ModalResult = 2
+              TextAlign = d2TextAlignCenter
+              Text = 'Cancel'
+            end
+          end
+        end
+      end
+    end
+  end
+end

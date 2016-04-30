@@ -1,0 +1,83 @@
+object frmChild: TfrmChild
+  Left = 495
+  Height = 531
+  Top = 233
+  Width = 619
+  Caption = 'ORCA 2D Frame Demo'
+  ClientHeight = 531
+  ClientWidth = 619
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  LCLVersion = '1.1'
+  object frameScene1: TD2Scene
+    Left = 0
+    Height = 531
+    Top = 0
+    Width = 619
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 619
+      Height = 531
+      Margins.Rect = '(5,5,5,5)'
+      Fill.Color = '#00E0E0E0'
+      Fill.Style = d2BrushSolid
+      object Rectangle1: TD2Rectangle
+        Align = vaClient
+        Position.Point = '(5,48)'
+        RotateAngle = 0
+        Width = 609
+        Height = 478
+        Fill.Color = '#A95375F2'
+        StrokeThickness = 3
+        xRadius = 9
+        yRadius = 9
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object HudTrackBar1: TD2HudTrackBar
+          Align = vaCenter
+          Position.Point = '(247,231)'
+          RotateAngle = 0
+          Width = 114
+          Height = 15
+          TabOrder = 0
+          Min = 0
+          Max = 1
+          Frequency = 0.00999999977648258
+          Orientation = d2Horizontal
+          Value = 0
+          Tracking = True
+        end
+        object Label2: TD2Label
+          Align = vaCenter
+          Position.Point = '(152,251)'
+          RotateAngle = 0
+          Width = 304
+          Height = 55
+          Padding.Rect = '(0,80,0,0)'
+          TabOrder = 1
+          BindingSource = HudTrackBar1
+          Font.Size = 18
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = '0'
+        end
+      end
+      object Label1: TD2Label
+        Align = vaTop
+        Position.Point = '(5,5)'
+        RotateAngle = 0
+        Width = 609
+        Height = 43
+        TabOrder = 1
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'This is TD2Scene in TD2Scene using TD2Frame. To allow transparency, set second TD2Scene.Root.Fill.Color to #0'
+      end
+    end
+  end
+end

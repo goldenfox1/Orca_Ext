@@ -1,0 +1,131 @@
+object Form16: TForm16
+  Left = 374
+  Height = 566
+  Top = 218
+  Width = 870
+  Caption = 'ORCA 2D Char to Path'
+  ClientHeight = 566
+  ClientWidth = 870
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 566
+    Top = 0
+    Width = 870
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 870
+      Height = 566
+      object samplePath: TD2Path
+        Align = vaClient
+        Position.Point = '(400,49)'
+        RotateAngle = 0
+        Width = 451
+        Height = 498
+        Padding.Rect = '(19,49,19,19)'
+        HitTest = False
+        Fill.Color = '#FF6E6E6E'
+        Stroke.Color = '#FFCFCFCF'
+        StrokeThickness = 4
+        Data.Path = {
+          210000000000000021A0B6430E7DA04301000000EEFC8A43F853BA4301000000
+          D93EA543F40DE24301000000022B7F43F883E443010000001DCA8E437D5F0944
+          01000000C7AB3143086CFC4301000000CB81014300A00C4401000000A2058542
+          7DEF004401000000AE47E1BDFC610E44010000000CC284C27DEF004401000000
+          E30501C300A00C4401000000213031C3086CFC4301000000298C8EC37D5F0944
+          010000005CAF7EC3F883E44301000000E500A5C3F40DE243010000001BBF8AC3
+          F853BA43010000004E62B6C30E7DA043010000001BBF8AC30A87874301000000
+          A0BAA5C319C44243010000005CAF7EC3E7BB3B4301000000298C8EC310D8BD42
+          01000000213031C3EC910B4301000000E30501C33188A442010000000CC284C2
+          08AC004301000000A4701D3FCF77964201000000A205854208AC004301000000
+          CB8101433188A44201000000C7AB3143EC910B43010000001DCA8E4310D8BD42
+          01000000022B7F43E7BB3B430100000073F8A54319C4424301000000EEFC8A43
+          0A878743030000000000000000000000
+        }
+        WrapMode = d2PathFit
+      end
+      object HudButton1: TD2HudButton
+        Position.Point = '(9,5)'
+        RotateAngle = 0
+        Width = 141
+        Height = 28
+        OnClick = HudButton1Click
+        TabOrder = 1
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        Text = 'Change Font...'
+      end
+      object charMap: TD2HudListBox
+        Align = vaLeft
+        Position.Point = '(9,40)'
+        RotateAngle = 0
+        Width = 372
+        Height = 517
+        Padding.Rect = '(9,40,0,9)'
+        TabOrder = 2
+        Columns = 6
+        HideSelectionUnfocused = False
+        ItemIndex = 0
+        ItemWidth = 54
+        ItemHeight = 54
+        OnChange = charMapChange
+      end
+      object PathData: TD2HudMemo
+        Align = vaClient
+        Position.Point = '(390,40)'
+        RotateAngle = 0
+        Width = 471
+        Height = 517
+        Padding.Rect = '(9,40,9,9)'
+        Opacity = 0.5
+        TabOrder = 3
+        WordWrap = True
+        Font.Size = 11.0000009536743
+      end
+      object labelSample: TD2Label
+        Position.Point = '(160,5)'
+        RotateAngle = 0
+        Width = 217
+        Height = 28
+        TabOrder = 4
+        Font.Size = 12
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Webdings'
+      end
+      object HudButton2: TD2HudButton
+        Position.Point = '(390,5)'
+        RotateAngle = 0
+        Width = 124
+        Height = 28
+        OnClick = HudButton2Click
+        TabOrder = 5
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Copy to Clipboard'
+      end
+    end
+  end
+  object FontDialog1: TFontDialog
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 584
+    top = 14
+  end
+end

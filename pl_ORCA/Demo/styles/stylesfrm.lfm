@@ -1,0 +1,128 @@
+object frmStyles: TfrmStyles
+  Left = 538
+  Height = 486
+  Top = 238
+  Width = 541
+  Caption = 'd2Scene Styles'
+  ClientHeight = 486
+  ClientWidth = 541
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 486
+    Top = 0
+    Width = 541
+    Align = alClient
+    Style = Resources1
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 541
+      Height = 486
+      Margins.Rect = '(9,9,9,9)'
+      Resource = 'Root1Style1'
+      object Label1: TD2Label
+        Align = vaTop
+        Position.Point = '(9,9)'
+        RotateAngle = 0
+        Width = 523
+        Height = 51
+        Resource = 'Label1Style1'
+        TabOrder = 0
+        Font.Size = 12
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'ORCA 2D support styles for all controls. You can apply as many styles  as you need - if one applications.  Just Right Click on control and select "Style Editor..." to edit or create style for object.'
+      end
+      object Button1: TD2Button
+        Position.Point = '(16,84)'
+        RotateAngle = 0
+        Width = 88
+        Height = 27
+        Resource = 'Button1Style1'
+        TabOrder = 1
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Button'
+      end
+      object SpeedButton1: TD2SpeedButton
+        Position.Point = '(16,128)'
+        RotateAngle = 0
+        Width = 106
+        Height = 35
+        Resource = 'SpeedButton1Style1'
+        TabOrder = 2
+        StaysPressed = False
+        IsPressed = False
+        Font.Size = 12
+        TextAlign = d2TextAlignCenter
+        Text = 'SpeedButton'
+      end
+      object TextBox1: TD2TextBox
+        Position.Point = '(179,83)'
+        RotateAngle = 0
+        Width = 297
+        Height = 30
+        Resource = 'TextBox1Style1'
+        TabOrder = 3
+        Font.Size = 14
+        Font.Style = d2FontBold
+        ReadOnly = False
+        Password = False
+        Text = 'TextBox'
+      end
+      object ListBox1: TD2ListBox
+        Position.Point = '(16,186)'
+        RotateAngle = 0
+        Width = 187
+        Height = 186
+        Resource = 'ListBox1Style1'
+        TabOrder = 4
+        ItemIndex = 2
+        ItemWidth = 0
+        ItemHeight = 0
+        object ListBoxItem1: TD2ListBoxItem
+          RotateAngle = 0
+          Width = 183
+          Height = 57
+          HitTest = False
+          TabOrder = 0
+          IsChecked = False
+          IsSelected = False
+        end
+        object ListBoxItem2: TD2ListBoxItem
+          Position.Point = '(0,57)'
+          RotateAngle = 0
+          Width = 183
+          Height = 58
+          HitTest = False
+          TabOrder = 1
+          IsChecked = False
+          IsSelected = False
+        end
+        object ListBoxItem3: TD2ListBoxItem
+          Position.Point = '(0,115)'
+          RotateAngle = 0
+          Width = 183
+          Height = 57
+          HitTest = False
+          TabOrder = 2
+          IsChecked = False
+          IsSelected = True
+        end
+      end
+    end
+  end
+  object Resources1: TD2Resources
+    left = 488
+    top = 66
+  end
+end

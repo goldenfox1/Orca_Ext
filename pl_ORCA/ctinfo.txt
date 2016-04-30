@@ -1,0 +1,16 @@
+=============================================
+  CodeTyphon Studio
+  Typhon IDE
+  Information file
+=============================================
+
+pl_ORCA
+
+05-05-2015 Version 5.4.1
+
+--------- Libraries on Unix OSes -----------
+
+libm.so
+libpangocairo-1.0.so
+libgtkglext-x11-1.0.so
+libgdkglext-x11-1.0.so

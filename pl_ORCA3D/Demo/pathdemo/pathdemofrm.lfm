@@ -1,0 +1,571 @@
+object frmPathDemo: TfrmPathDemo
+  Left = 334
+  Height = 607
+  Top = 186
+  Width = 869
+  ActiveControl = d3Scene1
+  Caption = 'ORCA Path Demo'
+  ClientHeight = 607
+  ClientWidth = 869
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 607
+    Top = 0
+    Width = 869
+    Align = alClient
+    Quality = d3HighQuality
+    FillColor = '#FF202020'
+    AmbientColor = '#FF202020'
+    Camera = Camera1
+    RealTimeSleep = 0
+    UsingDesignCamera = False
+    DesignCameraPos = -20
+    DesignCameraZAngle = 9.60003471374512
+    DesignCameraXAngle = 23.2999420166016
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      OnMouseDown = Root1MouseDown
+      OnMouseMove = Root1MouseMove
+      OnMouseWheel = Root1MouseWheel
+      Quanternion = '(0,0,0,1)'
+      object Path3D: TD3Path3D
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-0.37519,3.8436,-4.76837E-6)'
+        RotateAngle.Point = '(-91.0516,0,0)'
+        Locked = False
+        Width = 8.07313537597656
+        Height = 8.60081481933594
+        Depth = 1.68481957912445
+        DesignHide = False
+        Opacity = 1
+        HitTest = False
+        TwoSide = True
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FF074675'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Flatness = 2
+        Sides = [d3Shape3DFront, d3Shape3DBack, d3Shape3DLeft]
+        MaterialBack.Diffuse = '#FFB65E40'
+        MaterialBack.Ambient = '#FF303030'
+        MaterialBack.BitmapMode = d3TexModulate
+        MaterialBack.BitmapTileX = 1
+        MaterialBack.BitmapTileY = 1
+        MaterialBack.BitmapRect.left = 0
+        MaterialBack.BitmapRect.top = 0
+        MaterialBack.BitmapRect.right = 0
+        MaterialBack.BitmapRect.bottom = 0
+        MaterialBack.FillMode = d3Solid
+        MaterialLeft.Diffuse = '#FFB65E40'
+        MaterialLeft.Ambient = '#FF303030'
+        MaterialLeft.BitmapMode = d3TexModulate
+        MaterialLeft.BitmapTileX = 1
+        MaterialLeft.BitmapTileY = 1
+        MaterialLeft.BitmapRect.left = 0
+        MaterialLeft.BitmapRect.top = 0
+        MaterialLeft.BitmapRect.right = 0
+        MaterialLeft.BitmapRect.bottom = 0
+        MaterialLeft.FillMode = d3Solid
+        Path.Path = {
+          180000000000000039B47EC119044542010000008941D6C1F8D31A4201000000
+          39B47EC1AE47E1410100000008ACA0C0F8D31A420100000039B47EC119044542
+          030000000000000000000000000000009A992DC16DE7B94101000000F4FD543C
+          560E4B41010000008D972E416DE7B94101000000F4FD543CAE47074201000000
+          9A992DC16DE7B94103000000000000000000000000000000D1227F41AE47E141
+          01000000D578D641F8D31A4201000000D1227F411904454201000000BE9FA240
+          F8D31A4201000000D1227F41AE47E14103000000000000000000000000000000
+          19042E4139B4584201000000F4FD543C2D728142010000009A992DC139B45842
+          01000000F4FD543C19842E420100000019042E4139B458420300000000000000
+          00000000
+        }
+        Quanternion = '(0.71357,0,0,0.70059)'
+      end
+      object Toolbar: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(117.5,303.5,0)'
+        Locked = False
+        Width = 235
+        Height = 607
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerLeft
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 235
+          Height = 607
+          object Rectangle1: TD2Rectangle
+            Align = vaClient
+            Position.Point = '(9,9)'
+            RotateAngle = 0
+            Width = 217
+            Height = 589
+            Padding.Rect = '(9,9,9,9)'
+            Fill.Color = '#8700214A'
+            Stroke.Color = '#FFFFFFFF'
+            StrokeThickness = 2
+            xRadius = 6
+            yRadius = 6
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object PathList: TD2HudListBox
+              Position.Point = '(12.592,25.561)'
+              RotateAngle = 0
+              Width = 195.829742431641
+              Height = 313.548095703125
+              TabOrder = 0
+              Columns = 3
+              HideSelectionUnfocused = False
+              ItemIndex = 11
+              ItemWidth = 54
+              ItemHeight = 54
+              OnChange = PathListChange
+              object ListBoxItem1: TD2ListBoxItem
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                Margins.Rect = '(4,4,4,4)'
+                HitTest = False
+                TabOrder = 0
+                IsChecked = False
+                IsSelected = False
+                object Path1: TD2Path
+                  BindingName = 'path'
+                  Align = vaClient
+                  Position.Point = '(4,4)'
+                  RotateAngle = 0
+                  Width = 46
+                  Height = 46
+                  HitTest = False
+                  Stroke.Style = d2BrushNone
+                  Data.Path = {
+                    1400000000000000E9B6B043BA09D843020000009643C5C1C9B63B4402000000
+                    50CD2044D90E224402000000CF1732431018F04302000000B0828FC38F129C43
+                    02000000A80621434A7C4C4402000000FAFE93425C8FA54302000000C97650C1
+                    F8B31BC302000000230B81C3DFFFEC43020000000000F04210381B4302000000
+                    230BF9435C8F23C30200000052F823C31283E3C1020000006F929643E19A0B43
+                    0200000093903F44F2D2994302000000BAB9AB43D36D5BC3020000002F3DD743
+                    4EB285430200000052600144D38D3C440200000006E136441098E24202000000
+                    E9B6B043BA09D843030000000000000000000000
+                  }
+                  WrapMode = d2PathFit
+                end
+              end
+              object ListBoxItem2: TD2ListBoxItem
+                Position.Point = '(54,0)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 1
+                IsChecked = False
+                IsSelected = False
+                object Path2: TD2Path
+                  BindingName = 'path'
+                  Align = vaClient
+                  Position.Point = '(5,5)'
+                  RotateAngle = 0
+                  Width = 44
+                  Height = 44
+                  Padding.Rect = '(5,5,5,5)'
+                  HitTest = False
+                  Stroke.Style = d2BrushNone
+                  Data.Path = {
+                    0700000000000000D36D1743F252A343010000005C0F7D4252489E4301000000
+                    AA7136421D9A65430100000058B9F54221F0394301000000D1423C433DEA7543
+                    01000000D36D1743F252A343030000000000000000000000
+                  }
+                  WrapMode = d2PathFit
+                end
+              end
+              object ListBoxItem3: TD2ListBoxItem
+                Position.Point = '(108,0)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 2
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem4: TD2ListBoxItem
+                Position.Point = '(0,54)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 3
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem5: TD2ListBoxItem
+                Position.Point = '(54,54)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 4
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem6: TD2ListBoxItem
+                Position.Point = '(108,54)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 5
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem7: TD2ListBoxItem
+                Position.Point = '(0,108)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 6
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem8: TD2ListBoxItem
+                Position.Point = '(54,108)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 7
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem9: TD2ListBoxItem
+                Position.Point = '(108,108)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 8
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem10: TD2ListBoxItem
+                Position.Point = '(0,162)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 9
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem11: TD2ListBoxItem
+                Position.Point = '(54,162)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 10
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem12: TD2ListBoxItem
+                Position.Point = '(108,162)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 11
+                IsChecked = False
+                IsSelected = True
+              end
+              object ListBoxItem13: TD2ListBoxItem
+                Position.Point = '(0,216)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 12
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem14: TD2ListBoxItem
+                Position.Point = '(54,216)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 13
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem15: TD2ListBoxItem
+                Position.Point = '(108,216)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 14
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem16: TD2ListBoxItem
+                Position.Point = '(0,270)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 15
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem17: TD2ListBoxItem
+                Position.Point = '(54,270)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 16
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem18: TD2ListBoxItem
+                Position.Point = '(108,270)'
+                RotateAngle = 0
+                Width = 54
+                Height = 54
+                HitTest = False
+                TabOrder = 17
+                IsChecked = False
+                IsSelected = False
+              end
+            end
+            object HudLabel1: TD2HudLabel
+              Position.Point = '(9.579,7.529)'
+              RotateAngle = 0
+              Width = 168.714859008789
+              Height = 15
+              TabOrder = 1
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignNear
+              VertTextAlign = d2TextAlignCenter
+              Text = 'Path List:'
+            end
+            object CompoundTrackBar1: TD2CompoundTrackBar
+              Position.Point = '(9.421,349.126)'
+              RotateAngle = 0
+              Width = 198.842742919922
+              Height = 20
+              TabOrder = 2
+              TextLabel.Align = vaLeft
+              TextLabel.RotateAngle = 0
+              TextLabel.Locked = True
+              TextLabel.Width = 50
+              TextLabel.Height = 20
+              TextLabel.Padding.Rect = '(0,0,5,0)'
+              TextLabel.TabOrder = 0
+              TextLabel.Font.Size = 11.0000009536743
+              TextLabel.TextAlign = d2TextAlignNear
+              TextLabel.VertTextAlign = d2TextAlignCenter
+              TextLabel.Text = 'Depth:'
+              TextLabel.WordWrap = False
+              TrackBar.Align = vaVertCenter
+              TrackBar.Position.Point = '(0,2)'
+              TrackBar.RotateAngle = 0
+              TrackBar.Locked = True
+              TrackBar.Width = 93.8427429199219
+              TrackBar.Height = 15
+              TrackBar.Resource = 'hudtrackbarstyle'
+              TrackBar.TabOrder = 0
+              TrackBar.Min = 0.100000001490116
+              TrackBar.Max = 3
+              TrackBar.Frequency = 0
+              TrackBar.Orientation = d2Horizontal
+              TrackBar.Value = 1
+              TrackBar.Tracking = True
+              ValueLabel.Align = vaVertCenter
+              ValueLabel.Position.Point = '(5,2)'
+              ValueLabel.RotateAngle = 0
+              ValueLabel.Locked = True
+              ValueLabel.Width = 45
+              ValueLabel.Height = 15
+              ValueLabel.Padding.Rect = '(5,0,0,0)'
+              ValueLabel.TabOrder = 0
+              ValueLabel.Font.Size = 11.0000009536743
+              ValueLabel.TextAlign = d2TextAlignCenter
+              ValueLabel.VertTextAlign = d2TextAlignCenter
+              ValueLabel.Text = '1.00 '
+              OnChange = CompoundTrackBar1Change
+            end
+            object ColorPicker1: TD2ColorPicker
+              Position.Point = '(12.592,392.177)'
+              RotateAngle = 0
+              Width = 19.0803756713867
+              Height = 136.238220214844
+              TabOrder = 3
+              Hue = 0
+              ColorQuad = ColorQuad1
+            end
+            object ColorQuad1: TD2ColorQuad
+              Position.Point = '(35.592,392.177)'
+              RotateAngle = 0
+              Width = 150.638229370117
+              Height = 136.238220214844
+              TabOrder = 4
+              Hue = 0
+              Lum = 0
+              Sat = 0
+              Alpha = 1
+              ColorBox = ColorBox1
+              OnChange = ColorQuad1Change
+            end
+            object ColorBox1: TD2ColorBox
+              Position.Point = '(189.340,391.177)'
+              RotateAngle = 0
+              Width = 19.081298828125
+              Height = 138.241760253906
+              TabOrder = 5
+            end
+            object CompoundTrackBar2: TD2CompoundTrackBar
+              Position.Point = '(8.421,369)'
+              RotateAngle = 0
+              Width = 200
+              Height = 20
+              TabOrder = 6
+              TextLabel.Align = vaLeft
+              TextLabel.RotateAngle = 0
+              TextLabel.Locked = True
+              TextLabel.Width = 50
+              TextLabel.Height = 20
+              TextLabel.Padding.Rect = '(0,0,5,0)'
+              TextLabel.TabOrder = 0
+              TextLabel.TextAlign = d2TextAlignFar
+              TextLabel.VertTextAlign = d2TextAlignCenter
+              TextLabel.Text = 'Flatness:'
+              TextLabel.WordWrap = False
+              TrackBar.Align = vaVertCenter
+              TrackBar.Position.Point = '(0,2)'
+              TrackBar.RotateAngle = 0
+              TrackBar.Locked = True
+              TrackBar.Width = 95
+              TrackBar.Height = 15
+              TrackBar.Resource = 'hudtrackbarstyle'
+              TrackBar.TabOrder = 0
+              TrackBar.Min = 0.25
+              TrackBar.Max = 15
+              TrackBar.Frequency = 0
+              TrackBar.Orientation = d2Horizontal
+              TrackBar.Value = 2
+              TrackBar.Tracking = True
+              ValueLabel.Align = vaVertCenter
+              ValueLabel.Position.Point = '(5,2)'
+              ValueLabel.RotateAngle = 0
+              ValueLabel.Locked = True
+              ValueLabel.Width = 45
+              ValueLabel.Height = 15
+              ValueLabel.Padding.Rect = '(5,0,0,0)'
+              ValueLabel.TabOrder = 0
+              ValueLabel.TextAlign = d2TextAlignCenter
+              ValueLabel.VertTextAlign = d2TextAlignCenter
+              ValueLabel.Text = '2.00'
+              OnChange = CompoundTrackBar2Change
+            end
+          end
+        end
+      end
+      object cameraz: TD3Dummy
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-1,0,0)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Quanternion = '(0,0,0,1)'
+        object camerax: TD3Dummy
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          RotateAngle.Point = '(20,0,0)'
+          Locked = False
+          Width = 1
+          Height = 1
+          Depth = 1
+          DesignHide = False
+          Opacity = 1
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Quanternion = '(-0.17365,0,0,0.98481)'
+          object Camera1: TD3Camera
+            DragMode = d3DragManual
+            DragDisableHighlight = False
+            Position.Point = '(0,-15,0)'
+            Locked = False
+            Width = 1
+            Height = 1
+            Depth = 1
+            DesignHide = False
+            Opacity = 1
+            Quanternion = '(0,0,0,1)'
+          end
+        end
+      end
+      object Light1: TD3Light
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(5.21292,-3.6963,1.90735E-6)'
+        RotateAngle.Point = '(29.403,42.8135,51.6384)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        LightType = d3LightDirectional
+        Quanternion = '(-0.17531,-0.32383,-0.07586,0.92663)'
+      end
+    end
+  end
+end

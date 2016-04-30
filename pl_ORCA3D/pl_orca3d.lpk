@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="pl_orca3d"/>
+    <Type Value="RunAndDesignTime"/>
+    <AddToProjectUsesSection Value="True"/>
+    <Author Value="PilotLogic Software House"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="source;source/inc;source/editors"/>
+        <OtherUnitFiles Value="source;source/inc;source/editors"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/$(LCLWidgetType)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+          <CStyleOperator Value="False"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+    </CompilerOptions>
+    <Description Value="ORCA 3D Library for CodeTyphon Studio	"/>
+    <License Value="Mozilla Public Licence (MPL)"/>
+    <Version Major="5" Minor="6" Release="1"/>
+    <Files Count="28">
+      <Item1>
+        <Filename Value="source/AllOrca3DRegister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="AllOrca3DRegister"/>
+      </Item1>
+      <Item2>
+        <Filename Value="source/orca3d_define.inc"/>
+        <Type Value="Include"/>
+      </Item2>
+      <Item3>
+        <Filename Value="source/orca_scene3d.pas"/>
+        <UnitName Value="orca_scene3d"/>
+      </Item3>
+      <Item4>
+        <Filename Value="source/inc/orca_scene3d_animations.inc"/>
+        <Type Value="Include"/>
+      </Item4>
+      <Item5>
+        <Filename Value="source/inc/orca_scene3d_bitmaps.inc"/>
+        <Type Value="Include"/>
+      </Item5>
+      <Item6>
+        <Filename Value="source/inc/orca_scene3d_bounds.inc"/>
+        <Type Value="Include"/>
+      </Item6>
+      <Item7>
+        <Filename Value="source/inc/orca_scene3d_canvas.inc"/>
+        <Type Value="Include"/>
+      </Item7>
+      <Item8>
+        <Filename Value="source/inc/orca_scene3d_canvas_directx9.inc"/>
+        <Type Value="Include"/>
+      </Item8>
+      <Item9>
+        <Filename Value="source/inc/orca_scene3d_canvas_gl.inc"/>
+        <Type Value="Include"/>
+      </Item9>
+      <Item10>
+        <Filename Value="source/inc/orca_scene3d_canvas_gl_dgl.inc"/>
+        <Type Value="Include"/>
+      </Item10>
+      <Item11>
+        <Filename Value="source/inc/orca_scene3d_canvas_mesa.inc"/>
+        <Type Value="Include"/>
+      </Item11>
+      <Item12>
+        <Filename Value="source/inc/orca_scene3d_designers.inc"/>
+        <Type Value="Include"/>
+      </Item12>
+      <Item13>
+        <Filename Value="source/inc/orca_scene3d_filters.inc"/>
+        <Type Value="Include"/>
+      </Item13>
+      <Item14>
+        <Filename Value="source/inc/orca_scene3d_fonts.inc"/>
+        <Type Value="Include"/>
+      </Item14>
+      <Item15>
+        <Filename Value="source/inc/orca_scene3d_layers.inc"/>
+        <Type Value="Include"/>
+      </Item15>
+      <Item16>
+        <Filename Value="source/inc/orca_scene3d_materials.inc"/>
+        <Type Value="Include"/>
+      </Item16>
+      <Item17>
+        <Filename Value="source/inc/orca_scene3d_math.inc"/>
+        <Type Value="Include"/>
+      </Item17>
+      <Item18>
+        <Filename Value="source/inc/orca_scene3d_mesh.inc"/>
+        <Type Value="Include"/>
+      </Item18>
+      <Item19>
+        <Filename Value="source/inc/orca_scene3d_obj_base.inc"/>
+        <Type Value="Include"/>
+      </Item19>
+      <Item20>
+        <Filename Value="source/inc/orca_scene3d_obj_base_visible.inc"/>
+        <Type Value="Include"/>
+      </Item20>
+      <Item21>
+        <Filename Value="source/inc/orca_scene3d_obj_oblects.inc"/>
+        <Type Value="Include"/>
+      </Item21>
+      <Item22>
+        <Filename Value="source/inc/orca_scene3d_objects.inc"/>
+        <Type Value="Include"/>
+      </Item22>
+      <Item23>
+        <Filename Value="source/inc/orca_scene3d_particles.inc"/>
+        <Type Value="Include"/>
+      </Item23>
+      <Item24>
+        <Filename Value="source/inc/orca_scene3d_physics.inc"/>
+        <Type Value="Include"/>
+      </Item24>
+      <Item25>
+        <Filename Value="source/inc/orca_scene3d_positions.inc"/>
+        <Type Value="Include"/>
+      </Item25>
+      <Item26>
+        <Filename Value="source/inc/orca_scene3d_res.inc"/>
+        <Type Value="Include"/>
+      </Item26>
+      <Item27>
+        <Filename Value="source/inc/orca_scene3d_scene.inc"/>
+        <Type Value="Include"/>
+      </Item27>
+      <Item28>
+        <Filename Value="source/inc/orca_scene3d_transforms.inc"/>
+        <Type Value="Include"/>
+      </Item28>
+    </Files>
+    <RequiredPkgs Count="6">
+      <Item1>
+        <PackageName Value="pl_orca"/>
+      </Item1>
+      <Item2 OSes="-* +win32 +win64">
+        <PackageName Value="pl_win_directx11"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="pl_opengl"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="bs_ideintf"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item6>
+    </RequiredPkgs>
+    <UsageOptions>
+      <CustomOptions Value="-dUseCThreads"/>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+    </PublishOptions>
+    <CustomOptions Items="ExternHelp" Version="2">
+      <_ExternHelp Items="Count"/>
+    </CustomOptions>
+  </Package>
+</CONFIG>

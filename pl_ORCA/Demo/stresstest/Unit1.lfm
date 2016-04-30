@@ -1,0 +1,73 @@
+object Form1: TForm1
+  Left = 573
+  Height = 563
+  Top = 201
+  Width = 588
+  ActiveControl = d2Scene1
+  Caption = 'ORCA 2D Stress Test - 10000 Objects'
+  ClientHeight = 563
+  ClientWidth = 588
+  Color = 5263440
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  KeyPreview = True
+  OnCreate = FormCreate
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 563
+    Top = 0
+    Width = 588
+    Align = alClient
+    ActiveControl = ScrollBox1
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      Align = vaClient
+      RotateAngle = 0
+      Width = 588
+      Height = 563
+      HitTest = False
+      object ScrollBox1: TD2ScrollBox
+        Align = vaClient
+        RotateAngle = 0
+        Width = 588
+        Height = 563
+        ClipChildren = True
+        TabOrder = 0
+        ShowSizeGrip = True
+      end
+      object SizeGrip1: TD2SizeGrip
+        Position.Point = '(737,583)'
+        RotateAngle = 0
+        Width = 19
+        Height = 17
+        TabOrder = 1
+      end
+      object Selection1: TD2Selection
+        Position.Point = '(112,109)'
+        RotateAngle = 0
+        Width = 198
+        Height = 147
+        GripSize = 3
+        HideSelection = False
+        Proportional = False
+        object Rectangle1: TD2Rectangle
+          Align = vaContents
+          RotateAngle = 0
+          Width = 198
+          Height = 147
+          HitTest = False
+          Fill.Color = '#8A116EA8'
+          Stroke.Style = d2BrushNone
+          xRadius = 4
+          yRadius = 4
+          CornerType = d2CornerInnerRound
+          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        end
+      end
+    end
+  end
+end

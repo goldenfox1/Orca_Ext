@@ -1,0 +1,160 @@
+object Form12: TForm12
+  Left = 348
+  Height = 626
+  Top = 186
+  Width = 989
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'ORCA CoverFlow'
+  ClientHeight = 626
+  ClientWidth = 989
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 626
+    Top = 0
+    Width = 989
+    Align = alClient
+    Quality = d3LowQuality
+    FillColor = '#FF000000'
+    AmbientColor = '#FF202020'
+    Camera = Camera1
+    RealTimeSleep = 0
+    UsingDesignCamera = False
+    OnMouseWheel = d3Scene1MouseWheel
+    DesignCameraPos = -20
+    DesignCameraZAngle = 0
+    DesignCameraXAngle = 20
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object Camera1: TD3Camera
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(0,-10,1)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Quanternion = '(0,0,0,1)'
+      end
+      object Screend2Layer1: TD3Screend2Layer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(493,583,0)'
+        Locked = False
+        Width = 737.000061035156
+        Height = 56
+        Depth = 0.100000001490116
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerNone
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object FloatAnimation1: TD3FloatAnimation
+          Duration = 0.200000002980232
+          Delay = 0
+          Inverse = False
+          Loop = False
+          StartValue = 1
+          StartFromCurrent = False
+          StopValue = 0.699999928474426
+          PropertyName = 'Opacity'
+        end
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 737
+          Height = 56
+          object Rectangle1: TD2Rectangle
+            Align = vaClient
+            RotateAngle = 0
+            Width = 737
+            Height = 56
+            Fill.Color = '#810B0B0B'
+            xRadius = 4
+            yRadius = 4
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object HudButton1: TD2HudButton
+              Position.Point = '(13,14)'
+              RotateAngle = 0
+              Width = 83.9999694824219
+              Height = 26
+              OnClick = HudButton1Click
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'Select...'
+            end
+            object CoverScroll: TD2HudScrollBar
+              Position.Point = '(109.999,17.057)'
+              RotateAngle = 0
+              Width = 546.608947753906
+              Height = 19.9999694824219
+              TabOrder = 1
+              Min = 0
+              Max = 5
+              Orientation = d2Horizontal
+              Value = 0
+              ViewportSize = 5
+              SmallChange = 0.0500000007450581
+              OnChange = CoverScrollChange
+            end
+            object AniIndicator1: TD2AniIndicator
+              Enabled = True
+              Position.Point = '(663.598,1)'
+              RotateAngle = 0
+              Width = 50
+              Height = 50
+              Visible = False
+              TabOrder = 2
+              Style = d2AniIndicatorLine
+            end
+          end
+        end
+      end
+      object coverFlow: TD3ScreenDummy
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(495,263,0)'
+        Locked = False
+        Width = 958.000244140625
+        Height = 474
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        TwoSide = True
+        LayerAlign = d3LayerNone
+        Quanternion = '(0,0,0,1)'
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    left = 10
+    top = 16
+  end
+end

@@ -1,0 +1,217 @@
+object frmAbout: TfrmAbout
+  Left = 610
+  Height = 312
+  Top = 192
+  Width = 303
+  BorderStyle = bsNone
+  Caption = 'About Box'
+  ClientHeight = 312
+  ClientWidth = 303
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene: TD2Scene
+    Left = 0
+    Height = 312
+    Top = 0
+    Width = 303
+    Align = alClient
+    Transparency = True
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Layout1: TD2Layout
+      RotateAngle = 0
+      Width = 303
+      Height = 312
+      object Root: TD2Rectangle
+        Align = vaClient
+        Position.Point = '(7,7)'
+        RotateAngle = 0
+        Width = 276
+        Height = 285
+        Padding.Rect = '(7,7,20,20)'
+        Opacity = 0.949999988079071
+        HitTest = False
+        Fill.Style = d2BrushGradient
+        Fill.Gradient.Points = <        
+          item
+            Color = '#FFBBBBBB'
+            Offset = 0.00549450563266874
+          end        
+          item
+            Color = '#FFE5E5E5'
+            Offset = 0.28571429848671
+          end        
+          item
+            Color = '#FFEDEDED'
+            Offset = 0.637362658977509
+          end        
+          item
+            Color = '#FFFCFCFC'
+            Offset = 1
+          end>
+        Fill.Gradient.Style = d2LinearGradient
+        Fill.Gradient.StopPosition.Point = '(1,1)'
+        Stroke.Color = '#FFC5C5C5'
+        xRadius = 13
+        yRadius = 13
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object Rectangle4: TD2Rectangle
+          Align = vaTop
+          Position.Point = '(0,111)'
+          RotateAngle = 0
+          Width = 276
+          Height = 2
+          Fill.Color = '#FFFDFDFD'
+          Stroke.Style = d2BrushNone
+          xRadius = 0
+          yRadius = 0
+          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        end
+        object ShadowEffect1: TD2ShadowEffect
+          Distance = 4
+          Direction = 45
+          Softness = 0.699999928474426
+          Opacity = 0.599999964237213
+          ShadowColor = '#FF000000'
+        end
+        object Rectangle2: TD2Rectangle
+          Align = vaBottom
+          Position.Point = '(0,239)'
+          RotateAngle = 0
+          Width = 276
+          Height = 46
+          Fill.Style = d2BrushGradient
+          Fill.Gradient.Points = <          
+            item
+              Color = '#00FFFFFF'
+              Offset = 0
+            end          
+            item
+              Color = '#00FFFFFF'
+              Offset = 0.06593406945467
+            end          
+            item
+              Color = '#FFDDDDDD'
+              Offset = 0.296703308820725
+            end          
+            item
+              Color = '#FFDDDDDD'
+              Offset = 0.659340679645539
+            end          
+            item
+              Color = '#00FFFFFF'
+              Offset = 0.945054888725281
+            end          
+            item
+              Color = '#00FFFFFF'
+              Offset = 1
+            end>
+          Fill.Gradient.Style = d2LinearGradient
+          Fill.Gradient.StartPosition.Point = '(0,0.500)'
+          Fill.Gradient.StopPosition.Point = '(1,0.500)'
+          Stroke.Style = d2BrushNone
+          xRadius = 13
+          yRadius = 13
+          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          object Button1: TD2Button
+            Position.Point = '(107,-9)'
+            RotateAngle = 0
+            Width = 65
+            Height = 21
+            OnClick = Button1Click
+            Resource = 'buttonstyle'
+            TabOrder = 0
+            StaysPressed = False
+            IsPressed = False
+            Font.Size = 10
+            TextAlign = d2TextAlignCenter
+            Text = 'Close'
+          end
+        end
+        object imageLayout: TD2Layout
+          Align = vaTop
+          RotateAngle = 0
+          Width = 276
+          Height = 111
+          object Rectangle6: TD2Rectangle
+            Position.Point = '(0,19)'
+            RotateAngle = 0
+            Width = 305
+            Height = 92
+            HitTest = False
+            Fill.Color = '#FFFFFFFF'
+            Stroke.Style = d2BrushNone
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle5: TD2Rectangle
+            Align = vaClient
+            RotateAngle = 0
+            Width = 276
+            Height = 111
+            HitTest = False
+            Fill.Style = d2BrushGradient
+            Fill.Gradient.Points = <            
+              item
+                Color = '#FFDF9030'
+                Offset = 0.200000002980232
+              end            
+              item
+                Color = '#00FFFFFF'
+                Offset = 0.912087917327881
+              end            
+              item
+                Color = '#00FCFCFC'
+                Offset = 1
+              end>
+            Fill.Gradient.Style = d2LinearGradient
+            Stroke.Style = d2BrushNone
+            xRadius = 13
+            yRadius = 13
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object Button2: TD2Button
+              Position.Point = '(175,83)'
+              RotateAngle = 0
+              Width = 73
+              Height = 20
+              OnClick = Button2Click
+              Resource = 'buttonstyle'
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 10
+              TextAlign = d2TextAlignCenter
+              Text = 'change text'
+            end
+            object TitleText: TD2Text
+              Position.Point = '(62,18)'
+              RotateAngle = 0
+              Width = 186
+              Height = 50
+              HitTest = False
+              Fill.Color = '#FF0F2336'
+              Font.ClearType = False
+              Font.Size = 34
+              Font.Style = d2FontBold
+              Text = 'ORCA'
+              WordWrap = False
+              object ShadowEffect2: TD2ShadowEffect
+                Distance = 3
+                Direction = 45
+                Softness = 0.299999982118607
+                Opacity = 0.599999964237213
+                ShadowColor = '#FF000000'
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

@@ -1,0 +1,331 @@
+object Form6: TForm6
+  Left = 385
+  Top = 189
+  Width = 831
+  Height = 526
+  ActiveControl = d2Scene1
+  Caption = 'd2Scene Binding'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  PixelsPerInch = 96
+  object d2Scene1: TD2Scene
+    Left = 0
+    Top = 0
+    Width = 815
+    Height = 488
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      Width = 815.000000000000000000
+      Height = 488.000000000000000000
+      object ToolBar1: TD2ToolBar
+        Width = 815.000000000000000000
+        Height = 73.000000000000000000
+        TabOrder = 0
+        object Label4: TD2Label
+          Align = vaCenter
+          Position.Point = '(191,9)'
+          Width = 433.000000000000000000
+          Height = 55.000000000000000000
+          TabOrder = 0
+          Font.Size = 12.000000000000000000
+          TextAlign = d2TextAlignCenter
+          Text = 
+            'How to use BindingSource property. This sample haven'#39't a code.  ' +
+            'Only Binding.'
+        end
+      end
+      object Grid1: TD2GridLayout
+        Align = vaClient
+        Position.Point = '(4,77)'
+        Width = 807.000000000000000000
+        Height = 407.000000000000000000
+        Padding.Rect = '(4,4,4,4)'
+        ItemHeight = 200.000000000000000000
+        ItemWidth = 200.000000000000000000
+        Orientation = d2Horizontal
+        object Panel1: TD2Panel
+          Position.Point = '(2,2)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 0
+          object ValueLabel1: TD2ValueLabel
+            Align = vaTop
+            Position.Point = '(5,5)'
+            Width = 186.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 0
+            TextAlign = d2TextAlignCenter
+            Text = 'TrackBar <-> TextBox and Label'
+          end
+          object TrackBar1: TD2TrackBar
+            Position.Point = '(41,45)'
+            Width = 109.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 1
+            BindingSource = TextBox1
+            Max = 100.000000000000000000
+            Frequency = 1.000000000000000000
+            Orientation = d2Horizontal
+            Tracking = True
+          end
+          object TextBox1: TD2TextBox
+            BindingName = 'text'
+            Position.Point = '(13,103)'
+            Width = 110.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 2
+            BindingSource = TrackBar1
+            ReadOnly = False
+            Password = False
+            Text = '0'
+          end
+          object Label1: TD2Label
+            Position.Point = '(127,105)'
+            Width = 50.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 3
+            BindingSource = TrackBar1
+            TextAlign = d2TextAlignCenter
+            Text = '0'
+          end
+        end
+        object Panel2: TD2Panel
+          Position.Point = '(202,2)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 1
+          object t1: TD2TrackBar
+            Position.Point = '(30,76)'
+            Width = 135.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 1
+            BindingSource = t2
+            Max = 100.000000000000000000
+            Frequency = 0.500000000000000000
+            Orientation = d2Horizontal
+            Value = 33.000000000000000000
+            Tracking = True
+          end
+          object t2: TD2TrackBar
+            Position.Point = '(30,110)'
+            Width = 135.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 2
+            BindingSource = t1
+            Max = 100.000000000000000000
+            Frequency = 0.500000000000000000
+            Orientation = d2Horizontal
+            Value = 33.000000000000000000
+            Tracking = True
+          end
+          object ValueLabel2: TD2ValueLabel
+            Position.Point = '(56,41)'
+            Width = 83.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 3
+            BindingSource = t1
+            TextAlign = d2TextAlignCenter
+            Text = '33'
+          end
+        end
+        object Panel3: TD2Panel
+          Position.Point = '(402,2)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 2
+          object TextBox2: TD2TextBox
+            Position.Point = '(27,105)'
+            Width = 149.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 1
+            ReadOnly = False
+            Password = False
+            Text = 'binding text'
+          end
+          object Label2: TD2Label
+            Position.Point = '(27,46)'
+            Width = 149.000000000000000000
+            Height = 38.000000000000000000
+            TabOrder = 2
+            BindingSource = TextBox2
+            TextAlign = d2TextAlignCenter
+            Text = 'binding text'
+          end
+        end
+        object Panel4: TD2Panel
+          Position.Point = '(602,2)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 3
+          object NumberBox1: TD2NumberBox
+            Position.Point = '(48,104)'
+            Width = 100.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 1
+            ReadOnly = False
+            Max = 100.000000000000000000
+            Value = 33.000000000000000000
+            ValueType = d2ValueInteger
+            HorzIncrement = 1.000000000000000000
+            VertIncrement = 5.000000000000000000
+          end
+          object Label3: TD2Label
+            Position.Point = '(73,56)'
+            Width = 50.000000000000000000
+            Height = 15.000000000000000000
+            Resource = 'valuelabelstyle'
+            TabOrder = 2
+            BindingSource = NumberBox1
+            TextAlign = d2TextAlignCenter
+            Text = '33'
+          end
+        end
+        object Panel5: TD2Panel
+          Position.Point = '(2,202)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 4
+          object TextBox3: TD2TextBox
+            Position.Point = '(35,66)'
+            Width = 122.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 1
+            BindingSource = TextBox4
+            ReadOnly = False
+            Password = False
+            Text = 'TextBox'
+          end
+          object TextBox4: TD2TextBox
+            Position.Point = '(35,111)'
+            Width = 122.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 2
+            BindingSource = TextBox3
+            ReadOnly = False
+            Password = False
+            Text = 'TextBox'
+          end
+        end
+        object Panel6: TD2Panel
+          Position.Point = '(202,202)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 5
+          object StringListBox1: TD2StringListBox
+            Position.Point = '(30,74)'
+            Width = 130.000000000000000000
+            Height = 108.000000000000000000
+            Resource = 'listboxstyle'
+            TabOrder = 1
+            HideSelectionUnfocused = False
+            ItemIndex = 0
+            ItemHeight = 19.000000000000000000
+            BindingSource = TextBox5
+            Items.strings = (
+              '1'
+              '2'
+              '3'
+              '4'
+              '5'
+              '6'
+              '7'
+              '8'
+              '9')
+          end
+          object TextBox5: TD2TextBox
+            Position.Point = '(45,37)'
+            Width = 100.000000000000000000
+            Height = 21.000000000000000000
+            TabOrder = 2
+            BindingSource = StringListBox1
+            ReadOnly = False
+            Password = False
+            Text = '1'
+          end
+        end
+        object Panel7: TD2Panel
+          Position.Point = '(402,202)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 6
+          object StringComboBox1: TD2StringComboBox
+            Position.Point = '(24,38)'
+            Width = 148.000000000000000000
+            Height = 23.000000000000000000
+            Resource = 'comboboxstyle'
+            TabOrder = 2
+            ItemIndex = 0
+            Placement = d2PlacementBottom
+            ItemHeight = 19.000000000000000000
+            Items.strings = (
+              'item 1'
+              'item 2'
+              'item 3'
+              'item 4'
+              'item 5'
+              'item 6'
+              'item 7'
+              'item 8')
+          end
+          object Label5: TD2Label
+            Position.Point = '(40,106)'
+            Width = 117.000000000000000000
+            Height = 18.000000000000000000
+            Resource = 'valuelabelstyle'
+            TabOrder = 3
+            BindingSource = StringComboBox1
+            TextAlign = d2TextAlignCenter
+            Text = 'item 1'
+          end
+        end
+        object Panel8: TD2Panel
+          Position.Point = '(602,202)'
+          Width = 196.000000000000000000
+          Height = 196.000000000000000000
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          TabOrder = 7
+          object TrackBar2: TD2TrackBar
+            Position.Point = '(48,51)'
+            Width = 100.000000000000000000
+            Height = 15.000000000000000000
+            TabOrder = 1
+            Max = 100.000000000000000000
+            Orientation = d2Horizontal
+            Tracking = True
+          end
+          object ProgressBar1: TD2ProgressBar
+            Position.Point = '(16,104)'
+            Width = 164.000000000000000000
+            Height = 17.000000000000000000
+            TabOrder = 2
+            BindingSource = TrackBar2
+            Max = 100.000000000000000000
+            Orientation = d2Horizontal
+          end
+        end
+      end
+    end
+  end
+end

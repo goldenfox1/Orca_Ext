@@ -1,0 +1,125 @@
+object frmCustomList: TfrmCustomList
+  Left = 470
+  Height = 522
+  Top = 237
+  Width = 626
+  Caption = 'ORCA 2D Custom List'
+  ClientHeight = 522
+  ClientWidth = 626
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 522
+    Top = 0
+    Width = 626
+    Align = alClient
+    Style = Resources1
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 626
+      Height = 522
+      HelpType = htKeyword
+      object ListBox1: TD2ListBox
+        DragDisableHighlight = True
+        Position.Point = '(10,32)'
+        RotateAngle = 0
+        Width = 306
+        Height = 439
+        HelpType = htKeyword
+        Resource = 'ListBox1Style1'
+        TabOrder = 0
+        DisableFocusEffect = True
+        HideSelectionUnfocused = False
+        ItemWidth = 0
+        ItemHeight = 64
+      end
+      object Button1: TD2Button
+        Position.Point = '(483,32)'
+        RotateAngle = 0
+        Width = 121
+        Height = 22
+        OnClick = Button1Click
+        HelpType = htKeyword
+        TabOrder = 1
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Add From File...'
+      end
+      object Button2: TD2Button
+        Position.Point = '(336,32)'
+        RotateAngle = 0
+        Width = 121
+        Height = 22
+        OnClick = Button2Click
+        HelpType = htKeyword
+        TabOrder = 2
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Add By Code'
+      end
+      object InfoLabel: TD2Label
+        Position.Point = '(114,4)'
+        RotateAngle = 0
+        Width = 423
+        Height = 15
+        HelpType = htKeyword
+        TabOrder = 3
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+      end
+      object Label1: TD2Label
+        Position.Point = '(336,144)'
+        RotateAngle = 0
+        Width = 268
+        Height = 152
+        HelpType = htKeyword
+        TabOrder = 4
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'This demo show how to use Custom listbox item (Using Style Editor). And how to use ORCA Binding to set or get values from item and set events handler.'
+      end
+      object Button3: TD2Button
+        Position.Point = '(336,68)'
+        RotateAngle = 0
+        Width = 121
+        Height = 22
+        OnClick = Button3Click
+        HelpType = htKeyword
+        TabOrder = 5
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Add 1000 By Code'
+      end
+      object CheckBox1: TD2CheckBox
+        Position.Point = '(336,107)'
+        RotateAngle = 0
+        Width = 120
+        Height = 19
+        TabOrder = 6
+        IsChecked = False
+        TextAlign = d2TextAlignNear
+        Text = 'Allow Drag'
+        OnChange = CheckBox1Change
+      end
+    end
+  end
+  object Resources1: TD2Resources
+    left = 446
+    top = 288
+  end
+  object OpenDialog1: TOpenDialog
+    left = 480
+    top = 288
+  end
+end

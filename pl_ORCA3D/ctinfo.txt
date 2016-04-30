@@ -1,0 +1,16 @@
+=============================================
+  CodeTyphon Studio
+  Typhon IDE
+  Information file
+=============================================
+
+pl_ORCA3D
+
+24-10-2015 Version 5.6.1
+
+
+--------- Libraries on Unix OSes -----------
+
+libGL.so.1
+libGLU.so.1
+

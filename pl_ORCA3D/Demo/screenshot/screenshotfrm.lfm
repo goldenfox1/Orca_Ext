@@ -1,0 +1,227 @@
+object frmScreenshot: TfrmScreenshot
+  Left = 401
+  Height = 543
+  Top = 224
+  Width = 631
+  Caption = 'ORCA Demo'
+  ClientHeight = 543
+  ClientWidth = 631
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 543
+    Top = 0
+    Width = 631
+    Align = alClient
+    Quality = d3HighQuality
+    FillColor = '#FF303030'
+    AmbientColor = '#FF202020'
+    RealTimeSleep = 0
+    DesignCameraPos = -20
+    DesignCameraZAngle = 0
+    DesignCameraXAngle = 20
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object GUIScene2DLayer1: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(315,39,0)'
+        Locked = False
+        Width = 414.000061035156
+        Height = 53.0000076293945
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerNone
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 414
+          Height = 53
+          object HudButton1: TD2HudButton
+            Position.Point = '(15,12.500)'
+            RotateAngle = 0
+            Width = 95
+            Height = 25.9999923706055
+            OnClick = HudButton1Click
+            TabOrder = 0
+            StaysPressed = False
+            IsPressed = False
+            TextAlign = d2TextAlignCenter
+            Text = 'Grab'
+          end
+          object checkBitmap: TD2HudRadioButton
+            Position.Point = '(124,15.500)'
+            RotateAngle = 0
+            Width = 74
+            Height = 19
+            TabOrder = 1
+            IsChecked = False
+            TextAlign = d2TextAlignNear
+            Text = 'TBitmap'
+          end
+          object checkd3Bitmap: TD2HudRadioButton
+            Position.Point = '(197,15.500)'
+            RotateAngle = 0
+            Width = 85.9999694824219
+            Height = 19
+            TabOrder = 2
+            IsChecked = True
+            TextAlign = d2TextAlignNear
+            Text = 'TD3Bitmap'
+          end
+          object checkPicture: TD2HudRadioButton
+            Position.Point = '(285,15.500)'
+            RotateAngle = 0
+            Width = 87.9999694824219
+            Height = 19
+            TabOrder = 3
+            IsChecked = False
+            TextAlign = d2TextAlignNear
+            Text = 'TPicture'
+          end
+        end
+      end
+      object RoundCube1: TD3RoundCube
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-0.00713,0.32829,-6.66653E-7)'
+        Locked = False
+        Width = 2.38146686553955
+        Height = 3.25129747390747
+        Depth = 1.65013074874878
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Material.Diffuse = '#FFCB1526'
+        Material.Ambient = '#FF303030'
+        Material.BitmapMode = d3TexModulate
+        Material.BitmapTileX = 1
+        Material.BitmapTileY = 1
+        Material.BitmapRect.left = 0
+        Material.BitmapRect.top = 0
+        Material.BitmapRect.right = 0
+        Material.BitmapRect.bottom = 0
+        Material.FillMode = d3Solid
+        Quanternion = '(0,0,0,1)'
+        object FloatAnimation1: TD3FloatAnimation
+          AnimationType = d2AnimationInOut
+          AutoReverse = True
+          Duration = 1
+          Delay = 0
+          Enabled = True
+          Inverse = False
+          Loop = True
+          StartValue = 0
+          StartFromCurrent = False
+          StopValue = 360
+          PropertyName = 'RotateAngle.Y'
+        end
+      end
+      object Light1: TD3Light
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-4.05914,-6.81182,6.22463E-7)'
+        RotateAngle.Point = '(24.5803,0,35.2921)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        LightType = d3LightDirectional
+        Quanternion = '(-0.20285,0.06453,-0.29619,0.93111)'
+      end
+      object GUIImage1: TD3GUIImage
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(500,166,0)'
+        Locked = False
+        Width = 209
+        Height = 185
+        Depth = 3
+        DesignHide = False
+        Opacity = 1
+        TwoSide = True
+        LayerAlign = d3LayerNone
+        Bitmap.PNG = {
+          89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4
+          89000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+          00097048597300000EC300000EC301C76FA8640000000B494441541857636000
+          020000050001AAD5C8510000000049454E44AE426082
+        }
+        Quanternion = '(0,0,0,1)'
+        object GUIText1: TD3GUIText
+          DragMode = d3DragManual
+          DragDisableHighlight = True
+          Position.Point = '(-1,-43,0)'
+          Locked = False
+          Width = 146
+          Height = 21.9999923706055
+          Depth = 8
+          DesignHide = False
+          Opacity = 1
+          ShowHint = True
+          TwoSide = True
+          ModulationColor = '#FFFFFFFF'
+          LayerAlign = d3LayerNone
+          Fill.Color = '#FFF3F3F3'
+          Text = 'TD3Bitmap'
+          Quanternion = '(0,0,0,1)'
+          DesignSnapGridShow = False
+          DesignSnapToGrid = False
+          DesignSnapToLines = True
+        end
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 6
+    Height = 175
+    Top = 74
+    Width = 213
+    Caption = 'TPicture'
+    ClientHeight = 175
+    ClientWidth = 213
+    TabOrder = 1
+    object Image1: TImage
+      Left = 4
+      Height = 161
+      Top = 6
+      Width = 201
+      Stretch = True
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    Filter = 'Bitmap|*.bmp'
+    left = 38
+    top = 28
+  end
+end

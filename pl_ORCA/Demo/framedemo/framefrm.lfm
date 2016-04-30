@@ -1,0 +1,87 @@
+object frmMain: TfrmMain
+  Left = 469
+  Height = 535
+  Top = 237
+  Width = 719
+  ActiveControl = d2Scene1
+  Caption = 'ORCA 2D Frame'
+  ClientHeight = 535
+  ClientWidth = 719
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 535
+    Top = 0
+    Width = 719
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 719
+      Height = 535
+      Margins.Rect = '(9,9,9,9)'
+      object Label1: TD2Label
+        Align = vaTop
+        Position.Point = '(9,9)'
+        RotateAngle = 0
+        Width = 701
+        Height = 50
+        TabOrder = 1
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'This demo show - how to use  another ORCA object  (in another form) as child. ORCA can''t use self deigner in TFrame. To allow  designer use TForm for  second ORCA container. To see second ORCA object in TD2Frame.SceneObject, please add second '
+      end
+      object Panel1: TD2Panel
+        Align = vaClient
+        Position.Point = '(323,59)'
+        RotateAngle = 0
+        Width = 387
+        Height = 467
+        Margins.Rect = '(8,8,8,8)'
+        TabOrder = 0
+        object Frame1: TD2Frame
+          Align = vaClient
+          Position.Point = '(8,8)'
+          RotateAngle = 0
+          Width = 371
+          Height = 451
+          SceneObject = frmChild.frameScene1
+        end
+      end
+      object Panel2: TD2Panel
+        Align = vaLeft
+        Position.Point = '(9,59)'
+        RotateAngle = 0
+        Width = 309
+        Height = 467
+        TabOrder = 2
+        object Frame2: TD2Frame
+          Align = vaClient
+          Position.Point = '(5,5)'
+          RotateAngle = 0
+          Width = 299
+          Height = 457
+          Padding.Rect = '(5,5,5,5)'
+          SceneObject = frmChild.frameScene1
+        end
+      end
+      object Splitter1: TD2Splitter
+        Align = vaLeft
+        Cursor = crHSplit
+        Position.Point = '(318,59)'
+        RotateAngle = 0
+        Width = 5
+        Height = 467
+        TabOrder = 3
+        MinSize = 160
+      end
+    end
+  end
+end

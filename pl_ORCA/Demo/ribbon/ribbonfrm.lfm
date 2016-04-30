@@ -1,0 +1,1143 @@
+object frmRibbon: TfrmRibbon
+  Left = 425
+  Height = 391
+  Top = 197
+  Width = 649
+  BorderStyle = bsNone
+  Caption = 'ORCA 2D Ribbon'
+  ClientHeight = 391
+  ClientWidth = 649
+  Color = clBtnFace
+  Constraints.MinHeight = 200
+  Constraints.MinWidth = 270
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 391
+    Top = 0
+    Width = 649
+    Align = alClient
+    Transparency = True
+    Style = skinRibbon
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 649
+      Height = 391
+      HitTest = False
+      object Wnd: TD2HudWindow
+        Align = vaContents
+        RotateAngle = 0
+        Width = 649
+        Height = 391
+        Margins.Rect = '(17,15,17,17)'
+        HitTest = False
+        TabOrder = 0
+        ShowSizeGrip = False
+        Font.Size = 11.0000009536743
+        Font.Style = d2FontBold
+        TextAlign = d2TextAlignNear
+        ButtonAlign = d2ButtonAlignRight
+        Fill.Color = '#FFD8E3F1'
+        object HudTabControl1: TD2HudTabControl
+          Align = vaTop
+          Position.Point = '(17,40)'
+          RotateAngle = 0
+          Width = 615
+          Height = 116.000007629395
+          ClipChildren = True
+          Resource = 'ribbontabcontrolstyle'
+          TabOrder = 0
+          ItemIndex = 1
+          ItemHeight = 0
+          object HudTabItem1: TD2HudTabItem
+            Index = 0
+            Enabled = False
+            RotateAngle = 0
+            Width = 46
+            Height = 23
+            Opacity = 0.00100000004749745
+            HitTest = False
+            TabOrder = 0
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'Invisible'
+            Layout = Layout1
+          end
+          object HudTabItem2: TD2HudTabItem
+            Index = 1
+            Position.Point = '(46,0)'
+            RotateAngle = 0
+            Width = 86
+            Height = 23
+            TabOrder = 1
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'HudTabItem'
+            Layout = Layout2
+          end
+          object HudTabItem3: TD2HudTabItem
+            Index = 2
+            Position.Point = '(132,0)'
+            RotateAngle = 0
+            Width = 84
+            Height = 23
+            TabOrder = 2
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'HudTabItem'
+            Layout = Layout3
+          end
+          object HudTabItem4: TD2HudTabItem
+            Index = 3
+            Position.Point = '(216,0)'
+            RotateAngle = 0
+            Width = 107
+            Height = 23
+            TabOrder = 3
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'HudTabItem'
+            Layout = Layout4
+          end
+          object Layout1: TD2Layout
+            Position.Point = '(0,23)'
+            RotateAngle = 0
+            Width = 615
+            Height = 93.0000076293945
+            ClipChildren = True
+            Visible = False
+            DesignHide = True
+          end
+          object Layout3: TD2Layout
+            Position.Point = '(0,23)'
+            RotateAngle = 0
+            Width = 615
+            Height = 93.0000076293945
+            Margins.Rect = '(3,3,3,3)'
+            ClipChildren = True
+            Visible = False
+            DesignHide = True
+            object HudGroupBox1: TD2HudGroupBox
+              Align = vaLeft
+              Position.Point = '(3,3)'
+              RotateAngle = 0
+              Width = 140
+              Height = 87.0000076293945
+              Resource = 'ribbongroupstyle'
+              TabOrder = 0
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudGroupBox'
+              object HudStringListBox1: TD2HudStringListBox
+                Align = vaClient
+                Position.Point = '(3,3)'
+                RotateAngle = 0
+                Width = 131
+                Height = 66.0000076293945
+                Padding.Rect = '(3,3,6,18)'
+                Resource = 'hudlistboxstyle'
+                TabOrder = 0
+                ItemWidth = 0
+                ItemHeight = 19
+                Items.strings = (
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                  'string item'
+                )
+              end
+            end
+            object HudGroupBox2: TD2HudGroupBox
+              Align = vaLeft
+              Position.Point = '(143,3)'
+              RotateAngle = 0
+              Width = 140
+              Height = 87.0000076293945
+              Resource = 'ribbongroupstyle'
+              TabOrder = 1
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudGroupBox'
+            end
+          end
+          object Layout4: TD2Layout
+            Position.Point = '(0,23)'
+            RotateAngle = 0
+            Width = 615
+            Height = 93.0000076293945
+            Margins.Rect = '(3,3,3,3)'
+            ClipChildren = True
+            Visible = False
+            DesignHide = True
+            object HudHorzListBox1: TD2HudHorzListBox
+              Align = vaLeft
+              Position.Point = '(3,3)'
+              RotateAngle = 0
+              Width = 209
+              Height = 87.0000076293945
+              ClipChildren = True
+              Resource = 'hudlistboxstyle'
+              TabOrder = 0
+              Columns = 2
+              ItemIndex = 0
+              ItemWidth = 0
+              ItemHeight = 0
+              object ListBoxItem1: TD2ListBoxItem
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 0
+                IsChecked = False
+                IsSelected = True
+                object Path1: TD2Path
+                  Align = vaClient
+                  Position.Point = '(3,3)'
+                  RotateAngle = 0
+                  Locked = True
+                  Width = 94.9999847412109
+                  Height = 26.5000038146973
+                  Padding.Rect = '(3,3,3,3)'
+                  HitTest = False
+                  Fill.Color = '#FFFFFFFF'
+                  Stroke.Color = '#FF3E3E3E'
+                  Data.Path = {
+                    4000000000000000CDCC0C4266665A420100000033330742CDCC5F4201000000
+                    000001429A996342010000006666F44100006642010000009A99E541CDCC6642
+                    010000006666CE413333664201000000CDCCB84133336442010000006666A441
+                    333361420100000000009241CDCC5C4201000000000082416666574201000000
+                    00006C416666514201000000CDCC5C419A994A42010000009A99554133334342
+                    01000000CDCCE44033334742010000006666263F9A994842010000006666BEC0
+                    6666474201000000000040C19A99434201000000CDCC8CC133333D4201000000
+                    9A99B5C166663442010000009A99C7C133332F42010000009A99D7C1CDCC2942
+                    01000000CDCCE4C133332442010000009A99EFC133331E42010000006666F8C1
+                    00001842010000006666FEC19A99114201000000000001C2CDCC0A4201000000
+                    9A9901C2CDCC034201000000000001C29A99F941010000006666FEC10000EC41
+                    010000006666F8C1CDCCDE41010000009A99EFC16666D24101000000CDCCE4C1
+                    6666C641010000009A99D7C13333BB41010000009A99C7C16666B04101000000
+                    9A99B5C10000A64101000000CDCC8CC16666944101000000000040C100008841
+                    010000006666BEC066668041010000006666263F00007C41010000000000E840
+                    66668041010000009A99554100008841010000009A9997416666944101000000
+                    6666C0410000A64101000000CDCCD2416666B041010000006666E2413333BB41
+                    010000000000F0416666C64101000000CDCCFA416666D241010000009A990142
+                    CDCCDE41010000009A9904420000EC4101000000666606429A99F94101000000
+                    00000742CDCC034201000000CDCC044200001142010000000000FC4133331D42
+                    010000009A99E54166662842010000006666C641CDCC3242010000009A99C541
+                    66663742010000003333C74166663E42010000009A99CB419A99444201000000
+                    CDCCD24166664A42010000003333DD4166664F42010000000000F841CDCC5642
+                    01000000CDCC0C4266665A4201000000CDCC0C4266665A420300000000000000
+                    00000000
+                  }
+                  WrapMode = d2PathFit
+                end
+              end
+              object ListBoxItem2: TD2ListBoxItem
+                Position.Point = '(0,32.500)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 1
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem3: TD2ListBoxItem
+                Position.Point = '(101.000,0)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 2
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem4: TD2ListBoxItem
+                Position.Point = '(101.000,32.500)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 3
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem5: TD2ListBoxItem
+                Position.Point = '(202.000,0)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 4
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem6: TD2ListBoxItem
+                Position.Point = '(202.000,32.500)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 5
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem7: TD2ListBoxItem
+                Position.Point = '(303.000,0)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 6
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem8: TD2ListBoxItem
+                Position.Point = '(303.000,32.500)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 7
+                IsChecked = False
+                IsSelected = False
+              end
+              object ListBoxItem9: TD2ListBoxItem
+                Position.Point = '(404.000,0)'
+                RotateAngle = 0
+                Width = 100.999984741211
+                Height = 32.5000038146973
+                HitTest = False
+                TabOrder = 8
+                IsChecked = False
+                IsSelected = False
+              end
+            end
+            object HudTrack1: TD2HudTrack
+              Position.Point = '(237,12)'
+              RotateAngle = 0
+              Width = 183
+              Height = 15
+              TabOrder = 1
+              Min = 0
+              Max = 1
+              Frequency = 0
+              Orientation = d2Horizontal
+              Value = 0
+              ViewportSize = 0.100000001490116
+              Tracking = True
+            end
+            object HudScrollBar1: TD2HudScrollBar
+              Position.Point = '(466,3)'
+              RotateAngle = 0
+              Width = 15
+              Height = 87
+              TabOrder = 2
+              Min = 0
+              Max = 1
+              Orientation = d2Vertical
+              Value = 0
+              ViewportSize = 0.5
+              SmallChange = 0.0500000007450581
+            end
+          end
+          object Layout2: TD2Layout
+            Position.Point = '(0,23)'
+            RotateAngle = 0
+            Width = 615
+            Height = 93.0000076293945
+            Margins.Rect = '(3,3,3,3)'
+            ClipChildren = True
+            object HudButton2: TD2HudButton
+              Position.Point = '(14,43)'
+              RotateAngle = 0
+              Width = 91
+              Height = 26
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudButton'
+            end
+            object HudSpeedButton1: TD2HudSpeedButton
+              Position.Point = '(7,9)'
+              RotateAngle = 0
+              Width = 106
+              Height = 28
+              TabOrder = 1
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudSpeedButton'
+            end
+            object HudAngleButton1: TD2HudAngleButton
+              Position.Point = '(134,8)'
+              RotateAngle = 0
+              Width = 30
+              Height = 30
+              TabOrder = 2
+              Frequency = 0
+              Value = 0
+            end
+            object HudCheckBox1: TD2HudCheckBox
+              Position.Point = '(182,13)'
+              RotateAngle = 0
+              Width = 119.999992370605
+              Height = 19
+              TabOrder = 3
+              IsChecked = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignNear
+              Text = 'HudCheckBox'
+            end
+            object HudPopupBox1: TD2HudPopupBox
+              Position.Point = '(246,50)'
+              RotateAngle = 0
+              Width = 116.000007629395
+              Height = 21
+              TabOrder = 4
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Items.strings = (
+                'fsdasdffs'
+                'ffdfdf'
+                'sdfsfsaf'
+                'asfsafg'
+                'fg'
+                'd'
+                'gd'
+                'gd'
+                'gdg'
+              )
+              ItemIndex = -1
+            end
+            object HudStringComboBox1: TD2HudStringComboBox
+              Position.Point = '(127,50)'
+              RotateAngle = 0
+              Width = 115
+              Height = 21
+              Resource = 'hudcomboboxstyle'
+              TabOrder = 5
+              ItemIndex = -1
+              ItemHeight = 14.0000009536743
+              Placement = d2PlacementBottom
+              ListBoxResource = 'hudcombolistboxstyle'
+              Items.strings = (
+                'fsdasdffs'
+                'ffdfdf'
+                'sdfsfsaf'
+                'asfsafg'
+                'fg'
+                'd'
+                'gd'
+                'gd'
+                'gdg'
+                'gdsgsd'
+                'gsd'
+                'gsd'
+                'gsd'
+                'gsd'
+                'gsd'
+                'gsdgdsg'
+              )
+            end
+            object HudTextBox1: TD2HudTextBox
+              Position.Point = '(369,50)'
+              RotateAngle = 0
+              Width = 100
+              Height = 21
+              TabOrder = 7
+              Font.Size = 11.0000009536743
+              ReadOnly = False
+              Password = False
+            end
+            object HudRadioButton1: TD2HudRadioButton
+              Position.Point = '(311,13)'
+              RotateAngle = 0
+              Width = 119.999992370605
+              Height = 19
+              TabOrder = 6
+              IsChecked = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignNear
+              Text = 'HudRadioButton'
+            end
+          end
+        end
+        object RibbonButton: TD2HudButton
+          Position.Point = '(15,15)'
+          RotateAngle = 0
+          Width = 46
+          Height = 43
+          OnClick = RibbonButtonClick
+          TabOrder = 1
+          StaysPressed = False
+          IsPressed = False
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          object Image1: TD2Image
+            Align = vaCenter
+            Position.Point = '(9,7)'
+            RotateAngle = 0
+            Width = 28
+            Height = 28
+            HitTest = False
+            Bitmap.PNG = {
+              89504E470D0A1A0A0000000D4948445200000040000000400806000000AA6971
+              DE000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              00097048597300000EC300000EC301C76FA86400001A3549444154785EED5B77
+              5C5457B79DA844A9D2051401918E0A082208827444B1018AA848B7205634568C
+              35F65E638C894F8D294613A3D1D8356A34F602F6282A51630114069899F5D6B9
+              3089FA69204FFF48BE17EE6F7BEFDC7B66EE5D6BAFBDCFDE674699ECDFBF7F19
+              78AB0C6C96C9BC8F9B988C3CDD36E07F72433BFC30785DE82EA7C30E1BEA7D2A
+              1B27CB94B579AB37FB3B7DD816992CE24AF316071E8F1A05ECD90314FC0AC8CB
+              A14009AE220FEBCA3E42F753D1B05869B85F16226BFD777AF6377E963DF5EB4F
+              7BDCB933F0F917C0A9D3505DBE02D5ED3BC08387282AFB0D77908FCBAA8BD8AF
+              FC01939F8C86E32A43B9CC4716F4C637FE3B7CC0163DBD31A5B1B1C0EAD550AC
+              DF00E5B75B811F7F04CE9C052EE422BFF8024EE238F62A7760A3622D9695CC47
+              EAAD5E301AA27D9DCFAFF577C0F07F7E86693259D3335656158A9C89A8983913
+              AA152B80CF3E03B67E07EC6618ECDE8F730FF7603BB6E24BACC372CCC7C4F2D1
+              E8FF20198E1F3581AC3183E19FFCF7B9BEFEB8C2D818C8C78E85EAFDF781B973
+              81E524E1D34F49C44660DDE73850B01E1F631596602E26632CB21419E8F95B0C
+              5C37D9A396B72CED9F8C5FF69D95D5D6D2B434948BC4377A0CF0FE2460C60C60
+              FE7C60D12260CE226CB93907D3300513300A5948478222161DEF85C3615313D4
+              F1AE35F81F4DC027E6E6FB4BFBF645D99831508D1C098C7A0F183B0EC8C9A14D
+              04468EC727574612F820F44732125431E8248F44D89D4098CF3581CC48D6EB1F
+              4D40B286C6E21BDEAD51F6DE7B508C1E0DD58811C0B0E1C0D06140D660207900
+              165E48414F6EF1AAAEE85CDE1ED1859170DE638FDA76B51E11BCD93F9A80BA32
+              99F598DAB5EFFCE2E60E79E620545001AAA14381415940463F203E19B3CE25A0
+              2B62105BD1095D8B3BA0F90927D4767E4741E051FF68F0EA877F5726B31B2E93
+              EDB9686B0B79FFFE508CC8AEF47EBFFE40420AE69CEF8558C4A167490C7C6E7A
+              4223A1B69CEFEDF85F01FE3910EF7CACA9B9AEB47D7B28180E1842150CCC047A
+              A761DE8544C433047A3CED02ABADE69035920DFC6F032FE1D9A5A9D9A5B44307
+              28C631090E671E1061D0B71F165E4C461F24A2D7D318587D6AF2904319397FC3
+              BFCD0E0E16071B360CDC2B93B96E95C9ACBE96C9F41365B27A7CD45AD53DEE17
+              3299CBD5962D2F2A580F084336C360F01020652096E4A633FF2721A32411F67B
+              ED9EC9BACB9CAAFBBC1A5EAF151B2BAB5DC3B1D50FDB6D6333F44964240EF5EB
+              A72AE8DBB7A42021E17E7E8F1E376E75EE7CFE7A870EC7AF8785EDBA141AFAFD
+              A5E0E02DB9C1C19BB8FFFA7250D0D6ABC1C147F3C3C24A5453A6A26CEA542839
+              1B404C896226481B84E5B9FD39FBA722AB3415FD1FF685EB36BBCB5A4B6AF591
+              4D91B9C966C83C7456D5696BF89576A8CD56B358FBBD0D7B3B1FB14EF338EA30
+              C2EBA4E3789F93AE33FC7E725BEEF7738B8FFC8EB86DF4FBD17D9BEF41D7DDDE
+              DB9C8EBBAEB53EDF30CD7866F5C86A38E298ADED98F2A42428162D6611435BB6
+              ACB2AA5BB9F2455BC1D7A2E41526AE0B5BBA0CE5042FE4AF120A18C9C2481090
+              9E8515B903300019C8AA48C1D0671918F5341329777A20FE5C34122E7446DF1B
+              3148FDB53B321EF5C480E20464CA7B716C1F64297B235399807E153D90268F41
+              DF92CEE8591C856E8F431179D30F5E879C60916934BF86F0AA1F76CAC1E17D45
+              62222AA64D834A78927BE5F4E9507CF04195CDE09EC64A4FDA8BF3E23A3DAF9C
+              34492A8555135800B128FA5D01195958993B10992C8386A9323098240C91A7E2
+              3D7926C69665610CF7A3E503F8BA1F46C9D33192D74694256358595F0C29EB83
+              CCB27864C863912CEF8C5EA551882D0D45C7676D1154E085E6076CD160807E66
+              F5C86A38E298B3F302457232417D000863738399B38059B381D955A63E167B71
+              4D94BD24012401A217183F8125314320BB2A04FA0DC6877999AC03076004FA61
+              3895305C958E11C29469C8561234F72355C2526929C85625F37A1209A30A4005
+              70124D46671EB5473704A3BDD20F6D7FF380E34E2B9824D58FA921BCEA871D73
+              715959CEBA5E41CF43183D8C19552408B06A9B258E795E0D9E6AC1A4C995A5AF
+              9801DE130430098A102001ABF20611C840645305D984934D12848DA48D92F6E9
+              DC930CE6896C421DC184398CB3C610F4266D3D78B62B8F3A908650FE1B806085
+              37BC0B5C61B3D11CFA51FAFED523ABE1889F1D1C56C953525031650A30992680
+              09EF4A56A50A695F754E9024C652FE9848F0C2FB42FEA21F1025B1A8052405BC
+              9A806C02CFAE023E02295407A50F4A9F9366167A316CE23922865444A33B22D0
+              09ED10061FF85778C0ED96232C728C55065EDA2E358457FDB0830E0E6B4B92FA
+              A24248597853EC457727000A13C76A935EF3FA443196713F7E3CC133F9892248
+              C85FF403621A6412142190455F0AEF8F10214058C3097C387D3B8CC08711F810
+              7A7D30810FA2AF0752EC03083E83D5635F4A3F9ED2EF42E947C00F81F0827759
+              33B85CB385F602EDA706B6F52CAB4756C311BBECEDBF2AE22C502EBA39E149C9
+              084A7D2CDA5D11DFE2B5C8F4D2359A382F808B9658485F1441A21F10E530A741
+              751214F13F8CE08712F810021F42E0598438883ECE94E42EE25D78BD3BE98921
+              255D583F463100424801131FBCE10B37B8973AC13ECF0A8633F5EFD797D5D7AF
+              21BCEA877D6B67F7EDC33E7D50263C28400C630C8B381660849C87D0A3622FCE
+              0FA7C485CC45DD2F198FC539E93D55E0D91C2175A0540788697028610D16F500
+              816712F8407ABC3FA5CEE5118216B11EC72BDD484717D2D189673BF055282960
+              DCA335DAC0039E70816B891D9A9C6F04C369F5AF3695357D7B55E5166BEBEFEE
+              F74C805C80140F3F7020306000D05F181B1BC9782C6A7C51E60EA687052902B0
+              DAC47BC5F941E2FD1C973200CB2EF6A367D325F08308710021F627C40C7A3C8D
+              C05324A9C7908E2EA44300EF480DB4E799701E89B86F430ABC48410BB8C3092E
+              CF9AA2C9D946309AAA77BE26556AF5AEAF1AF1A5B5F5B6BBDDBBB3ADE583F763
+              2B9B9E0E556A1A94A238A23284A9384D2223A39218314E00155217F12E804BE0
+              498E207000094CEA4F023208368D9E4F913C3F8050FB116A1AE59E4A029298DF
+              13E9EBDED25417CD331D2402BA3D4740205A31FDB9490A68FED41E76E71AC36C
+              B6D1991A83ABC9C0B58D1A7D77AB732794B08F1740CB09B89C7B15E35A25A639
+              667CB1E05126AE25A74025DA5D01522282A0B3686AF0C2FB422D6C86965E4C97
+              4A61E1FD8124A0D2FB9504A4106A92E47D31D5B1D2930888A22622494098A480
+              702AA01D096843FFB7822BDC9F3AC2F1820D1A2D363D59135C351EB3DCD474E3
+              95B07014125C49422F94D0F3C749C65C12F11E6D427A063E65BC5F9D3001727A
+              5A9E9A0AA558F4106A10E122881026C08B7382A0C40C2CB99846B06AEF274ADE
+              4F2754E1FDE497E41F4FC89504449012567DCCFB950478730EF060183487E733
+              67B8E63585CDEA066F9780CEF5EAADDEEBE989FB5CE3BB171787795E5EB0A85B
+              F718194CA689AFB48269639B9B98E4AD0C09C1631250CA70508A9010F9414D84
+              9437F85A90D3271D8BB924964A3F0F7C21F6D5DE7F51FEF155F28F256C350162
+              FA0B26016DD19254B8A1754933B85F7380DDE78DCF4186775EE5E19CBD0374E2
+              EE842574BB1DB022FA46DB1D1DAFFA7DD3E192DFFCF8EBE1E1AF57848646BC8F
+              A626C6D8DBA36BA346E293BFE4602EF8FCC79F969E4C36675E9326781CDF1365
+              F4B44A80FD3D5156814F4BE782482A165D48A6FFFF88FD577B5FC85FEDFD4829
+              0176E1F42714200808A1EFDB31110A12FCE46E6875DB15CDB6DBFE92989828DA
+              F517FE62CE87B5EA54E09FD7AD3400718A20C4C803D1F9993FA20A7D1072C313
+              C1273D77773F1761FB6A226AD512EBF49FD1B265B1B17FDA6B7BCA64B37FB06D
+              8AA722490AF042F292910CA10A2650B124B6F07C5FFA5F24BEDE6251FCB9D87F
+              DEFB9D98112A935F2C218BF85713104902429902850A442E08AC6809FF076EF0
+              3AEA248F5EEF6BF132908E37DB5C8C510622FE6908FAC823D0AB2C0CDDE5C1E8
+              F4D41FA1F73CE1F74B33F8EE6FF64B9F4B310D6B9C1F5E33B0F6544DCD8BF7C3
+              C2509639904991C0D5E03983202515E8998405E713E97FF5B45799F95F8EFD97
+              BD2FE6FFCE842C14D01EFED4832FCFB4AE34A537428A5AA15D414B849CF1FCA4
+              FFD99E06E2F9165CCED1EB991FB1284E1E84849230242BA2789F28065E24C90D
+              4157655B449479C3FF5E73785CB087F70E97CD6F4A806CBAAEF6E03B1E2E9C32
+              FB565A5A223DDF87CBE1094C80F1406C1C667051B42B139F581AEFC12D8E5B0C
+              B7AEDCBA106634B70EDCDA738BE0164EEF87F28183B80570F3A7027CB9F948E6
+              C33CC023058F0A591C3DA25DF5BAE377D36F4FC0DD809BEDCB83D0511E821865
+              24EF12C5BBB4676511C64F6DC7CD8F1AF242B3F2E6B0B96E87C67B6CE078D6AF
+              E51B91906DEEE131C5AF87EAFCB059B8943D0F79C3E72277C81C5CCC9A8D0B03
+              67E242F2746C3E9DCC2F447B6055710F7C581C8795C531585ED40DCB8A3A6369
+              51272C29EA88C54551585814890545E1985F148A7985C1985BD80EB30BDB6256
+              A13F6616FA6286643E3CA63DF1C18C87B45F79FCC00F73386E6E6100163E0EC6
+              D2A761585E1A418BE47DC3B1E85910E651FE338BBC31F5893B263E74C1883C5B
+              246FB744DA5AFBC96F448075D7DD56CE49A74A3B4D2D47AF859CF697B0F6E162
+              52E202AA9F4B06716C1C7F3DC312F95617E07A775A0C70AD1B8DAFAFF1EBF4AB
+              1D6951C09548E072382D8C160C5C0AA205D2DA02B97E345F9A0FCD1BC8A35D6E
+              5D653C7795D76FF8F31E1C7F9BEFBB1BC2DF2654D91DBEBEC56BD7383ECF0338
+              EF0A9CB487629735CE2F37C3D7E32CB7BD1101E183F75AB74CCB2DF31A520CBF
+              D14A04B18F0AA345B139ECC87DE7714ADC3CC5AAF07634F00BBF42BF218C04DC
+              E84A2301D749C0F50E7C4012702D82164A407CF8AB7CF0AB047485045C6E4323
+              019709FC522B9A178F69573C2BED1ACFDD20C09B1C738B64E413B0DA6EF2BDD7
+              79FDB23BBFAA67A89EB1037EB646D1EE86F8699931D664999D7D230282479C0C
+              F11D7E1FFEA39F2260BC922400ADD9477912730BE641B71425AE1C26D01BBCB9
+              F0DA153EE4153EE0D5802A23480154329E1380C5F52B04724500E77B24D0042A
+              3C98EB466B015C6CF687E535E7759E1320AF70CC65B5F1751ECF0BE067ED8113
+              36C0B146C06133146D37C6D105FA98D7B77EEEEF04242DB86BE23FECC64A9F21
+              F907DB8ECCFF307A4A2E67BA3FFF0B1C736D43604E39DA4D92D354240168C3AE
+              B8355B030F4E0AEE1201F4FE753EC025F1A055263DF4F3C6071520FEC338264F
+              80A57405900BCE94B11301395482121E157656185F4BE7AAEC34CF9DB2A5C7AD
+              809F1AF2471B0D800346C05E033CD9AC8743337431AEA3E61F04040CBDB6C26F
+              9402FE638AD1767C39FC47DD296F3FF96AFCEB28889E7D2B2170622182263F43
+              C8740582B8382411C0EED89B6D81BB50401209F891045CE343E5D17B97FEA209
+              0FE6920441C0798217C005B0934D80E356501D6D04E511DAD186501CB180F2B0
+              05C073F8A9CA8EF2F52101DC58028EDD7A50FDA0837B9F6961F7647DF4F2D53B
+              F43B3E9F21970F064C2841D8EC67089F538276934BD12AE7813C66C5AFD1CF93
+              90B1F156C3A8B9F72607E5FCAC0A9E568AD0996508F94089402E2209EF7B53FE
+              1EAC815C7B012EF14A5CDE2F921C3D21649B2B4C785518C10993BCFE1A622402
+              F81E35F8534DA51816C0CBF699A178A731EE7D65886B1F1AE0F67A134ABB019E
+              7EAF8FB25D8650ED27E8FD951E17C0B14B47B28AED3AB8B1460B1B4636844B43
+              9DD9BF636B3DF8DA9E7693CB10B9A8021D962B11B940009323645A21C2A6FFFA
+              73E8D4FCCDA1936FEF0B9A54F03874868AD74A49561909504AF217E05BB12772
+              6339E0DA03B0EF44EBA8C4A55DCCECB996C039C74A2042CAC2A302D80B44BC82
+              044180187B8EB2179E2778D0DBE57B4DF1F01B031C9DAA8D210E7510A053E759
+              474B4D4CE96481B3CB9DF07093019E7DAB456FFF015C8057EED4C5C38D7590F7
+              5163A4465A83E0FF08F35603AEFC1038518E88F9E52480997C294958588EB059
+              7284CE5012B00AC1D394089E2E4097227C768574BE1D9707DB7011C993557073
+              7ADD8909DE8E49DD8A89DC2A5089BCED3C386F56198F52BC5611F13209AF5281
+              508B94C4287D49F6965051D285DF19E2E24A1DA47BD4B9F3AEEC5D7ECD6EC1B5
+              C13A04F3CE94560D8C1FEF98D91AF7361AE3D1C67750B64D138A1DDA906FAD8B
+              07EB65B8B3D106CB4707435F576BE30BE1DD2AE3FC57FE634B2449B7E7AF5BA2
+              38A7472D56A1FD4225495154029E5941421492D743A6AB24D9FB729A6FC97897
+              BC4EB5DBB4032C99ECCD98B8CD3D95C8DDC2AC7E865214C94880109E7C8184AA
+              707855280802846A44623B5999C595074C51F08501B68FD7465C2B9D8C57E428
+              E7C62626B756BFDF09F99B0371EF0B0B14ACAF8F075F3745FEB6382CCC498291
+              919198FE8C5E78AF7BE2A90FDB641733A9C999038048FECC2792058DB0081E87
+              F1EB8010AE8A0773B55C78BD2DD7437D44B64F019C59DFD852E902B839671F13
+              AAD6804E337622015FB25839A15B9989D5240840229B0BEF4AA1F09A5CA08E7F
+              41DA09CA9F9F51B1CF14D7D6EA63E2201DD5A46EC6EEAF49D2B61A1ABABB3B45
+              8661E9D441D8B47234164ECB4678482465AF299A3D93FF789F7BEF13D35A0F7E
+              04FFB1CCEAD354F472256861A1FC0248CAF25CFAF7E722B0F0BA3ADE9D58D4D9
+              50E516F4B809011BD854A0BE6539742CC4BE14E7D6B268F9510B8A830D98BC04
+              09042200899CF00201AFC801AF20A07CAF09F23ED6474EBAAE625E8CB5433533
+              7528AF4FA9AD517F19F7EFD15ABD767CF398C3833C330AE033BC8840559297DB
+              71254C582097FF85C77D59E4882C2F24DF9CFD8E0367386BD62F662D08BC4929
+              F4CC0BA1637A175AC61751D7E067D43338824DA39D91FF495DDCDB628CE23DE6
+              901F6E0CE549E60311062F13208A1961EA7C200890126065F6170A10093077B5
+              20404FB122DECAB1BA5AA5C6D79B753918EBD6F7065A653E86DF48A5E4697F82
+              16C04585E7C3156F91E8DC9218EF2CEBED59C15AB170336BAE847EE362689BE6
+              43D3E007D4D5FD0075B5132B34747AFE5A47A7FBED4867E3DF06B7A98365F13A
+              383CDB1077B737C2B3C34DA038CD181104484511BDAF062F115045C2CB041C23
+              010C81BC3506C8E9AFA75AD2C3A6798D015637D0A5FD7EDF66F117E099F11BC1
+              2AE0CB8246143542EE3E5CEDF6E24A971BBB5D6796F376EDABC0BB09C917D3EB
+              D7504FFF63D4D3ED71BABE41DB740B0B4F87A6AD0CF502029C751A3937326CED
+              60DA2CA68541C6B880FA3F7D9F6382FC1D4D5072DC01AA0B4C1622FE25F02F95
+              B1829497438049B062BF19AEAC35C48661FA589D6AF3F6BE1B7489D86D6BDEE1
+              9B728FD4FBF01E5C81D6042D4A5A6FAE748B7877E78AB84B1CC133D35B33D35B
+              30B48D1DCBA0D7F036340DBF828E7EDCC68000E91725AFFD03506B75A2F9DC13
+              6BACF0E0B0132ACED3FB520DDFF20F9388784E01EA59E044E534A83868861B9F
+              1961F31803ACC9B0EA529D636B7CDDC177B3AE4BA76305EEC9F71806E568CD72
+              5694B422E625E9B3C0716623D7944D9B90BE399FD3C8BE18BAE6A7A165987335
+              22A2E6BFFDF9F1E326470B0E39A3F41CBD2CC05F6506954C10C10F7E55088859
+              404C8387CC90FF8511B64DD4C727FD2DFBD518604D063A451F3AD3A24F013CD3
+              4B25C97B11B8279B1A0FAE6E8922C7918D5D1376AB966CD4CCDC5530B27B4002
+              F6C1B8D1CCF135F97CF598533FB4CABEFBA32B8A4F53FEBF7BBFCAF3EAEA4FE4
+              0731535495BF60FCE3881954074C50C0F277E7A4FA58D3CF7CCA5FB96FB5631D
+              22F76E758DCF67AC3F853B939D88F916BD81665CDD72E47467CB765D9AEBF9AC
+              26CE2AE85BDD86AED9F7B072DCD0B5DA0F7F6EC0E9037EFD6F1F240127450D40
+              15A86B7E356851318ACA516A615946B3D1C12153A9A951ED33C483AFF4B16BB2
+              0E5626997EFA57EE5BEDD8A6613B173B75BBCE587F42D02A29E69D287B31DDA9
+              0B1D333EAF318B33435B25742D6E43A7C14E583B6D89ABF6C39F1B706A9FD7FA
+              8203CE787A924950DDE9096F4B050F411F6F5CD9BB8B6E4E6A63D9D81038F6EA
+              4B8DCDA34DBAD837550BCB120DF7FD95FB563BD63670F330FB0E17E118FD1BE5
+              AE94A63A11F3A2D091CA5B8237E2EC65C87CA46FA922F807D0323904B3265B16
+              57FBE155032E5D0C8FDAFBBD6BD9DDBD8E909F26936AE052AD4FE06AD0551EC7
+              5E02DF539FC0594D567574C55B747064961696F7D6BF869F5768D4F4DED58EB3
+              F55BD7B949E831340D2F806DB802365C9E6BCC52BE2157A324CFB382D56749AF
+              C770D4657FA3D3E029B48D4F4157EFC3127B8F4FABFD2F30678EB58D3CB2D959
+              71F93B7B14FDE408A5A80524A957163938ACF6365B58E1ED9780AB0978BA451B
+              3FCDD5C4EC789D67BB8606BDF1FAFEEFC4D879CD736BECB70D5601D761E9578A
+              86AD5552BC9B52A94654677D86A38E045C6D0AD60077A069B419BAA663F2A3A3
+              67E8FE19CB3BD6B96C3EB2C116B776DA417E5CBDB041AF1F31678C9B50E67F2C
+              5A287768A1625B5D76711A78B6B9168A37D542D1D71A28DAACCD4ECF00FBA61B
+              22A7A31E327D2DDF5E2DD0D42DC244C77EF233738FFDB06A7D178D5A16C1D0AE
+              1075CD9E40A65B089956316AD72F455DC332689A94B3FA63CD6F7A1F5A463BA9
+              846CD834EBDBECCF08D8B6D479FEAE15D6B8F0A50D1EEEB6E2E22417357618A0
+              70AB0E9E6C7A178FBEA88D879F6BE0B72FB4F0F06B533CFEB6291E6DE7F795DF
+              B5C3B52F2370785928368EF3C5841ECE08726B0053BD7AD0D7D34EA856DA351D
+              909323ABF5EEBBBAFBDFD5724503CB0CB4F45D828E31DBD12BF91CFAA4DE4197
+              F807F00DBE0F07B7025834BD0B23CB5BD0333BCD42683534357B14B56CD9C1F8
+              CFEE75F12B7FF355632D4FAD1F67819DB39BE0C832279C58E58ED31FB7C199B5
+              E138B3A13B4E6EEC8FC31B4761C79AF158336B24DE1F9C82DED151F076F37C6C
+              656C754EEB1D3DFE8AB7F674DE87C0B5DCCDCDCDDFEE7FBC6AD040A6ADA12113
+              6D66AFDAB5B567181B5B7DE3E2E2772E3CBCD7C380802ECADE8933D0257611DA
+              062F8543B37930341B0D4DFD389571E3E8AC9A107DFEF3589D3969D659A3A24D
+              BECD0A333B9BDCAE516E72906D6E9F60D70BB16D5C4F86BBDBEFF4B4B55C67AD
+              AF3587DFCC8ACF14D59E07CD94F6CA6F836B72DF371D236E2C16109CF91BEA00
+              EE6235EAFA2569E804A6E89B462458D9B5777B831BD4E17BC517B16FEF87CF6F
+              F030FFBEF55F06FE9F31F0BFF4FB3665C968F8DD0000000049454E44AE426082
+            }
+            WrapMode = d2ImageFit
+          end
+        end
+        object HudStatusBar1: TD2HudStatusBar
+          Position.Point = '(17,350)'
+          RotateAngle = 0
+          Width = 615
+          Height = 24
+          Margins.Rect = '(2,2,30,2)'
+          Resource = 'ribbonstatusbarstyle'
+          TabOrder = 2
+          ShowSizeGrip = True
+          object HudTrackBar1: TD2HudTrackBar
+            Align = vaRight
+            Position.Point = '(504,5)'
+            RotateAngle = 0
+            Width = 81
+            Height = 14
+            Padding.Rect = '(0,3,0,3)'
+            TabOrder = 0
+            Min = 0.100000001490116
+            Max = 1
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 1
+            Tracking = True
+            OnChange = HudTrackBar1Change
+          end
+          object HudLabel1: TD2HudLabel
+            Align = vaClient
+            Position.Point = '(2,2)'
+            RotateAngle = 0
+            Width = 321
+            Height = 20
+            TabOrder = 1
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignNear
+            VertTextAlign = d2TextAlignCenter
+            Text = 'd2Scene Ribbon - Style for HUD Controls'
+            WordWrap = False
+          end
+          object HudLabel2: TD2HudLabel
+            Align = vaRight
+            Position.Point = '(454,2)'
+            RotateAngle = 0
+            Width = 50
+            Height = 20
+            TabOrder = 2
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignFar
+            VertTextAlign = d2TextAlignCenter
+            Text = 'Back:'
+          end
+          object HudTrackBar2: TD2HudTrackBar
+            Align = vaRight
+            Position.Point = '(373,5)'
+            RotateAngle = 0
+            Width = 81
+            Height = 14
+            Padding.Rect = '(0,3,0,3)'
+            TabOrder = 3
+            Min = 0.100000001490116
+            Max = 1
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 1
+            Tracking = True
+            OnChange = HudTrackBar2Change
+          end
+          object HudLabel3: TD2HudLabel
+            Align = vaRight
+            Position.Point = '(323,2)'
+            RotateAngle = 0
+            Width = 50
+            Height = 20
+            TabOrder = 4
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignFar
+            VertTextAlign = d2TextAlignCenter
+            Text = 'Full:'
+          end
+        end
+        object RibbonPopup: TD2Popup
+          Position.Point = '(404,71)'
+          RotateAngle = 0
+          Width = 231
+          Height = 268
+          DesignHide = True
+          TabOrder = 3
+          IsOpen = False
+          HorizontalOffset = 0
+          VerticalOffset = 0
+          PlacementTarget = RibbonButton
+          object Rectangle1: TD2Rectangle
+            Align = vaContents
+            Position.Point = '(9,0)'
+            RotateAngle = 0
+            Width = 207
+            Height = 253
+            Margins.Rect = '(3,3,3,33)'
+            Padding.Rect = '(9,0,15,15)'
+            Fill.Color = '#E6F6F6F6'
+            Stroke.Color = '#FFABABAB'
+            xRadius = 5
+            yRadius = 5
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object ShadowEffect1: TD2ShadowEffect
+              Distance = 3
+              Direction = 45
+              Softness = 0.599999964237213
+              Opacity = 0.599999964237213
+              ShadowColor = '#FF000000'
+            end
+            object HudButton1: TD2HudButton
+              Align = vaBottomLeft
+              Position.Point = '(3,225)'
+              RotateAngle = 0
+              Width = 80
+              Height = 22
+              OnClick = HudButton1Click
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'Exit'
+            end
+            object Rectangle2: TD2Rectangle
+              Align = vaTop
+              Position.Point = '(3,3)'
+              RotateAngle = 0
+              Width = 201
+              Height = 50
+              Fill.Color = '#FFF5D38B'
+              Stroke.Color = '#FFCCCCCC'
+              xRadius = 5
+              yRadius = 5
+              Corners = [d2CornerTopLeft, d2CornerTopRight]
+              Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+              object Text2: TD2Text
+                Align = vaClient
+                RotateAngle = 0
+                Locked = True
+                Width = 201
+                Height = 50
+                Font.Size = 11.0000009536743
+                Text = 'This is ORCA''s popup. You can place this any ORCA 2D objects.'
+              end
+            end
+            object HudSpeedButton2: TD2HudSpeedButton
+              Align = vaTop
+              Position.Point = '(3,53)'
+              RotateAngle = 0
+              Width = 201
+              Height = 23
+              TabOrder = 2
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudSpeedButton'
+            end
+            object HudSpeedButton3: TD2HudSpeedButton
+              Align = vaTop
+              Position.Point = '(3,144)'
+              RotateAngle = 0
+              Width = 201
+              Height = 23
+              TabOrder = 3
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudSpeedButton'
+            end
+            object HudSpeedButton4: TD2HudSpeedButton
+              Align = vaTop
+              Position.Point = '(3,121)'
+              RotateAngle = 0
+              Width = 201
+              Height = 23
+              TabOrder = 4
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudSpeedButton'
+            end
+            object HudSpeedButton5: TD2HudSpeedButton
+              Align = vaTop
+              Position.Point = '(3,98)'
+              RotateAngle = 0
+              Width = 201
+              Height = 23
+              TabOrder = 5
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'HudSpeedButton'
+            end
+            object Rectangle3: TD2Rectangle
+              Align = vaBottom
+              Position.Point = '(3,167)'
+              RotateAngle = 0
+              Width = 201
+              Height = 53
+              Fill.Color = '#FFF5D38B'
+              Stroke.Color = '#FFCCCCCC'
+              xRadius = 5
+              yRadius = 5
+              Corners = [d2CornerBottomLeft, d2CornerBottomRight]
+              Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            end
+            object Rectangle4: TD2Rectangle
+              Align = vaTop
+              Position.Point = '(3,76)'
+              RotateAngle = 0
+              Width = 201
+              Height = 22
+              Fill.Color = '#FFF5D38B'
+              Stroke.Color = '#FFCCCCCC'
+              xRadius = 5
+              yRadius = 5
+              Corners = []
+              Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            end
+            object HudSizeGrip1: TD2HudSizeGrip
+              Align = vaBottomRight
+              Position.Point = '(188,233)'
+              RotateAngle = 0
+              Width = 16
+              Height = 16
+              TabOrder = 8
+            end
+          end
+        end
+        object Layout5: TD2Layout
+          Align = vaTop
+          Position.Point = '(67,15)'
+          RotateAngle = 0
+          Width = 545
+          Height = 23
+          Padding.Rect = '(50,0,20,2)'
+          object HudSpeedButton6: TD2HudSpeedButton
+            Align = vaLeft
+            RotateAngle = 0
+            Width = 23
+            Height = 23
+            TabOrder = 0
+            StaysPressed = False
+            IsPressed = False
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            object Image2: TD2Image
+              Align = vaCenter
+              Position.Point = '(2,2)'
+              RotateAngle = 0
+              Locked = True
+              Width = 18
+              Height = 18
+              HitTest = False
+              Bitmap.PNG = {
+                89504E470D0A1A0A0000000D4948445200000018000000180806000000E0773D
+                F8000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                00097048597300000EC300000EC301C76FA864000005E049444154484BA59609
+                4CD36718C6CB2915758AD73466C916331762E231642A48111CCAE981A082C03C
+                366472954B509989C73C26E2058880A0031119C8218AC028574B0BA51C1548D1
+                14500139DACA597AD0671F8D31330513B77FF2E4FDB7FF7CCFEF7D9FEFEB41A1
+                FCCFEB159D4215177B7C35D61643EB67F87EF75FECB4BAD2BE5D20AA895839D2
+                9C643BDA9EEB23ED2ABB24EBE3664AC52D1CF9A0F0B544D22305C6A1181910A8
+                54AAE5D341B472AEF86E61FD75D5B734EDF215615D6EAA4CD4502C97B4B54A87
+                5E4926A4FD0094449FBEA452A958A554799CA250743F02D1C81BE73C56F64B3A
+                9B3EE9A0224F27944A2865A3508C8A211BEC8654F41263BD4D1879530D594F05
+                2062A08F73A9E823C0291A45F7C85A8A30CC7A2E1899B198985042219742F4B6
+                1383DD2DC4A01123DD3518E96261B49B495E5743DACFC1B8880DE90013E3FDE5
+                90F69540DA5300BC7B86E1177FB66B0002371B0A8337E9C1671D05D1DEE6883A
+                68826336F351FD2004CAC10AC84495A4EB06A8146D80AA83CCD20195F20594E3
+                CFA118E292E7E5187BFB0418C8874490D8AA09B09C290CB532049D3613E1DBE6
+                23DC661E822CA8E06447923DE442FEAE1A8AE15A28C71A88299FA8118A311EE4
+                C36CC82493131462B42B0713BD599034C74C01A011C0E6996A40A4D332443A2E
+                4188D51CB033C3806106C6074A885119E44395C4B48A880939996C5C4CA2E97B
+                4AA2CBC170673A145D6910F1A3A7025009804A005435E0A4C312046F9E035606
+                1D13E20262F088649F4FB22F8462B0041323A5640F9E402E7E82F1BE1C0C75A4
+                62F0E51DC83A92F09677710A800555186249452089E5A4E3529CB05F8C20CBD9
+                A84AF581BC27436D30FC3A1DB2815CBC6D4D425D5E386AB28348037E10B22E60
+                A42319A2E6EB186DBB811EF6E9A9000604604000063841BA3F6EB71074CB5928
+                4F3E8831D29544700B239D2968AF3E8FF2BB87D1C9B98837BC68BCAAB98067B1
+                7BF1A2F42444CFA330C4BF8057E5A19A80800D3AC260DA0C046C9A81E3F65F22
+                62DB02D02D0CC14870C790E01A06F851E86B8A4269C27E7471CFA33ADD1B25F1
+                6E60A51D467B652418B7F7A19F7716A2DADFD0511CF0694084DD621CDB6A4460
+                862889D90D51FD39F4D59D053FCF0FDCCC23443EE0E7FBA3A3F204AA523CD059
+                1181BFE35CD05D1981DE8A50BC78ECA309F027130459E8C3DF5C1FE1B68B10F6
+                E33C723F1385571CD0CB3C8EEEAA087052BDC07BF833E9762FDA4B43C1CD3884
+                B2DB7BC04D3F0056B21B3A8BFDF1A6E8289AB30E4E03201F347F337DD2FD0284
+                587F015F3303145CB4C1EB92007414F9A336D51365F12EA84BFF0905510EA84C
+                7045D15527306277A12DCF1B824787D09E7708FCFBEE9A003F32017D932EFCCC
+                F5106663448EE82CF86ED047EE194B08F37F416BD601B541DE85AD6026BA827B
+                CF0D8D0F3CC149D98BE64C2FB43CF4043FCD1D6D19EEA84F749906604E00667A
+                0825F1D02D0D7174BD1EB223CD20208B9B52F7A1397D3F1A53DD50F8C736145E
+                B65557C6750734DEDB83861457F0929CD172CF05EC98ED9A8023648240731D12
+                8B2E8967AEFAB8FAFCA08B87E1A6784E0CEA12778197E88CFA3BBBD174CF555D
+                1BEE38ABC5BDBD13B5B7B68313EB88A6841D60DFB49D066046001B75116C3D87
+                9C207D1C31D5C683D0EFD140CC39318E6A831AA2C9AA568C0331B307FB863DAA
+                2775DD0E0DF14E60454F01F0DBA02D0C34D386DF461D0459CD269BAD076F532D
+                DC0F5E035EFC0EF5E249B1AE4DCAF643655EB505F3EAB60FAA8FB327F736828F
+                BE4D5D8C29FABFAED7EE0FB5D004A4D157831BE784AAF7262C52D9D76D517BD3
+                0EF57124FF5BF6E0C74F5607706FDAAA95736AD34B02D0FE3744CB6E85B6F701
+                136D71184D87ECC16C0492D3E4BB5E0BD9C7D64290BC536D5417630766F45614
+                FE6E85AC8055D2BBE1E65DF101A6BC68EF358F4F7BAE8AA3EF328E70B7FA7AFF
+                7A63235362AEA5F1FBBC74366585EB2AADDC601291CF063D1C30D1119FDEB79C
+                1FEB6FFAF48CD7AA841067E3480FEB6FBC68AB176D319AA56F4C0C1612E97DF6
+                BF09F3E506349365BAEBE653A94BC9E2199F6DF07EC13FEFC38CA911A68C8200
+                00000049454E44AE426082
+              }
+              WrapMode = d2ImageFit
+            end
+          end
+          object Text1: TD2Text
+            Align = vaClient
+            Position.Point = '(69,0)'
+            RotateAngle = 0
+            Locked = True
+            Width = 476
+            Height = 23
+            HitTest = False
+            Fill.Color = '#FD4B4B4B'
+            Font.Size = 11.0000009536743
+            Font.Style = d2FontBold
+            Text = 'ORCA 2D Ribbon UI'
+            WordWrap = False
+            object GlowEffect1: TD2GlowEffect
+              Softness = 1
+              Opacity = 1
+              GlowColor = '#FFF6E048'
+            end
+          end
+          object HudSpeedButton7: TD2HudSpeedButton
+            Align = vaLeft
+            Position.Point = '(46,0)'
+            RotateAngle = 0
+            Width = 23
+            Height = 23
+            TabOrder = 2
+            StaysPressed = False
+            IsPressed = False
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+          end
+          object HudSpeedButton8: TD2HudSpeedButton
+            Align = vaLeft
+            Position.Point = '(23,0)'
+            RotateAngle = 0
+            Width = 23
+            Height = 23
+            TabOrder = 3
+            StaysPressed = False
+            IsPressed = False
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+          end
+        end
+        object Layout6: TD2Layout
+          Align = vaClient
+          Position.Point = '(17,156)'
+          RotateAngle = 0
+          Width = 615
+          Height = 194
+          ClipChildren = True
+          object ColorQuad1: TD2ColorQuad
+            Position.Point = '(5,5)'
+            RotateAngle = 0
+            Width = 112
+            Height = 118
+            TabOrder = 0
+            Hue = 0.589999973773956
+            Lum = 0.899999976158142
+            Sat = 0.200000002980232
+            Alpha = 1
+            ColorBox = ColorBox1
+            OnChange = ColorQuad1Change
+          end
+          object ColorPicker1: TD2ColorPicker
+            Position.Point = '(120,5)'
+            RotateAngle = 0
+            Width = 16
+            Height = 118
+            TabOrder = 1
+            Hue = 0.589999973773956
+            ColorQuad = ColorQuad1
+          end
+          object ColorBox1: TD2ColorBox
+            Position.Point = '(5,126)'
+            RotateAngle = 0
+            Width = 112
+            Height = 21
+            TabOrder = 2
+          end
+          object HudPanel1: TD2HudPanel
+            Position.Point = '(170,23)'
+            RotateAngle = 0
+            Width = 107
+            Height = 111
+            TabOrder = 3
+          end
+          object HudMemo1: TD2HudMemo
+            Position.Point = '(286,23)'
+            RotateAngle = 0
+            Width = 119.999992370605
+            Height = 77
+            TabOrder = 4
+            WordWrap = False
+            Font.Size = 11.0000009536743
+            Text = 'HudMemo'
+          end
+        end
+      end
+    end
+  end
+  object skinRibbon: TD2Resources
+    left = 434
+    top = 24
+  end
+end

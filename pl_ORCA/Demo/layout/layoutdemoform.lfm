@@ -1,0 +1,498 @@
+object frmLayout: TfrmLayout
+  Left = 381
+  Height = 603
+  Top = 172
+  Width = 704
+  Caption = 'ORCA 2D layout'
+  ClientHeight = 603
+  ClientWidth = 704
+  Color = clBtnFace
+  Constraints.MinHeight = 350
+  Constraints.MinWidth = 500
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 603
+    Top = 0
+    Width = 704
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 704
+      Height = 603
+      Margins.Rect = '(6,6,6,6)'
+      object TabControl1: TD2TabControl
+        Align = vaClient
+        Position.Point = '(6,6)'
+        RotateAngle = 0
+        Width = 692
+        Height = 591
+        TabOrder = 0
+        ItemIndex = 0
+        ItemHeight = 0
+        object TabItem1: TD2TabItem
+          Index = 0
+          RotateAngle = 0
+          Width = 91
+          Height = 24
+          TabOrder = 0
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Alignments'
+          Layout = Layout1
+        end
+        object TabItem2: TD2TabItem
+          Index = 1
+          Position.Point = '(91,0)'
+          RotateAngle = 0
+          Width = 94
+          Height = 24
+          TabOrder = 2
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Layouts'
+          Layout = Layout2
+        end
+        object TabItem6: TD2TabItem
+          Index = 2
+          Position.Point = '(185,0)'
+          RotateAngle = 0
+          Width = 96
+          Height = 24
+          TabOrder = 5
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Nond2Layout'
+          Layout = Layout6
+        end
+        object Layout6: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 692
+          Height = 567
+          ClipChildren = True
+          Visible = False
+          DesignHide = True
+          object Rectangle23: TD2Rectangle
+            Align = vaClient
+            Position.Point = '(33,79)'
+            RotateAngle = 0
+            Width = 626
+            Height = 455
+            Padding.Rect = '(33,33,33,33)'
+            xRadius = 12
+            yRadius = 12
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object Nond2Layout1: TD2Nond2Layout
+              Align = vaClient
+              Position.Point = '(9,9)'
+              RotateAngle = 0
+              Width = 608
+              Height = 437
+              Padding.Rect = '(9,9,9,9)'
+              Nond2Control = Panel1
+            end
+          end
+          object Label1: TD2Label
+            Align = vaTop
+            Position.Point = '(5,5)'
+            RotateAngle = 0
+            Width = 682
+            Height = 36
+            Padding.Rect = '(5,5,5,5)'
+            TabOrder = 1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'TD2Nond2Layout - this control allow easy align LCL controls. Just place this object and set Nond2Control property. TD2Nond2Layout control auto-align LCL control and also check visibility of object. TPanel placed on top of TD2Scene.'
+          end
+        end
+        object Layout2: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 692
+          Height = 567
+          Margins.Rect = '(9,9,9,9)'
+          ClipChildren = True
+          Visible = False
+          DesignHide = True
+          object TabControl2: TD2TabControl
+            Align = vaClient
+            Position.Point = '(9,9)'
+            RotateAngle = 0
+            Width = 674
+            Height = 549
+            TabOrder = 0
+            ItemIndex = 0
+            ItemHeight = 0
+            object TabItem3: TD2TabItem
+              Index = 0
+              RotateAngle = 0
+              Width = 170
+              Height = 24
+              TabOrder = 0
+              TextAlign = d2TextAlignCenter
+              VertTextAlign = d2TextAlignCenter
+              Text = 'Layout - Std Alignment'
+              Layout = Layout3
+            end
+            object TabItem4: TD2TabItem
+              Index = 1
+              Position.Point = '(170,0)'
+              RotateAngle = 0
+              Width = 224
+              Height = 24
+              TabOrder = 1
+              TextAlign = d2TextAlignCenter
+              VertTextAlign = d2TextAlignCenter
+              Text = 'ScaledLayout - Autoscale Children'
+              Layout = Layout4
+            end
+            object TabItem5: TD2TabItem
+              Index = 2
+              Position.Point = '(394,0)'
+              RotateAngle = 0
+              Width = 158
+              Height = 24
+              TabOrder = 5
+              TextAlign = d2TextAlignCenter
+              VertTextAlign = d2TextAlignCenter
+              Text = 'Grid - Grid Alignment'
+              Layout = Layout5
+            end
+            object Layout4: TD2Layout
+              Position.Point = '(0,24)'
+              RotateAngle = 0
+              Width = 674
+              Height = 525
+              Margins.Rect = '(9,9,9,9)'
+              ClipChildren = True
+              Visible = False
+              DesignHide = True
+              object ScaledLayout1: TD2ScaledLayout
+                Align = vaClient
+                Position.Point = '(9,9)'
+                RotateAngle = 0
+                Width = 656
+                Height = 507
+                OriginalWidth = 656
+                OriginalHeight = 507
+                object Rectangle2: TD2Rectangle
+                  Position.Point = '(136.144,70.514)'
+                  RotateAngle = 0
+                  Width = 387.85595703125
+                  Height = 359.485961914063
+                  Padding.Rect = '(13,13,13,13)'
+                  Fill.Color = '#FFB0FDD8'
+                  xRadius = 7
+                  yRadius = 7
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+              end
+            end
+            object Layout5: TD2Layout
+              Position.Point = '(0,24)'
+              RotateAngle = 0
+              Width = 674
+              Height = 525
+              Margins.Rect = '(9,9,9,9)'
+              ClipChildren = True
+              Visible = False
+              DesignHide = True
+              object Grid1: TD2GridLayout
+                Align = vaClient
+                Position.Point = '(9,9)'
+                RotateAngle = 0
+                Width = 656
+                Height = 507
+                ItemHeight = 128
+                ItemWidth = 128
+                Orientation = d2Horizontal
+                object Rectangle3: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(4,4)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle4: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(132,4)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle5: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(260,4)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle6: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(388,4)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle7: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(516,4)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle8: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(4,132)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle9: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(132,132)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle10: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(260,132)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle11: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(388,132)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle12: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(516,132)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle13: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(4,260)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle14: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(132,260)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle15: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(260,260)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle16: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(388,260)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle17: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(516,260)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle18: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(4,388)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle19: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(132,388)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle20: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(260,388)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle21: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(388,388)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+                object Rectangle22: TD2Rectangle
+                  Align = vaTop
+                  Position.Point = '(516,388)'
+                  RotateAngle = 0
+                  Width = 120
+                  Height = 120
+                  Padding.Rect = '(4,4,4,4)'
+                  Fill.Color = '#FFFBD2F4'
+                  xRadius = 5
+                  yRadius = 5
+                  Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+                end
+              end
+            end
+            object Layout3: TD2Layout
+              Position.Point = '(0,24)'
+              RotateAngle = 0
+              Width = 674
+              Height = 525
+              Margins.Rect = '(9,9,9,9)'
+              ClipChildren = True
+              object Rectangle1: TD2Rectangle
+                Align = vaClient
+                Position.Point = '(9,9)'
+                RotateAngle = 0
+                Width = 652
+                Height = 503
+                Padding.Rect = '(0,0,4,4)'
+                xRadius = 5
+                yRadius = 5
+                Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+              end
+            end
+          end
+        end
+        object Layout1: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 692
+          Height = 567
+          ClipChildren = True
+        end
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 48
+    Height = 437
+    Top = 118
+    Width = 608
+    Caption = 'Panel1'
+    TabOrder = 1
+  end
+end

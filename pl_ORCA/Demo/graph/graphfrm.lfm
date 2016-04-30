@@ -1,0 +1,81 @@
+object Form14: TForm14
+  Left = 547
+  Height = 477
+  Top = 208
+  Width = 488
+  Caption = 'ORCA 2D Graph'
+  ClientHeight = 477
+  ClientWidth = 488
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 477
+    Top = 0
+    Width = 488
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 488
+      Height = 477
+      object TrackBar1: TD2TrackBar
+        Position.Point = '(66,9)'
+        RotateAngle = 0
+        Width = 111
+        Height = 15
+        TabOrder = 0
+        Min = 5
+        Max = 100
+        Frequency = 0
+        Orientation = d2Horizontal
+        Value = 20
+        Tracking = True
+        OnChange = TrackBar1Change
+      end
+      object Label1: TD2Label
+        Position.Point = '(7,9)'
+        RotateAngle = 0
+        Width = 66
+        Height = 15
+        TabOrder = 1
+        Font.Size = 11.0000009536743
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Scale:'
+      end
+      object Rectangle1: TD2Rectangle
+        Align = vaClient
+        Position.Point = '(5,35)'
+        RotateAngle = 0
+        Width = 478
+        Height = 437
+        Padding.Rect = '(5,35,5,5)'
+        Fill.Color = '#FF313131'
+        Stroke.Color = '#FF353535'
+        xRadius = 5
+        yRadius = 5
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object PlotGrid1: TD2PlotGrid
+          Align = vaClient
+          Position.Point = '(2,2)'
+          RotateAngle = 0
+          Width = 474
+          Height = 433
+          Padding.Rect = '(2,2,2,2)'
+          OnMouseWheel = PlotGrid1MouseWheel
+          OnPaint = PlotGrid1Paint
+          LineFill.Color = '#FF616161'
+          Marks = 4
+          Frequency = 10
+        end
+      end
+    end
+  end
+end

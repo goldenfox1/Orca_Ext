@@ -1,0 +1,178 @@
+object frmAniCode: TfrmAniCode
+  Left = 410
+  Height = 528
+  Top = 197
+  Width = 572
+  BorderStyle = bsSingle
+  Caption = 'ORCA 2D Animations'
+  ClientHeight = 528
+  ClientWidth = 572
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 528
+    Top = 0
+    Width = 572
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 572
+      Height = 528
+      object Panel1: TD2Panel
+        Align = vaClient
+        Position.Point = '(6,36)'
+        RotateAngle = 0
+        Width = 560
+        Height = 486
+        Padding.Rect = '(6,36,6,6)'
+        TabOrder = 0
+        object Container: TD2Layout
+          Align = vaClient
+          Position.Point = '(3,3)'
+          RotateAngle = 0
+          Width = 554
+          Height = 480
+          Padding.Rect = '(3,3,3,3)'
+          ClipChildren = True
+          object Rectangle1: TD2Rectangle
+            Position.Point = '(128,45)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle2: TD2Rectangle
+            Position.Point = '(212,164)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle4: TD2Rectangle
+            Position.Point = '(276,82)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle5: TD2Rectangle
+            Position.Point = '(296,167)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle6: TD2Rectangle
+            Position.Point = '(115,159)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle7: TD2Rectangle
+            Position.Point = '(205,105)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle9: TD2Rectangle
+            Position.Point = '(249,225)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+          object Rectangle11: TD2Rectangle
+            Position.Point = '(89,225)'
+            RotateAngle = 0
+            Width = 50
+            Height = 50
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+        end
+      end
+      object radioVert: TD2RadioButton
+        Position.Point = '(10,8)'
+        RotateAngle = 0
+        Width = 91
+        Height = 19
+        TabOrder = 1
+        IsChecked = True
+        TextAlign = d2TextAlignNear
+        Text = 'Vertical'
+        OnChange = radioVertChange
+      end
+      object radioHorz: TD2RadioButton
+        Position.Point = '(125,8)'
+        RotateAngle = 0
+        Width = 91
+        Height = 19
+        TabOrder = 2
+        IsChecked = False
+        TextAlign = d2TextAlignNear
+        Text = 'Horizontal'
+        OnChange = radioVertChange
+      end
+      object radioGrid: TD2RadioButton
+        Position.Point = '(236,8)'
+        RotateAngle = 0
+        Width = 91
+        Height = 19
+        TabOrder = 3
+        IsChecked = False
+        TextAlign = d2TextAlignNear
+        Text = 'Grid'
+        OnChange = radioVertChange
+      end
+      object Button1: TD2Button
+        Position.Point = '(353,7)'
+        RotateAngle = 0
+        Width = 80
+        Height = 22
+        OnClick = Button1Click
+        TabOrder = 5
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Add'
+      end
+      object Button2: TD2Button
+        Position.Point = '(444,7)'
+        RotateAngle = 0
+        Width = 80
+        Height = 22
+        OnClick = Button2Click
+        TabOrder = 4
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Remove'
+      end
+    end
+  end
+end

@@ -1,0 +1,488 @@
+object Form6: TForm6
+  Left = 244
+  Height = 528
+  Top = 235
+  Width = 1020
+  ActiveControl = d2Scene1
+  Caption = 'ORCA 2D Binding'
+  ClientHeight = 528
+  ClientWidth = 1020
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 528
+    Top = 0
+    Width = 1020
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 1020
+      Height = 528
+      HelpType = htKeyword
+      object ToolBar1: TD2ToolBar
+        RotateAngle = 0
+        Width = 1020
+        Height = 73
+        HelpType = htKeyword
+        TabOrder = 0
+        object Label4: TD2Label
+          Align = vaCenter
+          Position.Point = '(293,9)'
+          RotateAngle = 0
+          Width = 433
+          Height = 55
+          HelpType = htKeyword
+          TabOrder = 0
+          Font.Size = 12
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'How to use BindingSource property. This sample haven''t a code.  Only ORCA Binding.'
+        end
+      end
+      object Grid1: TD2GridLayout
+        Align = vaClient
+        Position.Point = '(4,77)'
+        RotateAngle = 0
+        Width = 1012
+        Height = 447
+        Padding.Rect = '(4,4,4,4)'
+        ItemHeight = 200
+        ItemWidth = 200
+        Orientation = d2Horizontal
+        object Panel1: TD2Panel
+          Position.Point = '(2,2)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 0
+          object ValueLabel1: TD2ValueLabel
+            Align = vaTop
+            Position.Point = '(5,5)'
+            RotateAngle = 0
+            Width = 186
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 0
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'TrackBar <-> TextBox and Label'
+          end
+          object TrackBar1: TD2TrackBar
+            Position.Point = '(41,45)'
+            RotateAngle = 0
+            Width = 109
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 1
+            BindingSource = TextBox1
+            Min = 0
+            Max = 100
+            Frequency = 1
+            Orientation = d2Horizontal
+            Value = 0
+            Tracking = True
+          end
+          object TextBox1: TD2TextBox
+            BindingName = 'text'
+            Position.Point = '(13,103)'
+            RotateAngle = 0
+            Width = 110
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 2
+            BindingSource = TrackBar1
+            ReadOnly = False
+            Password = False
+            Text = '0'
+          end
+          object Label1: TD2Label
+            Position.Point = '(127,105)'
+            RotateAngle = 0
+            Width = 50
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 3
+            BindingSource = TrackBar1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = '0'
+          end
+        end
+        object Panel2: TD2Panel
+          Position.Point = '(202,2)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 1
+          object t1: TD2TrackBar
+            Position.Point = '(30,76)'
+            RotateAngle = 0
+            Width = 135
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = t2
+            Min = 0
+            Max = 100
+            Frequency = 0.5
+            Orientation = d2Horizontal
+            Value = 33
+            Tracking = True
+          end
+          object t2: TD2TrackBar
+            Position.Point = '(30,110)'
+            RotateAngle = 0
+            Width = 135
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 2
+            BindingSource = t1
+            Min = 0
+            Max = 100
+            Frequency = 0.5
+            Orientation = d2Horizontal
+            Value = 33
+            Tracking = True
+          end
+          object ValueLabel2: TD2ValueLabel
+            Position.Point = '(56,41)'
+            RotateAngle = 0
+            Width = 83
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 1
+            BindingSource = t1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = '33'
+          end
+        end
+        object Panel3: TD2Panel
+          Position.Point = '(402,2)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 2
+          object TextBox2: TD2TextBox
+            Position.Point = '(27,105)'
+            RotateAngle = 0
+            Width = 149
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 1
+            ReadOnly = False
+            Password = False
+            Text = 'binding text'
+          end
+          object Label2: TD2Label
+            Position.Point = '(27,46)'
+            RotateAngle = 0
+            Width = 149
+            Height = 38
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = TextBox2
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'binding text'
+          end
+        end
+        object Panel4: TD2Panel
+          Position.Point = '(602,2)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 3
+          object NumberBox1: TD2NumberBox
+            Position.Point = '(48,104)'
+            RotateAngle = 0
+            Width = 100
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 1
+            ReadOnly = False
+            Min = 0
+            Max = 100
+            Value = 33
+            ValueType = d2ValueInteger
+            HorzIncrement = 1
+            VertIncrement = 5
+          end
+          object Label3: TD2Label
+            Position.Point = '(73,56)'
+            RotateAngle = 0
+            Width = 50
+            Height = 15
+            HelpType = htKeyword
+            Resource = 'valuelabelstyle'
+            TabOrder = 0
+            BindingSource = NumberBox1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = '33'
+          end
+        end
+        object Panel5: TD2Panel
+          Position.Point = '(802,2)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 4
+          object TextBox3: TD2TextBox
+            Position.Point = '(35,66)'
+            RotateAngle = 0
+            Width = 122
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 1
+            BindingSource = TextBox4
+            ReadOnly = False
+            Password = False
+            Text = 'TextBox'
+          end
+          object TextBox4: TD2TextBox
+            Position.Point = '(35,111)'
+            RotateAngle = 0
+            Width = 122
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = TextBox3
+            ReadOnly = False
+            Password = False
+            Text = 'TextBox'
+          end
+        end
+        object Panel6: TD2Panel
+          Position.Point = '(2,202)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 5
+          object StringListBox1: TD2StringListBox
+            Position.Point = '(30,74)'
+            RotateAngle = 0
+            Width = 130
+            Height = 108
+            HelpType = htKeyword
+            Resource = 'listboxstyle'
+            TabOrder = 1
+            HideSelectionUnfocused = False
+            ItemIndex = 0
+            ItemWidth = 0
+            ItemHeight = 19
+            BindingSource = TextBox5
+            Items.strings = (
+              '1'
+              '2'
+              '3'
+              '4'
+              '5'
+              '6'
+              '7'
+              '8'
+              '9'
+            )
+          end
+          object TextBox5: TD2TextBox
+            Position.Point = '(45,37)'
+            RotateAngle = 0
+            Width = 100
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = StringListBox1
+            ReadOnly = False
+            Password = False
+            Text = '1'
+          end
+        end
+        object Panel7: TD2Panel
+          Position.Point = '(202,202)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 6
+          object StringComboBox1: TD2StringComboBox
+            Position.Point = '(24,38)'
+            RotateAngle = 0
+            Width = 148
+            Height = 23
+            HelpType = htKeyword
+            Resource = 'comboboxstyle'
+            TabOrder = 0
+            ItemIndex = 0
+            ItemHeight = 19
+            Placement = d2PlacementBottom
+            Items.strings = (
+              'item 1'
+              'item 2'
+              'item 3'
+              'item 4'
+              'item 5'
+              'item 6'
+              'item 7'
+              'item 8'
+            )
+          end
+          object Label5: TD2Label
+            Position.Point = '(40,106)'
+            RotateAngle = 0
+            Width = 117
+            Height = 18
+            HelpType = htKeyword
+            Resource = 'valuelabelstyle'
+            TabOrder = 1
+            BindingSource = StringComboBox1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'item 1'
+          end
+        end
+        object Panel8: TD2Panel
+          Position.Point = '(402,202)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 7
+          object TrackBar2: TD2TrackBar
+            Position.Point = '(48,51)'
+            RotateAngle = 0
+            Width = 100
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 1
+            Min = 0
+            Max = 100
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 0
+            Tracking = True
+          end
+          object ProgressBar1: TD2ProgressBar
+            Position.Point = '(16,104)'
+            RotateAngle = 0
+            Width = 164
+            Height = 17
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = TrackBar2
+            Min = 0
+            Max = 100
+            Orientation = d2Horizontal
+            Value = 0
+          end
+        end
+        object Panel9: TD2Panel
+          Position.Point = '(602,202)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 8
+          object ValueLabel3: TD2ValueLabel
+            Align = vaTop
+            Position.Point = '(5,5)'
+            RotateAngle = 0
+            Width = 186
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 0
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'Calendar ->'
+          end
+          object Calendar1: TD2Calendar
+            Position.Point = '(8,27)'
+            RotateAngle = 0
+            Width = 179
+            Height = 158
+            HelpType = htKeyword
+            TabOrder = 1
+            BindingSource = TextBox6
+            Date = 40478
+          end
+        end
+        object Panel10: TD2Panel
+          Position.Point = '(802,202)'
+          RotateAngle = 0
+          Width = 196
+          Height = 196
+          Margins.Rect = '(5,5,5,5)'
+          Padding.Rect = '(2,2,2,2)'
+          HelpType = htKeyword
+          TabOrder = 9
+          object TextBox6: TD2TextBox
+            Position.Point = '(27,105)'
+            RotateAngle = 0
+            Width = 149
+            Height = 21
+            HelpType = htKeyword
+            TabOrder = 1
+            BindingSource = Calendar1
+            ReadOnly = False
+            Password = False
+            Text = '27/10/2010'
+          end
+          object Label6: TD2Label
+            Position.Point = '(27,46)'
+            RotateAngle = 0
+            Width = 149
+            Height = 38
+            HelpType = htKeyword
+            TabOrder = 0
+            BindingSource = Calendar1
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = '27/10/2010'
+          end
+          object ValueLabel4: TD2ValueLabel
+            Align = vaTop
+            Position.Point = '(5,5)'
+            RotateAngle = 0
+            Width = 186
+            Height = 15
+            HelpType = htKeyword
+            TabOrder = 2
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = '<- Text Controls'
+          end
+        end
+      end
+    end
+  end
+end

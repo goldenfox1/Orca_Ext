@@ -1,0 +1,163 @@
+object frmHud3D: TfrmHud3D
+  Left = 591
+  Height = 348
+  Top = 250
+  Width = 466
+  ActiveControl = d3Scene1
+  BorderStyle = bsNone
+  Caption = 'ORCA Layered'
+  ClientHeight = 348
+  ClientWidth = 466
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 348
+    Top = 0
+    Width = 466
+    Align = alClient
+    AllowDrag = True
+    Quality = d3LowQuality
+    FillColor = '#00000000'
+    AmbientColor = '#FF202020'
+    Transparency = True
+    RealTimeSleep = 0
+    UsingDesignCamera = False
+    DesignCameraPos = -20
+    DesignCameraZAngle = -19.4999446868896
+    DesignCameraXAngle = 44.2999725341797
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      OnMouseDown = Root1MouseDown
+      Quanternion = '(0,0,0,1)'
+      object GuiLayer: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(233,174,0)'
+        Locked = False
+        Width = 466
+        Height = 348
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        AllowDrag = True
+        LayerAlign = d3LayerContents
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root3: TD2Layout
+          RotateAngle = 0
+          Width = 466
+          Height = 348
+          object HudWindow1: TD2HudWindow
+            Align = vaContents
+            RotateAngle = 0
+            Width = 466
+            Height = 348
+            HitTest = False
+            TabOrder = 0
+            Font.Size = 11.0000009536743
+            Font.Style = d2FontBold
+            TextAlign = d2TextAlignNear
+            Text = 'ORCA HUD Controls - This is real 3D window'
+            ButtonAlign = d2ButtonAlignRight
+            object HudButton1: TD2HudButton
+              Position.Point = '(178,94)'
+              RotateAngle = 0
+              Width = 94
+              Height = 26.9999847412109
+              OnClick = HudButton1Click
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'Flip'
+            end
+            object HudButton2: TD2HudButton
+              Position.Point = '(178,133)'
+              RotateAngle = 0
+              Width = 94.0000152587891
+              Height = 25.9999923706055
+              OnClick = HudButton2Click
+              TabOrder = 2
+              StaysPressed = False
+              IsPressed = False
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'Fill...'
+            end
+            object Layout1: TD2Layout
+              Align = vaTop
+              Position.Point = '(20,40)'
+              RotateAngle = 0
+              Width = 426
+              Height = 22
+              Padding.Rect = '(20,40,20,0)'
+              object HudButton5: TD2HudButton
+                Position.Point = '(188,0)'
+                RotateAngle = 0
+                Width = 49
+                Height = 22
+                OnClick = HudButton5Click
+                TabOrder = 0
+                StaysPressed = False
+                IsPressed = False
+                Font.Size = 11.0000009536743
+                TextAlign = d2TextAlignCenter
+                Text = 'o'
+              end
+              object HudButton3: TD2HudButton
+                Align = vaLeft
+                RotateAngle = 0
+                Width = 49
+                Height = 22
+                OnClick = HudButton3Click
+                TabOrder = 1
+                StaysPressed = False
+                IsPressed = False
+                Font.Size = 11.0000009536743
+                TextAlign = d2TextAlignCenter
+                Text = '<-'
+              end
+              object HudButton4: TD2HudButton
+                Align = vaRight
+                Position.Point = '(377,0)'
+                RotateAngle = 0
+                Width = 49
+                Height = 22
+                OnClick = HudButton4Click
+                TabOrder = 2
+                StaysPressed = False
+                IsPressed = False
+                Font.Size = 11.0000009536743
+                TextAlign = d2TextAlignCenter
+                Text = '->'
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

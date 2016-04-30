@@ -1,0 +1,95 @@
+object Form15: TForm15
+  Left = 484
+  Height = 520
+  Top = 239
+  Width = 566
+  Caption = 'ORCA 2D Path'
+  ClientHeight = 520
+  ClientWidth = 566
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 520
+    Top = 0
+    Width = 566
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 566
+      Height = 520
+      object PaintRect: TD2Rectangle
+        Position.Point = '(13,72)'
+        RotateAngle = 0
+        Width = 534
+        Height = 395
+        OnMouseDown = PaintRectMouseDown
+        OnMouseMove = PaintRectMouseMove
+        OnMouseUp = PaintRectMouseUp
+        OnPaint = PaintRectPaint
+        xRadius = 5
+        yRadius = 5
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+      end
+      object CompoundTrackBar1: TD2CompoundTrackBar
+        Position.Point = '(15,19)'
+        RotateAngle = 0
+        Width = 200
+        Height = 20
+        TabOrder = 1
+        TextLabel.Align = vaLeft
+        TextLabel.RotateAngle = 0
+        TextLabel.Locked = True
+        TextLabel.Width = 70
+        TextLabel.Height = 20
+        TextLabel.Padding.Rect = '(0,0,5,0)'
+        TextLabel.TabOrder = 0
+        TextLabel.TextAlign = d2TextAlignFar
+        TextLabel.VertTextAlign = d2TextAlignCenter
+        TextLabel.Text = 'Stroke Width:'
+        TextLabel.WordWrap = False
+        TrackBar.Align = vaVertCenter
+        TrackBar.Position.Point = '(0,2)'
+        TrackBar.RotateAngle = 0
+        TrackBar.Locked = True
+        TrackBar.Width = 75
+        TrackBar.Height = 15
+        TrackBar.TabOrder = 0
+        TrackBar.Min = 1
+        TrackBar.Max = 20
+        TrackBar.Frequency = 0
+        TrackBar.Orientation = d2Horizontal
+        TrackBar.Value = 7
+        TrackBar.Tracking = True
+        ValueLabel.Align = vaVertCenter
+        ValueLabel.Position.Point = '(5,2)'
+        ValueLabel.RotateAngle = 0
+        ValueLabel.Locked = True
+        ValueLabel.Width = 45
+        ValueLabel.Height = 15
+        ValueLabel.Padding.Rect = '(5,0,0,0)'
+        ValueLabel.TabOrder = 0
+        ValueLabel.TextAlign = d2TextAlignCenter
+        ValueLabel.VertTextAlign = d2TextAlignCenter
+        ValueLabel.Text = '7.00 '
+      end
+      object Label1: TD2Label
+        Position.Point = '(238,21)'
+        RotateAngle = 0
+        Width = 307
+        Height = 15
+        TabOrder = 2
+        TextAlign = d2TextAlignNear
+        VertTextAlign = d2TextAlignCenter
+        Text = 'How to Interpolate using Bezier curve'
+      end
+    end
+  end
+end

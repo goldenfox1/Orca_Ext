@@ -1,0 +1,159 @@
+object frmStars: TfrmStars
+  Left = 322
+  Height = 663
+  Top = 190
+  Width = 882
+  Caption = 'ORCA Sprite Demo'
+  ClientHeight = 663
+  ClientWidth = 882
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 663
+    Top = 0
+    Width = 882
+    Align = alClient
+    AllowDrag = True
+    Quality = d3LowQuality
+    FillColor = '#00000000'
+    AmbientColor = '#FF202020'
+    RealTime = True
+    RealTimeSleep = 0
+    DesignCameraPos = -20
+    DesignCameraZAngle = 13.8000020980835
+    DesignCameraXAngle = 3.8000020980835
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      Quanternion = '(0,0,0,1)'
+      object ObjectLayer: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(441,25,0.00098)'
+        Locked = False
+        Width = 882
+        Height = 50
+        Depth = 0.100000001490116
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerMostTop
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 882
+          Height = 50
+          object Rectangle1: TD2Rectangle
+            Align = vaClient
+            Position.Point = '(3,3)'
+            RotateAngle = 0
+            Width = 876
+            Height = 44
+            Padding.Rect = '(3,3,3,3)'
+            Fill.Color = '#68272727'
+            Stroke.Style = d2BrushNone
+            xRadius = 7
+            yRadius = 7
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            object textFps: TD2Text
+              Position.Point = '(3,2)'
+              RotateAngle = 0
+              Width = 66.0000152587891
+              Height = 13.9999856948853
+              Fill.Color = '#FFDEDEDE'
+              Font.Size = 11.0000009536743
+              HorzTextAlign = d2TextAlignNear
+              Text = 'Text'
+            end
+          end
+          object Text1: TD2Text
+            Align = vaCenter
+            Position.Point = '(316,6)'
+            RotateAngle = 0
+            Width = 248.000045776367
+            Height = 37.0000305175781
+            Fill.Color = '#FFECECEC'
+            Font.Size = 11.0000009536743
+            Text = 'This demo show TD3GUIScene2DLayer''s sprites generate at run-time.'
+          end
+        end
+      end
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 14
+    top = 24
+  end
+  object d3BitmapList1: TD3BitmapList
+    Bitmaps = <    
+      item
+        Bitmap.PNG = {
+          FFD8FFE000104A46494600010101006000600000FFDB00430001010101010101
+          0101010101010101010101010101010101010101010101010101010101010101
+          01010101010101010101010101010101010101010101010101FFDB0043010101
+          0101010101010101010101010101010101010101010101010101010101010101
+          010101010101010101010101010101010101010101010101010101010101FFC0
+          00110800A000B003012200021101031101FFC4001F0000010501010101010100
+          000000000000000102030405060708090A0BFFC400B510000201030302040305
+          0504040000017D01020300041105122131410613516107227114328191A10823
+          42B1C11552D1F02433627282090A161718191A25262728292A3435363738393A
+          434445464748494A535455565758595A636465666768696A737475767778797A
+          838485868788898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7
+          B8B9BAC2C3C4C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE1E2E3E4E5E6E7E8E9EAF1
+          F2F3F4F5F6F7F8F9FAFFC4001F01000301010101010101010100000000000001
+          02030405060708090A0BFFC400B5110002010204040304070504040001027700
+          0102031104052131061241510761711322328108144291A1B1C109233352F015
+          6272D10A162434E125F11718191A262728292A35363738393A43444546474849
+          4A535455565758595A636465666768696A737475767778797A82838485868788
+          898A92939495969798999AA2A3A4A5A6A7A8A9AAB2B3B4B5B6B7B8B9BAC2C3C4
+          C5C6C7C8C9CAD2D3D4D5D6D7D8D9DAE2E3E4E5E6E7E8E9EAF2F3F4F5F6F7F8F9
+          FAFFDA000C03010002110311003F00FE59EB428ACFA002B428ACFA002B428ACF
+          A002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428A
+          CFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B42
+          8ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B
+          428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA00
+          2B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA
+          002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428AC
+          FA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428
+          ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B4
+          28ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002
+          B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA0
+          02B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACF
+          A002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428A
+          CFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B42
+          8ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B
+          428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA00
+          2B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA
+          002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428AC
+          FA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428ACFA002B428
+          ACFA002B428ACFA002B428ACFA00FFD9
+        }
+        Name = 'blend.png'
+      end>
+    left = 44
+    top = 24
+  end
+end

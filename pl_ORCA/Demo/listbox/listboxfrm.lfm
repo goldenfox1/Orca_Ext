@@ -1,0 +1,402 @@
+object frmListBoxDemo: TfrmListBoxDemo
+  Left = 387
+  Height = 545
+  Top = 174
+  Width = 706
+  ActiveControl = d2Scene1
+  Caption = 'ORCA ListBox'
+  ClientHeight = 545
+  ClientWidth = 706
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 545
+    Top = 0
+    Width = 706
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 706
+      Height = 545
+      object TabControl1: TD2TabControl
+        Align = vaClient
+        Position.Point = '(19,19)'
+        RotateAngle = 0
+        Width = 668
+        Height = 507
+        Padding.Rect = '(19,19,19,19)'
+        ClipChildren = True
+        TabOrder = 0
+        ItemIndex = 0
+        ItemHeight = 0
+        object TabItem1: TD2TabItem
+          Index = 0
+          RotateAngle = 0
+          Width = 81
+          Height = 24
+          TabOrder = 0
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Columns'
+          Layout = Layout1
+        end
+        object TabItem2: TD2TabItem
+          Index = 1
+          Position.Point = '(81,0)'
+          RotateAngle = 0
+          Width = 158
+          Height = 24
+          TabOrder = 1
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'ItemWidth, ItemHeight'
+          Layout = Layout2
+        end
+        object TabItem3: TD2TabItem
+          Index = 2
+          Position.Point = '(239,0)'
+          RotateAngle = 0
+          Width = 85
+          Height = 24
+          TabOrder = 2
+          Font.Size = 11.0000009536743
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Image List'
+          Layout = Layout5
+        end
+        object TabItem4: TD2TabItem
+          Index = 3
+          Position.Point = '(324,0)'
+          RotateAngle = 0
+          Width = 120
+          Height = 24
+          TabOrder = 7
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Alternating Row'
+          Layout = Layout6
+        end
+        object Layout2: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 668
+          Height = 483
+          ClipChildren = True
+          Visible = False
+          DesignHide = True
+          object Label2: TD2Label
+            Align = vaTop
+            RotateAngle = 0
+            Width = 668
+            Height = 36
+            TabOrder = 0
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'TD2ListBox.ItemWidth and TD2ListBox.ItemHeight property'
+          end
+          object TrackBar2: TD2TrackBar
+            Position.Point = '(133,36)'
+            RotateAngle = 0
+            Width = 100
+            Height = 15
+            TabOrder = 1
+            Min = 20
+            Max = 100
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 48
+            Tracking = True
+            OnChange = TrackBar2Change
+          end
+          object TrackBar3: TD2TrackBar
+            Position.Point = '(363,36)'
+            RotateAngle = 0
+            Width = 100
+            Height = 15
+            TabOrder = 2
+            Min = 20
+            Max = 100
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 48
+            Tracking = True
+            OnChange = TrackBar3Change
+          end
+          object Label3: TD2Label
+            Position.Point = '(40,36)'
+            RotateAngle = 0
+            Width = 87
+            Height = 15
+            TabOrder = 3
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'ItemWidth:'
+          end
+          object Label4: TD2Label
+            Position.Point = '(272,36)'
+            RotateAngle = 0
+            Width = 87
+            Height = 15
+            TabOrder = 4
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'ItemHeight:'
+          end
+          object Layout4: TD2Layout
+            Align = vaClient
+            Position.Point = '(9,66)'
+            RotateAngle = 0
+            Width = 650
+            Height = 408
+            Padding.Rect = '(9,30,9,9)'
+            object ListBox1: TD2ListBox
+              Align = vaLeft
+              RotateAngle = 0
+              Width = 252.000015258789
+              Height = 408
+              TabOrder = 0
+              DisableFocusEffect = True
+              Columns = 5
+              ItemIndex = 0
+              ItemWidth = 48
+              ItemHeight = 48
+            end
+            object HorzListBox2: TD2HorzListBox
+              Align = vaClient
+              Position.Point = '(258,0)'
+              RotateAngle = 0
+              Width = 392
+              Height = 408
+              Resource = 'listboxstyle'
+              TabOrder = 1
+              DisableFocusEffect = True
+              Columns = 7
+              ItemWidth = 48
+              ItemHeight = 48
+            end
+            object Splitter2: TD2Splitter
+              Align = vaLeft
+              Cursor = crHSplit
+              Position.Point = '(252.000,0)'
+              RotateAngle = 0
+              Width = 6
+              Height = 408
+              TabOrder = 2
+              MinSize = 30
+            end
+          end
+        end
+        object Layout5: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 668
+          Height = 483
+          ClipChildren = True
+          Visible = False
+          DesignHide = True
+          object ImageListBox1: TD2ImageListBox
+            Align = vaClient
+            Position.Point = '(9,40)'
+            RotateAngle = 0
+            Width = 650
+            Height = 434
+            Padding.Rect = '(9,40,9,9)'
+            Resource = 'listboxstyle'
+            TabOrder = 0
+            DisableFocusEffect = True
+            Columns = 3
+            ItemIndex = 0
+            ItemWidth = 199.000015258789
+            ItemHeight = 199.000015258789
+            ShowFileName = True
+          end
+          object Button1: TD2Button
+            Position.Point = '(9,10)'
+            RotateAngle = 0
+            Width = 262
+            Height = 26
+            OnClick = Button1Click
+            TabOrder = 1
+            StaysPressed = False
+            IsPressed = False
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            Text = 'Select Image Folder by openning file...'
+          end
+          object TrackBar4: TD2TrackBar
+            Position.Point = '(444,16)'
+            RotateAngle = 0
+            Width = 141
+            Height = 15
+            TabOrder = 2
+            Min = 64
+            Max = 200
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 199.000015258789
+            Tracking = True
+            OnChange = TrackBar4Change
+          end
+        end
+        object Layout6: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 668
+          Height = 483
+          ClipChildren = True
+          Visible = False
+          DesignHide = True
+          object StringListBox2: TD2StringListBox
+            DragDisableHighlight = True
+            Position.Point = '(203,26)'
+            RotateAngle = 0
+            Width = 230
+            Height = 358
+            Resource = 'listboxstyle'
+            TabOrder = 0
+            DisableFocusEffect = True
+            AlternatingRowBackground = True
+            ItemIndex = 0
+            ItemWidth = 0
+            ItemHeight = 31
+            Items.strings = (
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+              'Listbox Item'
+            )
+          end
+        end
+        object Layout1: TD2Layout
+          Position.Point = '(0,24)'
+          RotateAngle = 0
+          Width = 668
+          Height = 483
+          ClipChildren = True
+          object TrackBar1: TD2TrackBar
+            Position.Point = '(224,38)'
+            RotateAngle = 0
+            Width = 100
+            Height = 15
+            TabOrder = 0
+            Min = 1
+            Max = 5
+            Frequency = 0
+            Orientation = d2Horizontal
+            Value = 3
+            Tracking = True
+            OnChange = TrackBar1Change
+          end
+          object Label1: TD2Label
+            Align = vaTop
+            RotateAngle = 0
+            Width = 668
+            Height = 36
+            TabOrder = 1
+            Font.Size = 11.0000009536743
+            TextAlign = d2TextAlignCenter
+            VertTextAlign = d2TextAlignCenter
+            Text = 'TD2ListBox.Columns property'
+          end
+          object Layout3: TD2Layout
+            Align = vaClient
+            Position.Point = '(9,66)'
+            RotateAngle = 0
+            Width = 650
+            Height = 408
+            Padding.Rect = '(9,30,9,9)'
+            object StringListBox1: TD2StringListBox
+              Align = vaLeft
+              DragDisableHighlight = True
+              RotateAngle = 0
+              Width = 266
+              Height = 408
+              Resource = 'listboxstyle'
+              TabOrder = 0
+              DisableFocusEffect = True
+              Columns = 3
+              ItemIndex = 0
+              ItemWidth = 0
+              ItemHeight = 19
+            end
+            object Splitter1: TD2Splitter
+              Align = vaLeft
+              Cursor = crHSplit
+              Position.Point = '(266,0)'
+              RotateAngle = 0
+              Width = 7
+              Height = 408
+              TabOrder = 1
+              MinSize = 30
+            end
+            object HorzListBox1: TD2HorzListBox
+              Align = vaClient
+              Position.Point = '(273,0)'
+              RotateAngle = 0
+              Width = 377
+              Height = 408
+              Resource = 'listboxstyle'
+              TabOrder = 2
+              DisableFocusEffect = True
+              Columns = 3
+              ItemWidth = 0
+              ItemHeight = 0
+            end
+          end
+          object CheckBox1: TD2CheckBox
+            Position.Point = '(367,36)'
+            RotateAngle = 0
+            Width = 253
+            Height = 19
+            TabOrder = 3
+            IsChecked = False
+            TextAlign = d2TextAlignNear
+            Text = 'Touch mode (MouseTracking=true)'
+            OnChange = CheckBox1Change
+          end
+        end
+      end
+    end
+  end
+  object OpenPictureDialog1: TOpenDialog
+    left = 334
+    top = 52
+  end
+end

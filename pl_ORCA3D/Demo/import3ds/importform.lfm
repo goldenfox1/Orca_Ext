@@ -1,0 +1,203 @@
+object Form2: TForm2
+  Left = 515
+  Height = 603
+  Top = 225
+  Width = 802
+  Caption = 'd3Scene Import'
+  ClientHeight = 603
+  ClientWidth = 802
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '1.1'
+  object d3Scene1: TD3Scene
+    Left = 0
+    Height = 603
+    Top = 0
+    Width = 802
+    Align = alClient
+    Quality = d3LowQuality
+    FillColor = '#FF161616'
+    AmbientColor = '#FF202020'
+    Camera = camera
+    RealTimeSleep = 0
+    UsingDesignCamera = False
+    DesignCameraPos = -20
+    DesignCameraZAngle = 0
+    DesignCameraXAngle = 20
+    DesignSnapGridShow = True
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    DesignShowHint = True
+    object Root1: TD3VisualObject
+      DragMode = d3DragManual
+      DragDisableHighlight = False
+      Locked = False
+      Width = 1
+      Height = 1
+      Depth = 1
+      DesignHide = False
+      Opacity = 1
+      OnMouseDown = Root1MouseDown
+      OnMouseMove = Root1MouseMove
+      OnMouseWheel = Root1MouseWheel
+      Quanternion = '(0,0,0,1)'
+      object GUIScene2DLayer1: TD3GUIScene2DLayer
+        DragMode = d3DragManual
+        DragDisableHighlight = True
+        Position.Point = '(401,34,0)'
+        Locked = False
+        Width = 802
+        Height = 68.0000305175781
+        Depth = 8
+        DesignHide = False
+        Opacity = 1
+        ShowHint = True
+        TwoSide = True
+        ModulationColor = '#FFFFFFFF'
+        LayerAlign = d3LayerTop
+        Fill.Style = d2BrushNone
+        Quanternion = '(0,0,0,1)'
+        DesignSnapGridShow = False
+        DesignSnapToGrid = False
+        DesignSnapToLines = True
+        object Root2: TD2Layout
+          RotateAngle = 0
+          Width = 802
+          Height = 68
+          object ToolBar1: TD2ToolBar
+            Align = vaClient
+            RotateAngle = 0
+            Width = 802
+            Height = 68
+            TabOrder = 0
+            object ToolPathButton1: TD2ToolPathButton
+              Position.Point = '(365,4)'
+              RotateAngle = 0
+              Width = 56
+              Height = 60
+              OnClick = ToolPathButton1Click
+              TabOrder = 0
+              StaysPressed = False
+              IsPressed = False
+              CanFocused = True
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              Text = 'Open...'
+              Path.Path = {
+                27000000000000004C679443089CF9430100000021B01A410048194401000000
+                665694C3089CF94301000000665694C3FA8EBB43010000000CC284C2FEB4A443
+                010000000CC284C20611854301000000A0DA13C30CE27E4301000000EE7C0341
+                F0E7F84201000000BE1F5042E7FBF34201000000E96647430E9D8F4301000000
+                0AD71E4306219343010000005A64C042F2428F43010000005A64C04202CBAC43
+                010000004C679443FA8EBB430300000000000000000000000000000025864043
+                0C628E4301000000F2524A42CFB7FB420100000052B84E4108AC004301000000
+                C9361F43FE049143030000000000000000000000000000006ABCB7420AD7CD43
+                010000006ABCB74204168F4301000000310860420A278D430100000031086042
+                0CE2D14303000000000000000000000000000000B062834304E6BE4301000000
+                5A64C042FC89B143010000005A64C042F698CF4301000000CB215D421058D443
+                010000000CC284C20EDDC743010000000CC284C2F638A84301000000640B84C3
+                F823BD430100000021B01A41087CDD430100000077BE75420C82D74301000000
+                64BB9A42F843D943010000007DBFD942FCD9F7430100000048A15243FA8EE843
+                010000004EC25C430CD2C343030000000000000000000000
+              }
+              PathSpacing = 0
+              PathSize = 32
+              PathPadding = 2
+              PathFill.Color = '#FF161616'
+              PathStroke.Color = '#FFF0F0F0'
+            end
+            object Label1: TD2Label
+              Position.Point = '(15,10)'
+              RotateAngle = 0
+              Width = 329
+              Height = 48.0000152587891
+              TabOrder = 1
+              Font.Size = 11.0000009536743
+              TextAlign = d2TextAlignCenter
+              VertTextAlign = d2TextAlignCenter
+              Text = 'This example use part of GLScene project. 3DS import unit. Const3DS, Types3DS, Utils3DS, File3DS'
+            end
+          end
+        end
+      end
+      object Light1: TD3Light
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Position.Point = '(-5.99441,-6.13581,-9.53674E-7)'
+        RotateAngle.Point = '(40.1678,0,30.1817)'
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        LightType = d3LightDirectional
+        Quanternion = '(-0.331553,0.0894031,-0.244519,0.906802)'
+      end
+      object ImportMesh: TD3Dummy
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Quanternion = '(0,0,0,1)'
+      end
+      object cameraz: TD3Dummy
+        DragMode = d3DragManual
+        DragDisableHighlight = False
+        Locked = False
+        Width = 1
+        Height = 1
+        Depth = 1
+        DesignHide = False
+        Opacity = 1
+        Align = d3None
+        Collider = False
+        ColliseTrack = False
+        Dynamic = False
+        Quanternion = '(0,0,0,1)'
+        object camerax: TD3Dummy
+          DragMode = d3DragManual
+          DragDisableHighlight = False
+          Locked = True
+          Width = 1
+          Height = 1
+          Depth = 1
+          DesignHide = False
+          Opacity = 1
+          Align = d3None
+          Collider = False
+          ColliseTrack = False
+          Dynamic = False
+          Quanternion = '(0,0,0,1)'
+          object camera: TD3Camera
+            DragMode = d3DragManual
+            DragDisableHighlight = False
+            Position.Point = '(0,-20,0)'
+            Locked = False
+            Width = 1
+            Height = 1
+            Depth = 1
+            DesignHide = False
+            Opacity = 1
+            Quanternion = '(0,0,0,1)'
+          end
+        end
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = '3DS files|*.3ds'
+    left = 18
+    top = 22
+  end
+end

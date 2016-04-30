@@ -1,0 +1,261 @@
+object frmMultilang: TfrmMultilang
+  Left = 389
+  Height = 534
+  Top = 184
+  Width = 686
+  ActiveControl = d2Scene1
+  Caption = 'ORCA 2D Multilang Demo'
+  ClientHeight = 534
+  ClientWidth = 686
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  LCLVersion = '1.5'
+  object d2Scene1: TD2Scene
+    Left = 0
+    Height = 534
+    Top = 0
+    Width = 686
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 686
+      Height = 534
+      object Button1: TD2Button
+        Position.Point = '(14,57)'
+        RotateAngle = 0
+        Width = 107
+        Height = 22
+        OnClick = Button1Click
+        TabOrder = 0
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Message'
+      end
+      object ToolBar1: TD2ToolBar
+        RotateAngle = 0
+        Width = 686
+        Height = 40
+        TabOrder = 1
+        object HudButton1: TD2HudButton
+          Position.Point = '(15,9)'
+          RotateAngle = 0
+          Width = 87
+          Height = 22
+          Hint = 'This is a button'
+          ShowHint = True
+          TabOrder = 0
+          StaysPressed = False
+          IsPressed = False
+          TextAlign = d2TextAlignCenter
+          Text = 'Button'
+        end
+        object HudLabel1: TD2HudLabel
+          Position.Point = '(117,12)'
+          RotateAngle = 0
+          Width = 149
+          Height = 15
+          TabOrder = 2
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+          Text = 'Text Label'
+        end
+        object HudRoundButton1: TD2HudRoundButton
+          Position.Point = '(531,9)'
+          RotateAngle = 0
+          Width = 134
+          Height = 22
+          OnClick = HudRoundButton1Click
+          TabOrder = 1
+          StaysPressed = False
+          IsPressed = False
+          TextAlign = d2TextAlignCenter
+          Text = 'Show Editor...'
+        end
+        object HudCheckBox1: TD2HudCheckBox
+          Position.Point = '(326,10)'
+          RotateAngle = 0
+          Width = 133
+          Height = 19
+          TabOrder = 3
+          IsChecked = False
+          TextAlign = d2TextAlignNear
+          Text = 'Checkbox'
+        end
+      end
+      object Label1: TD2Label
+        Position.Point = '(137,60)'
+        RotateAngle = 0
+        Width = 339
+        Height = 15
+        TabOrder = 2
+        AutoTranslate = False
+        Font.Style = d2FontBold
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'This control have AutoTranslate=false.'
+      end
+      object StringListBox1: TD2StringListBox
+        Position.Point = '(14,105)'
+        RotateAngle = 0
+        Width = 107
+        Height = 104
+        Resource = 'listboxstyle'
+        TabOrder = 3
+        HideSelectionUnfocused = False
+        ItemIndex = 0
+        ItemWidth = 0
+        ItemHeight = 19
+        OnChange = StringListBox1Change
+        AutoTranslate = False
+      end
+      object Label2: TD2Label
+        Position.Point = '(137,86)'
+        RotateAngle = 0
+        Width = 339
+        Height = 67
+        TabOrder = 4
+        AutoTranslate = False
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'if StoreInForm = true all translations stored in DFM-file.  But TD2Lang component can load translation from external lng-file. Just set FileName property. This file must be placed in Application folder.'
+      end
+      object Label3: TD2Label
+        Position.Point = '(137,159)'
+        RotateAngle = 0
+        Width = 339
+        Height = 67
+        TabOrder = 6
+        AutoTranslate = False
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'To add new translation - create txt-file template, translate it. Then import this file using Editor - Add Language\From txt-file.'
+      end
+      object Label4: TD2Label
+        Position.Point = '(137,230)'
+        RotateAngle = 0
+        Width = 339
+        Height = 67
+        TabOrder = 5
+        AutoTranslate = False
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'If TD2Lang.AutoSelect=true, d2Scene select language using current sytem locale.'
+      end
+      object StringListBox2: TD2StringListBox
+        Position.Point = '(501,57)'
+        RotateAngle = 0
+        Width = 116
+        Height = 100
+        Resource = 'listboxstyle'
+        TabOrder = 7
+        ItemIndex = 0
+        ItemWidth = 0
+        ItemHeight = 28
+        Items.strings = (
+          'One'
+          'Two'
+          'Three'
+          'Four'
+        )
+      end
+      object StatusBar1: TD2StatusBar
+        Position.Point = '(0,512)'
+        RotateAngle = 0
+        Width = 686
+        Height = 22
+        TabOrder = 8
+        ShowSizeGrip = True
+        object Label5: TD2Label
+          Align = vaClient
+          Position.Point = '(1,1)'
+          RotateAngle = 0
+          Width = 684
+          Height = 20
+          Padding.Rect = '(1,1,1,1)'
+          TabOrder = 0
+          TextAlign = d2TextAlignCenter
+          VertTextAlign = d2TextAlignCenter
+        end
+      end
+    end
+  end
+  object d2Lang1: TD2Lang
+    Lang = 'el'
+    left = 624
+    top = 56
+    ResourcesBin = {
+      8A0000004D006500730073006100670065000D000A0043006100700074006900
+      6F006E000D000A0054006800690073002000690073002000610020006D006500
+      73007300610067006500200074006500780074002E000D000A00430061006E00
+      630065006C000D000A0042007500740074006F006E000D000A00530068006F00
+      7700200045006400690074006F0072002E002E002E000D000A00540065007800
+      740020004C006100620065006C000D000A0043006800650063006B0062006F00
+      78000D000A0046006F00750072000D000A004F006E0065000D000A0054006800
+      7200650065000D000A00540077006F000D000A00540068006900730020006900
+      730020006100200062007500740074006F006E000D000A000400000002000000
+      720075003A01000042007500740074006F006E003D001A043D043E043F043A04
+      30040D000A00430061006E00630065006C003D001E0442043C0435043D043004
+      0D000A00430061007000740069006F006E003D001704300433043E043B043E04
+      32043E043A040D000A0043006800650063006B0062006F0078003D001F043504
+      400435043A043B044E0447043004420435043B044C040D000A0046006F007500
+      72003D002704350442044B04400435040D000A004D0065007300730061006700
+      65003D0021043E043E043104490435043D04380435040D000A004F006E006500
+      3D001E04340438043D040D000A00530068006F00770020004500640069007400
+      6F0072002E002E002E003D0020043504340430043A0442043E0440042E002E00
+      2E000D000A00540065007800740020004C006100620065006C003D0022043504
+      3A044104420432043E04350420001F043E043B0435040D000A00540068006900
+      730020006900730020006100200062007500740074006F006E003D002D044204
+      3E0420003A043D043E043F043A0430040D000A00540068006900730020006900
+      73002000610020006D0065007300730061006700650020007400650078007400
+      2E003D002D0442043E042000420435043A044104420432043E04350420004104
+      3E043E043104490435043D04380435042E000D000A0054006800690073002000
+      6900730020006D00650073007300610067006500200074006500780074002E00
+      3D002D0442043E042000420435043A044104420432043E043504200041043E04
+      3E043104490435043D04380435042E000D000A00540068007200650065003D00
+      2204400438040D000A00540077006F003D001404320430040D000A0002000000
+      64006500A000000042007500740074006F006E003D004B006E006F0070006600
+      0D000A00430061006E00630065006C003D00530074006F0072006E0069006500
+      720065006E000D000A00430061007000740069006F006E003D00420065007300
+      63006800720069006600740075006E0067000D000A0043006800650063006B00
+      62006F0078003D004B006F006E00740072006F006C006C006B00E40073007400
+      6300680065006E000D000A004D006500730073006100670065003D004D006900
+      74007400650069006C0075006E0067000D000A00540068006900730020006900
+      73002000610020006D0065007300730061006700650020007400650078007400
+      2E003D00440069006500730020006900730074002000650069006E0020005400
+      650078007400200064006500720020004E006100630068007200690063006800
+      74002E000D000A000200000066007200B600000042007500740074006F006E00
+      3D0042006F00750074006F006E000D000A00430061006E00630065006C003D00
+      41006E006E0075006C00650072000D000A00430061007000740069006F006E00
+      3D004C00E900670065006E00640065000D000A0043006800650063006B006200
+      6F0078003D0043006F006300680065007A0020006C0061002000630061007300
+      65000D000A004D006500730073006100670065003D000D000A00530068006F00
+      7700200045006400690074006F0072002E002E002E003D000D000A0054006500
+      7800740020004C006100620065006C003D005400650078007400650020004C00
+      6100620065006C000D000A005400680069007300200069007300200061002000
+      6D00650073007300610067006500200074006500780074002E003D0049006C00
+      200073002700610067006900740020006400270075006E002000740065007800
+      7400650020006400750020006D006500730073006100670065002E000D000A00
+      0200000063006E008900000042007500740074006F006E003D00096375930D00
+      0A00430061006E00630065006C003D00D653886D0D000A004300610070007400
+      69006F006E003D00196A4C980D000A0043006800650063006B0062006F007800
+      3D000789789046680D000A004D006500730073006100670065003D00E14F6F60
+      0D000A00530068006F007700200045006400690074006F0072002E002E002E00
+      3D006F983A79E87D2F8F68562E002E002E000D000A0054006500780074002000
+      4C006100620065006C003D0087652C67196A647C0D000A005400680069007300
+      2000690073002000610020006D00650073007300610067006500200074006500
+      780074002E003D0019902F66004E0B50886D6F6087652C6702300D000A00
+    }
+  end
+  object ApplicationEvents1: TApplicationProperties
+    OnHint = ApplicationEvents1Hint
+    left = 48
+    top = 352
+  end
+end
