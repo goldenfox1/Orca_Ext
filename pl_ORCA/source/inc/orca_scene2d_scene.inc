@@ -1763,7 +1763,7 @@ var
   Obj:TD2VisualObject;
   SG:Id2SizeGrip;
   NewCursor:TCursor;
-  i:integer;
+  //i:integer;
 begin
   inherited ;
   NewCursor:=FLoadCursor;
@@ -2309,7 +2309,7 @@ end;
 
 procedure TD2CustomScene.UTF8KeyPress(var UTF8Key:TUTF8Char);
 var
-  S:System.WideChar;
+  //S:System.WideChar;
   K:word;
   C:System.WideChar;
 begin

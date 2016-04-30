@@ -113,7 +113,7 @@ end;
 
 procedure TD2ComboBox.DropDown;
 var
-  Count,i:integer;
+  Count{,i}:integer;
 begin
   if not FPopup.IsOpen then
   begin
@@ -482,8 +482,8 @@ begin
 end;
 
 procedure TD2ComboColorBox.DropDown;
-var
-  i:integer;
+//var
+  //i:integer;
 begin
   if not FPopup.IsOpen then
   begin
@@ -737,7 +737,7 @@ end;
 
 procedure TD2ComboTextBox.DropDown;
 var
-  Count,i:integer;
+  Count{,i}:integer;
 begin
   if not FPopup.IsOpen then
   begin
@@ -937,8 +937,8 @@ begin
 end;
 
 procedure TD2ComboTrackBar.DropDown;
-var
-  i:integer;
+//var
+  //i:integer;
 begin
   if not FPopup.IsOpen then
   begin

@@ -152,9 +152,9 @@ begin
 end;
 
 procedure TD2DBNavigator.InitHints;
-var
-  I:integer;
-  J:TD2NavigateBtn;
+//var
+  //I:integer;
+  //J:TD2NavigateBtn;
 begin
 (*  if not Assigned(FDefHints) then
   begin
@@ -358,9 +358,9 @@ begin
 end;
 
 procedure TD2DBNavigator.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);
-var
-  NewFocus:TD2NavigateBtn;
-  OldFocus:TD2NavigateBtn;
+//var
+  //NewFocus:TD2NavigateBtn;
+  //OldFocus:TD2NavigateBtn;
 begin
 (*  OldFocus:=FocusedButton;
   case Key of
@@ -829,7 +829,7 @@ end;
 function TD2DBTextBox.GetFieldText:string;
 begin
   if FDataLink.Field <> nil then
-    Result:=FDataLink.Field.DisplayText
+    Result:=UTF8Decode(FDataLink.Field.DisplayText)
   else
     if csDesigning in ComponentState then
       Result:=Name
@@ -937,7 +937,7 @@ end;
 
 procedure TD2DBMemo.UpdateData(Sender:TObject);
 begin
-  FDataLink.Field.AsString:=TextW;
+  FDataLink.Field.AsString:=UTF8Encode(TextW);
 end;
 
 procedure TD2DBMemo.Notification(AComponent:TComponent;
@@ -1161,15 +1161,21 @@ end;
 
 { TD2DBColumn }
 
-constructor TD2DBColumn.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
+//Deleted by GoldenFox
+//constructor TD2DBColumn.Create(AOwner:TComponent);
+//begin
+//  inherited;
+//end;
 
 destructor TD2DBColumn.Destroy;
 begin
+  //if Assigned(FField) and (Grid <> nil) then
+  //  FField.RemoveFreeNotification(Grid);
+  FField:=nil;
+  //FieldName:='';
   inherited;
 end;
+
 
 function TD2DBColumn.GetField:TField;
 var
@@ -1204,21 +1210,39 @@ procedure TD2DBColumn.SetFieldName(const Value:String);
 begin
   if FFieldName <> Value then
   begin
+    if Header=FFieldName then Header:=Value;   //Added by GoldenFox
+    FField:=nil;                               //Added by GoldenFox
     FFieldName:=Value;
-    if Header='' then
-      Header:=FieldName;
+    //if Header='' then       //Deleted by GoldenFox
+    //  Header:=FieldName;    //Deleted by GoldenFox
     UpdateColumn;
   end;
 end;
 
 function TD2DBColumn.GetData:Variant;
 begin
-  Result:=Field.Value;
+  if Assigned(Field) then
+    Result:=Field.Value;
 end;
 
 procedure TD2DBColumn.SetData(Value:Variant);
 begin
-  Field.Value:=Value
+  if Assigned(Field) then
+    Field.Value:=Value
+end;
+
+
+{ TD2DBTextColumn }
+procedure TD2DBTextColumn.SetData(Value:Variant); {procedure Added by GoldenFox}
+begin
+  if Assigned(Field) then
+    Field.Text:=UTF8Encode(Value);
+end;
+
+function TD2DBTextColumn.GetData: Variant;
+begin
+  if Assigned(Field) then
+    Result:= UTF8Decode(Field.DisplayText);
 end;
 
 { TD2DBCheckColumn }
@@ -1239,7 +1263,8 @@ end;
 
 function TD2DBCheckColumn.GetData:Variant;
 begin
-  Result:=Field.AsBoolean
+  if Assigned(Field) then
+    Result:=Field.AsBoolean
 end;
 
 { TD2DBPopupColumn }
@@ -1356,8 +1381,10 @@ end;
 
 destructor TD2DBGrid.Destroy;
 begin
-  FDataLink.Free;
-  FDataLink:=nil;
+  //FDataLink.Free
+  //FDataLink:=nil;
+  DataSource:=nil;
+  FreeAndNil(FDataLink);
   inherited;
 end;
 
@@ -1369,7 +1396,7 @@ end;
 
 function TD2DBGrid.ItemClass:string;
 begin
-  Result:='TD2DBColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
+  Result:='TD2DBColumn;TD2DBTextColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
 end;
 
 type
@@ -1651,16 +1678,16 @@ end;
 procedure TD2DBGrid.VScrollChange(Sender:TObject);
 begin
   inherited;
-  if FDataLink.Active then
-  begin
-    if TopRow < Selected - FDataLink.ActiveRecord then
-      Selected:=TopRow;
-    if TopRow + VisibleRows - 1 > Selected - FDataLink.ActiveRecord + FDataLink.BufferCount then
-    begin
-      Selected:=TopRow + VisibleRows - 1;
-      Selected:=Selected;
-    end;
-  end;
+  //if FDataLink.Active then
+  //begin
+  //  if TopRow < Selected - FDataLink.ActiveRecord then
+  //    Selected:=TopRow;
+  //  if TopRow + VisibleRows - 1 > Selected - FDataLink.ActiveRecord + FDataLink.BufferCount then
+  //  begin
+  //    Selected:=TopRow + VisibleRows - 1;
+  //    Selected:=Selected;
+  //  end;
+  //end;
 end;
 
 function TD2DBGrid.GetContentBounds:TD2Rect;
@@ -1669,3 +1696,10 @@ begin
   UpdateRowCount;
 end;
 
+{ TD2CustomDBGrid }
+
+constructor TD2CustomDBGrid.Create(AOwner: TComponent);
+begin
+  FResource:='gridstyle';
+  inherited;
+end;

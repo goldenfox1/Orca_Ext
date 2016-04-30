@@ -928,7 +928,7 @@ procedure TD2CanvasGdiPlus.SetClipRects(const ARects:array of TD2Rect);
 var
   i:integer;
   R:TGPRegion;
-  GM:TGPMatrix;
+  //GM:TGPMatrix;
 begin
   R:=TGPRegion.Create;
   R.MakeEmpty;
@@ -957,7 +957,7 @@ end;
 
 procedure TD2CanvasGdiPlus.ApplyFill(ARect:TD2Rect; const AOpacity:single);
 var
-  C:TD2Color;
+  //C:TD2Color;
   i:integer;
   count:integer;
   B:TD2Bitmap;
@@ -1205,9 +1205,9 @@ procedure TD2CanvasGdiPlus.IntFillRect(R:TD2Rect;
   Opacity:single);
 var
   Save:cardinal;
-  GPR:TGPRectF;
+  //GPR:TGPRectF;
   Visual:TD2VisualObject;
-  M:TD2Matrix;
+  //M:TD2Matrix;
   SaveOpacity:single;
   SaveStroke:TD2Brush;
   SaveStrokeThickness:single;
@@ -1250,7 +1250,7 @@ var
   Save:cardinal;
   Rg:TGPRegion;
   Visual:TD2VisualObject;
-  M:TD2Matrix;
+  //M:TD2Matrix;
   SaveOpacity:single;
   SaveStroke:TD2Brush;
   SaveStrokeThickness:single;
@@ -1523,7 +1523,7 @@ end;
 procedure TD2CanvasGdiPlus.DrawEllipse(const ARect:TD2Rect; const AOpacity:single);
 var
   R:TD2Rect;
-  P:TGPGraphicsPath;
+  //P:TGPGraphicsPath;
 begin
   if FStroke.Style <> d2BrushNone then
   begin
@@ -1744,7 +1744,8 @@ var
   FGraphics:TGPGraphics;
   Bits:Cardinal;
   i:integer;
-  SP,CP1,CP2:TD2Point;
+  //SP,CP1,CP2:TD2Point;
+  CP1,CP2:TD2Point;
   Data:TPathData;
   SavePoints:PGPPointF;
 begin
@@ -1785,7 +1786,7 @@ begin
     begin
       if PByteArray(Data.Types)[i]=PathPointTypeStart then
       begin
-        SP:=d2Point(Data.Points^.X,Data.Points^.Y);
+        //SP:=d2Point(Data.Points^.X,Data.Points^.Y);
         Path.MoveTo(d2Point(Data.Points^.X,Data.Points^.Y));
       end;
 

@@ -224,7 +224,7 @@ var
   i:integer;
   AYear,PreMonth,AMonth,ADay:Word;
   Date:TDate;
-  First,Last:integer;
+  First{,Last}:integer;
   A:array[0..1] of char;
   Item:TD2ListBoxItem;
 begin
@@ -257,7 +257,7 @@ begin
       First:=First - 7;
     FDays.Tag:=First; // store first
     Date:=IncMonth(Date,1);
-    Last:=DayOfWeek(Date);
+    //Last:=DayOfWeek(Date);
     
     for i:=1 to First do
     begin

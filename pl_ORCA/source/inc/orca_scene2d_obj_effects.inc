@@ -416,7 +416,7 @@ end;
 
 procedure TD2ShadowEffect.ProcessEffect(Canvas:TD2Canvas; const Visual:TD2Bitmap; const Data:single);
 var
-  Bits:PD2ColorRecArray;
+  //Bits:PD2ColorRecArray;
   Mask:PByteArray;
   Sn,Cs:single;
   Off:TD2Point;
@@ -561,7 +561,7 @@ end;
 
 procedure TD2GlowEffect.ProcessEffect(Canvas:TD2Canvas; const Visual:TD2Bitmap; const Data:single);
 var
-  Bits:PD2ColorRecArray;
+  //Bits:PD2ColorRecArray;
   Mask:PByteArray;
 begin
   { create mask }
@@ -634,7 +634,7 @@ end;
 
 procedure TD2InnerGlowEffect.ProcessEffect(Canvas:TD2Canvas; const Visual:TD2Bitmap; const Data:single);
 var
-  Bits:PD2ColorRecArray;
+  //Bits:PD2ColorRecArray;
   Mask:PByteArray;
 begin
   { invert }
@@ -693,10 +693,10 @@ end;
 
 procedure TD2BevelEffect.ProcessEffect(Canvas:TD2Canvas; const Visual:TD2Bitmap; const Data:single);
 var
-  color:cardinal;
+  //color:cardinal;
   DestBits,Bits:PD2ColorRecArray;
   i,j:integer;
-  a,h0,h1,h2,h3:single;
+  a,h0,{h1,}h2,h3:single;
   alpha:byte;
   light,n,v,b:TD2Vector;
   LightMap:TD2Bitmap;
@@ -731,12 +731,12 @@ begin
       begin
         {$ifdef FPC_BIG_ENDIAN}
         h0:=(Bits[i + ((j + 1) * Visual.Width)].Color and $FF) / $FF; //.height(x  ,z+1);
-        h1:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF) / $FF; //height(x+1,z+1);
+        //h1:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF) / $FF; //height(x+1,z+1);
         h2:=(Bits[(i + 1) + (j * Visual.Width)].Color and $FF) / $FF; //height(x+1, z);
         h3:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF) / $FF; //height(x  , z);
         {$else}
         h0:=(Bits[i + ((j + 1) * Visual.Width)].Color and $FF000000 shr 24) / $FF; //.height(x  ,z+1);
-        h1:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF000000 shr 24) / $FF; //height(x+1,z+1);
+        //h1:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF000000 shr 24) / $FF; //height(x+1,z+1);
         h2:=(Bits[(i + 1) + (j * Visual.Width)].Color and $FF000000 shr 24) / $FF; //height(x+1, z);
         h3:=(Bits[(i + 1) + ((j + 1) * Visual.Width)].Color and $FF000000 shr 24) / $FF; //height(x  , z);
         {$endif}
@@ -826,10 +826,10 @@ end;
 procedure TD2ReflectionEffect.ProcessEffect(Canvas:TD2Canvas; const Visual:TD2Bitmap; const Data:single);
 var
   Bits:PD2ColorRecArray;
-  Line:array [0..2048] of TD2Color;
+  //Line:array [0..2048] of TD2Color;
   c,a,i,j:integer;
   alpha:byte;
-  color:cardinal;
+  //color:cardinal;
 begin
   Bits:=PD2ColorRecArray(Visual.Scanline[0]);
   c:=Visual.Height - 1;

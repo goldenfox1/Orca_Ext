@@ -1,0 +1,263 @@
+object TD2Layout
+    ResourceName = 'headeritemstyle'
+    Position.Point = '(237,260)'
+    Width = 73.000000000000000000
+    Height = 26.000000000000000000
+    DesignHide = True
+    object TD2Rectangle
+      ResourceName = 'background'
+      Align = vaContents
+      Locked = True
+      Width = 73.000000000000000000
+      Height = 26.000000000000000000
+      HitTest = False
+      Fill.Style = d2BrushGradient
+      Fill.Gradient.Points = <
+        item
+          Color = '#FF505050'
+        end
+        item
+          Color = '#FF303030'
+          Offset = 1.000000000000000000
+        end>
+      Fill.Gradient.Style = d2LinearGradient
+      Stroke.Color = '#FF222222'
+      xRadius = 3.000000000000000000
+      yRadius = 3.000000000000000000
+      object TD2InnerGlowEffect
+        Trigger = 'IsPressed=true'
+        Enabled = False
+        Softness = 0.400000005960464500
+        Opacity = 0.899999976158142100
+        GlowColor = '#FF4F4848'
+      end
+    end
+    object TD2Text
+      ResourceName = 'text'
+      Align = vaClient
+      Position.Point = '(5,2)'
+      Locked = True
+      Width = 63.000000000000000000
+      Height = 22.000000000000000000
+      Padding.Rect = '(5,2,5,2)'
+      HitTest = False
+      Fill.Color = '#FFE0E0E0'
+      Text = 'button'
+    end
+  end
+
+  object TD2Layout
+    ResourceName = 'gridstyle'
+    Position.Point = '(215,208)'
+    Width = 116.999992370605500000
+    Height = 131.000000000000000000
+    DesignHide = True
+    object TD2BrushObject
+      ResourceName = 'AlternatingRowBackground'
+      Brush.Color = '#20000000'
+    end
+    object TD2BrushObject
+      ResourceName = 'linefill'
+      Brush.Color = '#FF202020'
+    end
+    object TD2Rectangle
+      ResourceName = 'background'
+      Align = vaContents
+      Locked = True
+      Width = 116.999992370605500000
+      Height = 131.000000000000000000
+      Margins.Rect = '(2,2,2,2)'
+      HitTest = False
+      Fill.Color = '#FF404040'
+      Stroke.Color = '#FF303030'
+      xRadius = 2.000000000000000000
+      yRadius = 2.000000000000000000
+      object TD2Header
+        ResourceName = 'header'
+        Height = 21
+        Align = vaTop
+        Radius = 2
+      end
+      object TD2Layout
+        ResourceName = 'content'
+        Align = vaClient
+        Position.Point = '(2,2)'
+        Width = 94.999992370605470000
+        Height = 109.000000000000000000
+        ClipChildren = True
+        object TD2Rectangle
+          ResourceName = 'selection'
+          Fill.Color = '#FF936639'
+          Stroke.Style = d2BrushNone
+          HitTest = False
+          xRadius = 3
+          yRadius = 3
+        end
+        object TD2Rectangle
+          ResourceName = 'focus'
+          Fill.Color = '#AF404040'
+          Stroke.Style = d2BrushNone
+          Padding.Rect = '(1,1,1,1)'
+          HitTest = False
+          xRadius = 3
+          yRadius = 3
+        end
+      end
+      object TD2ScrollBar
+        ResourceName = 'vscrollbar'
+        Align = vaRight
+        Position.Point = '(99.000,2)'
+        Width = 16.000000000000000000
+        Height = 109.000000000000000000
+        Padding.Rect = '(0,0,0,0)'
+        TabOrder = 1
+        Max = 100.000000000000000000
+        Orientation = d2Vertical
+        SmallChange = 1.000000000000000000
+      end
+      object TD2ScrollBar
+        ResourceName = 'hscrollbar'
+        Align = vaBottom
+        Position.Point = '(2,113)'
+        Width = 112.999992370605500000
+        Height = 16.000000000000000000
+        Padding.Rect = '(0,0,0,0)'
+        TabOrder = 2
+        Max = 100.000000000000000000
+        Orientation = d2Horizontal
+        SmallChange = 1.000000000000000000
+      end
+      object TD2SmallScrollBar
+        ResourceName = 'vsmallscrollbar'
+        Align = vaRight
+        Position.Point = '(99,2)'
+        Width = 8.000000000000000000
+        Height = 8.000000000000000000
+        Padding.Rect = '(2,0,0,0)'
+        Visible = False
+        TabOrder = 3
+        Max = 100.000000000000000000
+        Orientation = d2Vertical
+        SmallChange = 1.000000000000000000
+      end
+      object TD2SmallScrollBar
+        ResourceName = 'hsmallscrollbar'
+        Align = vaBottom
+        Position.Point = '(2,113)'
+        Width = 150.000000000000000000
+        Height = 8.000000000000000000
+        Padding.Rect = '(0,2,0,0)'
+        Visible = False
+        TabOrder = 4
+        Max = 100.000000000000000000
+        Orientation = d2Horizontal
+        SmallChange = 1.000000000000000000
+      end
+    end
+    object TD2GlowEffect
+      Trigger = 'IsFocused=true'
+      Enabled = False
+      Softness = 0.200000002980232200
+      Opacity = 0.899999976158142100
+      GlowColor = '#FFF69E2D'
+    end
+  end
+
+  object TD2Layout
+    ResourceName = 'treeviewextstyle'
+    Position.Point = '(215,208)'
+    Width = 116.999992370605500000
+    Height = 131.000000000000000000
+    DesignHide = True
+    object TD2Rectangle
+      ResourceName = 'background'
+      Align = vaContents
+      Locked = True
+      Width = 116.999992370605500000
+      Height = 131.000000000000000000
+      Margins.Rect = '(2,2,2,2)'
+      HitTest = False
+      Fill.Color = '#FF404040'
+      Stroke.Color = '#FF303030'
+      xRadius = 2.000000000000000000
+      yRadius = 2.000000000000000000
+      object TD2HeaderExt
+        ResourceName = 'header'
+        Height = 21
+        Align = vaTop
+      end
+      object TD2Layout
+        ResourceName = 'content'
+        Align = vaClient
+        Position.Point = '(2,2)'
+        Width = 94.999992370605470000
+        Height = 109.000000000000000000
+        ClipChildren = True
+        object TD2Rectangle
+          ResourceName = 'selection'
+          Fill.Color = '#FF936639'
+          Stroke.Style = d2BrushNone
+          HitTest = False
+          xRadius = 3
+          yRadius = 3
+        end
+      end
+      object TD2ScrollBar
+        ResourceName = 'vscrollbar'
+        Align = vaRight
+        Position.Point = '(99.000,2)'
+        Width = 16.000000000000000000
+        Height = 109.000000000000000000
+        Padding.Rect = '(2,0,0,0)'
+        TabOrder = 1
+        Max = 100.000000000000000000
+        Orientation = d2Vertical
+        SmallChange = 1.000000000000000000
+      end
+      object TD2ScrollBar
+        ResourceName = 'hscrollbar'
+        Align = vaBottom
+        Position.Point = '(2,113)'
+        Width = 112.999992370605500000
+        Height = 16.000000000000000000
+        Padding.Rect = '(0,2,0,0)'
+        TabOrder = 2
+        Max = 100.000000000000000000
+        Orientation = d2Horizontal
+        SmallChange = 1.000000000000000000
+      end
+      object TD2SmallScrollBar
+        ResourceName = 'vsmallscrollbar'
+        Align = vaRight
+        Position.Point = '(99,2)'
+        Width = 8.000000000000000000
+        Height = 8.000000000000000000
+        Padding.Rect = '(2,0,0,0)'
+        Visible = False
+        TabOrder = 3
+        Max = 100.000000000000000000
+        Orientation = d2Vertical
+        SmallChange = 1.000000000000000000
+      end
+      object TD2SmallScrollBar
+        ResourceName = 'hsmallscrollbar'
+        Align = vaBottom
+        Position.Point = '(2,113)'
+        Width = 150.000000000000000000
+        Height = 8.000000000000000000
+        Padding.Rect = '(0,2,0,0)'
+        Visible = False
+        TabOrder = 4
+        Max = 100.000000000000000000
+        Orientation = d2Horizontal
+        SmallChange = 1.000000000000000000
+      end
+    end
+    object TD2GlowEffect
+      Trigger = 'IsFocused=true'
+      Enabled = False
+      Softness = 0.200000002980232200
+      Opacity = 0.899999976158142100
+      GlowColor = '#FFF69E2D'
+    end
+  end

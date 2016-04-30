@@ -91,8 +91,8 @@ end;
 
 procedure TD2Selection.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
 var
-  P,OldPos,Size:TD2Point;
-  S,SaveW:single;
+  P,{OldPos,}Size:TD2Point;
+  {S,}SaveW:single;
   R:TD2Rect;
 begin
   inherited;
@@ -172,7 +172,7 @@ begin
       if Assigned(FOnTrack) then FOnTrack(Self);
       Exit;
     end;
-    OldPos:=Position.Point;
+    //OldPos:=Position.Point;
     P:=LocalToAbsolute(FMovePos);
     if Parent <> nil then
       P:=TD2VisualObject(Parent).AbsolutetoLocal(P);

@@ -15,6 +15,7 @@ uses
   {$IFDEF WINDOWS}
    Windows,
   {$ENDIF}
+  DBPropEdits, DB,//Added by GoldenFox
 
   LCLProc, LCLType, LMessages, LResources,
 
@@ -34,6 +35,19 @@ type
     procedure EditStyle(const Res: TD2Resources; const ASelected: string); override;
     procedure AddObject(AObject: TD2Object); override;
   end;
+
+
+{*********************************************************************
+                      This part make by GoldenFox
+**********************************************************************}
+
+  { TD2FieldProperty }
+
+  TD2DBColumnFieldProperty = class(TFieldProperty)
+  public
+    procedure FillValues(const Values: TStringList); override;
+  end;
+{------------------- End part of make by GoldenFox -------------------}
 
   TD2BrushProperty = class(TClassProperty)
   private
@@ -186,6 +200,26 @@ begin
   DesignResources(Res, ASelected);
 end;
 
+{*********************************************************************
+                      This part make by GoldenFox
+**********************************************************************}
+
+//-------------- TD2FieldProperty -----------------------------
+procedure TD2DBColumnFieldProperty.FillValues(const Values: TStringList);
+var
+  DataSource: TDataSource;
+  Col: TObject;
+begin
+  Col:=GetComponent(0);
+  if (Col is TD2DBColumn) and (Assigned(TD2DBColumn(Col).Grid)) and (TD2DBColumn(Col).Grid is TD2DBGrid)
+    then DataSource := TD2DBGrid(TD2DBColumn(Col).Grid).DataSource
+    else DataSource := Nil;
+    //DataSource := GetObjectProp(GetComponent(0), 'DataSource') as TDataSource;
+  ListDataSourceFields(DataSource, Values);
+end;
+{------------------- End part of make by GoldenFox -------------------}
+
+
 //-------------- TD2BrushProperty -----------------------------
 
 procedure TD2BrushProperty.Edit;
@@ -231,7 +265,7 @@ end;
 
 procedure TD2PathDataProperty.Edit;
 var
-  S: string;
+  //S: string;
   EditDlg: TD2PathDataDesigner;
 begin
   EditDlg := TD2PathDataDesigner.Create(Application);
@@ -351,8 +385,8 @@ begin
 end;
 
 procedure TD2TriggerProperty.GetValues(Proc: TGetStrProc);
-var
-  i: Integer;
+//var
+  //i: Integer;
 begin
   try
     Proc('IsMouseOver=true');
@@ -501,8 +535,15 @@ begin
     TD2Line, TD2CalloutRectangle, TD2Text, TD2Image, TD2SidesRectangle, TD2Ellipse, 
     TD2RoundRect, TD2TextBoxClearBtn, TD2TextBox, TD2ComboTextBox, TD2NumberBox, TD2RoundTextBox, 
     TD2Memo, TD2CalendarTextBox, TD2SpinBox, TD2ComboTrackBar, TD2StatusBar, TD2ToolButton, 
-    TD2ToolPathButton, TD2ToolBar, TD2TreeView, TD2SizeGrip, TD2Background, TD2CloseButton
-  ]);
+    TD2ToolPathButton, TD2ToolBar, TD2TreeView, TD2SizeGrip, TD2Background, TD2CloseButton,
+    {*********************************************************************
+                          This part make by GoldenFox
+    **********************************************************************}
+    TD2DBColumn, TD2DBTextColumn, TD2DBProgressColumn, TD2DBImageColumn,  TD2DBPopupColumn, TD2DBCheckColumn,
+    TD2DockingPlace, TD2DockingPanel, TD2DockingTab ]);
+
+  RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
+  {------------------- End part of make by GoldenFox -------------------}
 
   RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);
   RegisterComponentEditor(TD2Lang, TD2LangEditor);
@@ -518,6 +559,7 @@ begin
   RegisterPropertyEditor(TypeInfo(TD2WideStrings), nil, '', TD2WideStringsProperty);
   RegisterPropertyEditor(TypeInfo(TD2Font), nil, '', TD2FontProperty);
   RegisterPropertyEditor(TypeInfo(TStrings), TD2Resources, 'Resource', TD2ResourceProperty);
+
 
 end;
 

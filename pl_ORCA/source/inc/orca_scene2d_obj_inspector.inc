@@ -69,11 +69,11 @@ procedure TD2Inspector.InsAddObject(ItemRoot:TD2Object; Root:TObject);
 var
   PropList:PPropList;
   PropInfo:PPropInfo;
-  i,j,PropCount:integer;
+  i{,j},PropCount:integer;
   Obj:TObject;
   Item:TD2TreeViewItem;
   Value:TD2Label;
-  Cls:TClass;
+  //Cls:TClass;
 begin
   if Root=nil then Exit;
   {$IFDEF KS_COMPILER5}
@@ -203,7 +203,7 @@ var
   PropInfo:PPropInfo;
   TypeData:PTypeData;
   Editor:TD2Control;
-  L:TList;
+  //L:TList;
   i:integer;
   Obj:TObject;
   M:TMethod;
@@ -314,10 +314,10 @@ procedure TD2Inspector.DoEditorChange(Sender:TObject);
 var
   Obj:TObject;
   F:TFontDialog;
-  S:string;
+  //S:string;
   EditDlg:TD2PathDataDesigner;
-  i:integer;
-  L:TList;
+  //i:integer;
+  //L:TList;
   PropInfo:PPropInfo;
   M:TMethod;
 begin
