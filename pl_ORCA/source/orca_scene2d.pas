@@ -37,7 +37,7 @@ uses
 
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
-  StdCtrls, DB, DBCtrls, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
+  StdCtrls, DB, DBCtrls, DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
 
 //=============================================================================
 //=============== GLobal const/Emu Types ======================================
@@ -6976,8 +6976,6 @@ TD2CustomGrid = class(TD2ScrollBox)
   end;
 
 TD2Grid = class(TD2CustomGrid)
-  //private
-  //public
   published
     property RowCount;
     property OnGetValue;
@@ -7316,14 +7314,40 @@ TD2DBProgressColumn = class(TD2DBColumn)
     property Max:single read FMax write FMax;
   end;
 
+
+TD2CustomDBGridDataLink=class(TComponentDataLink)
+  published
+    property DataSource;
+  end;
+
 { TD2CustomDBGrid }
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
+    FDataLink: TD2CustomDBGridDataLink;
+    function GetDataSource: TDataSource;
+    procedure SetDataSource(const Value:TDataSource);
+
+    procedure OnRecordChanged(Field:TField); virtual;
+    procedure OnDataSetChanged(aDataSet: TDataSet); virtual;
+    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;
+    procedure OnDataSetClose(aDataSet: TDataSet); virtual;
+    procedure OnEditingChanged(aDataSet: TDataSet); virtual;
+    procedure OnInvalidDataSet(aDataSet: TDataSet); virtual;
+    procedure OnInvalidDataSource(aDataSet: TDataset); virtual;
+    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;
+    procedure OnNewDataSet(aDataSet: TDataset); virtual;
+    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual;
+    procedure OnUpdateData(aDataSet: TDataSet); virtual;
   protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
   public
-    constructor Create(AOwner:TComponent);
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+    function ItemClass: string;  override;
+    property DataLink: TD2CustomDBGridDataLink read FDataLink;
   published
+    property DataSource: TDataSource read GetDataSource write SetDataSource;
 end;
 
 TD2DBGrid = class(TD2CustomGrid)
