@@ -7202,41 +7202,41 @@ TD2DBMemo = class(TD2CustomMemo)
     property DataSource: TDataSource read GetDataSource write SetDataSource;
   end;
 
-  TD2DBGrid = class;
+  //TD2DBGrid = class;
 
-TD2GridDataLink = class(TDataLink)
-  private
-    FGrid: TD2DBGrid;
-    FFieldCount: Integer;
-    FFieldMap: array of Integer;
-    FModified: Boolean;
-    FInUpdateData: Boolean;
-    FSparseMap: Boolean;
-    function GetDefaultFields: Boolean;
-    function GetFields(I: Integer): TField;
-  protected
-    procedure ActiveChanged;  override;
-    procedure BuildAggMap;
-    procedure DataSetChanged;  override;
-    procedure DataSetScrolled(Distance: Integer);  override;
-    procedure FocusControl(Field: TFieldRef);  override;
-    procedure EditingChanged;  override;
-    function  IsAggRow(Value:Integer): Boolean;  virtual;
-    procedure LayoutChanged;  override;
-    procedure RecordChanged(Field: TField);  override;
-    procedure UpdateData;  override;
-    function  GetMappedIndex(ColIndex: Integer): Integer;
-  public
-    constructor Create(AGrid: TD2DBGrid);
-    destructor Destroy;  override;
-    procedure Modified;
-    procedure Reset;
-    property DefaultFields: Boolean read GetDefaultFields;
-    property FieldCount: Integer read FFieldCount;
-    property Fields[I: Integer]: TField read GetFields;
-    property SparseMap: Boolean read FSparseMap write FSparseMap;
-    property Grid: TD2DBGrid read FGrid;
-  end;
+//TD2GridDataLink = class(TDataLink)
+//  private
+//    FGrid: TD2DBGrid;
+//    FFieldCount: Integer;
+//    FFieldMap: array of Integer;
+//    FModified: Boolean;
+//    FInUpdateData: Boolean;
+//    FSparseMap: Boolean;
+//    function GetDefaultFields: Boolean;
+//    function GetFields(I: Integer): TField;
+//  protected
+//    procedure ActiveChanged;  override;
+//    procedure BuildAggMap;
+//    procedure DataSetChanged;  override;
+//    procedure DataSetScrolled(Distance: Integer);  override;
+//    procedure FocusControl(Field: TFieldRef);  override;
+//    procedure EditingChanged;  override;
+//    function  IsAggRow(Value:Integer): Boolean;  virtual;
+//    procedure LayoutChanged;  override;
+//    procedure RecordChanged(Field: TField);  override;
+//    procedure UpdateData;  override;
+//    function  GetMappedIndex(ColIndex: Integer): Integer;
+//  public
+//    constructor Create(AGrid: TD2DBGrid);
+//    destructor Destroy;  override;
+//    procedure Modified;
+//    procedure Reset;
+//    property DefaultFields: Boolean read GetDefaultFields;
+//    property FieldCount: Integer read FFieldCount;
+//    property Fields[I: Integer]: TField read GetFields;
+//    property SparseMap: Boolean read FSparseMap write FSparseMap;
+//    property Grid: TD2DBGrid read FGrid;
+//  end;
 
 TD2DBColumn = class(TD2Column)
   private
@@ -7315,16 +7315,16 @@ TD2DBProgressColumn = class(TD2DBColumn)
   end;
 
 
-TD2CustomDBGridDataLink=class(TComponentDataLink);
-  //published
-  //  property DataSource;
-  //end;
+TD2GridDataController=class(TComponentDataLink)
+  published
+    property DataSource;
+  end;
 
 { TD2CustomDBGrid }
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
-    FDataLink: TD2CustomDBGridDataLink;  //
+    FDataController: TD2GridDataController;  //
     FDisableMove:boolean;                //
     FEditValue:Variant;                  //
     FNeedUpdate:boolean;                 //
@@ -7332,6 +7332,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure SetDataSource(const Value:TDataSource); //
     function GetSelectedField: TField;                //
     procedure SetSelectedField(const Value:TField);   //
+    procedure SetDataController(const AValue: TD2GridDataController);
     procedure UpdateRowCount;                         //
     procedure OnRecordChanged(Field:TField); virtual; //
     procedure OnDataSetChanged(aDataSet: TDataSet); virtual; //
@@ -7345,7 +7346,6 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure OnLayoutChanged(aDataSet: TDataSet); virtual;     //изменился состав или порядок полей в DataSet
     procedure OnNewDataSet(aDataSet: TDataset); virtual;
     procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual;
-
   protected
     function  GetValue(Col, Row: integer): Variant;  override;  //
     procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
@@ -7363,50 +7363,51 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     constructor Create(AOwner: TComponent);  override;  //
     destructor Destroy;  override;  //
     function ItemClass: string;  override;  //
-    property DataLink: TD2CustomDBGridDataLink read FDataLink;  //
     property SelectedField: TField read GetSelectedField write SetSelectedField;  //
-  published
     property DataSource: TDataSource read GetDataSource write SetDataSource;   //
+    property DataController: TD2GridDataController read FDataController write SetDataController;
+  published
 end;
 
-TD2DBGrid = class(TD2CustomGrid)
-  private
-    FDataLink: TD2GridDataLink; //
-    FDisableMove:boolean;       //
-    FEditValue:Variant;         //
-    FNeedUpdate:boolean;        //
-    //FFirstRecord:integer;
-    function GetDataSource: TDataSource;  //
-    procedure SetDataSource(const Value:TDataSource); //
-    function GetSelectedField: TField;  //
-    procedure SetSelectedField(const Value:TField);   //
-    procedure UpdateRowCount;  //
-  protected
-    function  GetValue(Col, Row: integer): Variant;  override;  //
-    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
-    function  CanEditModify: Boolean;  override; //
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //
-    procedure Reset;  override;  //
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;   //
-    procedure Loaded;  override;  //
-    procedure DataSetChanged; //
-    procedure DataChanged;    //
-    procedure EditingChanged;  //
-    procedure RecordChanged(Field: TField); //
-    procedure UpdateData;  //
-    procedure LinkActive(Value:Boolean);    //
-    function  GetContentBounds: TD2Rect;  override;  //
-    procedure VScrollChange(Sender: TObject);  override;  //
-    procedure SetSelected(const Value:integer);  override; //
-  public
-    constructor Create(AOwner: TComponent);  override; //
-    destructor Destroy;  override;  //
-    function ItemClass: string;  override;  //
-    property DataLink: TD2GridDataLink read FDataLink;   //
-    property SelectedField: TField read GetSelectedField write SetSelectedField; //
+TD2DBGrid = class(TD2CustomDBGrid)
+  //private
+  //  FDataLink: TD2GridDataLink;
+  //  FDisableMove:boolean;
+  //  FEditValue:Variant;
+  //  FNeedUpdate:boolean;
+  //  //FFirstRecord:integer;
+  //  function GetDataSource: TDataSource;
+  //  procedure SetDataSource(const Value:TDataSource);
+  //  function GetSelectedField: TField;
+  //  procedure SetSelectedField(const Value:TField);
+  //  procedure UpdateRowCount;
+  //protected
+  //  function  GetValue(Col, Row: integer): Variant;  override;
+  //  procedure SetValue(Col, Row:integer; const Value:Variant);  override;
+  //  function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override;
+  //  function  CanEditModify: Boolean;  override;
+  //  procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+  //  procedure Reset;  override;
+  //  procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+  //  procedure Loaded;  override;
+  //  procedure DataSetChanged;
+  //  procedure DataChanged;
+  //  procedure EditingChanged;
+  //  procedure RecordChanged(Field: TField);
+  //  procedure UpdateData;
+  //  procedure LinkActive(Value:Boolean);
+  //  function  GetContentBounds: TD2Rect;  override;
+  //  procedure VScrollChange(Sender: TObject);  override;
+  //  procedure SetSelected(const Value:integer);  override;
+  //public
+  //  constructor Create(AOwner: TComponent);  override;
+  //  destructor Destroy;  override;
+  //  function ItemClass: string;  override;
+  //  property DataLink: TD2GridDataLink read FDataLink;
+  //  property SelectedField: TField read GetSelectedField write SetSelectedField;
   published
-    property DataSource: TDataSource read GetDataSource write SetDataSource;  //
+    //property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController;
   end;
 
 {**********************************************************************
@@ -9019,7 +9020,7 @@ initialization
 
   //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);
 
-  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2CustomDBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
+  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
 
   {**********************************************************************
                           This part make by GoldenFox
