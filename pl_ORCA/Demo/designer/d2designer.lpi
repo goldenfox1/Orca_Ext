@@ -35,13 +35,19 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="4">
       <Item1>
-        <PackageName Value="pl_orca"/>
+        <PackageName Value="zcomponent"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="FCL"/>
       </Item2>
+      <Item3>
+        <PackageName Value="pl_orca"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
+      </Item4>
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
@@ -54,7 +60,6 @@
         <ComponentName Value="frmDesigner"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="designform"/>
       </Unit1>
     </Units>
   </ProjectOptions>

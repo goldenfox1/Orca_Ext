@@ -10,19 +10,26 @@ unit designform;
 interface
 
 uses
-  LResources,  SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, orca_scene2d;
+  LResources,  SysUtils, Variants, Classes, db, Graphics, Controls, Forms,
+  Dialogs, orca_scene2d, ZConnection, ZDataset;
 
 type
+
+  { TfrmDesigner }
+
   TfrmDesigner = class(TForm)
+    Button3: TD2Button;
+    Button4: TD2Button;
     d2SceneDesigner: TD2Scene;
+    DataSource1: TDataSource;
+    DBColumn1: TD2DBColumn;
+    DBGrid1: TD2DBGrid;
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
     Label1: TD2Label;
     EditorStore: TD2Rectangle;
-    Ellipse1: TD2Ellipse;
     Label2: TD2Label;
     SpeedButton1: TD2SpeedButton;
     SpeedButton2: TD2SpeedButton;
@@ -33,12 +40,14 @@ type
     TrackBar1: TD2TrackBar;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    Image1: TD2Image;
     CheckBox1: TD2CheckBox;
-    Line1: TD2Line;
     d2SceneInspector: TD2Scene;
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
+    ZConnection1: TZConnection;
+    tbl: TZTable;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
     procedure PopupBox1Change(Sender: TObject);
@@ -68,6 +77,16 @@ begin
   // Set this property at run-time - enable design feature
   d2SceneDesigner.DesignTime := true;
   d2SceneDesigner.DesignChangeSelection := @DoChangeSelected;
+end;
+
+procedure TfrmDesigner.Button1Click(Sender: TObject);
+begin
+  tbl.Open;
+end;
+
+procedure TfrmDesigner.Button2Click(Sender: TObject);
+begin
+   tbl.Close;
 end;
 
 procedure TfrmDesigner.SpeedButton3Click(Sender: TObject);

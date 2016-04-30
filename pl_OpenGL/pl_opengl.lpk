@@ -12,7 +12,7 @@
       <SearchPaths>
         <IncludeFiles Value="source"/>
         <OtherUnitFiles Value="source"/>
-        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/$(LCLWidgetType)"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)"/>
       </SearchPaths>
       <Conditionals Value="if LazOpenGLContext_VerboseMultiSampling='1' then
   CustomOptions+='-dVerboseMultiSampling';
@@ -93,11 +93,10 @@ end;"/>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>
-        <PackageName Value="lz_images"/>
-        <MaxVersion Major="1" Release="1"/>
+        <PackageName Value="ImagesForLazarus"/>
       </Item1>
       <Item2>
-        <PackageName Value="bs_ideintf"/>
+        <PackageName Value="IDEIntf"/>
       </Item2>
       <Item3>
         <PackageName Value="LCL"/>
