@@ -1,0 +1,2 @@
+﻿https://habrahabr.ru/post/123111/ Инструкция-шпаргалка Git для начинающих 
+http://git-scm.com/book/ru/v1 русский перевод Pro Git онлайн
