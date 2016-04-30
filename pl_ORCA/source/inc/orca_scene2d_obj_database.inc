@@ -1192,15 +1192,15 @@ end;
 procedure TD2DBColumn.SetField(Value:TField);
 begin
   if FField=Value then Exit;
-  if Assigned(FField) and (Grid <> nil) then
-    FField.RemoveFreeNotification(Grid);
+  //if Assigned(FField) and (Grid <> nil) then
+  //  FField.RemoveFreeNotification(Grid);
   if Assigned(Value) and (csDestroying in Value.ComponentState) then
     Value:=nil;    // don't acquire references to fields being destroyed
   FField:=Value;
   if Assigned(Value) then
   begin
-    if Grid <> nil then
-      FField.FreeNotification(Grid);
+    //if Grid <> nil then
+    //  FField.FreeNotification(Grid);
 
     FFieldName:=Value.FieldName;
   end;
@@ -1396,7 +1396,7 @@ end;
 
 function TD2DBGrid.ItemClass:string;
 begin
-  Result:='TD2DBColumn;TD2DBTextColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
+  Result:='TD2DBTextColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
 end;
 
 type
@@ -1513,7 +1513,7 @@ begin
   begin
     FDataLink.DataSource:=Value;
   end;
-  if Value <> nil then Value.FreeNotification(Self);
+  //if Value <> nil then Value.FreeNotification(Self); //Deleted by GoldenFox
 end;
 
 procedure TD2DBGrid.Notification(AComponent:TComponent;
@@ -1698,8 +1698,117 @@ end;
 
 { TD2CustomDBGrid }
 
+function TD2CustomDBGrid.GetDataSource:TDataSource;
+begin
+  Result:=FDataLink.DataSource;
+end;
+
+procedure TD2CustomDBGrid.SetDataSource(const Value:TDataSource);
+begin
+  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+  begin
+    FDataLink.DataSource:=Value;
+  end;
+  //if Value <> nil then Value.FreeNotification(Self);
+end;
+
+procedure TD2CustomDBGrid.OnRecordChanged(Field: TField);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnDataSetChanged(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnDataSetOpen(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnDataSetClose(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnEditingChanged(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnInvalidDataSet(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnInvalidDataSource(aDataSet: TDataset);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnLayoutChanged(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnNewDataSet(aDataSet: TDataset);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnDataSetScrolled(aDataSet: TDataSet;
+  Distance: Integer);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.OnUpdateData(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBGrid.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+  inherited;
+  if (Operation=opRemove) and (FDataLink <> nil) and
+    (AComponent=DataSource) then DataSource:=nil;
+end;
+
 constructor TD2CustomDBGrid.Create(AOwner: TComponent);
 begin
-  FResource:='gridstyle';
   inherited;
+  FResource:='gridstyle';
+  FDataLink := TD2CustomDBGridDataLink.Create;//(Self);
+  FDataLink.OnRecordChanged:=OnRecordChanged;
+  FDataLink.OnDatasetChanged:=OnDataSetChanged;
+  FDataLink.OnDataSetOpen:=OnDataSetOpen;
+  FDataLink.OnDataSetClose:=OnDataSetClose;
+  FDataLink.OnNewDataSet:=OnNewDataSet;
+  FDataLink.OnInvalidDataSet:=OnInvalidDataset;
+  FDataLink.OnInvalidDataSource:=OnInvalidDataSource;
+  FDataLink.OnDataSetScrolled:=OnDataSetScrolled;
+  FDataLink.OnLayoutChanged:=OnLayoutChanged;
+  FDataLink.OnEditingChanged:=OnEditingChanged;
+  FDataLink.OnUpdateData:=OnUpdateData;
+  FDataLink.VisualControl:= True;
+
+  //FSelectedRows := TBookmarkList.Create(Self);
+  RowCount:=0;
+end;
+
+destructor TD2CustomDBGrid.Destroy;
+begin
+  //FSelectedRows.Free;
+
+  FDataLink.OnDataSetChanged:=nil;
+  FDataLink.OnRecordChanged:=nil;
+  FDataLink.Free;
+  inherited Destroy;
+end;
+
+function TD2CustomDBGrid.ItemClass: string;
+begin
+  Result:='TD2DBTextColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
 end;
