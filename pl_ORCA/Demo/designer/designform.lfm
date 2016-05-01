@@ -12,7 +12,7 @@ object frmDesigner: TfrmDesigner
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.6.0.4'
   object d2SceneDesigner: TD2Scene
     Left = 0
     Height = 506
@@ -84,18 +84,17 @@ object frmDesigner: TfrmDesigner
         yRadius = 5
         Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
         object DBGrid1: TD2DBGrid
-          Position.Point = '(41,94)'
+          Position.Point = '(63,89)'
           RotateAngle = 0
-          Width = 594
-          Height = 250
+          Width = 398
+          Height = 293
           Resource = 'gridstyle'
           TabOrder = 0
           RowHeight = 21
-          DataSource = DataSource1
-          object DBColumn1: TD2DBColumn
+          object DBTextColumn1: TD2DBTextColumn
             RotateAngle = 0
-            Width = 268
-            Height = 225
+            Width = 231
+            Height = 268
             HitTest = False
             TabOrder = 0
             Header = 'Comment'
@@ -157,8 +156,8 @@ object frmDesigner: TfrmDesigner
           Font.Size = 11.0000009536743
           TextAlign = d2TextAlignCenter
           VertTextAlign = d2TextAlignCenter
-          Text = 'This is first TD2Scene control in run-time mode. Used as control.'
           WordWrap = False
+          Text = 'This is first TD2Scene control in run-time mode. Used as control.'
         end
         object SpeedButton1: TD2SpeedButton
           Align = vaLeft
@@ -378,11 +377,11 @@ object frmDesigner: TfrmDesigner
     top = 64
   end
   object ZConnection1: TZConnection
-    ControlsCodePage = cCP_UTF16
+    ControlsCodePage = cCP_UTF8
     Properties.Strings = (
       'codepage='
       'AutoEncodeStrings=ON'
-      'controls_cp=CP_UTF16'
+      'controls_cp=CP_UTF8'
     )
     Connected = True
     HostName = 'localhost'
@@ -401,6 +400,7 @@ object frmDesigner: TfrmDesigner
   end
   object tbl: TZTable
     Connection = ZConnection1
+    Active = True
     TableName = 'view_json'
     left = 272
     top = 64

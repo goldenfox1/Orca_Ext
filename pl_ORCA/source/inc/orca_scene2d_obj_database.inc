@@ -1737,10 +1737,17 @@ procedure TD2CustomDBGrid.UpdateRowCount;
 begin
   if FDataController.Active then
   begin
-    FDataController.BufferCount:=VisibleRows * 2;
-    if FDataController.BufferCount < FDataController.DataSet.RecordCount
-      then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-      else RowCount:=FDataController.RecordCount;
+    if FMultiSelect
+    then begin
+           FDataController.BufferCount:=FDataController.DataSet.RecordCount;
+           RowCount:=FDataController.DataSet.RecordCount;
+         end
+    else begin
+           FDataController.BufferCount:=VisibleRows * 2;
+           if FDataController.BufferCount < FDataController.DataSet.RecordCount
+             then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+             else RowCount:=FDataController.RecordCount;
+         end;
   end
   else RowCount:=0;
 end;
@@ -1781,28 +1788,35 @@ end;
 
 procedure TD2CustomDBGrid.OnInvalidDataSet(aDataSet: TDataSet);
 begin
-
+  LinkActive(FDataController.Active);
 end;
 
 procedure TD2CustomDBGrid.OnInvalidDataSource(aDataSet: TDataset);
 begin
-
+  LinkActive(FDataController.Active);
 end;
 
 procedure TD2CustomDBGrid.OnLayoutChanged(aDataSet: TDataSet);
 begin
-
+  LinkActive(FDataController.Active);
 end;
 
 procedure TD2CustomDBGrid.OnNewDataSet(aDataSet: TDataset);
 begin
-
+  LinkActive(FDataController.Active);
 end;
 
 procedure TD2CustomDBGrid.OnDataSetScrolled(aDataSet: TDataSet;
   Distance: Integer);
 begin
-
+  if (FDataController.DataSource <> nil) and (FDataController.DataSource.State <> dsInactive) then
+  begin
+    FDisableMove:=true;
+    if FDataController.DataSet.RecNo > 0 then
+      Selected:=(FDataController.DataSet.RecNo - 1);
+    FDisableMove:=false;
+    UpdateColumns;
+  end;
 end;
 
 function TD2CustomDBGrid.GetValue(Col, Row: integer): Variant;
@@ -1888,8 +1902,8 @@ procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
         if FDataController.EOF then Exit else Cancel
       else
         DoSelection(Select,1);
-      if FDataController.EOF and CanModify and (not ReadOnly) then
-        Append;
+      //if FDataController.EOF and CanModify and (not ReadOnly) then
+      //  Append;
     end;
   end;
 
@@ -1943,7 +1957,7 @@ begin
     end;
     Key:=0;
   end;
-  inherited ;
+  inherited;
 end;
 
 procedure TD2CustomDBGrid.Reset;
@@ -1974,19 +1988,7 @@ end;
 procedure TD2CustomDBGrid.Loaded;
 begin
   inherited;
-  DataChanged;
-end;
-
-procedure TD2CustomDBGrid.DataChanged;
-begin
-  if (FDataController.DataSource <> nil) and (FDataController.DataSource.State <> dsInactive) then
-  begin
-    FDisableMove:=true;
-    if FDataController.DataSet.RecNo > 0 then
-      Selected:=(FDataController.DataSet.RecNo - 1);
-    FDisableMove:=false;
-    UpdateColumns;
-  end;
+  OnDataSetScrolled(DataController.DataSet, 0);
 end;
 
 procedure TD2CustomDBGrid.LinkActive(Value: Boolean);
@@ -2038,6 +2040,7 @@ begin
 
   //FSelectedRows := TBookmarkList.Create(Self);
   RowCount:=0;
+  FDisableMove:=false;
 end;
 
 destructor TD2CustomDBGrid.Destroy;

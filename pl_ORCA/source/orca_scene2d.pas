@@ -4385,6 +4385,7 @@ TD2ScrollContent = class(TD2Content)
 
 TD2ScrollBox = class(TD2Control)
   private
+    FScrollDuration: single;
     FAutoHide:boolean;
     FDisableMouseWheel:boolean;
     FDown:boolean;
@@ -4444,6 +4445,7 @@ TD2ScrollBox = class(TD2Control)
   published
     property AutoHide: boolean read FAutoHide write FAutoHide  default true;
     property Animated: boolean read FAnimated write FAnimated  default true;
+    property ScrollDuration: single read FScrollDuration write FScrollDuration default 0.7;
     property DisableMouseWheel: boolean read FDisableMouseWheel write FDisableMouseWheel  default false;
     property MouseTracking: boolean read FMouseTracking write FMouseTracking  default false;
     property ShowScrollBars: boolean read FShowScrollBars write SetShowScrollBars  default true;
@@ -6942,6 +6944,7 @@ TD2CustomGrid = class(TD2ScrollBox)
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
     procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
     //procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;  //Deleted by GoldenFox
+    procedure MouseWheel(Shift: TShiftState; WheelDelta:integer; var Handled: boolean);  override;
     function ItemClass: string;  override;
     function ColumnByIndex(const Idx: integer): TD2Column;
     function ColumnByPoint(const X, Y:single): TD2Column;
@@ -7355,7 +7358,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure Reset;  override;  //
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
     procedure Loaded;  override;  //
-    procedure DataChanged;  //
+    //procedure DataChanged;  //
     procedure LinkActive(Value:Boolean);  //
     function  GetContentBounds: TD2Rect;  override;   //
     procedure SetSelected(const Value:integer);  override;   //

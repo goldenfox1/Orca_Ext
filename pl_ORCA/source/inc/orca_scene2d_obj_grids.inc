@@ -754,6 +754,7 @@ end;
 constructor TD2CustomGrid.Create(AOwner:TComponent);
 begin
   inherited;
+  FScrollDuration:=0.3;
   FOddFill:=TD2Brush.Create(d2BrushSolid,$20000000);
   FLineFill:=TD2Brush.Create(d2BrushSolid,$FF202020);
   FShowSelectedCell:=true;
@@ -1228,12 +1229,12 @@ begin
   Result:=nil;
 end;
 
-function TD2CustomGrid.CanEditModify:boolean;
+function TD2CustomGrid.CanEditModify: Boolean;
 begin
   Result:=not ReadOnly;
 end;
 
-function TD2CustomGrid.CanEditAcceptKey(Key:System.WideChar):boolean;
+function TD2CustomGrid.CanEditAcceptKey(Key: System.WideChar): Boolean;
 begin
   Result:=true;
 end;
@@ -1446,6 +1447,18 @@ begin
     if Column <> nil then
       ColumnIndex:=Column.Index;
   end;
+end;
+
+procedure TD2CustomGrid.MouseWheel(Shift: TShiftState; WheelDelta: integer;
+  var Handled: boolean);
+begin
+  if FMultiSelect
+    then inherited MouseWheel(Shift, WheelDelta, Handled)
+    else begin
+           Handled:=true;
+           if WheelDelta<0 then Selected:=FSelected+1;
+           if WheelDelta>0 then Selected:=FSelected-1;
+         end;
 end;
 
 function TD2CustomGrid.ChangeSelectionRow(Idx: integer): boolean; //изменить выделение строки - true - выделена, false - развыделена //function Added by GoldenFox
@@ -1696,10 +1709,9 @@ end;
 
 function TD2CustomGrid.GetTopRow:integer;
 begin
-  if VScrollBar <> nil then
-    Result:=trunc(VScrollBar.Value / FRowHeight)
-  else
-    Result:=0;
+  if FVScrollBar = nil
+    then Result:=0
+    else Result:=trunc(FVScrollBar.Value / FRowHeight);
 end;
 
 function TD2CustomGrid.GetVisibleRows:integer;

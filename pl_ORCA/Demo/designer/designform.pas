@@ -22,8 +22,8 @@ type
     Button4: TD2Button;
     d2SceneDesigner: TD2Scene;
     DataSource1: TDataSource;
-    DBColumn1: TD2DBColumn;
     DBGrid1: TD2DBGrid;
+    DBTextColumn1: TD2DBTextColumn;
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
     Root2: TD2Background;
@@ -81,12 +81,12 @@ end;
 
 procedure TfrmDesigner.Button1Click(Sender: TObject);
 begin
-  tbl.Open;
+  DBGrid1.DataController.DataSource:=DataSource1;
 end;
 
 procedure TfrmDesigner.Button2Click(Sender: TObject);
 begin
-   tbl.Close;
+   DBGrid1.DataController.DataSource:=nil;
 end;
 
 procedure TfrmDesigner.SpeedButton3Click(Sender: TObject);
