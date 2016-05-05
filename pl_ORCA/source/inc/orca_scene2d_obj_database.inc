@@ -1254,11 +1254,13 @@ begin
 end;
 
 procedure TD2DBCheckColumn.DoCheckChanged(Sender:TObject);
+var G: TD2CustomGrid;
 begin
-  if Grid=nil then Exit;
+  G:= TD2CustomGrid(Grid);
+  if G=nil then Exit;
   if FUpdateColumn then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 function TD2DBCheckColumn.GetData:Variant;
@@ -1294,11 +1296,13 @@ begin
 end;
 
 procedure TD2DBPopupColumn.DoPopupChanged(Sender:TObject);
+var G: TD2CustomGrid;
 begin
-  if Grid=nil then Exit;
+  G:= TD2CustomGrid(Grid);
+  if G =nil then Exit;
   if FUpdateColumn then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 { TD2DBImageColumn }
@@ -1318,12 +1322,14 @@ begin
 end;
 
 procedure TD2DBImageColumn.DoImageChanged(Sender:TObject);
+var G: TD2CustomGrid;
 begin
-  if Grid=nil then Exit;
+  G:= TD2CustomGrid(Grid);
+  if G =nil then Exit;
   if FUpdateColumn then Exit;
-  if not TD2DBGrid(Grid).CanEditModify then Exit;
+  if not TD2DBGrid(G).CanEditModify then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 function TD2DBImageColumn.GetData:Variant;
@@ -1737,19 +1743,22 @@ procedure TD2CustomDBGrid.UpdateRowCount;
 begin
   if FDataController.Active then
   begin
-    if FMultiSelect
-    then begin
+    //if FMultiSelect
+    //then begin
            FDataController.BufferCount:=FDataController.DataSet.RecordCount;
            RowCount:=FDataController.DataSet.RecordCount;
-         end
-    else begin
-           FDataController.BufferCount:=VisibleRows * 2;
-           if FDataController.BufferCount < FDataController.DataSet.RecordCount
-             then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-             else RowCount:=FDataController.RecordCount;
-         end;
+    //     end
+    //else begin
+    //       FDataController.BufferCount:=VisibleRows * 2;
+    //       if FDataController.BufferCount < FDataController.DataSet.RecordCount
+    //         then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+    //         else RowCount:=FDataController.RecordCount;
+    //     end;
   end
-  else RowCount:=0;
+  else begin
+         RowCount:=0;
+         FDataController.BufferCount:=0;
+       end;
 end;
 
 procedure TD2CustomDBGrid.OnRecordChanged(Field: TField);
@@ -1773,6 +1782,14 @@ end;
 
 procedure TD2CustomDBGrid.OnDataSetOpen(aDataSet: TDataSet);
 begin
+  if FDataController.Active then
+  begin
+    FSelected := 0;                 //Added by GoldenFox
+    FSelectedRows[0] := 2;          //Added by GoldenFox
+    FSelectedRows[1] := FSelected;  //Added by GoldenFox
+    FSelectedRows[2] := FSelected;  //Added by GoldenFox
+    FIsPreSelected := false;        //Added by GoldenFox
+  end;
   LinkActive(FDataController.Active);
 end;
 
@@ -1803,6 +1820,14 @@ end;
 
 procedure TD2CustomDBGrid.OnNewDataSet(aDataSet: TDataset);
 begin
+  if FDataController.Active then
+  begin
+    FSelected := 0;                 //Added by GoldenFox
+    FSelectedRows[0] := 2;          //Added by GoldenFox
+    FSelectedRows[1] := FSelected;  //Added by GoldenFox
+    FSelectedRows[2] := FSelected;  //Added by GoldenFox
+    FIsPreSelected := false;        //Added by GoldenFox
+  end;
   LinkActive(FDataController.Active);
 end;
 

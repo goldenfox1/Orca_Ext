@@ -6930,7 +6930,7 @@ TD2CustomGrid = class(TD2ScrollBox)
     function  GetValue(Col, Row: integer): Variant;  virtual;
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
     function  IsSelected(Row: integer):boolean;
-    function  IsOneRowSelected:boolean;  //Added by GoldenFox
+    function  IsOneRowSelected:boolean;  //Added by GoldenFox  true - если выбрана 1 стока
     procedure SetSelected(const Value: integer);  virtual;
     procedure SetSelectedMoreRow(Idx: integer);  virtual;  //Added by GoldenFox
     function ChangeSelectionRow(Idx: integer):boolean; //изменить выделение строки - true - выделена, false - развыделена //Added by GoldenFox
@@ -6944,7 +6944,6 @@ TD2CustomGrid = class(TD2ScrollBox)
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
     procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
     //procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;  //Deleted by GoldenFox
-    procedure MouseWheel(Shift: TShiftState; WheelDelta:integer; var Handled: boolean);  override;
     function ItemClass: string;  override;
     function ColumnByIndex(const Idx: integer): TD2Column;
     function ColumnByPoint(const X, Y:single): TD2Column;
@@ -7362,6 +7361,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure LinkActive(Value:Boolean);  //
     function  GetContentBounds: TD2Rect;  override;   //
     procedure SetSelected(const Value:integer);  override;   //
+    //procedure VScrollChange(Sender: TObject);  override;
   public
     constructor Create(AOwner: TComponent);  override;  //
     destructor Destroy;  override;  //
