@@ -975,18 +975,23 @@ constructor TD2DBTextBox.Create(AOwner:TComponent);
 begin
   inherited;
   FResource:='textboxstyle';
-  FDataLink:=TFieldDataLink.Create;
-  FDataLink.Control:=Self;
-  FDataLink.OnDataChange:=DataChange;
-  FDataLink.OnUpdateData:=UpdateData;
+  FDataController:=TD2FieldDataController.Create;
+  //FDataLink.Control:=Self;
+  FDataController.OnDataChange:=DataChange;
+  FDataController.OnUpdateData:=UpdateData;
 {  FDataLink.OnEditingChange:=EditingChange;
   FDataLink.OnActiveChange:=ActiveChange;}
 end;
 
 destructor TD2DBTextBox.Destroy;
 begin
-  FreeAndNil(FDataLink);
+  FreeAndNil(FDataController);
   inherited;
+end;
+
+procedure TD2DBTextBox.SetDataController(const AValue: TD2FieldDataController);
+begin
+  FDataController.Assign(AValue);
 end;
 
 procedure TD2DBTextBox.DataChange(Sender:TObject);
@@ -996,21 +1001,21 @@ end;
 
 procedure TD2DBTextBox.UpdateData(Sender:TObject);
 begin
-  FDataLink.Field.Text:=Text;
+  FDataController.Field.Text:=Text;
 end;
 
 procedure TD2DBTextBox.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataLink <> nil) and
-    (AComponent=DataSource) then DataSource:=nil;
+  if (Operation=opRemove) and (FDataController <> nil) and
+    (AComponent=DataSource) then FDataController.DataSource:=nil;
 end;
 
 function TD2DBTextBox.GetFieldText:string;
 begin
-  if FDataLink.Field <> nil then
-    Result:=UTF8Decode(FDataLink.Field.DisplayText)
+  if FDataController.Field <> nil then
+    Result:=UTF8Decode(FDataController.Field.DisplayText)
   else
     if csDesigning in ComponentState then
       Result:=Name
@@ -1020,43 +1025,43 @@ end;
 
 function TD2DBTextBox.GetDataField:string;
 begin
-  Result:=FDataLink.FieldName;
+  Result:=FDataController.FieldName;
 end;
 
-procedure TD2DBTextBox.SetDataField(const Value:string);
-begin
-  FDataLink.FieldName:=Value;
-end;
+//procedure TD2DBTextBox.SetDataField(const Value:string);
+//begin
+//  FDataLink.FieldName:=Value;
+//end;
 
 function TD2DBTextBox.GetDataSource:TDataSource;
 begin
-  Result:=FDataLink.DataSource;
+  Result:=FDataController.DataSource;
 end;
 
-procedure TD2DBTextBox.SetDataSource(const Value:TDataSource);
-begin
-  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    FDataLink.DataSource:=Value;
-  if Value <> nil then Value.FreeNotification(Self);
-end;
+//procedure TD2DBTextBox.SetDataSource(const Value:TDataSource);
+//begin
+//  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+//    FDataLink.DataSource:=Value;
+//  if Value <> nil then Value.FreeNotification(Self);
+//end;
 
 procedure TD2DBTextBox.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
   if (Key=VK_DELETE) or ((Key=VK_INSERT) and (ssShift in Shift)) then
-    FDataLink.Edit;
-  if (KeyChar >= #32) and (FDataLink.Field <> nil) and
-    not FDataLink.Field.IsValidChar(Char(KeyChar)) then
+    FDataController.Edit;
+  if (KeyChar >= #32) and (FDataController.Field <> nil) and
+    not FDataController.Field.IsValidChar(Char(KeyChar)) then
   begin
     KeyChar:=#0;
   end;
   case KeyChar of
     ^H,^V,^X,#32..High(KeyChar):
-      if not FDataLink.Edit then
+      if not FDataController.Edit then
         KeyChar:=#0;
     #27:
       begin
-        FDataLink.Reset;
+        FDataController.Reset;
         SelectAll;
         KeyChar:=#0;
       end;
@@ -1067,23 +1072,23 @@ end;
 procedure TD2DBTextBox.Change;
 begin
   inherited;
-  if FDataLink.Editing then
+  if FDataController.Editing then
   begin
-    FDataLink.Modified;
-    FDataLink.UpdateRecord;
+    FDataController.Modified;
+    FDataController.UpdateRecord;
   end;
 end;
 
 procedure TD2DBTextBox.EnterFocus;
 begin
   inherited;
-  FDataLink.Reset;
+  FDataController.Reset;
 end;
 
 procedure TD2DBTextBox.KillFocus;
 begin
   inherited;
-  FDataLink.Reset;
+  FDataController.Reset;
 end;
 
 { TD2DBMemo ===================================================================}
