@@ -7115,23 +7115,71 @@ TD2NavDataLink = class(TDataLink)
     destructor Destroy;  override;
   end;
 
+{ TD2FielDataController }
+
+{ TD2FieldDataController }
+
+TD2FieldDataController=class(TDataLink)   //Added by GoldenFox  Based on TFieldDataLink
+  private
+    FField: TField;
+    FFieldName: string;
+    FOnDataChange: TNotifyEvent;
+    FOnEditingChange: TNotifyEvent;
+    FOnUpdateData: TNotifyEvent;
+    FOnActiveChange: TNotifyEvent;
+    FEditing: Boolean;
+    IsModified: Boolean;
+    function FieldCanModify: boolean;
+    function IsKeyField(aField: TField): Boolean;
+    function GetCanModify: Boolean;
+    procedure SetFieldName(const Value: string);
+    procedure UpdateField;
+    procedure ValidateField;
+  protected
+    procedure ActiveChanged; override;
+    procedure EditingChanged; override;
+    procedure LayoutChanged; override;
+    procedure RecordChanged(aField: TField); override;
+    procedure UpdateData; override;
+  public
+    constructor Create;
+    function Edit: Boolean;
+    procedure Modified;
+    procedure Reset;
+    property Field: TField read FField;
+    property CanModify: Boolean read GetCanModify;
+    property Editing: Boolean read FEditing;
+    property OnDataChange: TNotifyEvent read FOnDataChange write FOnDataChange;
+    property OnEditingChange: TNotifyEvent read FOnEditingChange write FOnEditingChange;
+    property OnUpdateData: TNotifyEvent read FOnUpdateData write FOnUpdateData;
+    property OnActiveChange: TNotifyEvent read FOnActiveChange write FOnActiveChange;
+  published
+    property DataSource;
+    property FieldName: string read FFieldName write SetFieldName;
+end;
+
+{ TD2DBLabel }
+
 TD2DBLabel = class(TD2CustomLabel)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    procedure SetDataController(const AValue: TD2FieldDataController);
+    //procedure SetDataField(const Value:string);
+    //procedure SetDataSource(const Value:TDataSource);
     function  GetFieldText: string;
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //Deleted by GoldenFox
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;
     property TextAlign  default d2TextAlignNear;
   end;
 
@@ -7255,7 +7303,7 @@ TD2DBColumn = class(TD2Column)
     procedure SetData(Value:Variant);  virtual;
   public
     //constructor Create(AOwner: TComponent);  override;    //Deleted by GoldenFox
-    destructor Destroy;  override;                        //Deleted by GoldenFox
+    destructor Destroy;  override;
     property  Field: TField read GetField write SetField;
   published
     property FieldName: String read FFieldName write SetFieldName;
@@ -7360,12 +7408,10 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure Reset;  override;  //
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
     procedure Loaded;  override;  //
-    //procedure DataChanged;  //
     procedure ColumnsLinkFields; //переопределить Field для каждой колонки
     procedure LinkActive(Value:Boolean);  //
     function  GetContentBounds: TD2Rect;  override;   //
     procedure SetSelected(const Value:integer);  override;   //
-    //procedure VScrollChange(Sender: TObject);  override;
   public
     constructor Create(AOwner: TComponent);  override;  //
     destructor Destroy;  override;  //

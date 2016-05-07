@@ -607,6 +607,177 @@ begin
   if FNavigator <> nil then FNavigator.ActiveChanged;
 end;
 
+{ TD2FieldDataController =======================================================} //Added by GoldenFox
+
+function TD2FieldDataController.FieldCanModify: boolean;
+var
+  FieldList: TList;
+  i: Integer;
+begin
+  result := Assigned(FField);
+  if not result then
+    exit;
+
+  if FField.FieldKind=fkLookup then
+  begin
+    FieldList := TList.Create;
+    try
+      DataSet.GetFieldList(FieldList, FField.KeyFields);
+      result := (FieldList.Count>0);
+      i := 0;
+      while result and (i<FieldList.Count) do
+      begin
+        result := TField(FieldList[i]).CanModify;
+        inc(i);
+      end;
+    finally
+      FieldList.Free;
+    end;
+  end else
+    result := FField.CanModify;
+end;
+
+function TD2FieldDataController.IsKeyField(aField: TField): Boolean;
+var
+  KeyFieldName, KeyFields: String;
+  StrPos: Integer;
+begin
+  KeyFields := FField.KeyFields;
+  StrPos := 1;
+  while StrPos <= Length(KeyFields) do
+  begin
+    KeyFieldName := ExtractFieldName(KeyFields, StrPos);
+    if SameText(aField.FieldName, KeyFieldName) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+function TD2FieldDataController.GetCanModify: Boolean;
+begin
+  if FieldCanModify then
+    Result := not ReadOnly
+  else
+    Result := False;
+end;
+
+procedure TD2FieldDataController.SetFieldName(const Value: string);
+begin
+  if FFieldName <> Value then
+  begin
+    FFieldName := Value;
+    UpdateField;
+    if Active then
+    begin
+      EditingChanged;
+      Reset;
+    end;
+  end;
+end;
+
+procedure TD2FieldDataController.UpdateField;
+begin
+  if Active and (FFieldName <> '') then
+    FField := DataSet.FindField(FFieldName)
+  else
+    FField := nil;
+end;
+
+procedure TD2FieldDataController.ValidateField;
+begin
+  if not (DataSet.FindField(FFieldName) = FField) then
+    UpdateField;
+end;
+
+procedure TD2FieldDataController.ActiveChanged;
+begin
+  if FFieldName <> '' then
+  begin
+    UpdateField;
+    EditingChanged;
+    Reset;
+  end;
+  if Assigned(FOnActiveChange) then
+    FOnActiveChange(Self);
+end;
+
+procedure TD2FieldDataController.EditingChanged;
+var
+  RealEditState : Boolean;
+begin
+  RealEditState := (CanModify and Inherited Editing);
+
+  if (FEditing <> RealEditState) then
+  begin
+    FEditing := RealEditState;
+    if not FEditing then
+      IsModified := False;
+    if Assigned(FOnEditingChange) then
+      FOnEditingChange(Self);
+  end;
+end;
+
+procedure TD2FieldDataController.LayoutChanged;
+begin
+  ValidateField;
+  if FField <> nil then
+  begin
+    EditingChanged;
+    RecordChanged(nil);
+  end;
+end;
+
+procedure TD2FieldDataController.RecordChanged(aField: TField);
+begin
+  if (aField = nil) or (aField = FField) or
+   ((FField <> nil) and (FField.FieldKind = fkLookup) and IsKeyField(aField)) then
+    Reset;
+end;
+
+procedure TD2FieldDataController.UpdateData;
+begin
+  if not IsModified then
+    exit;
+  try
+    if Assigned(FOnUpdateData) then
+      FOnUpdateData(Self);
+  finally
+    IsModified := False;
+  end;
+end;
+
+constructor TD2FieldDataController.Create;
+begin
+  inherited Create;
+  VisualControl := True;
+  //FField := nil;
+  //FFieldname := '';
+end;
+
+function TD2FieldDataController.Edit: Boolean;
+begin
+  if (not FEditing) and CanModify then
+    inherited Edit;
+
+  Result := FEditing;
+end;
+
+procedure TD2FieldDataController.Modified;
+begin
+  IsModified := True;
+end;
+
+procedure TD2FieldDataController.Reset;
+begin
+  if Assigned(FOnDataChange) then
+    FOnDataChange(Self);
+
+  IsModified := False;
+end;
+
 { TD2DBLabel ===================================================================}
 
 constructor TD2DBLabel.Create(AOwner:TComponent);
@@ -614,9 +785,9 @@ begin
   inherited;
   TextAlign:=d2TextAlignNear;
   FResource:='labelstyle';
-  FDataLink:=TFieldDataLink.Create;
-  FDataLink.Control:=Self;
-  FDataLink.OnDataChange:=DataChange;
+  FDataController:=TD2FieldDataController.Create;
+  //FDataController.Control:=Self;
+  FDataController.OnDataChange:=DataChange;
 end;
 
 procedure TD2DBLabel.DataChange(Sender:TObject);
@@ -626,7 +797,7 @@ end;
 
 destructor TD2DBLabel.Destroy;
 begin
-  FreeAndNil(FDataLink);
+  FreeAndNil(FDataController);
   inherited;
 end;
 
@@ -634,14 +805,14 @@ procedure TD2DBLabel.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataLink <> nil) and
-    (AComponent=DataSource) then DataSource:=nil;
+  if (Operation=opRemove) and (FDataController <> nil) and
+    (AComponent=DataSource) then FDataController.DataSource:=nil;
 end;
 
 function TD2DBLabel.GetFieldText:string;
 begin
-  if FDataLink.Field <> nil then
-    Result:=FDataLink.Field.DisplayText
+  if FDataController.Field <> nil then
+    Result:=FDataController.Field.DisplayText
   else
     if csDesigning in ComponentState then
       Result:=Name
@@ -651,25 +822,30 @@ end;
 
 function TD2DBLabel.GetDataField:string;
 begin
-  Result:=FDataLink.FieldName;
+  Result:=FDataController.FieldName;
 end;
 
-procedure TD2DBLabel.SetDataField(const Value:string);
-begin
-  FDataLink.FieldName:=Value;
-end;
+//procedure TD2DBLabel.SetDataField(const Value:string);
+//begin
+//  FDataController.FieldName:=Value;
+//end;
 
 function TD2DBLabel.GetDataSource:TDataSource;
 begin
-  Result:=FDataLink.DataSource;
+  Result:=FDataController.DataSource;
 end;
 
-procedure TD2DBLabel.SetDataSource(const Value:TDataSource);
+procedure TD2DBLabel.SetDataController(const AValue: TD2FieldDataController);
 begin
-  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    FDataLink.DataSource:=Value;
-  if Value <> nil then Value.FreeNotification(Self);
+  FDataController.Assign(AValue);
 end;
+
+//procedure TD2DBLabel.SetDataSource(const Value:TDataSource);
+//begin
+//  if not (FDataController.DataSourceFixed and (csLoading in ComponentState)) then
+//    FDataController.DataSource:=Value;
+//  //if Value <> nil then Value.FreeNotification(Self);
+//end;
 
 { TD2DBImage ===================================================================}
 
