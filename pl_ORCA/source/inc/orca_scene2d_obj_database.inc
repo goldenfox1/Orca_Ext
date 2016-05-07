@@ -852,23 +852,23 @@ end;
 constructor TD2DBImage.Create(AOwner:TComponent);
 begin
   inherited;
-  FDataLink:=TFieldDataLink.Create;
-  FDataLink.Control:=Self;
-  FDataLink.OnDataChange:=DataChange;
-  FDataLink.OnUpdateData:=UpdateData;
+  FDataController:=TD2FieldDataController.Create;
+  //FDataLink.Control:=Self;
+  FDataController.OnDataChange:=DataChange;
+  FDataController.OnUpdateData:=UpdateData;
 end;
 
 procedure TD2DBImage.DoBitmapChanged(Sender:TObject);
 begin
-  if (not Assigned(FDataLink.Field) or FDataLink.Field.IsBlob) then
+  if (not Assigned(FDataController.Field) or FDataController.Field.IsBlob) then
   begin
-    FDataLink.OnDataChange:=nil;
+    FDataController.OnDataChange:=nil;
     try
-      FDataLink.Edit;
-      FDataLink.Modified;
-      FDataLink.UpdateRecord;
+      FDataController.Edit;
+      FDataController.Modified;
+      FDataController.UpdateRecord;
     finally
-      FDataLink.OnDataChange:=DataChange;
+      FDataController.OnDataChange:=DataChange;
     end;
     Repaint;
   end;
@@ -878,22 +878,22 @@ procedure TD2DBImage.UpdateData(Sender:TObject);
 var
   P:TPicture;
 begin
-  if (not Assigned(FDataLink.Field) or FDataLink.Field.IsBlob) then
+  if (not Assigned(FDataController.Field) or FDataController.Field.IsBlob) then
   begin
     P:=TPicture.Create;
     P.Assign(Bitmap);
-    FDataLink.Field.Assign(P);
+    FDataController.Field.Assign(P);
     P.Free;
   end;
 end;
 
 procedure TD2DBImage.DataChange(Sender:TObject);
 begin
-  if Assigned(FDataLink.Field) and FDataLink.Field.IsBlob then
+  if Assigned(FDataController.Field) and FDataController.Field.IsBlob then
   begin
     Bitmap.OnChange:=nil;
     try
-      Bitmap.Assign(FDataLink.Field);
+      Bitmap.Assign(FDataController.Field);
     finally
       Bitmap.OnChange:=DoBitmapChanged;
     end;
@@ -905,7 +905,7 @@ end;
 
 destructor TD2DBImage.Destroy;
 begin
-  FreeAndNil(FDataLink);
+  FreeAndNil(FDataController);
   inherited;
 end;
 
@@ -916,10 +916,10 @@ begin
   begin
     Canvas.Fill.Style:=d2BrushSolid;
     Canvas.Fill.Color:=vcGray;
-    if not Assigned(FDataLink.Field) then
+    if not Assigned(FDataController.Field) then
       Canvas.FillText(LocalRect,LocalRect,'[TD2DBImage]',false,AbsoluteOpacity,d2TextAlignCenter)
     else
-      Canvas.FillText(LocalRect,LocalRect,'[' + FDataLink.FieldName + ']',false,AbsoluteOpacity,d2TextAlignCenter);
+      Canvas.FillText(LocalRect,LocalRect,'[' + FDataController.FieldName + ']',false,AbsoluteOpacity,d2TextAlignCenter);
   end;
 end;
 
@@ -927,14 +927,14 @@ procedure TD2DBImage.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataLink <> nil) and
-    (AComponent=DataSource) then DataSource:=nil;
+  if (Operation=opRemove) and (FDataController <> nil) and
+    (AComponent=DataSource) then FDataController.DataSource:=nil;
 end;
 
 function TD2DBImage.GetFieldText:string;
 begin
-  if FDataLink.Field <> nil then
-    Result:=FDataLink.Field.DisplayText
+  if FDataController.Field <> nil then
+    Result:=FDataController.Field.DisplayText
   else
     if csDesigning in ComponentState then
       Result:=Name
@@ -944,25 +944,30 @@ end;
 
 function TD2DBImage.GetDataField:string;
 begin
-  Result:=FDataLink.FieldName;
+  Result:=FDataController.FieldName;
 end;
 
-procedure TD2DBImage.SetDataField(const Value:string);
-begin
-  FDataLink.FieldName:=Value;
-end;
+//procedure TD2DBImage.SetDataField(const Value:string);
+//begin
+//  FDataLink.FieldName:=Value;
+//end;
 
 function TD2DBImage.GetDataSource:TDataSource;
 begin
-  Result:=FDataLink.DataSource;
+  Result:=FDataController.DataSource;
 end;
 
-procedure TD2DBImage.SetDataSource(const Value:TDataSource);
+procedure TD2DBImage.SetDataController(const AValue: TD2FieldDataController);
 begin
-  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    FDataLink.DataSource:=Value;
-  if Value <> nil then Value.FreeNotification(Self);
+  FDataController.Assign(AValue);
 end;
+
+//procedure TD2DBImage.SetDataSource(const Value:TDataSource);
+//begin
+//  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+//    FDataLink.DataSource:=Value;
+//  if Value <> nil then Value.FreeNotification(Self);
+//end;
 
 { TD2DBTextBox ===================================================================}
 
