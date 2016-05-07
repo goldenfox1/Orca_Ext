@@ -1097,25 +1097,30 @@ constructor TD2DBMemo.Create(AOwner:TComponent);
 begin
   inherited;
   FResource:='Memostyle';
-  FDataLink:=TFieldDataLink.Create;
-  FDataLink.Control:=Self;
-  FDataLink.OnDataChange:=DataChange;
-  FDataLink.OnUpdateData:=UpdateData;
+  FDataController:=TD2FieldDataController.Create;
+  //FDataLink.Control:=Self;
+  FDataController.OnDataChange:=DataChange;
+  FDataController.OnUpdateData:=UpdateData;
 {  FDataLink.OnEditingChange:=EditingChange;
   FDataLink.OnActiveChange:=ActiveChange;}
 end;
 
 destructor TD2DBMemo.Destroy;
 begin
-  FreeAndNil(FDataLink);
+  FreeAndNil(FDataController);
   inherited;
+end;
+
+procedure TD2DBMemo.SetDataController(const AValue: TD2FieldDataController);
+begin
+  FDataController.Assign(AValue);
 end;
 
 procedure TD2DBMemo.DataChange(Sender:TObject);
 begin
-  if Assigned(FDataLink.Field) and FDataLink.Field.IsBlob then
+  if Assigned(FDataController.Field) and FDataController.Field.IsBlob then
   begin
-    TextW:=FDataLink.Field.AsString;
+    TextW:=FDataController.Field.AsString;
   end
   else
     TextW:=GetFieldText;
@@ -1123,21 +1128,21 @@ end;
 
 procedure TD2DBMemo.UpdateData(Sender:TObject);
 begin
-  FDataLink.Field.AsString:=UTF8Encode(TextW);
+  FDataController.Field.AsString:=UTF8Encode(TextW);
 end;
 
 procedure TD2DBMemo.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataLink <> nil) and
-    (AComponent=DataSource) then DataSource:=nil;
+  if (Operation=opRemove) and (FDataController <> nil) and
+    (AComponent=DataSource) then FDataController.DataSource:=nil;
 end;
 
 function TD2DBMemo.GetFieldText:string;
 begin
-  if FDataLink.Field <> nil then
-    Result:=FDataLink.Field.DisplayText
+  if FDataController.Field <> nil then
+    Result:=FDataController.Field.DisplayText
   else
     if csDesigning in ComponentState then
       Result:=Name
@@ -1147,43 +1152,43 @@ end;
 
 function TD2DBMemo.GetDataField:string;
 begin
-  Result:=FDataLink.FieldName;
+  Result:=FDataController.FieldName;
 end;
 
-procedure TD2DBMemo.SetDataField(const Value:string);
-begin
-  FDataLink.FieldName:=Value;
-end;
+//procedure TD2DBMemo.SetDataField(const Value:string);
+//begin
+//  FDataLink.FieldName:=Value;
+//end;
 
 function TD2DBMemo.GetDataSource:TDataSource;
 begin
-  Result:=FDataLink.DataSource;
+  Result:=FDataController.DataSource;
 end;
 
-procedure TD2DBMemo.SetDataSource(const Value:TDataSource);
-begin
-  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    FDataLink.DataSource:=Value;
-  if Value <> nil then Value.FreeNotification(Self);
-end;
+//procedure TD2DBMemo.SetDataSource(const Value:TDataSource);
+//begin
+//  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+//    FDataLink.DataSource:=Value;
+//  if Value <> nil then Value.FreeNotification(Self);
+//end;
 
 procedure TD2DBMemo.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
   if (Key=VK_DELETE) or ((Key=VK_INSERT) and (ssShift in Shift)) then
-    FDataLink.Edit;
-  if (KeyChar >= #32) and (FDataLink.Field <> nil) and
-    not FDataLink.Field.IsValidChar(Char(KeyChar)) then
+    FDataController.Edit;
+  if (KeyChar >= #32) and (FDataController.Field <> nil) and
+    not FDataController.Field.IsValidChar(Char(KeyChar)) then
   begin
     KeyChar:=#0;
   end;
   case KeyChar of
     ^H,^V,^X,#32..High(KeyChar):
-      if not FDataLink.Edit then
+      if not FDataController.Edit then
         KeyChar:=#0;
     #27:
       begin
-        FDataLink.Reset;
+        FDataController.Reset;
         SelectAll;
         KeyChar:=#0;
       end;
@@ -1194,23 +1199,23 @@ end;
 procedure TD2DBMemo.Change;
 begin
   inherited;
-  if FDataLink.Editing then
+  if FDataController.Editing then
   begin
-    FDataLink.Modified;
-    FDataLink.UpdateRecord;
+    FDataController.Modified;
+    FDataController.UpdateRecord;
   end;
 end;
 
 procedure TD2DBMemo.EnterFocus;
 begin
   inherited;
-  FDataLink.Reset;
+  FDataController.Reset;
 end;
 
 procedure TD2DBMemo.KillFocus;
 begin
   inherited;
-  FDataLink.Reset;
+  FDataController.Reset;
 end;
 
 //{ TD2GridDataLink }

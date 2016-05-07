@@ -37,7 +37,7 @@ uses
 
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
-  StdCtrls, DB, DBCtrls, DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
+  StdCtrls, DB, {DBCtrls,} DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
 
 //=============================================================================
 //=============== GLobal const/Emu Types ======================================
@@ -7238,14 +7238,18 @@ TD2DBTextBox = class(TD2CustomTextBox)
     property Password;
   end;
 
+{ TD2DBMemo }
+
 TD2DBMemo = class(TD2CustomMemo)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
+    procedure SetDataController(const AValue: TD2FieldDataController);   //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    //procedure SetDataField(const Value:string);          //Deleted by GoldenFox
+    //procedure SetDataSource(const Value:TDataSource);    //Deleted by GoldenFox
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
@@ -7257,9 +7261,10 @@ TD2DBMemo = class(TD2CustomMemo)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};           //Deleted by GoldenFox
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};   //Deleted by GoldenFox
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
   end;
 
   //TD2DBGrid = class;
