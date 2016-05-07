@@ -6798,8 +6798,10 @@ TD2ImageCell = class(TD2ImageControl)
 
 TD2Column = class(TD2Control)
   private
+    FGrid: TD2CustomGrid;
     FReadOnly:boolean;
     procedure SetHeader(const Value:String);
+    function GetGrid: TD2CustomGrid; //Added by GoldenFox
   protected
     FCellControls: array of TD2Control;
     FUpdateColumn:boolean;
@@ -6818,7 +6820,7 @@ TD2Column = class(TD2Control)
     constructor Create(AOwner: TComponent);  override;
     function CellControlByPoint(X, Y:single): TD2Control;
     function CellControlByRow(Row: integer): TD2Control;
-    function Grid: TD2CustomGrid; //Added by GoldenFox
+    property Grid: TD2CustomGrid read FGrid; //Added by GoldenFox
   published
     property Resource;
     property Header: String read FHeader write SetHeader;
@@ -7247,9 +7249,10 @@ TD2DBColumn = class(TD2Column)
     procedure SetFieldName(const Value:String);
     function GetField: TField;
     procedure SetField(Value:TField);
+    procedure LinkField;
   protected
-    procedure SetData(Value:Variant);  virtual;
     function GetData: Variant;  virtual;
+    procedure SetData(Value:Variant);  virtual;
   public
     //constructor Create(AOwner: TComponent);  override;    //Deleted by GoldenFox
     destructor Destroy;  override;                        //Deleted by GoldenFox
@@ -7358,6 +7361,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
     procedure Loaded;  override;  //
     //procedure DataChanged;  //
+    procedure ColumnsLinkFields; //переопределить Field для каждой колонки
     procedure LinkActive(Value:Boolean);  //
     function  GetContentBounds: TD2Rect;  override;   //
     procedure SetSelected(const Value:integer);  override;   //

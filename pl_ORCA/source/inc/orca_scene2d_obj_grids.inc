@@ -462,6 +462,7 @@ begin
   Width:=100;
   HitTest:=false;
   CanFocused:=false;
+  FGrid:= GetGrid;
 end;
 
 function TD2Column.CreateCellControl:TD2Control;
@@ -471,49 +472,41 @@ begin
 end;
 
 procedure TD2Column.DoTextChanged(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
+  if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
-    G.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(G.FOnEdititingDone) then
-      G.FOnEdititingDone(G,trunc(x),trunc(y));
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
   end;
 end;
 
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
-  ACanFocused:=G.CanEditModify;
+  if Grid=nil then Exit;
+  ACanFocused:=Grid.CanEditModify;
   if ACanFocused and ReadOnly then
     ACanFocused:=false;
 end;
 
 procedure TD2Column.DoEnterFocus(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
-  G.ColumnIndex:=Index;
+  if Grid=nil then Exit;
+  Grid.ColumnIndex:=Index;
   FSaveData:=TD2Object(Sender).Data;
 end;
 
 procedure TD2Column.DoKeyDown(Sender:TObject; var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if (KeyChar <> #0) and (G <> nil) and not G.CanEditAcceptKey(KeyChar) then
+  if (KeyChar <> #0) and (Grid <> nil) and not Grid.CanEditAcceptKey(KeyChar) then
     KeyChar:=#0;
-  if (Key=VK_RETURN) and (G <> nil) then
+  if (Key=VK_RETURN) and (Grid <> nil) then
     Grid.SetFocus;
-  if (Key=VK_ESCAPE) and (G <> nil) then
+  if (Key=VK_ESCAPE) and (Grid <> nil) then
   begin
     FDisableChange:=true;
     try
@@ -521,16 +514,16 @@ begin
     finally
       FDisableChange:=false;
     end;
-    G.Reset;
+    Grid.Reset;
   end;
-  if (Key=VK_UP) or (Key=VK_DOWN) and (G <> nil) then
+  if (Key=VK_UP) or (Key=VK_DOWN) and (Grid <> nil) then
   begin
-    G.SetFocus;
-    G.KeyDown(Key,Keychar,Shift);
+    Grid.SetFocus;
+    Grid.KeyDown(Key,Keychar,Shift);
   end;
 end;
 
-function TD2Column.Grid:TD2CustomGrid;
+function TD2Column.GetGrid: TD2CustomGrid;
 var
   P:TD2Object;
 begin
@@ -560,13 +553,11 @@ function TD2Column.CellControlByPoint(X,Y:single):TD2Control;
 var
   i:integer;
   P:TD2Point;
-  G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
   Result:=nil;
-  if G=nil then Exit;
+  if Grid=nil then Exit;
 
-  P:=G.LocalToAbsolute(d2Point(X,Y));
+  P:=Grid.LocalToAbsolute(d2Point(X,Y));
   for i:=0 to High(FCellControls) do
     if FCellControls[i].Visible and (FCellControls[i].pointInObject(P.X,P.Y)) then
     begin
@@ -594,18 +585,16 @@ procedure TD2Column.UpdateColumn;
 var
   i,C:integer;
   V:Variant;
-  G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
+  if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
     { Create controls }
-    if Length(FCellControls) < Min(G.RowCount,G.VisibleRows) then
+    if Length(FCellControls) < Min(Grid.RowCount,Grid.VisibleRows) then
     begin
       C:=High(FCellControls);
-      SetLength(FCellControls,Min(G.RowCount,G.VisibleRows));
-      for i:=C + 1 to Min(G.RowCount,G.VisibleRows) - 1 do
+      SetLength(FCellControls,Min(Grid.RowCount,Grid.VisibleRows));
+      for i:=C + 1 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
       begin
         FCellControls[i]:=CreateCellControl;
         FCellControls[i].Parent:=Self;
@@ -619,21 +608,21 @@ begin
       end;
     end;
     { Hide if need }
-    if Length(FCellControls) > Min(G.RowCount,G.VisibleRows) then
+    if Length(FCellControls) > Min(Grid.RowCount,Grid.VisibleRows) then
     begin
-      for i:=Min(G.RowCount,G.VisibleRows) to High(FCellControls) do
+      for i:=Min(Grid.RowCount,Grid.VisibleRows) to High(FCellControls) do
         FCellControls[i].Visible:=false;
     end;
     { Update Data }
-    for i:=0 to Min(G.RowCount,G.VisibleRows) - 1 do
+    for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
     begin
-      if G.TopRow + i >= G.RowCount then Break;
+      if Grid.TopRow + i >= Grid.RowCount then Break;
 
-      V:=G.GetValue(Index,G.TopRow + i);
+      V:=Grid.GetValue(Index,Grid.TopRow + i);
 
       FCellControls[i].Visible:=true;
-      FCellControls[i].SetBounds(0,i * G.RowHeight,Width,G.RowHeight);
-      FCellControls[i].TagString:=d2PointToString(d2Point(Index,G.TopRow + i));
+      FCellControls[i].SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+      FCellControls[i].TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
       FCellControls[i].Data:=V;
     end;
     UpdateSelected;
@@ -645,18 +634,16 @@ end;
 procedure TD2Column.UpdateSelected;
 var
   i:integer;
-  G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
-  if G.ReadOnly then Exit;
+  if Grid=nil then Exit;
+  if Grid.ReadOnly then Exit;
   if ReadOnly then Exit;
-  for i:=0 to Min(G.RowCount,G.VisibleRows) - 1 do
+  for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
   begin
     //if Grid.IsSelected(Grid.TopRow + i) and (Grid.ColumnIndex=Index) then //Deleted by GoldenFox
-    if G.IsOneRowSelected and				//Added by GoldenFox
-       G.IsSelected(G.TopRow + i) and		//Added by GoldenFox
-      (G.ColumnIndex = Index) then			//Added by GoldenFox
+    if Grid.IsOneRowSelected and				//Added by GoldenFox
+       Grid.IsSelected(Grid.TopRow + i) and		//Added by GoldenFox
+      (Grid.ColumnIndex = Index) then			//Added by GoldenFox
     begin
       FCellControls[i].CanFocused:=true;
       FCellControls[i].HitTest:=true
@@ -666,22 +653,20 @@ begin
       FCellControls[i].CanFocused:=false;
       FCellControls[i].HitTest:=false;
       if FCellControls[i].IsFocused then
-        G.SetFocus;
+        Grid.SetFocus;
     end;
   end;
 end;
 
 procedure TD2Column.SetHeader(const Value:String);
-var G: TD2CustomGrid; //Added by GoldenFox
 begin
   if FHeader <> Value then
   begin
     FHeader := Value;
     //if (Grid <> nil) and (Grid.FHeader <> nil) then   //Deleted by GoldenFox
     //  Grid.FHeader.Items[Index].TextW := FHeader;     //Deleted by GoldenFox
-    G := Grid;                                          //Added by GoldenFox
-    if (G <> nil) and (G.FHeader <> nil)                //Added by GoldenFox
-      then G.FHeader.Items[Index].TextW := FHeader;     //Added by GoldenFox
+    if (Grid <> nil) and (Grid.FHeader <> nil)                //Added by GoldenFox
+      then Grid.FHeader.Items[Index].TextW := FHeader;     //Added by GoldenFox
   end;
 end;
 
@@ -699,16 +684,14 @@ begin
 end;
 
 procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
+  if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
-    G.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(G.FOnEdititingDone) then
-      G.FOnEdititingDone(G,trunc(x),trunc(y));
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
   end;
 end;
 
@@ -1660,6 +1643,7 @@ begin
   end
   else
     inherited;
+  if AObject is TD2Column then TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;
 end;
 
 procedure TD2CustomGrid.ApplyResource;  //procedure Added by GoldenFox

@@ -1178,15 +1178,21 @@ end;
 
 
 function TD2DBColumn.GetField:TField;
-var
-  G:TD2CustomDBGrid;
 begin    { Returns Nil if FieldName can't be found in dataset }
-  G:=TD2CustomDBGrid(Grid);
-  if (FField=nil) and (Length(FFieldName) > 0) and Assigned(G) and Assigned(G.DataController.DataSet) then
-  with G.DataController.Dataset do
-    if Active or (not DefaultFields) then
-      SetField(FindField(FieldName));
+  if FField = nil then LinkField;
   Result:=FField;
+end;
+
+procedure TD2DBColumn.LinkField; //Added by GoldenFox устанавливает FField
+var f: TField;
+begin
+  f:= nil;
+  if (Length(FFieldName) > 0) and Assigned(Grid) and
+      Assigned(TD2CustomDBGrid(Grid).DataController.DataSet) then
+    with TD2CustomDBGrid(Grid).DataController.Dataset do
+      if Active or (not DefaultFields)
+        then f:=FindField(FieldName);
+  SetField(f);
 end;
 
 procedure TD2DBColumn.SetField(Value:TField);
@@ -1254,13 +1260,11 @@ begin
 end;
 
 procedure TD2DBCheckColumn.DoCheckChanged(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G=nil then Exit;
+  if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 function TD2DBCheckColumn.GetData:Variant;
@@ -1296,13 +1300,11 @@ begin
 end;
 
 procedure TD2DBPopupColumn.DoPopupChanged(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G =nil then Exit;
+  if Grid = nil then Exit;
   if FUpdateColumn then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 { TD2DBImageColumn }
@@ -1322,14 +1324,12 @@ begin
 end;
 
 procedure TD2DBImageColumn.DoImageChanged(Sender:TObject);
-var G: TD2CustomGrid;
 begin
-  G:= TD2CustomGrid(Grid);
-  if G =nil then Exit;
+  if Grid =nil then Exit;
   if FUpdateColumn then Exit;
-  if not TD2DBGrid(G).CanEditModify then Exit;
+  if not Grid.CanEditModify then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
-    TD2DBGrid(G).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
 end;
 
 function TD2DBImageColumn.GetData:Variant;
@@ -2016,8 +2016,16 @@ begin
   OnDataSetScrolled(DataController.DataSet, 0);
 end;
 
+procedure TD2CustomDBGrid.ColumnsLinkFields;
+var i: integer;
+begin
+  for i:=0 to ColumnCount - 1 do
+    TD2DBColumn(Columns[i]).LinkField;
+end;
+
 procedure TD2CustomDBGrid.LinkActive(Value: Boolean);
 begin
+  ColumnsLinkFields;
   UpdateRowCount;
   UpdateSelection;
 end;
