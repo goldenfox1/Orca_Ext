@@ -6959,37 +6959,45 @@ TD2CustomGrid = class(TD2ScrollBox)
     procedure ApplyResource;  override;	//Added by GoldenFox
     procedure ScrollToRow(ARow: integer); //Added by GoldenFox
     //procedure RemoveObject(AObject: TD2Object);  override;  //Deleted by GoldenFox
-    property TopRow: integer read GetTopRow;
-    property VisibleRows: integer read GetVisibleRows;
+    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
+    property CanFocused  default true;
     property ColumnCount: integer read GetColumnCount;
     property ColumnIndex: integer read FColumnIndex write SetColumnIndex;
     property Columns[Index: integer]: TD2Column read GetColumn;
-    property RowCount: integer read FRowCount write SetRowCount;
-    property Selected: integer read FSelected write SetSelected;
-    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
-    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
-  published
-    property Resource;
-    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
-    property CanFocused  default true;
-    property DisableFocusEffect;
     property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Multiple row select enable //Adedd by GoldenFox
+    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+    property RowCount: integer read FRowCount write SetRowCount;
     property RowHeight:single read FRowHeight write SetRowHeight;
+    property Selected: integer read FSelected write SetSelected;
+    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;
+    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;
     property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true;
     property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;
-    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;
-    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;
-    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
-    property TabOrder;
+    property TopRow: integer read GetTopRow;
+    property VisibleRows: integer read GetVisibleRows;
     property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;
-  end;
+    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
+    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
+end;
 
 TD2Grid = class(TD2CustomGrid)
   published
+    property AlternatingRowBackground;
+    property CanFocused;
+    property DisableFocusEffect;
+    property MultiSelect;
+    property ReadOnly;
     property RowCount;
+    property RowHeight;
+    property ShowHeader;
+    property ShowHorzLines;
+    property ShowSelectedCell;
+    property ShowVertLines;
+    property TabOrder;
     property OnGetValue;
     property OnSetValue;
-  end;
+    property OnEdititingDone;
+end;
 
 TD2StringColumn = class(TD2Column)
   private
@@ -7438,48 +7446,27 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     property DataSource: TDataSource read GetDataSource write SetDataSource;   //
     property DataController: TD2GridDataController read FDataController write SetDataController;
   published
+    property AlternatingRowBackground;
+    property CanFocused;
+    property DisableFocusEffect;
+    //property MultiSelect;
+    property ReadOnly;
+    property RowCount;
+    property RowHeight;
+    property ShowSelectedCell;
+    property ShowVertLines;
+    property ShowHorzLines;
+    property ShowHeader;
+    property TabOrder;
+    property OnGetValue;
+    property OnSetValue;
+    property OnEdititingDone;
 end;
 
 TD2DBGrid = class(TD2CustomDBGrid)
-  //private
-  //  FDataLink: TD2GridDataLink;
-  //  FDisableMove:boolean;
-  //  FEditValue:Variant;
-  //  FNeedUpdate:boolean;
-  //  //FFirstRecord:integer;
-  //  function GetDataSource: TDataSource;
-  //  procedure SetDataSource(const Value:TDataSource);
-  //  function GetSelectedField: TField;
-  //  procedure SetSelectedField(const Value:TField);
-  //  procedure UpdateRowCount;
-  //protected
-  //  function  GetValue(Col, Row: integer): Variant;  override;
-  //  procedure SetValue(Col, Row:integer; const Value:Variant);  override;
-  //  function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override;
-  //  function  CanEditModify: Boolean;  override;
-  //  procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-  //  procedure Reset;  override;
-  //  procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
-  //  procedure Loaded;  override;
-  //  procedure DataSetChanged;
-  //  procedure DataChanged;
-  //  procedure EditingChanged;
-  //  procedure RecordChanged(Field: TField);
-  //  procedure UpdateData;
-  //  procedure LinkActive(Value:Boolean);
-  //  function  GetContentBounds: TD2Rect;  override;
-  //  procedure VScrollChange(Sender: TObject);  override;
-  //  procedure SetSelected(const Value:integer);  override;
-  //public
-  //  constructor Create(AOwner: TComponent);  override;
-  //  destructor Destroy;  override;
-  //  function ItemClass: string;  override;
-  //  property DataLink: TD2GridDataLink read FDataLink;
-  //  property SelectedField: TField read GetSelectedField write SetSelectedField;
   published
-    //property DataSource: TDataSource read GetDataSource write SetDataSource;
     property DataController;
-  end;
+end;
 
 {**********************************************************************
                           This part make by GoldenFox
