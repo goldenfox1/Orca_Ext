@@ -462,6 +462,7 @@ begin
   Width:=100;
   HitTest:=false;
   CanFocused:=false;
+  FGrid:= GetGrid;
 end;
 
 function TD2Column.CreateCellControl:TD2Control;
@@ -522,7 +523,13 @@ begin
   end;
 end;
 
-function TD2Column.Grid:TD2CustomGrid;
+procedure TD2Column.SetWidth(const Value: single);  //Added by GoldenFox
+begin
+  inherited SetWidth(Value);
+  if Grid<>nil then Grid.Realign;
+end;
+
+function TD2Column.GetGrid: TD2CustomGrid;
 var
   P:TD2Object;
 begin
@@ -578,6 +585,12 @@ begin
       Result:=FCellControls[i];
       Exit;
     end;
+end;
+
+procedure TD2Column.Realign;
+begin
+  inherited Realign;
+  if FGrid<>nil then FGrid.Realign;
 end;
 
 procedure TD2Column.UpdateColumn;
@@ -658,16 +671,14 @@ begin
 end;
 
 procedure TD2Column.SetHeader(const Value:String);
-var G: TD2CustomGrid; //Added by GoldenFox
 begin
   if FHeader <> Value then
   begin
     FHeader := Value;
     //if (Grid <> nil) and (Grid.FHeader <> nil) then   //Deleted by GoldenFox
     //  Grid.FHeader.Items[Index].TextW := FHeader;     //Deleted by GoldenFox
-    G := Grid;                                          //Added by GoldenFox
-    if (G <> nil) and (G.FHeader <> nil)                //Added by GoldenFox
-      then G.FHeader.Items[Index].TextW := FHeader;     //Added by GoldenFox
+    if (Grid <> nil) and (Grid.FHeader <> nil)                //Added by GoldenFox
+      then Grid.FHeader.Items[Index].TextW := FHeader;     //Added by GoldenFox
   end;
 end;
 
@@ -754,6 +765,7 @@ end;
 constructor TD2CustomGrid.Create(AOwner:TComponent);
 begin
   inherited;
+  FScrollDuration:=0.3;
   FOddFill:=TD2Brush.Create(d2BrushSolid,$20000000);
   FLineFill:=TD2Brush.Create(d2BrushSolid,$FF202020);
   FShowSelectedCell:=true;
@@ -786,7 +798,7 @@ end;
 
 function TD2CustomGrid.ItemClass:string;
 begin
-  Result:='TD2Column;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
+  Result:='TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
 end;
 
 procedure TD2CustomGrid.FreeStyle;
@@ -864,15 +876,18 @@ var
   //Vis:boolean;				//Deleted by GoldenFox
 begin
   if FSelection=nil then Exit;
-  if ColumnCount=0 then Exit;
-  if RowCount=0 then
+  //if ColumnCount=0 then Exit;
+  if (RowCount=0) or (ColumnCount=0) then
   begin
     FSelectedRows[0]:=0;			//Added by GoldenFox обнулить длину массива выделенных строк
     if FSelections <> nil then
-	  //FSelections.Free;                  //Added by GoldenFox  удалить все маркеры выделения
-          FreeAndNil(FSelections);                  //Added by GoldenFox  удалить все маркеры выделения
-    //  for i:=0 to FSelections.Count - 1 do				//Deleted by GoldenFox
-    //    TD2VisualObject(FSelections[i]).Visible:=false;	//Deleted by GoldenFox
+      begin
+        //FSelections.Free;
+        for i:=0 to FSelections.Count - 1 do
+          TD2VisualObject(FSelections[i]).Visible:=false;	//Deleted by GoldenFox  сркыть все маркеры выделения
+          //TD2VisualObject(FSelections[i]).Free; //Added by GoldenFox  удалить все маркеры выделения
+        //FreeAndNil(FSelections);                //Added by GoldenFox  уничтожить удалить все маркеры выделениясписок маркеров
+      end;
     if FPreSelection <> nil then FPreSelection.Visible := false;  //Added by GoldenFox  скрыть маркер предвыделения
     if FFocus <> nil then
       FFocus.Visible:=false;
@@ -1228,12 +1243,12 @@ begin
   Result:=nil;
 end;
 
-function TD2CustomGrid.CanEditModify:boolean;
+function TD2CustomGrid.CanEditModify: Boolean;
 begin
   Result:=not ReadOnly;
 end;
 
-function TD2CustomGrid.CanEditAcceptKey(Key:System.WideChar):boolean;
+function TD2CustomGrid.CanEditAcceptKey(Key: System.WideChar): Boolean;
 begin
   Result:=true;
 end;
@@ -1640,6 +1655,18 @@ begin
   end
   else
     inherited;
+  if AObject is TD2Column then
+    begin
+      TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;
+      if Assigned(FScene) and (FScene.GetDesignTime) then
+        begin
+          FSelected:=0;
+          FSelectedRows[0]:=2;                                           //Added by GoldenFox
+          FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
+          FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
+          FIsPreSelected:=false;                                        //Added by GoldenFox
+        end;
+    end;
 end;
 
 procedure TD2CustomGrid.ApplyResource;  //procedure Added by GoldenFox
@@ -1666,7 +1693,7 @@ procedure TD2CustomGrid.Notification(AComponent:TComponent;
 begin
   inherited;
 end;
-   }
+}
 
 function TD2CustomGrid.GetColumn(Index:integer):TD2Column;
 begin
@@ -1696,10 +1723,9 @@ end;
 
 function TD2CustomGrid.GetTopRow:integer;
 begin
-  if VScrollBar <> nil then
-    Result:=trunc(VScrollBar.Value / FRowHeight)
-  else
-    Result:=0;
+  if FVScrollBar = nil
+    then Result:=0
+    else Result:=trunc(FVScrollBar.Value / FRowHeight);
 end;
 
 function TD2CustomGrid.GetVisibleRows:integer;
@@ -1723,14 +1749,14 @@ end;
 procedure TD2CustomGrid.SetSelected(const Value:integer);
 begin
   //if FSelected <> Value then		//Deleted by GoldenFox
-  if (FSelected <> Value) or						//Added by GoldenFox
-     (FSelectedRows[0] <> 2) or						//Added by GoldenFox
+  if (FSelected <> Value) or				//Added by GoldenFox
+     (FSelectedRows[0] <> 2) or				//Added by GoldenFox
      (FSelectedRows[1] <> FSelectedRows[2]) then	//Added by GoldenFox
   begin
     FSelected:=Value;
     if FSelected < 0 then FSelected:=0;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
-{Deleted by GoldenFox
+    {Deleted by GoldenFox
     if FSelected <= TopRow then
       VScrollBar.Value:=FSelected * FRowHeight;
     if FSelected * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight then

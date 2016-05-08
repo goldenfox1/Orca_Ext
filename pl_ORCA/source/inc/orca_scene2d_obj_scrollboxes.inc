@@ -109,6 +109,7 @@ begin
   FContent.Stored:=false;
   FContent.Locked:=true;
   FContent.HitTest:=false;
+  FScrollDuration:=0.7;
 end;
 
 destructor TD2ScrollBox.Destroy;
@@ -342,6 +343,7 @@ procedure TD2ScrollBox.Realign;
         HScrollBar.Value:=0;
     end;
  end;
+
 var
   R,NewR:TD2Rect;
 begin
@@ -417,7 +419,7 @@ begin
     FHScrollAni.Parent:=HScrollBar;
     FHScrollAni.AnimationType:=d2AnimationOut;
     FHScrollAni.Interpolation:=d2InterpolationQuadratic;
-    FHScrollAni.Duration:=0.7;
+    FHScrollAni.Duration:=FScrollDuration;
     FHScrollAni.PropertyName:='Value';
     FHScrollAni.StartFromCurrent:=true;
   end;
@@ -431,7 +433,7 @@ begin
     FVScrollAni.Parent:=VScrollBar;
     FVScrollAni.AnimationType:=d2AnimationOut;
     FVScrollAni.Interpolation:=d2InterpolationQuadratic;
-    FVScrollAni.Duration:=0.7;
+    FVScrollAni.Duration:=FScrollDuration;
     FVScrollAni.PropertyName:='Value';
     FVScrollAni.StartFromCurrent:=true;
   end;

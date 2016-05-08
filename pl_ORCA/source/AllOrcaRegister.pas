@@ -15,7 +15,7 @@ uses
   {$IFDEF WINDOWS}
    Windows,
   {$ENDIF}
-  DBPropEdits, DB,//Added by GoldenFox
+  DBPropEdits, DB, DbCtrls, //Added by GoldenFox
 
   LCLProc, LCLType, LMessages, LResources,
 
@@ -141,7 +141,6 @@ implementation
 
   {$R AllOrcaRegister.res}
 
-
 //================= TD2IDEDesigner ========================
 // For 2D Objects Editors
 
@@ -211,14 +210,8 @@ var
   Col: TObject;
 begin
   Col:=GetComponent(0);
-  if (Col is TD2DBColumn) and (Assigned(TD2DBColumn(Col).Grid))
-    then begin
-           if TD2DBColumn(Col).Grid is TD2DBGrid
-             then DataSource := TD2DBGrid(TD2DBColumn(Col).Grid).DataSource
-             else if TD2DBColumn(Col).Grid is TD2CustomDBGrid
-                    then DataSource := TD2CustomDBGrid(TD2DBColumn(Col).Grid).DataSource
-                    else DataSource := Nil;
-         end
+  if (Col is TD2DBColumn) and (Assigned(TD2DBColumn(Col).Grid)) and (TD2DBColumn(Col).Grid is TD2CustomDBGrid)
+    then DataSource := TD2CustomDBGrid(TD2DBColumn(Col).Grid).DataSource
     else DataSource := Nil;
     //DataSource := GetObjectProp(GetComponent(0), 'DataSource') as TDataSource;
   ListDataSourceFields(DataSource, Values);
@@ -549,6 +542,7 @@ begin
     TD2DockingPlace, TD2DockingPanel, TD2DockingTab ]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TD2FieldDataController, 'FieldName', TFieldProperty);
   {------------------- End part of make by GoldenFox -------------------}
 
   RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);

@@ -37,7 +37,7 @@ uses
 
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
-  StdCtrls, DB, DBCtrls, DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
+  StdCtrls, DB, {DBCtrls,} DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;
 
 //=============================================================================
 //=============== GLobal const/Emu Types ======================================
@@ -4385,6 +4385,7 @@ TD2ScrollContent = class(TD2Content)
 
 TD2ScrollBox = class(TD2Control)
   private
+    FScrollDuration: single;
     FAutoHide:boolean;
     FDisableMouseWheel:boolean;
     FDown:boolean;
@@ -4444,6 +4445,7 @@ TD2ScrollBox = class(TD2Control)
   published
     property AutoHide: boolean read FAutoHide write FAutoHide  default true;
     property Animated: boolean read FAnimated write FAnimated  default true;
+    property ScrollDuration: single read FScrollDuration write FScrollDuration default 0.7;
     property DisableMouseWheel: boolean read FDisableMouseWheel write FDisableMouseWheel  default false;
     property MouseTracking: boolean read FMouseTracking write FMouseTracking  default false;
     property ShowScrollBars: boolean read FShowScrollBars write SetShowScrollBars  default true;
@@ -6796,8 +6798,10 @@ TD2ImageCell = class(TD2ImageControl)
 
 TD2Column = class(TD2Control)
   private
+    FGrid: TD2CustomGrid;
     FReadOnly:boolean;
     procedure SetHeader(const Value:String);
+    function GetGrid: TD2CustomGrid; //Added by GoldenFox
   protected
     FCellControls: array of TD2Control;
     FUpdateColumn:boolean;
@@ -6812,15 +6816,20 @@ TD2Column = class(TD2Control)
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);
     procedure DoEnterFocus(Sender: TObject);
     procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
+    procedure SetWidth(const Value:single);  override; //Added by GoldenFox
   public
     constructor Create(AOwner: TComponent);  override;
     function CellControlByPoint(X, Y:single): TD2Control;
     function CellControlByRow(Row: integer): TD2Control;
-    function Grid: TD2CustomGrid; //Added by GoldenFox
+    property Grid: TD2CustomGrid read FGrid; //Added by GoldenFox
+    procedure Realign;  override; //Added by GoldenFox
   published
     property Resource;
     property Header: String read FHeader write SetHeader;
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+  end;
+
+TD2TextColumn = class(TD2Column)
   end;
 
 TD2CheckColumn = class(TD2Column)
@@ -6928,7 +6937,7 @@ TD2CustomGrid = class(TD2ScrollBox)
     function  GetValue(Col, Row: integer): Variant;  virtual;
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
     function  IsSelected(Row: integer):boolean;
-    function  IsOneRowSelected:boolean;  //Added by GoldenFox
+    function  IsOneRowSelected:boolean;  //Added by GoldenFox  true - если выбрана 1 стока
     procedure SetSelected(const Value: integer);  virtual;
     procedure SetSelectedMoreRow(Idx: integer);  virtual;  //Added by GoldenFox
     function ChangeSelectionRow(Idx: integer):boolean; //изменить выделение строки - true - выделена, false - развыделена //Added by GoldenFox
@@ -6950,37 +6959,45 @@ TD2CustomGrid = class(TD2ScrollBox)
     procedure ApplyResource;  override;	//Added by GoldenFox
     procedure ScrollToRow(ARow: integer); //Added by GoldenFox
     //procedure RemoveObject(AObject: TD2Object);  override;  //Deleted by GoldenFox
-    property TopRow: integer read GetTopRow;
-    property VisibleRows: integer read GetVisibleRows;
+    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
+    property CanFocused  default true;
     property ColumnCount: integer read GetColumnCount;
     property ColumnIndex: integer read FColumnIndex write SetColumnIndex;
     property Columns[Index: integer]: TD2Column read GetColumn;
-    property RowCount: integer read FRowCount write SetRowCount;
-    property Selected: integer read FSelected write SetSelected;
-    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
-    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
-  published
-    property Resource;
-    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
-    property CanFocused  default true;
-    property DisableFocusEffect;
     property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Multiple row select enable //Adedd by GoldenFox
+    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+    property RowCount: integer read FRowCount write SetRowCount;
     property RowHeight:single read FRowHeight write SetRowHeight;
+    property Selected: integer read FSelected write SetSelected;
+    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;
+    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;
     property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true;
     property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;
-    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;
-    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;
-    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
-    property TabOrder;
+    property TopRow: integer read GetTopRow;
+    property VisibleRows: integer read GetVisibleRows;
     property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;
-  end;
+    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
+    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
+end;
 
 TD2Grid = class(TD2CustomGrid)
   published
+    property AlternatingRowBackground;
+    property CanFocused;
+    property DisableFocusEffect;
+    property MultiSelect;
+    property ReadOnly;
     property RowCount;
+    property RowHeight;
+    property ShowHeader;
+    property ShowHorzLines;
+    property ShowSelectedCell;
+    property ShowVertLines;
+    property TabOrder;
     property OnGetValue;
     property OnSetValue;
-  end;
+    property OnEdititingDone;
+end;
 
 TD2StringColumn = class(TD2Column)
   private
@@ -7111,35 +7128,85 @@ TD2NavDataLink = class(TDataLink)
     destructor Destroy;  override;
   end;
 
+{ TD2FieldDataController }
+
+TD2FieldDataController=class(TDataLink)   //Added by GoldenFox  Based on TFieldDataLink
+  private
+    FField: TField;
+    FFieldName: string;
+    FOnDataChange: TNotifyEvent;
+    FOnEditingChange: TNotifyEvent;
+    FOnUpdateData: TNotifyEvent;
+    FOnActiveChange: TNotifyEvent;
+    FEditing: Boolean;
+    IsModified: Boolean;
+    function FieldCanModify: boolean;
+    function IsKeyField(aField: TField): Boolean;
+    function GetCanModify: Boolean;
+    procedure SetFieldName(const Value: string);
+    procedure UpdateField;
+    procedure ValidateField;
+  protected
+    procedure ActiveChanged; override;
+    procedure EditingChanged; override;
+    procedure LayoutChanged; override;
+    procedure RecordChanged(aField: TField); override;
+    procedure UpdateData; override;
+  public
+    constructor Create;
+    function Edit: Boolean;
+    procedure Modified;
+    procedure Reset;
+    property Field: TField read FField;
+    property CanModify: Boolean read GetCanModify;
+    property Editing: Boolean read FEditing;
+    property OnDataChange: TNotifyEvent read FOnDataChange write FOnDataChange;
+    property OnEditingChange: TNotifyEvent read FOnEditingChange write FOnEditingChange;
+    property OnUpdateData: TNotifyEvent read FOnUpdateData write FOnUpdateData;
+    property OnActiveChange: TNotifyEvent read FOnActiveChange write FOnActiveChange;
+  published
+    property DataSource;
+    property FieldName: string read FFieldName write SetFieldName;
+end;
+
+{ TD2DBLabel }
+
 TD2DBLabel = class(TD2CustomLabel)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    procedure SetDataController(const AValue: TD2FieldDataController);   //Added by GoldenFox
+    //procedure SetDataField(const Value:string);            //Deleted by GoldenFox
+    //procedure SetDataSource(const Value:TDataSource);      //Deleted by GoldenFox
     function  GetFieldText: string;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};          //Deleted by GoldenFox
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};  //Deleted by GoldenFox
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property TextAlign  default d2TextAlignNear;
   end;
 
+{ TD2DBImage }
+
 TD2DBImage = class(TD2Image)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     procedure UpdateData(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    procedure SetDataController(const AValue: TD2FieldDataController);   //Added by GoldenFox
+    //procedure SetDataField(const Value:string);         //Deleted by GoldenFox
+    //procedure SetDataSource(const Value:TDataSource);   //Deleted by GoldenFox
     function  GetFieldText: string;
   protected
     procedure DoBitmapChanged(Sender: TObject);  override;
@@ -7148,19 +7215,24 @@ TD2DBImage = class(TD2Image)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};           //Deleted by GoldenFox
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};   //Deleted by GoldenFox
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
   end;
+
+{ TD2DBTextBox }
 
 TD2DBTextBox = class(TD2CustomTextBox)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
+    procedure SetDataController(const AValue: TD2FieldDataController);   //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    //procedure SetDataField(const Value:string);          //Deleted by GoldenFox
+    //procedure SetDataSource(const Value:TDataSource);    //Deleted by GoldenFox
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
@@ -7172,20 +7244,25 @@ TD2DBTextBox = class(TD2CustomTextBox)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};              //Deleted by GoldenFox
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};      //Deleted by GoldenFox
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property Password;
   end;
 
+{ TD2DBMemo }
+
 TD2DBMemo = class(TD2CustomMemo)
   private
-    FDataLink: TFieldDataLink;
+    //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
+    FDataController: TD2FieldDataController;    //Added by GoldenFox
+    procedure SetDataController(const AValue: TD2FieldDataController);   //Added by GoldenFox
     procedure DataChange(Sender: TObject);
     function  GetDataField: string;
     function  GetDataSource: TDataSource;
-    procedure SetDataField(const Value:string);
-    procedure SetDataSource(const Value:TDataSource);
+    //procedure SetDataField(const Value:string);          //Deleted by GoldenFox
+    //procedure SetDataSource(const Value:TDataSource);    //Deleted by GoldenFox
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
@@ -7197,46 +7274,47 @@ TD2DBMemo = class(TD2CustomMemo)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    property DataField: string read GetDataField{ write SetDataField};           //Deleted by GoldenFox
+    property DataSource: TDataSource read GetDataSource{ write SetDataSource};   //Deleted by GoldenFox
   published
-    property DataField: string read GetDataField write SetDataField;
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
   end;
 
-  TD2DBGrid = class;
+  //TD2DBGrid = class;
 
-TD2GridDataLink = class(TDataLink)
-  private
-    FGrid: TD2DBGrid;
-    FFieldCount: Integer;
-    FFieldMap: array of Integer;
-    FModified: Boolean;
-    FInUpdateData: Boolean;
-    FSparseMap: Boolean;
-    function GetDefaultFields: Boolean;
-    function GetFields(I: Integer): TField;
-  protected
-    procedure ActiveChanged;  override;
-    procedure BuildAggMap;
-    procedure DataSetChanged;  override;
-    procedure DataSetScrolled(Distance: Integer);  override;
-    procedure FocusControl(Field: TFieldRef);  override;
-    procedure EditingChanged;  override;
-    function  IsAggRow(Value:Integer): Boolean;  virtual;
-    procedure LayoutChanged;  override;
-    procedure RecordChanged(Field: TField);  override;
-    procedure UpdateData;  override;
-    function  GetMappedIndex(ColIndex: Integer): Integer;
-  public
-    constructor Create(AGrid: TD2DBGrid);
-    destructor Destroy;  override;
-    procedure Modified;
-    procedure Reset;
-    property DefaultFields: Boolean read GetDefaultFields;
-    property FieldCount: Integer read FFieldCount;
-    property Fields[I: Integer]: TField read GetFields;
-    property SparseMap: Boolean read FSparseMap write FSparseMap;
-    property Grid: TD2DBGrid read FGrid;
-  end;
+//TD2GridDataLink = class(TDataLink)
+//  private
+//    FGrid: TD2DBGrid;
+//    FFieldCount: Integer;
+//    FFieldMap: array of Integer;
+//    FModified: Boolean;
+//    FInUpdateData: Boolean;
+//    FSparseMap: Boolean;
+//    function GetDefaultFields: Boolean;
+//    function GetFields(I: Integer): TField;
+//  protected
+//    procedure ActiveChanged;  override;
+//    procedure BuildAggMap;
+//    procedure DataSetChanged;  override;
+//    procedure DataSetScrolled(Distance: Integer);  override;
+//    procedure FocusControl(Field: TFieldRef);  override;
+//    procedure EditingChanged;  override;
+//    function  IsAggRow(Value:Integer): Boolean;  virtual;
+//    procedure LayoutChanged;  override;
+//    procedure RecordChanged(Field: TField);  override;
+//    procedure UpdateData;  override;
+//    function  GetMappedIndex(ColIndex: Integer): Integer;
+//  public
+//    constructor Create(AGrid: TD2DBGrid);
+//    destructor Destroy;  override;
+//    procedure Modified;
+//    procedure Reset;
+//    property DefaultFields: Boolean read GetDefaultFields;
+//    property FieldCount: Integer read FFieldCount;
+//    property Fields[I: Integer]: TField read GetFields;
+//    property SparseMap: Boolean read FSparseMap write FSparseMap;
+//    property Grid: TD2DBGrid read FGrid;
+//  end;
 
 TD2DBColumn = class(TD2Column)
   private
@@ -7245,12 +7323,13 @@ TD2DBColumn = class(TD2Column)
     procedure SetFieldName(const Value:String);
     function GetField: TField;
     procedure SetField(Value:TField);
+    procedure LinkField;
   protected
-    procedure SetData(Value:Variant);  virtual;
     function GetData: Variant;  virtual;
+    procedure SetData(Value:Variant);  virtual;
   public
     //constructor Create(AOwner: TComponent);  override;    //Deleted by GoldenFox
-    destructor Destroy;  override;                        //Deleted by GoldenFox
+    destructor Destroy;  override;
     property  Field: TField read GetField write SetField;
   published
     property FieldName: String read FFieldName write SetFieldName;
@@ -7315,7 +7394,7 @@ TD2DBProgressColumn = class(TD2DBColumn)
   end;
 
 
-TD2CustomDBGridDataLink=class(TComponentDataLink)
+TD2GridDataController=class(TComponentDataLink)
   published
     property DataSource;
   end;
@@ -7324,71 +7403,70 @@ TD2CustomDBGridDataLink=class(TComponentDataLink)
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
-    FDataLink: TD2CustomDBGridDataLink;
-    function GetDataSource: TDataSource;
-    procedure SetDataSource(const Value:TDataSource);
+    FDataController: TD2GridDataController;  //
+    FDisableMove:boolean;                //
+    FEditValue:Variant;                  //
+    FNeedUpdate:boolean;                 //
+    function GetDataSource: TDataSource; //
+    procedure SetDataSource(const Value:TDataSource); //
+    function GetSelectedField: TField;                //
+    procedure SetSelectedField(const Value:TField);   //
+    procedure SetDataController(const AValue: TD2GridDataController);
+    procedure UpdateRowCount;                         //
+    procedure OnRecordChanged(Field:TField); virtual; //
+    procedure OnDataSetChanged(aDataSet: TDataSet); virtual; //
+    procedure OnEditingChanged(aDataSet: TDataSet); virtual; //
+    procedure OnUpdateData(aDataSet: TDataSet); virtual;     //
 
-    procedure OnRecordChanged(Field:TField); virtual;
-    procedure OnDataSetChanged(aDataSet: TDataSet); virtual;
-    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;
-    procedure OnDataSetClose(aDataSet: TDataSet); virtual;
-    procedure OnEditingChanged(aDataSet: TDataSet); virtual;
+    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;    //
+    procedure OnDataSetClose(aDataSet: TDataSet); virtual;   //
     procedure OnInvalidDataSet(aDataSet: TDataSet); virtual;
     procedure OnInvalidDataSource(aDataSet: TDataset); virtual;
-    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;
+    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;     //изменился состав или порядок полей в DataSet
     procedure OnNewDataSet(aDataSet: TDataset); virtual;
     procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual;
-    procedure OnUpdateData(aDataSet: TDataSet); virtual;
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    function  GetValue(Col, Row: integer): Variant;  override;  //
+    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
+    function  CanEditModify: Boolean;  override;  //
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //
+    procedure Reset;  override;  //
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
+    procedure Loaded;  override;  //
+    procedure ColumnsLinkFields; //переопределить Field для каждой колонки
+    procedure LinkActive(Value:Boolean);  //
+    function  GetContentBounds: TD2Rect;  override;   //
+    procedure SetSelected(const Value:integer);  override;   //
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function ItemClass: string;  override;
-    property DataLink: TD2CustomDBGridDataLink read FDataLink;
+    constructor Create(AOwner: TComponent);  override;  //
+    destructor Destroy;  override;  //
+    function ItemClass: string;  override;  //
+    property SelectedField: TField read GetSelectedField write SetSelectedField;  //
+    property DataSource: TDataSource read GetDataSource write SetDataSource;   //
+    property DataController: TD2GridDataController read FDataController write SetDataController;
   published
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property AlternatingRowBackground;
+    property CanFocused;
+    property DisableFocusEffect;
+    //property MultiSelect;
+    property ReadOnly;
+    property RowCount;
+    property RowHeight;
+    property ShowSelectedCell;
+    property ShowVertLines;
+    property ShowHorzLines;
+    property ShowHeader;
+    property TabOrder;
+    property OnGetValue;
+    property OnSetValue;
+    property OnEdititingDone;
 end;
 
-TD2DBGrid = class(TD2CustomGrid)
-  private
-    FDataLink: TD2GridDataLink;
-    FDisableMove:boolean;
-    FEditValue:Variant;
-    FNeedUpdate:boolean;
-    //FFirstRecord:integer;
-    function GetDataSource: TDataSource;
-    procedure SetDataSource(const Value:TDataSource);
-    function GetSelectedField: TField;
-    procedure SetSelectedField(const Value:TField);
-    procedure UpdateRowCount;
-  protected
-    function  GetValue(Col, Row: integer): Variant;  override;
-    procedure SetValue(Col, Row:integer; const Value:Variant);  override;
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override;
-    function  CanEditModify: Boolean;  override;
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure Reset;  override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
-    procedure Loaded;  override;
-    procedure DataSetChanged;
-    procedure DataChanged;
-    procedure EditingChanged;
-    procedure RecordChanged(Field: TField);
-    procedure UpdateData;
-    procedure LinkActive(Value:Boolean);
-    function  GetContentBounds: TD2Rect;  override;
-    procedure VScrollChange(Sender: TObject);  override;
-    procedure SetSelected(const Value:integer);  override;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function ItemClass: string;  override;
-    property DataLink: TD2GridDataLink read FDataLink;
-    property SelectedField: TField read GetSelectedField write SetSelectedField;
+TD2DBGrid = class(TD2CustomDBGrid)
   published
-    property DataSource: TDataSource read GetDataSource write SetDataSource;
-  end;
+    property DataController;
+end;
 
 {**********************************************************************
                           This part make by GoldenFox
@@ -8919,7 +8997,8 @@ initialization
 {**************************************************************************************************
                        This part make by GoldenFox
 ***************************************************************************************************}
-                   TD2DBTextColumn, TD2DockingTab
+                   TD2DBTextColumn, TD2DockingTab, TD2Column,
+                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn
 //======================= End part of make by GoldenFox =======================
 
                    ]);
@@ -8998,14 +9077,14 @@ initialization
 
   Registerd2Objects('Grid', [TD2Grid, TD2StringGrid, TD2Header]);
 
-  //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);
+  //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);  //Deleted by GoldenFox
 
-  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2CustomDBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
+  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
 
   {**********************************************************************
                           This part make by GoldenFox
  **********************************************************************}
-  Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel, TD2DockingTab]);
+  Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel]);
 //======================= End part of make by GoldenFox =======================
 //.................................................................................................
 
