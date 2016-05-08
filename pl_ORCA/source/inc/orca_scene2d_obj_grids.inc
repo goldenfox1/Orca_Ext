@@ -523,6 +523,12 @@ begin
   end;
 end;
 
+procedure TD2Column.SetWidth(const Value: single);  //Added by GoldenFox
+begin
+  inherited SetWidth(Value);
+  if Grid<>nil then Grid.Realign;
+end;
+
 function TD2Column.GetGrid: TD2CustomGrid;
 var
   P:TD2Object;
@@ -579,6 +585,12 @@ begin
       Result:=FCellControls[i];
       Exit;
     end;
+end;
+
+procedure TD2Column.Realign;
+begin
+  inherited Realign;
+  if FGrid<>nil then FGrid.Realign;
 end;
 
 procedure TD2Column.UpdateColumn;
@@ -864,8 +876,8 @@ var
   //Vis:boolean;				//Deleted by GoldenFox
 begin
   if FSelection=nil then Exit;
-  if ColumnCount=0 then Exit;
-  if RowCount=0 then
+  //if ColumnCount=0 then Exit;
+  if (RowCount=0) or (ColumnCount=0) then
   begin
     FSelectedRows[0]:=0;			//Added by GoldenFox обнулить длину массива выделенных строк
     if FSelections <> nil then
@@ -1643,7 +1655,18 @@ begin
   end
   else
     inherited;
-  if AObject is TD2Column then TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;
+  if AObject is TD2Column then
+    begin
+      TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;
+      if Assigned(FScene) and (FScene.GetDesignTime) then
+        begin
+          FSelected:=0;
+          FSelectedRows[0]:=2;                                           //Added by GoldenFox
+          FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
+          FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
+          FIsPreSelected:=false;                                        //Added by GoldenFox
+        end;
+    end;
 end;
 
 procedure TD2CustomGrid.ApplyResource;  //procedure Added by GoldenFox
@@ -1670,7 +1693,7 @@ procedure TD2CustomGrid.Notification(AComponent:TComponent;
 begin
   inherited;
 end;
-   }
+}
 
 function TD2CustomGrid.GetColumn(Index:integer):TD2Column;
 begin
@@ -1726,14 +1749,14 @@ end;
 procedure TD2CustomGrid.SetSelected(const Value:integer);
 begin
   //if FSelected <> Value then		//Deleted by GoldenFox
-  if (FSelected <> Value) or						//Added by GoldenFox
-     (FSelectedRows[0] <> 2) or						//Added by GoldenFox
+  if (FSelected <> Value) or				//Added by GoldenFox
+     (FSelectedRows[0] <> 2) or				//Added by GoldenFox
      (FSelectedRows[1] <> FSelectedRows[2]) then	//Added by GoldenFox
   begin
     FSelected:=Value;
     if FSelected < 0 then FSelected:=0;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
-{Deleted by GoldenFox
+    {Deleted by GoldenFox
     if FSelected <= TopRow then
       VScrollBar.Value:=FSelected * FRowHeight;
     if FSelected * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight then
