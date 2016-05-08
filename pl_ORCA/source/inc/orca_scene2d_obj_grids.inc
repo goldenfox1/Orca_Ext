@@ -859,6 +859,7 @@ begin
   begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
+  Realign;
   UpdateColumns;
   UpdateHeader;
   UpdateSelection;
@@ -1876,6 +1877,8 @@ begin
     if FHeader <> nil then
       FHeader.Visible:=FShowHeader;
   end;
+  Realign;
+  UpdateSelection;
 end;
 
 procedure TD2CustomGrid.Reset;
