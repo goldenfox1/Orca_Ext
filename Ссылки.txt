@@ -1,2 +1,6 @@
-﻿https://habrahabr.ru/post/123111/ Инструкция-шпаргалка Git для начинающих 
+﻿Прописать логин и пароль в адресе: https://username:password@github.com/goldenfox1/Orca_Ext.git
+https://habrahabr.ru/post/74839/ Особенности настройки git под windows
+https://habrahabr.ru/post/123111/ Инструкция-шпаргалка Git для начинающих 
 http://git-scm.com/book/ru/v1 русский перевод Pro Git онлайн
+https://habrahabr.ru/post/106912/ удачная модель ветвления
+https://habrahabr.ru/post/195674/ про тонкости слияния
