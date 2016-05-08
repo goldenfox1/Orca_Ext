@@ -6796,8 +6796,6 @@ TD2ImageCell = class(TD2ImageControl)
   public
   end;
 
-{ TD2Column }
-
 TD2Column = class(TD2Control)
   private
     FGrid: TD2CustomGrid;
@@ -6829,6 +6827,9 @@ TD2Column = class(TD2Control)
     property Resource;
     property Header: String read FHeader write SetHeader;
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+  end;
+
+TD2TextColumn = class(TD2Column)
   end;
 
 TD2CheckColumn = class(TD2Column)
@@ -9009,7 +9010,8 @@ initialization
 {**************************************************************************************************
                        This part make by GoldenFox
 ***************************************************************************************************}
-                   TD2DBTextColumn, TD2DockingTab
+                   TD2DBTextColumn, TD2DockingTab, TD2Column,
+                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn
 //======================= End part of make by GoldenFox =======================
 
                    ]);
@@ -9088,14 +9090,14 @@ initialization
 
   Registerd2Objects('Grid', [TD2Grid, TD2StringGrid, TD2Header]);
 
-  //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);
+  //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);  //Deleted by GoldenFox
 
   Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
 
   {**********************************************************************
                           This part make by GoldenFox
  **********************************************************************}
-  Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel, TD2DockingTab]);
+  Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel]);
 //======================= End part of make by GoldenFox =======================
 //.................................................................................................
 
