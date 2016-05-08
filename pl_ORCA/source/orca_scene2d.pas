@@ -4383,7 +4383,7 @@ TD2ScrollContent = class(TD2Content)
     procedure RemoveObject(AObject: TD2Object);  override;
   end;
 
-TD2ScrollBox = class(TD2Control)
+TD2CustomScrollBox = class(TD2Control)
   private
     FScrollDuration: single;
     FAutoHide:boolean;
@@ -4442,7 +4442,6 @@ TD2ScrollBox = class(TD2Control)
     function  ClientHeight:single;
     property  HScrollBar: TD2ScrollBar read FHScrollBar;
     property  VScrollBar: TD2ScrollBar read FVScrollBar;
-  published
     property AutoHide: boolean read FAutoHide write FAutoHide  default true;
     property Animated: boolean read FAnimated write FAnimated  default true;
     property ScrollDuration: single read FScrollDuration write FScrollDuration default 0.7;
@@ -4452,6 +4451,18 @@ TD2ScrollBox = class(TD2Control)
     property ShowSizeGrip: boolean read FShowSizeGrip write SetShowSizeGrip  default false;
     property UseSmallScrollBars: boolean read FUseSmallScrollBars write SetUseSmallScrollBars  default false;
   end;
+
+TD2ScrollBox = class(TD2CustomScrollBox)
+  published
+    property AutoHide;
+    property Animated;
+    property ScrollDuration;
+    property DisableMouseWheel;
+    property MouseTracking;
+    property ShowScrollBars;
+    property ShowSizeGrip;
+    property UseSmallScrollBars;
+end;
 
 TD2VertScrollBox = class(TD2ScrollBox)
   private
@@ -6879,7 +6890,7 @@ TD2ImageColumn = class(TD2Column)
 
 { TD2CustomGrid }
 
-TD2CustomGrid = class(TD2ScrollBox)
+TD2CustomGrid = class(TD2CustomScrollBox)
   private
     //FMouseSelecting:boolean;
     FItemHeight:single;
@@ -6978,10 +6989,20 @@ TD2CustomGrid = class(TD2ScrollBox)
     property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;
     property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
     property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
+    property AutoHide;
+    property Animated;
+    property ScrollDuration;
+    property DisableMouseWheel;
+    property MouseTracking;
+    property ShowScrollBars;
+    property ShowSizeGrip;
+    property UseSmallScrollBars;
 end;
 
 TD2Grid = class(TD2CustomGrid)
   published
+    property AutoHide;
+    property Animated;
     property AlternatingRowBackground;
     property CanFocused;
     property DisableFocusEffect;
@@ -6989,11 +7010,15 @@ TD2Grid = class(TD2CustomGrid)
     property ReadOnly;
     property RowCount;
     property RowHeight;
+    property ScrollDuration;
     property ShowHeader;
     property ShowHorzLines;
     property ShowSelectedCell;
+    property ShowScrollBars;
+    property ShowSizeGrip;
     property ShowVertLines;
     property TabOrder;
+    property UseSmallScrollBars;
     property OnGetValue;
     property OnSetValue;
     property OnEdititingDone;
@@ -7449,10 +7474,11 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     property AlternatingRowBackground;
     property CanFocused;
     property DisableFocusEffect;
-    //property MultiSelect;
+    property MultiSelect;
     property ReadOnly;
     property RowCount;
     property RowHeight;
+    property ScrollDuration;
     property ShowSelectedCell;
     property ShowVertLines;
     property ShowHorzLines;

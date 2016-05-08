@@ -1876,6 +1876,8 @@ begin
     if FHeader <> nil then
       FHeader.Visible:=FShowHeader;
   end;
+  Realign;
+  UpdateSelection;
 end;
 
 procedure TD2CustomGrid.Reset;
