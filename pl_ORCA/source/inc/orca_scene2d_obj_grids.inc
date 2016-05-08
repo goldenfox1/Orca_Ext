@@ -859,6 +859,7 @@ begin
   begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
+  Realign;
   UpdateColumns;
   UpdateHeader;
   UpdateSelection;
