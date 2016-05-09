@@ -778,7 +778,7 @@ begin
   AutoCapture:=true;
   Width:=100;
   Height:=100;
-  FItemHeight:=0;
+  //FItemHeight:=0;
   SetLength(FSelectedRows, 128);  //Added by GoldenFox
   FSelected := 0;                 //Added by GoldenFox
   FSelectedRows[0] := 2;          //Added by GoldenFox
