@@ -6951,7 +6951,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function  IsOneRowSelected:boolean;  //Added by GoldenFox  true - если выбрана 1 стока
     procedure SetSelected(const Value: integer);  virtual;
     procedure SetSelectedMoreRow(Idx: integer);  virtual;  //Added by GoldenFox
-    function ChangeSelectionRow(Idx: integer):boolean; //изменить выделение строки - true - выделена, false - развыделена //Added by GoldenFox
+    function  ChangeSelectionRow(Idx: integer):boolean; //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
     function  CanEditModify: Boolean;  virtual;
     procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
@@ -6993,7 +6993,6 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     property Animated;
     property ScrollDuration;
     property DisableMouseWheel;
-    property MouseTracking;
     property ShowScrollBars;
     property ShowSizeGrip;
     property UseSmallScrollBars;
@@ -7194,8 +7193,6 @@ TD2FieldDataController=class(TDataLink)   //Added by GoldenFox  Based on TFieldD
     property FieldName: string read FFieldName write SetFieldName;
 end;
 
-{ TD2DBLabel }
-
 TD2DBLabel = class(TD2CustomLabel)
   private
     //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
@@ -7218,8 +7215,6 @@ TD2DBLabel = class(TD2CustomLabel)
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property TextAlign  default d2TextAlignNear;
   end;
-
-{ TD2DBImage }
 
 TD2DBImage = class(TD2Image)
   private
@@ -7245,8 +7240,6 @@ TD2DBImage = class(TD2Image)
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
   end;
-
-{ TD2DBTextBox }
 
 TD2DBTextBox = class(TD2CustomTextBox)
   private
@@ -7275,8 +7268,6 @@ TD2DBTextBox = class(TD2CustomTextBox)
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property Password;
   end;
-
-{ TD2DBMemo }
 
 TD2DBMemo = class(TD2CustomMemo)
   private
@@ -7360,8 +7351,6 @@ TD2DBColumn = class(TD2Column)
     property FieldName: String read FFieldName write SetFieldName;
   end;
 
-{ TD2DBTextColumn }
-
 TD2DBTextColumn = class(TD2DBColumn)
   protected
     procedure SetData(Value:Variant);  override;
@@ -7419,12 +7408,14 @@ TD2DBProgressColumn = class(TD2DBColumn)
   end;
 
 
+{**********************************************************************
+                          This part make by GoldenFox
+**********************************************************************}
+
 TD2GridDataController=class(TComponentDataLink)
   published
     property DataSource;
   end;
-
-{ TD2CustomDBGrid }
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
@@ -7494,18 +7485,12 @@ TD2DBGrid = class(TD2CustomDBGrid)
     property DataController;
 end;
 
-{**********************************************************************
-                          This part make by GoldenFox
-**********************************************************************}
 type
  TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop);
  TD2DockingAllowAligns = set of TD2DockingAlign;
  TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,
                             dmsBottom,dmsBottomLeft,dmsBottomRight,
                             dmsLeft, dmsRight, dmsNone);
-
-
-{ TD2DockingTab}
 
 TD2DockingTab = class(TD2TextControl)
 private
@@ -7554,8 +7539,6 @@ published
   property Text;             //текст на закладке
   property Resource;  //название ресурса
 end;
-
-{ TD2DockingPanel }
 
 TD2DockingPanel = class(TD2TextControl)
   private
@@ -7663,8 +7646,6 @@ TD2DockingPanel = class(TD2TextControl)
     property OnCloseClick:TNotifyEvent read FOnCloseClick write FOnCloseClick;     //прерывание нажатия кнопки закрытия
     property OnFixedChange:TNotifyEvent read FOnFixedChange write FOnFixedChange;  //прерывание измения фиксации
   end;
-
-{ TD2DockingPlace }
 
 TD2DockingPlace = class(TD2Control)
   private

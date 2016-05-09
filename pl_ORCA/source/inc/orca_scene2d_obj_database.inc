@@ -2100,7 +2100,7 @@ end;
 procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
 
-  procedure DoSelection(Select:boolean; Direction:integer);
+  procedure DoSelection(Direction:integer);
   begin
     BeginUpdate;
     try
@@ -2110,37 +2110,37 @@ procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
     end;
   end;
 
-  procedure NextRow(Select:boolean);
+  procedure NextRow;
   begin
     with FDataController.Dataset do
     begin
-      if (State=dsInsert) and not Modified and not FDataController.Modified then
-        if FDataController.EOF then Exit else Cancel
-      else
-        DoSelection(Select,1);
-      //if FDataController.EOF and CanModify and (not ReadOnly) then
-      //  Append;
+      if (State=dsInsert) and (not Modified) and (not FDataController.Modified)
+        then if FDataController.EOF
+               then Exit
+               else Cancel
+        else DoSelection(1);
+        //if FDataController.EOF and CanModify and (not ReadOnly)
+        //  then Append;
     end;
   end;
 
-  procedure PriorRow(Select:boolean);
+  procedure PriorRow;
   begin
     with FDataController.Dataset do
-      if (State=dsInsert) and not Modified and FDataController.EOF and
-        not FDataController.Modified then
-        Cancel
-      else
-        DoSelection(Select,-1);
+      if (State=dsInsert) and (not Modified) and
+          FDataController.EOF and (not FDataController.Modified)
+        then Cancel
+        else DoSelection(-1);
   end;
 
 begin
   if (RowCount > 0) and (FDataController.Active) then
   begin
     case Key of
-      VK_UP:PriorRow(True);
-      VK_DOWN:NextRow(True);
-      VK_NEXT:FDataController.MoveBy(VisibleRows);
-      VK_PRIOR:FDataController.MoveBy(-VisibleRows);
+      VK_UP:PriorRow;
+      VK_DOWN:NextRow;
+      VK_NEXT:DoSelection(VisibleRows);
+      VK_PRIOR:DoSelection(-VisibleRows);
       VK_DELETE:
         if (not ReadOnly) and not FDataController.DataSet.IsEmpty
           and FDataController.DataSet.CanModify
@@ -2234,13 +2234,13 @@ begin
   S:=Selected;
   if Selected <> Value then
   begin
-    inherited ;
+    inherited;
     if not FDisableMove then
     begin
       if FDataController.Active then
         FDataController.MoveBy(Selected - S);
     end;
-    UpdateSelection;
+    //UpdateSelection;
   end;
 end;
 

@@ -1261,52 +1261,33 @@ begin
   if RowCount > 0 then
   begin
     if IsOneRowSelected then	//Added by GoldenFox
-    begin						//Added by GoldenFox
-    if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
-    begin
-      if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+    begin			//Added by GoldenFox
+      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
       begin
-        Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-        TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
-      end;
-    end;
-    case Key of
-      VK_F2:
+        if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
         begin
-          if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-            Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
-	{Deleted by GoldenFox	
-      VK_UP:if FSelected > 0 then Selected:=Selected - 1;
-      VK_DOWN:if FSelected < FRowCount - 1 then Selected:=Selected + 1;
-      VK_HOME:
-        if ssCtrl in Shift then
-          Selected:=0
-        else
-          ColumnIndex:=0;
-      VK_END:
-        if ssCtrl in Shift then
-          Selected:=RowCount - 1
-        else
-          ColumnIndex:=ColumnCount - 1;
-      VK_PRIOR:if FSelected > 0 then Selected:=Selected - Min(RowCount,VisibleRows);
-      VK_NEXT:if FSelected < FRowCount - 1 then Selected:=Selected + Min(RowCount,VisibleRows);
-      VK_LEFT:if ColumnIndex > 0 then ColumnIndex:=ColumnIndex - 1;
-      VK_RIGHT:if ColumnIndex < ColumnCount - 1 then ColumnIndex:=ColumnIndex + 1;
-}
-	{Block added by GoldenFox}
-          VK_LEFT:
-            begin
-              if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
-              if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
-            end;
-          VK_RIGHT:
-            begin
-              if (Shift = []) and (ColumnIndex < ColumnCount - 1)
-                then ColumnIndex := ColumnIndex + 1;
-              if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
-                 then ColumnIndex := ColumnCount - 1;
-            end;
+      end;
+      case Key of
+        VK_F2:
+          begin
+            if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+              Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          end;
+        VK_LEFT:
+          begin
+            if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
+            if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
+          end;
+        VK_RIGHT:
+          begin
+            if (Shift = []) and (ColumnIndex < ColumnCount - 1)
+              then ColumnIndex := ColumnIndex + 1;
+            if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
+               then ColumnIndex := ColumnCount - 1;
+          end;
       end;
     end;
     case Key of
@@ -1424,8 +1405,7 @@ begin
                     end;
                 end;
 		{Block End added by GoldenFox}
-    else
-      Exit;
+      else Exit;
     end;
     Key:=0;
   end;
@@ -1440,9 +1420,9 @@ begin
   if Button=mbLeft then
   begin
     //Selected:=RowByPoint(X,Y); //Deleted by GoldenFox
-    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                //нажата только ЛКМ 			//Added by GoldenFox
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y));  //если зажат только Shift	//Added by GoldenFox
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y)); //если зажат Ctrl			//Added by GoldenFox
+    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                   //нажата только ЛКМ 	//Added by GoldenFox
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y));        //если зажат только Shift	//Added by GoldenFox
+    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y));  //если зажат Ctrl		//Added by GoldenFox
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
       ColumnIndex:=Column.Index;
@@ -1457,14 +1437,14 @@ begin
   if FPressed then
   begin
     //Selected:=RowByPoint(X,Y);	//Deleted by GoldenFox
-    if (Shift = [ssLeft]) then SetSelectedMoreRow(RowByPoint(X, Y));	//Added by GoldenFox
+    //if (Shift = [ssLeft]) then SetSelectedMoreRow(RowByPoint(X, Y));	//Added by GoldenFox
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
       ColumnIndex:=Column.Index;
   end;
 end;
 
-function TD2CustomGrid.ChangeSelectionRow(Idx: integer): boolean; //изменить выделение строки - true - выделена, false - развыделена //function Added by GoldenFox
+function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean; //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
 var L, M, R: integer; //левая граница, середина, правая граница
     b: boolean;       //
 
@@ -1557,7 +1537,7 @@ begin
                          AddRange(L+1);                                        //добавим диапазон
                          FSelectedRows[L+1]:=Idx;                              //пропишем строку как выделенную
                          FSelectedRows[L+2]:=Idx;
-                         FSelected := Idx;                                 //Added by GoldenFox
+                         FSelected := Idx;
                          ScrollToRow(Idx);
                          UpdateSelection;
                          exit;
@@ -1757,12 +1737,6 @@ begin
     FSelected:=Value;
     if FSelected < 0 then FSelected:=0;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
-    {Deleted by GoldenFox
-    if FSelected <= TopRow then
-      VScrollBar.Value:=FSelected * FRowHeight;
-    if FSelected * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight then
-      VScrollBar.Value:=FSelected * FRowHeight - ClientHeight + FRowHeight;
-	  }
     FSelectedRows[0]:=2;                                           //Added by GoldenFox
     FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
     FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
