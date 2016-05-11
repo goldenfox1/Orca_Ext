@@ -1976,6 +1976,7 @@ begin
   if FDataController.Active then
   begin
     FSelected := 0;                 //Added by GoldenFox
+    FOldSelected:=FSelected;
     FSelectedRows[0] := 2;          //Added by GoldenFox
     FSelectedRows[1] := FSelected;  //Added by GoldenFox
     FSelectedRows[2] := FSelected;  //Added by GoldenFox
@@ -2014,6 +2015,7 @@ begin
   if FDataController.Active then
   begin
     FSelected := 0;                 //Added by GoldenFox
+    FOldSelected:=FSelected;
     FSelectedRows[0] := 2;          //Added by GoldenFox
     FSelectedRows[1] := FSelected;  //Added by GoldenFox
     FSelectedRows[2] := FSelected;  //Added by GoldenFox
@@ -2228,20 +2230,32 @@ begin
 end;
 
 procedure TD2CustomDBGrid.SetSelected(const Value: integer);
-var
-  S:integer;
+//var
+//  S:integer;
 begin
-  S:=Selected;
-  if Selected <> Value then
-  begin
-    inherited;
-    if not FDisableMove then
-    begin
-      if FDataController.Active then
-        FDataController.MoveBy(Selected - S);
-    end;
-    //UpdateSelection;
-  end;
+  //S:=Selected;
+  //if Selected <> Value then
+  //begin
+    //inherited;
+  //  if not FDisableMove then
+  //  begin
+  //    if FDataController.Active then
+  //      FDataController.MoveBy(Selected - S);
+  //  end;
+  //  //UpdateSelection;
+  //end;
+end;
+
+procedure TD2CustomDBGrid.UpdateSelection;
+begin
+  if (FOldSelected<>FSelected) and (not FDisableMove) and
+    (FDataController.Active)
+  then begin
+         FDataController.MoveBy(FSelected - FOldSelected);
+         FOldSelected:=FSelected;
+       end;
+  inherited;
+
 end;
 
 constructor TD2CustomDBGrid.Create(AOwner: TComponent);

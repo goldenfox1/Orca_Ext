@@ -781,6 +781,7 @@ begin
   //FItemHeight:=0;
   SetLength(FSelectedRows, 128);  //Added by GoldenFox
   FSelected := 0;                 //Added by GoldenFox
+  FOldSelected := FSelected;      //Added by GoldenFox
   FSelectedRows[0] := 2;          //Added by GoldenFox
   FSelectedRows[1] := FSelected;  //Added by GoldenFox
   FSelectedRows[2] := FSelected;  //Added by GoldenFox
@@ -1308,6 +1309,7 @@ begin
              (FSelected > 0) then
             if MultiSelect
               then begin
+                     FOldSelected := FSelected;
                      FSelected := FSelected - 1;
                      ScrollToRow(FSelected);
                      if IsOneRowSelected
@@ -1325,6 +1327,7 @@ begin
              (FSelected < FRowCount - 1) then
             if MultiSelect
               then begin
+                     FOldSelected := FSelected;
                      FSelected := FSelected + 1;
                      ScrollToRow(FSelected);
                      if IsOneRowSelected
@@ -1348,6 +1351,7 @@ begin
                     SetSelectedMoreRow(0);
                   if Shift = [ssCtrl] then
                     begin
+                      FOldSelected := FSelected;
                       FSelected := 0;
                       ScrollToRow(FSelected);
                       if IsOneRowSelected
@@ -1364,6 +1368,7 @@ begin
                     SetSelectedMoreRow(RowCount - 1);
                   if Shift = [ssCtrl] then
                     begin
+                      FOldSelected := FSelected;
                       FSelected := RowCount - 1;
                       ScrollToRow(FSelected);
                       if IsOneRowSelected
@@ -1374,13 +1379,14 @@ begin
                 end;
       VK_PRIOR:
         if (Shift = []) or (not MultiSelect)
-          then Selected := Selected - Min(RowCount, VisibleRows)
+          then Selected := FSelected - Min(RowCount, VisibleRows-1)
           else  begin
                   if Shift = [ssShift] then
-                    SetSelectedMoreRow(Selected - Min(RowCount, VisibleRows));
+                    SetSelectedMoreRow(Selected - Min(RowCount, VisibleRows-1));
                   if Shift = [ssCtrl] then
                     begin
-                      FSelected := Selected - Min(RowCount, VisibleRows);
+                      FOldSelected := FSelected;
+                      FSelected := Selected - Min(RowCount, VisibleRows-1);
                       ScrollToRow(FSelected);
                       if IsOneRowSelected
                         then FIsPreSelected:=false
@@ -1390,13 +1396,14 @@ begin
                 end;
       VK_NEXT:
         if (Shift = []) or (not MultiSelect)
-          then Selected := Selected + Min(RowCount, VisibleRows)
+          then Selected := FSelected + Min(RowCount, VisibleRows-1)
           else  begin
                   if Shift = [ssShift] then
-                    SetSelectedMoreRow(Selected + Min(RowCount, VisibleRows));
+                    SetSelectedMoreRow(Selected + Min(RowCount, VisibleRows-1));
                   if Shift = [ssCtrl] then
                     begin
-                      FSelected := Selected + Min(RowCount, VisibleRows);
+                      FOldSelected := FSelected;
+                      FSelected := Selected + Min(RowCount, VisibleRows-1);
                       ScrollToRow(FSelected);
                       if IsOneRowSelected
                         then FIsPreSelected:=false
@@ -1484,6 +1491,7 @@ begin
       FSelectedRows[0]:= 2;    //последний эл-т массива (1 диапазон)
       FSelectedRows[1]:= Idx;  //начало выделения
       FSelectedRows[2]:= Idx;  //конец выделения
+      FOldSelected := FSelected;
       FSelected := Idx;                                 //Added by GoldenFox
       ScrollToRow(Idx);
       UpdateSelection;
@@ -1537,6 +1545,7 @@ begin
                          AddRange(L+1);                                        //добавим диапазон
                          FSelectedRows[L+1]:=Idx;                              //пропишем строку как выделенную
                          FSelectedRows[L+2]:=Idx;
+                         FOldSelected := FSelected;
                          FSelected := Idx;
                          ScrollToRow(Idx);
                          UpdateSelection;
@@ -1567,6 +1576,7 @@ begin
       Result:=false;
       FIsPreSelected:= not Result;
     end;
+  FOldSelected := FSelected;
   FSelected := Idx;                                 //Added by GoldenFox
   ScrollToRow(Idx);
   UpdateSelection;
@@ -1611,6 +1621,7 @@ begin
                              end;
             end;
       FIsPreSelected:=false;
+      FOldSelected := FSelected;
       FSelected := Idx;
       ScrollToRow(FSelected);
       UpdateSelection;
@@ -1642,10 +1653,12 @@ begin
       if Assigned(FScene) and (FScene.GetDesignTime) then
         begin
           FSelected:=0;
+          FOldSelected := FSelected;
           FSelectedRows[0]:=2;                                           //Added by GoldenFox
           FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
           FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
           FIsPreSelected:=false;                                        //Added by GoldenFox
+          UpdateSelection;
         end;
     end;
 end;
@@ -1734,8 +1747,9 @@ begin
      (FSelectedRows[0] <> 2) or				//Added by GoldenFox
      (FSelectedRows[1] <> FSelectedRows[2]) then	//Added by GoldenFox
   begin
+    FOldSelected := FSelected;
     FSelected:=Value;
-    if FSelected < 0 then FSelected:=0;
+    if FSelected < 0 then FSelected:=FRowCount - 1;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
     FSelectedRows[0]:=2;                                           //Added by GoldenFox
     FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox

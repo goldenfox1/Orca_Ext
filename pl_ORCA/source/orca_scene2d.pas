@@ -6896,6 +6896,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
     //FItemHeight:single;              //Deleted by GoldenFox
     FMultiSelect:boolean;              //флаг разрешения множественного выбора       //Uncomment by GoldenFox
+    FOldSelected:integer;              //№ предыдущей выбранной строки
     FSelected:integer;                 //№ выбранной строки
     FSelectedRows: array of integer;   //массив №-ов выбранных строк                 //Added by GoldenFox
     FSelection: TD2VisualObject;       //указатель на эталонный маркер выбора строки
@@ -7454,6 +7455,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure LinkActive(Value:Boolean);  //
     function  GetContentBounds: TD2Rect;  override;   //
     procedure SetSelected(const Value:integer);  override;   //
+    procedure UpdateSelection; override; //обновить маркеры выбора строк
   public
     constructor Create(AOwner: TComponent);  override;  //
     destructor Destroy;  override;  //
