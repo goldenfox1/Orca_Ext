@@ -4383,7 +4383,7 @@ TD2ScrollContent = class(TD2Content)
     procedure RemoveObject(AObject: TD2Object);  override;
   end;
 
-TD2ScrollBox = class(TD2Control)
+TD2CustomScrollBox = class(TD2Control)
   private
     FScrollDuration: single;
     FAutoHide:boolean;
@@ -4442,7 +4442,6 @@ TD2ScrollBox = class(TD2Control)
     function  ClientHeight:single;
     property  HScrollBar: TD2ScrollBar read FHScrollBar;
     property  VScrollBar: TD2ScrollBar read FVScrollBar;
-  published
     property AutoHide: boolean read FAutoHide write FAutoHide  default true;
     property Animated: boolean read FAnimated write FAnimated  default true;
     property ScrollDuration: single read FScrollDuration write FScrollDuration default 0.7;
@@ -4452,6 +4451,18 @@ TD2ScrollBox = class(TD2Control)
     property ShowSizeGrip: boolean read FShowSizeGrip write SetShowSizeGrip  default false;
     property UseSmallScrollBars: boolean read FUseSmallScrollBars write SetUseSmallScrollBars  default false;
   end;
+
+TD2ScrollBox = class(TD2CustomScrollBox)
+  published
+    property AutoHide;
+    property Animated;
+    property ScrollDuration;
+    property DisableMouseWheel;
+    property MouseTracking;
+    property ShowScrollBars;
+    property ShowSizeGrip;
+    property UseSmallScrollBars;
+end;
 
 TD2VertScrollBox = class(TD2ScrollBox)
   private
@@ -6879,109 +6890,119 @@ TD2ImageColumn = class(TD2Column)
 
 { TD2CustomGrid }
 
-TD2CustomGrid = class(TD2ScrollBox)
+TD2CustomGrid = class(TD2CustomScrollBox)
   private
     //FMouseSelecting:boolean;
-    FItemHeight:single;
-    FSelection: TD2VisualObject;
-    FIsPreSelected:boolean;            //Added by GoldenFox //флаг пред.выбора строки
-    FPreSelection: TD2VisualObject;   //Added by GoldenFox //указатель на маркер пред.выбора строки
-    FFocus: TD2VisualObject;
-    FRowCount:integer;
-    FOnGetValue:TOnGetValue;
-    FOnSetValue:TOnSetValue;
-    FSelections: TList;
-    FSelectedRows: array of integer;      //Added by GoldenFox    //массив выбранных строк
-    FAlternatingRowBackground:boolean;
-    FOddFill: TD2Brush;
+    FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
+    //FItemHeight:single;              //Deleted by GoldenFox
+    FMultiSelect:boolean;              //флаг разрешения множественного выбора       //Uncomment by GoldenFox
+    FOldSelected:integer;              //№ предыдущей выбранной строки
+    FSelected:integer;                 //№ выбранной строки
+    FSelectedRows: array of integer;   //массив №-ов выбранных строк                 //Added by GoldenFox
+    FSelection: TD2VisualObject;       //указатель на эталонный маркер выбора строки
+    FSelections: TList;                //указатель на набор маркеров выбора строк
+    FPreSelection: TD2VisualObject;    //указатель на маркер пред.выбора строки      //Added by GoldenFox
+    FIsPreSelected:boolean;            //флаг показа пред.выбора строки              //Added by GoldenFox
+    FRowCount:integer;                 //кол-во строк
+    FRowHeight:single;                 //высота строк
+    FAlternatingRowBackground:boolean; //флаг режима разных фонов для четных и нечетных строк
+    FOddFill: TD2Brush;                //указатель на фон нечетных строк
     FLineFill: TD2Brush;
-    FShowHorzLines:boolean;
-    FShowVertLines:boolean;
-    FReadOnly:boolean;
-    FColumnIndex:integer;
-    FHeader: TD2Header;
-    FShowHeader:boolean;
-    FShowSelectedCell:boolean;
+    FReadOnly:boolean;          //флаг только чтение (редактирование не возможно)
+    FColumnIndex:integer;       //№ выбранной колонки
+    FHeader: TD2Header;         //указатель на строку заголовка
+    FShowHeader:boolean;        //флаг показывать заголовки колонок
+    FShowSelectedCell:boolean;  //флаг выделять выбранную ячейку
+    FShowHorzLines:boolean;     //флаг рисовать горизонтальные линии
+    FShowVertLines:boolean;     //флаг рисовать вертикальные линии
     FOnEdititingDone: TOnEdititingDone;
-    FMultiSelect:boolean;                       //Uncomment by GoldenFox
-    function GetColumnCount:integer;
-    function GetColumn(Index: integer): TD2Column;
-    procedure SetRowCount(const Value:integer);
-    procedure SetRowHeight(const Value:single);
-    function GetVisibleRows:integer;
-    procedure SetAlternatingRowBackground(const Value:boolean);
-    procedure SetShowHorzLines(const Value:boolean);
-    procedure SetShowVertLines(const Value:boolean);
-    procedure SetColumnIndex(const Value:integer);
-    procedure SetMultiSelect (const Value:boolean);               //Adedd by GoldenFox
-    procedure SetShowHeader(const Value:boolean);
-    procedure SetShowSelectedCell(const Value:boolean);
+    FOnGetValue:TOnGetValue;             //указатель на процедуру прерывания при получении значения ячейки
+    FOnSetValue:TOnSetValue;             //указатель на процедуру прерывания при записи значения ячейки
+    function GetColumnCount:integer;                    //получить кол-во колонок
+    function GetColumn(Index: integer): TD2Column;      //получить указатель на колонку по ее индексу
+    procedure SetRowCount(const Value:integer);         //установить кол-во строк
+    procedure SetRowHeight(const Value:single);         //установить высоту строки
+    function GetVisibleRows:integer;                    //получить кол-во видимых строк
+    procedure SetAlternatingRowBackground(const Value:boolean); //установить режим разных фонов для четных и нечетных строк
+    procedure SetShowHorzLines(const Value:boolean);    //установить режим отрисовки горизонтальных линий
+    procedure SetShowVertLines(const Value:boolean);    //установить режим отрисовки вертикальных линий
+    procedure SetColumnIndex(const Value:integer);      //установить выбранную колонку по ее номеру
+    procedure SetMultiSelect (const Value:boolean);     //установить режим множественного выбора     //Adedd by GoldenFox
+    procedure SetShowHeader(const Value:boolean);       //установить режим отображения заголовков колонок
+    procedure SetShowSelectedCell(const Value:boolean); //установить режим отображения выбранной ячейки
   protected
-    FSelected:integer;
-    FRowHeight:single;
-    procedure ContentRemoveObject(AObject: TD2Object);  override; //Adedd by GoldenFox
+    procedure ContentRemoveObject(AObject: TD2Object); override; //удаление дочерних объектов //Adedd by GoldenFox
     //procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //Deleted by GoldenFox
-    procedure ApplyStyle;  override;
-    procedure FreeStyle;  override;
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure HScrollChange(Sender: TObject);  override;
-    procedure VScrollChange(Sender: TObject);  override;
-    function  GetContentBounds: TD2Rect;  override;
-    procedure UpdateColumns;  virtual;
-    procedure UpdateHeader;
-    procedure UpdateSelection;
+    procedure ApplyStyle; override; //применить стиль
+    procedure FreeStyle; override;  //освободить стиль
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
+    procedure HScrollChange(Sender: TObject);  override; //обработка перемещения горизонтального скроллера
+    procedure VScrollChange(Sender: TObject);  override; //обработка перемещения вертикального скроллера
+    function  GetContentBounds: TD2Rect;  override; //получить клиентскую область грида
+    procedure UpdateColumns;  virtual;  //обновить колоноки
+    procedure UpdateHeader;             //обновить заголовки колонок
+    procedure UpdateSelection; virtual; //обновить маркеры выбора строк
     procedure Reset;  virtual;
     procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
     procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
-    function  GetTopRow:integer;  virtual;
-    function  GetValue(Col, Row: integer): Variant;  virtual;
-    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
-    function  IsSelected(Row: integer):boolean;
-    function  IsOneRowSelected:boolean;  //Added by GoldenFox  true - если выбрана 1 стока
-    procedure SetSelected(const Value: integer);  virtual;
-    procedure SetSelectedMoreRow(Idx: integer);  virtual;  //Added by GoldenFox
-    function ChangeSelectionRow(Idx: integer):boolean; //изменить выделение строки - true - выделена, false - развыделена //Added by GoldenFox
+    function  GetTopRow:integer;  virtual;     //получить № вехней видимой строки
+    function  GetValue(Col, Row: integer): Variant; virtual;              //получить значение ячейки в колонке Col строке Row
+    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;  //сохранить значение ячейки в колонке Col строке Row
+    function  IsSelected(Row: integer):boolean;           //true - если строка Row выбрана
+    function  IsOneRowSelected:boolean;                   //true - если выбрана 1 стока  //Added by GoldenFox
+    procedure SetPreSelected(const Value: integer); virtual; //установить маркер предвыбора на выбранную строку
+    procedure SetSelected(const Value: integer); virtual; //установить выбранную строку
+    procedure SetSelectedMoreRow(Idx: integer); virtual;  //добавить к выбранным строки начиная с текущей до Idx   //Added by GoldenFox
+    function  ChangeSelectionRow(Idx: integer):boolean; virtual;  //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
-    function  CanEditModify: Boolean;  virtual;
-    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
-    procedure DoResizeItem(Sender: TObject; var NewSize:single);
+    function  CanEditModify: Boolean;  virtual;                            //true - если данные можно редактировать
+    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer); //изменить позицию колонки
+    procedure DoResizeItem(Sender: TObject; var NewSize:single);           //изменить ширину колонки
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
-    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
-    //procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;  //Deleted by GoldenFox
-    function ItemClass: string;  override;
-    function ColumnByIndex(const Idx: integer): TD2Column;
-    function ColumnByPoint(const X, Y:single): TD2Column;
-    function RowByPoint(const X, Y:single):integer;
-    procedure AddObject(AObject: TD2Object);  override;
-    procedure ApplyResource;  override;	//Added by GoldenFox
-    procedure ScrollToRow(ARow: integer); //Added by GoldenFox
+    constructor Create(AOwner: TComponent);  override;     //создать грид
+    destructor Destroy;  override;                         //уничтожить грид
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обработка нажатий кнопок мыши
+    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;                 //обработка перемещения мыши
+    //procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //Deleted by GoldenFox
+    function ItemClass: string;  override;                 //список классов колонок для дизайнера
+    function ColumnByIndex(const Idx: integer): TD2Column; //получить указатель на колонку по индексу
+    function ColumnByPoint(const X, Y:single): TD2Column;  //получить указатель на колонку по координатам
+    function RowByPoint(const X, Y:single):integer;        //получить № стоки по координатам
+    procedure AddObject(AObject: TD2Object);  override;    //добавить дочерний объект
+    procedure ApplyResource;  override;	                   //применить ресурс //Added by GoldenFox
+    procedure ScrollToRow(ARow: integer);                  //прокрутить грид до строки //Added by GoldenFox
     //procedure RemoveObject(AObject: TD2Object);  override;  //Deleted by GoldenFox
-    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
-    property CanFocused  default true;
-    property ColumnCount: integer read GetColumnCount;
-    property ColumnIndex: integer read FColumnIndex write SetColumnIndex;
-    property Columns[Index: integer]: TD2Column read GetColumn;
-    property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Multiple row select enable //Adedd by GoldenFox
-    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
-    property RowCount: integer read FRowCount write SetRowCount;
-    property RowHeight:single read FRowHeight write SetRowHeight;
-    property Selected: integer read FSelected write SetSelected;
-    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;
-    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;
-    property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true;
-    property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;
-    property TopRow: integer read GetTopRow;
-    property VisibleRows: integer read GetVisibleRows;
-    property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;
-    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;
-    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;
+    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false; //рисовать другой фон для нечетных колонок
+    property CanFocused  default true;                                    //возможно получать фокус
+    property ColumnCount: integer read GetColumnCount;                    //кол-во колонок
+    property ColumnIndex: integer read FColumnIndex write SetColumnIndex; //№ выбранной колонки
+    property Columns[Index: integer]: TD2Column read GetColumn;           //указатель на колонку по индексу
+    property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Разрешить множественный выбор //Adedd by GoldenFox
+    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;  //флаг только чтение
+    property RowCount: integer read FRowCount write SetRowCount;  //кол-во строк
+    property RowHeight:single read FRowHeight write SetRowHeight; //высота строк
+    property Selected: integer read FSelected write SetSelected;  //№ выбранной строки
+    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true; //показывать заголовки колонок
+    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;          //рисовать горизонтальные линии
+    property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true; //выделять выбранную ячейку
+    property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;          //рисовать вертикальные линии
+    property TopRow: integer read GetTopRow;           //№ верхней видимой строки
+    property VisibleRows: integer read GetVisibleRows; //кол-во видимых строк
+    property AutoHide;
+    property Animated;           //включить анимацию
+    property ScrollDuration;     //скорость перемещения скроллеров
+    property DisableMouseWheel;  //запретить реакцию на колесо мыши
+    property ShowScrollBars;     //показывать скроллеры
+    property UseSmallScrollBars; //использовать узкие скроллеры
+    property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
+    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
 end;
 
 TD2Grid = class(TD2CustomGrid)
   published
+    property AutoHide;
+    property Animated;
     property AlternatingRowBackground;
     property CanFocused;
     property DisableFocusEffect;
@@ -6989,11 +7010,15 @@ TD2Grid = class(TD2CustomGrid)
     property ReadOnly;
     property RowCount;
     property RowHeight;
+    property ScrollDuration;
     property ShowHeader;
     property ShowHorzLines;
     property ShowSelectedCell;
+    property ShowScrollBars;
+    property ShowSizeGrip;
     property ShowVertLines;
     property TabOrder;
+    property UseSmallScrollBars;
     property OnGetValue;
     property OnSetValue;
     property OnEdititingDone;
@@ -7169,8 +7194,6 @@ TD2FieldDataController=class(TDataLink)   //Added by GoldenFox  Based on TFieldD
     property FieldName: string read FFieldName write SetFieldName;
 end;
 
-{ TD2DBLabel }
-
 TD2DBLabel = class(TD2CustomLabel)
   private
     //FDataLink: TFieldDataLink;         //Deleted by GoldenFox
@@ -7193,8 +7216,6 @@ TD2DBLabel = class(TD2CustomLabel)
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property TextAlign  default d2TextAlignNear;
   end;
-
-{ TD2DBImage }
 
 TD2DBImage = class(TD2Image)
   private
@@ -7220,8 +7241,6 @@ TD2DBImage = class(TD2Image)
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
   end;
-
-{ TD2DBTextBox }
 
 TD2DBTextBox = class(TD2CustomTextBox)
   private
@@ -7250,8 +7269,6 @@ TD2DBTextBox = class(TD2CustomTextBox)
     property DataController: TD2FieldDataController read FDataController write SetDataController;   //Added by GoldenFox
     property Password;
   end;
-
-{ TD2DBMemo }
 
 TD2DBMemo = class(TD2CustomMemo)
   private
@@ -7335,8 +7352,6 @@ TD2DBColumn = class(TD2Column)
     property FieldName: String read FFieldName write SetFieldName;
   end;
 
-{ TD2DBTextColumn }
-
 TD2DBTextColumn = class(TD2DBColumn)
   protected
     procedure SetData(Value:Variant);  override;
@@ -7394,6 +7409,10 @@ TD2DBProgressColumn = class(TD2DBColumn)
   end;
 
 
+{**********************************************************************
+                          This part make by GoldenFox
+**********************************************************************}
+
 TD2GridDataController=class(TComponentDataLink)
   published
     property DataSource;
@@ -7403,64 +7422,66 @@ TD2GridDataController=class(TComponentDataLink)
 
 TD2CustomDBGrid = class(TD2CustomGrid)
   private
-    FDataController: TD2GridDataController;  //
-    FDisableMove:boolean;                //
-    FEditValue:Variant;                  //
-    FNeedUpdate:boolean;                 //
-    function GetDataSource: TDataSource; //
-    procedure SetDataSource(const Value:TDataSource); //
-    function GetSelectedField: TField;                //
-    procedure SetSelectedField(const Value:TField);   //
-    procedure SetDataController(const AValue: TD2GridDataController);
-    procedure UpdateRowCount;                         //
-    procedure OnRecordChanged(Field:TField); virtual; //
-    procedure OnDataSetChanged(aDataSet: TDataSet); virtual; //
-    procedure OnEditingChanged(aDataSet: TDataSet); virtual; //
-    procedure OnUpdateData(aDataSet: TDataSet); virtual;     //
-
-    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;    //
-    procedure OnDataSetClose(aDataSet: TDataSet); virtual;   //
-    procedure OnInvalidDataSet(aDataSet: TDataSet); virtual;
-    procedure OnInvalidDataSource(aDataSet: TDataset); virtual;
-    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;     //изменился состав или порядок полей в DataSet
-    procedure OnNewDataSet(aDataSet: TDataset); virtual;
-    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual;
+    FDataController: TD2GridDataController;  // указатель на DataController
+    FDisableMove:boolean;                    // флаг запрета смены текущей записи
+    FEditValue:Variant;                      // указатель на значение
+    FNeedUpdate:boolean;                     // флаг необходимости обновления записи в DataSet
+    function GetDataSource: TDataSource;     // получить указательа на DataSource
+    procedure SetDataSource(const Value:TDataSource); // установить указательа на DataSource
+    function GetSelectedField: TField;                // получить указатель на выбранную колонку
+    procedure SetSelectedField(const Value:TField);   // установить указатель на выбранную колонку
+    procedure SetDataController(const AValue: TD2GridDataController); //установить указатель на DataController
+    procedure UpdateRowCount;                         //установить кол-во строк в гриде в соответствии с DataSet
+    procedure OnRecordChanged(Field:TField); virtual;           //прерывание после изменения записи в DataSet сразу после Post
+    procedure OnDataSetChanged(aDataSet: TDataSet); virtual;    //прерывание при изменениях в DataSet
+    procedure OnEditingChanged(aDataSet: TDataSet); virtual;    //прерывание при входе или выходе в/из режима редактирования данных в DataSet
+    procedure OnUpdateData(aDataSet: TDataSet); virtual;        //прерывание при записи изменений в БД
+    procedure OnDataSetOpen(aDataSet: TDataSet); virtual;       //прерывание при открытии DataSet
+    procedure OnDataSetClose(aDataSet: TDataSet); virtual;      //прерывание при закрытии DataSet
+    procedure OnInvalidDataSet(aDataSet: TDataSet); virtual;    //прерывание если не правильный DataSet
+    procedure OnInvalidDataSource(aDataSet: TDataset); virtual; //прерывание если не правильный DataSource
+    procedure OnLayoutChanged(aDataSet: TDataSet); virtual;     //прерывание при изменении состава или порядка полей в DataSet
+    procedure OnNewDataSet(aDataSet: TDataset); virtual;        //прерывание при подключении к другому DataSet
+    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer); virtual; //прерывание при смене текущей записи в DataSet
   protected
-    function  GetValue(Col, Row: integer): Variant;  override;  //
-    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //
+    function  GetValue(Col, Row: integer): Variant;  override;            //считать из DataSet значение ячейки в колонке Col строке Row
+    procedure SetValue(Col, Row:integer; const Value:Variant);  override; //записать в DataSet значение ячейки в колонке Col строке Row
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
     function  CanEditModify: Boolean;  override;  //
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //обработка нажатия клавиш
     procedure Reset;  override;  //
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
-    procedure Loaded;  override;  //
+    procedure Loaded;  override; //инициализация объекта после загрузки из потока
     procedure ColumnsLinkFields; //переопределить Field для каждой колонки
     procedure LinkActive(Value:Boolean);  //
-    function  GetContentBounds: TD2Rect;  override;   //
-    procedure SetSelected(const Value:integer);  override;   //
+    function  GetContentBounds: TD2Rect;  override;       //получить клиентскую область грида
+    procedure SetPreSelected(const Value: integer); override; //установить маркер предвыбора на выбранную строку
+    procedure SetSelected(const Value:integer); override;     //установить активную запись
+    procedure SetSelectedMoreRow(Idx: integer); override;     //добавить к выбранным строки начиная с текущей до Idx   //Added by GoldenFox
+    function  ChangeSelectionRow(Idx: integer):boolean; override;  //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
   public
-    constructor Create(AOwner: TComponent);  override;  //
-    destructor Destroy;  override;  //
-    function ItemClass: string;  override;  //
-    property SelectedField: TField read GetSelectedField write SetSelectedField;  //
-    property DataSource: TDataSource read GetDataSource write SetDataSource;   //
-    property DataController: TD2GridDataController read FDataController write SetDataController;
+    constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
+    destructor Destroy;  override;                      //уничтожить экземпляр объекта
+    function ItemClass: string;  override;              //список классов колонок для дизайнера
+    property SelectedField: TField read GetSelectedField write SetSelectedField;  //указатель на выбранную колонку
+    property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
+    property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
   published
-    property AlternatingRowBackground;
-    property CanFocused;
-    property DisableFocusEffect;
-    //property MultiSelect;
-    property ReadOnly;
-    property RowCount;
-    property RowHeight;
-    property ShowSelectedCell;
-    property ShowVertLines;
-    property ShowHorzLines;
-    property ShowHeader;
-    property TabOrder;
-    property OnGetValue;
-    property OnSetValue;
-    property OnEdititingDone;
+    property AlternatingRowBackground; //рисовать другой фон для нечетных колонок
+    property CanFocused;               //возможно получать фокус
+    property DisableFocusEffect;       //запретить эффекты фокуса?
+    property MultiSelect;              //Разрешить множественный выбор
+    property ReadOnly;                 //флаг только чтение
+    property RowHeight;                //высота строк
+    property ScrollDuration;           //скорость перемещения скроллеров
+    property ShowSelectedCell;         //выделять выбранную ячейку
+    property ShowVertLines;            //рисовать вертикальные линии
+    property ShowHorzLines;            //рисовать горизонтальные линии
+    property ShowHeader;               //показывать заголовки колонок
+    //property TabOrder;
+    property OnGetValue;               //указатель на процедуру прерывания при получении данных из DataSet
+    property OnSetValue;               //указатель на процедуру прерывания при записи данных в DataSe
+    property OnEdititingDone;          //указатель на процедуру прерывания после окончания записи в DataSet
 end;
 
 TD2DBGrid = class(TD2CustomDBGrid)
@@ -7468,18 +7489,12 @@ TD2DBGrid = class(TD2CustomDBGrid)
     property DataController;
 end;
 
-{**********************************************************************
-                          This part make by GoldenFox
-**********************************************************************}
 type
  TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop);
  TD2DockingAllowAligns = set of TD2DockingAlign;
  TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,
                             dmsBottom,dmsBottomLeft,dmsBottomRight,
                             dmsLeft, dmsRight, dmsNone);
-
-
-{ TD2DockingTab}
 
 TD2DockingTab = class(TD2TextControl)
 private
@@ -7528,8 +7543,6 @@ published
   property Text;             //текст на закладке
   property Resource;  //название ресурса
 end;
-
-{ TD2DockingPanel }
 
 TD2DockingPanel = class(TD2TextControl)
   private
@@ -7637,8 +7650,6 @@ TD2DockingPanel = class(TD2TextControl)
     property OnCloseClick:TNotifyEvent read FOnCloseClick write FOnCloseClick;     //прерывание нажатия кнопки закрытия
     property OnFixedChange:TNotifyEvent read FOnFixedChange write FOnFixedChange;  //прерывание измения фиксации
   end;
-
-{ TD2DockingPlace }
 
 TD2DockingPlace = class(TD2Control)
   private

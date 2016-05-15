@@ -778,9 +778,10 @@ begin
   AutoCapture:=true;
   Width:=100;
   Height:=100;
-  FItemHeight:=0;
+  //FItemHeight:=0;
   SetLength(FSelectedRows, 128);  //Added by GoldenFox
   FSelected := 0;                 //Added by GoldenFox
+  FOldSelected := FSelected;      //Added by GoldenFox
   FSelectedRows[0] := 2;          //Added by GoldenFox
   FSelectedRows[1] := FSelected;  //Added by GoldenFox
   FSelectedRows[2] := FSelected;  //Added by GoldenFox
@@ -1261,55 +1262,42 @@ begin
   if RowCount > 0 then
   begin
     if IsOneRowSelected then	//Added by GoldenFox
-    begin						//Added by GoldenFox
-    if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
-    begin
-      if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+    begin			//Added by GoldenFox
+      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
       begin
-        Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-        TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
-      end;
-    end;
-    case Key of
-      VK_F2:
+        if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
         begin
-          if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-            Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
-	{Deleted by GoldenFox	
-      VK_UP:if FSelected > 0 then Selected:=Selected - 1;
-      VK_DOWN:if FSelected < FRowCount - 1 then Selected:=Selected + 1;
-      VK_HOME:
-        if ssCtrl in Shift then
-          Selected:=0
-        else
-          ColumnIndex:=0;
-      VK_END:
-        if ssCtrl in Shift then
-          Selected:=RowCount - 1
-        else
-          ColumnIndex:=ColumnCount - 1;
-      VK_PRIOR:if FSelected > 0 then Selected:=Selected - Min(RowCount,VisibleRows);
-      VK_NEXT:if FSelected < FRowCount - 1 then Selected:=Selected + Min(RowCount,VisibleRows);
-      VK_LEFT:if ColumnIndex > 0 then ColumnIndex:=ColumnIndex - 1;
-      VK_RIGHT:if ColumnIndex < ColumnCount - 1 then ColumnIndex:=ColumnIndex + 1;
-}
-	{Block added by GoldenFox}
-          VK_LEFT:
-            begin
-              if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
-              if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
-            end;
-          VK_RIGHT:
-            begin
-              if (Shift = []) and (ColumnIndex < ColumnCount - 1)
-                then ColumnIndex := ColumnIndex + 1;
-              if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
-                 then ColumnIndex := ColumnCount - 1;
-            end;
+      end;
+      case Key of
+        VK_F2:
+          begin
+            if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+              Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          end;
+        VK_LEFT:
+          begin
+            if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
+            if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
+          end;
+        VK_RIGHT:
+          begin
+            if (Shift = []) and (ColumnIndex < ColumnCount - 1)
+              then ColumnIndex := ColumnIndex + 1;
+            if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
+               then ColumnIndex := ColumnCount - 1;
+          end;
       end;
     end;
     case Key of
+      VK_SPACE:
+        if MultiSelect and (Shift = [ssCtrl])  then
+        begin
+          ChangeSelectionRow(FSelected);
+          UpdateSelection;
+        end;
       VK_A:
         if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A
           begin
@@ -1320,112 +1308,49 @@ begin
             UpdateSelection;
           end;
       VK_UP:
+        if FSelected > 0 then
         begin
-          if Shift = [] then Selected := FSelected - 1;  //нажата только вверх
-          if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1);   //если Shift + ввех
-          if (Shift = [ssCtrl]) and //Ctrl + ввех
-             (FSelected > 0) then
-            if MultiSelect
-              then begin
-                     FSelected := FSelected - 1;
-                     ScrollToRow(FSelected);
-                     if IsOneRowSelected
-                       then FIsPreSelected:=false
-                       else FIsPreSelected:=true;
-                     UpdateSelection;
-                   end
-              else Selected := FSelected - 1;
+          if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх
+          if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
         end;
       VK_DOWN:
+        if FSelected < RowCount-1 then
         begin
-          if Shift = [] then Selected := FSelected + 1;  //нажата только вниз
-          if Shift = [ssShift] then SetSelectedMoreRow(Selected + 1);   //если Shift + вниз
-          if (Shift = [ssCtrl]) and                  //Ctrl + вниз
-             (FSelected < FRowCount - 1) then
-            if MultiSelect
-              then begin
-                     FSelected := FSelected + 1;
-                     ScrollToRow(FSelected);
-                     if IsOneRowSelected
-                       then FIsPreSelected:=false
-                       else FIsPreSelected:=true;
-                     UpdateSelection;
-                   end
-              else Selected := FSelected + 1;
-        end;
-      VK_SPACE:
-        if MultiSelect and (Shift = [ssCtrl])  then
-        begin
-          ChangeSelectionRow(FSelected);
-          UpdateSelection;
+          if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
         end;
       VK_HOME:
-        if (Shift = []) or (not MultiSelect)
-          then Selected := 0
-          else  begin
-                  if Shift = [ssShift] then
-                    SetSelectedMoreRow(0);
-                  if Shift = [ssCtrl] then
-                    begin
-                      FSelected := 0;
-                      ScrollToRow(FSelected);
-                      if IsOneRowSelected
-                        then FIsPreSelected:=false
-                        else FIsPreSelected:=true;
-                      UpdateSelection;
-                    end;
-                end;
+        if FSelected > 0 then
+        begin
+          if Shift = [] then SetSelected(0);  //нажата только Home
+          if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home
+          if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
+        end;
       VK_END:
-        if (Shift = []) or (not MultiSelect)
-          then Selected := RowCount - 1
-          else  begin
-                  if Shift = [ssShift] then
-                    SetSelectedMoreRow(RowCount - 1);
-                  if Shift = [ssCtrl] then
-                    begin
-                      FSelected := RowCount - 1;
-                      ScrollToRow(FSelected);
-                      if IsOneRowSelected
-                        then FIsPreSelected:=false
-                        else FIsPreSelected:=true;
-                      UpdateSelection;
-                    end;
-                end;
+        if FSelected < RowCount-1 then
+        begin
+          if Shift = [] then SetSelected(RowCount - 1);  //нажата только End
+          if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End
+          if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
+        end;
       VK_PRIOR:
-        if (Shift = []) or (not MultiSelect)
-          then Selected := Selected - Min(RowCount, VisibleRows)
-          else  begin
-                  if Shift = [ssShift] then
-                    SetSelectedMoreRow(Selected - Min(RowCount, VisibleRows));
-                  if Shift = [ssCtrl] then
-                    begin
-                      FSelected := Selected - Min(RowCount, VisibleRows);
-                      ScrollToRow(FSelected);
-                      if IsOneRowSelected
-                        then FIsPreSelected:=false
-                        else FIsPreSelected:=true;
-                      UpdateSelection;
-                    end;
-                end;
+        if FSelected > 0 then
+        begin
+          if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
+        end;
       VK_NEXT:
-        if (Shift = []) or (not MultiSelect)
-          then Selected := Selected + Min(RowCount, VisibleRows)
-          else  begin
-                  if Shift = [ssShift] then
-                    SetSelectedMoreRow(Selected + Min(RowCount, VisibleRows));
-                  if Shift = [ssCtrl] then
-                    begin
-                      FSelected := Selected + Min(RowCount, VisibleRows);
-                      ScrollToRow(FSelected);
-                      if IsOneRowSelected
-                        then FIsPreSelected:=false
-                        else FIsPreSelected:=true;
-                      UpdateSelection;
-                    end;
-                end;
+        if FSelected < RowCount-1 then
+        begin
+          if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
+        end;
 		{Block End added by GoldenFox}
-    else
-      Exit;
+      else Exit;
     end;
     Key:=0;
   end;
@@ -1440,9 +1365,9 @@ begin
   if Button=mbLeft then
   begin
     //Selected:=RowByPoint(X,Y); //Deleted by GoldenFox
-    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                //нажата только ЛКМ 			//Added by GoldenFox
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y));  //если зажат только Shift	//Added by GoldenFox
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y)); //если зажат Ctrl			//Added by GoldenFox
+    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                  //нажата только ЛКМ 	//Added by GoldenFox
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y)); //если нажаты ЛКМ + Shift   //Added by GoldenFox
+    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y));  //если нажаты ЛКМ + Ctrl	//Added by GoldenFox
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
       ColumnIndex:=Column.Index;
@@ -1457,14 +1382,14 @@ begin
   if FPressed then
   begin
     //Selected:=RowByPoint(X,Y);	//Deleted by GoldenFox
-    if (Shift = [ssLeft]) then SetSelectedMoreRow(RowByPoint(X, Y));	//Added by GoldenFox
+    //if (Shift = [ssLeft]) then SetSelectedMoreRow(RowByPoint(X, Y));	//Added by GoldenFox
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
       ColumnIndex:=Column.Index;
   end;
 end;
 
-function TD2CustomGrid.ChangeSelectionRow(Idx: integer): boolean; //изменить выделение строки - true - выделена, false - развыделена //function Added by GoldenFox
+function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean; //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
 var L, M, R: integer; //левая граница, середина, правая граница
     b: boolean;       //
 
@@ -1504,6 +1429,7 @@ begin
       FSelectedRows[0]:= 2;    //последний эл-т массива (1 диапазон)
       FSelectedRows[1]:= Idx;  //начало выделения
       FSelectedRows[2]:= Idx;  //конец выделения
+      FOldSelected := FSelected;
       FSelected := Idx;                                 //Added by GoldenFox
       ScrollToRow(Idx);
       UpdateSelection;
@@ -1557,7 +1483,8 @@ begin
                          AddRange(L+1);                                        //добавим диапазон
                          FSelectedRows[L+1]:=Idx;                              //пропишем строку как выделенную
                          FSelectedRows[L+2]:=Idx;
-                         FSelected := Idx;                                 //Added by GoldenFox
+                         FOldSelected := FSelected;
+                         FSelected := Idx;
                          ScrollToRow(Idx);
                          UpdateSelection;
                          exit;
@@ -1587,6 +1514,7 @@ begin
       Result:=false;
       FIsPreSelected:= not Result;
     end;
+  FOldSelected := FSelected;
   FSelected := Idx;                                 //Added by GoldenFox
   ScrollToRow(Idx);
   UpdateSelection;
@@ -1631,11 +1559,12 @@ begin
                              end;
             end;
       FIsPreSelected:=false;
+      FOldSelected := FSelected;
       FSelected := Idx;
       ScrollToRow(FSelected);
       UpdateSelection;
     end
-    else Selected := Idx;
+    else SetSelected(Idx);
 end;
 
 {Deleted by GoldenFox
@@ -1662,10 +1591,12 @@ begin
       if Assigned(FScene) and (FScene.GetDesignTime) then
         begin
           FSelected:=0;
+          FOldSelected := FSelected;
           FSelectedRows[0]:=2;                                           //Added by GoldenFox
           FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
           FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
           FIsPreSelected:=false;                                        //Added by GoldenFox
+          UpdateSelection;
         end;
     end;
 end;
@@ -1747,6 +1678,28 @@ begin
     FOnSetValue(Self,Col,Row,Value);
 end;
 
+procedure TD2CustomGrid.SetPreSelected(const Value: integer);
+var S:integer;
+begin
+  if (FSelected <> Value) then
+  begin
+    FOldSelected := FSelected;
+    S := Value;
+    if S < 0 then S:=0;
+    if S > FRowCount - 1 then S:=FRowCount - 1;
+    if MultiSelect
+      then begin
+             FSelected:=S;
+             ScrollToRow(FSelected);
+             if IsOneRowSelected
+               then FIsPreSelected:=false
+               else FIsPreSelected:=true;
+             UpdateSelection;
+           end
+      else SetSelected(S);
+  end;
+end;
+
 procedure TD2CustomGrid.SetSelected(const Value:integer);
 begin
   //if FSelected <> Value then		//Deleted by GoldenFox
@@ -1754,15 +1707,10 @@ begin
      (FSelectedRows[0] <> 2) or				//Added by GoldenFox
      (FSelectedRows[1] <> FSelectedRows[2]) then	//Added by GoldenFox
   begin
+    FOldSelected := FSelected;
     FSelected:=Value;
     if FSelected < 0 then FSelected:=0;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
-    {Deleted by GoldenFox
-    if FSelected <= TopRow then
-      VScrollBar.Value:=FSelected * FRowHeight;
-    if FSelected * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight then
-      VScrollBar.Value:=FSelected * FRowHeight - ClientHeight + FRowHeight;
-	  }
     FSelectedRows[0]:=2;                                           //Added by GoldenFox
     FSelectedRows[1]:=FSelected;                                   //Added by GoldenFox
     FSelectedRows[2]:=FSelected;                                   //Added by GoldenFox
