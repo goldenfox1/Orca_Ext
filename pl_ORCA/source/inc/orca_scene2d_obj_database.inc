@@ -2136,46 +2136,45 @@ procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   end;
 
 begin
-  if (RowCount > 0) and (FDataController.Active) then
+  if (FDataController.Active) then
   begin
     case Key of
-      VK_UP:PriorRow;
-      VK_DOWN:NextRow;
-      VK_NEXT:DoSelection(VisibleRows);
-      VK_PRIOR:DoSelection(-VisibleRows);
       VK_DELETE:
-        if (not ReadOnly) and not FDataController.DataSet.IsEmpty
-          and FDataController.DataSet.CanModify
-        then
-          FDataController.DataSet.Delete;
-      VK_HOME:
-        if ssCtrl in Shift then
-          FDataController.DataSet.First
-        else
-          ColumnIndex:=0;
-      VK_END:
-        if ssCtrl in Shift then
-          FDataController.DataSet.Last
-        else
-          ColumnIndex:=ColumnCount - 1;
+        if (not ReadOnly) and
+           (RowCount > 0) and
+           (not FDataController.DataSet.IsEmpty) and
+           (FDataController.DataSet.CanModify)
+          then FDataController.DataSet.Delete;
       VK_INSERT:
-        if FDataController.DataSet.CanModify and (not ReadOnly) then
-        begin
-          FDataController.DataSet.Insert;
-        end;
+        if (not ReadOnly) and
+           (FDataController.DataSet.CanModify)
+          then FDataController.DataSet.Insert;
       VK_ESCAPE:
         begin
-          if FDataController.Modified then
-            FDataController.RecordChanged(nil) else FDataController.Dataset.Cancel;
+          if (FDataController.Modified)
+            then FDataController.RecordChanged(nil)
+            else FDataController.Dataset.Cancel;
           SetFocus;
         end;
-    else
-      inherited ;
-      Exit;
+      //VK_UP:PriorRow;
+      //VK_DOWN:NextRow;
+      //VK_NEXT:DoSelection(VisibleRows);
+      //VK_PRIOR:DoSelection(-VisibleRows);
+      //VK_HOME:
+      //  if ssCtrl in Shift
+      //    then FDataController.DataSet.First
+      //    else ColumnIndex:=0;
+      //VK_END:
+      //  if ssCtrl in Shift
+      //    then FDataController.DataSet.Last
+      //    else ColumnIndex:=ColumnCount - 1;
+      else
+        inherited ;
+        Exit;
     end;
     Key:=0;
   end;
-  inherited;
+  //inherited;
 end;
 
 procedure TD2CustomDBGrid.Reset;
@@ -2186,10 +2185,10 @@ begin
 end;
 
 procedure TD2CustomDBGrid.OnUpdateData(aDataSet: TDataSet);
-var C: TD2DBColumn;
+//var C: TD2DBColumn;
 begin
-  C:=TD2DBColumn(Columns[ColumnIndex]);
-  if (C <> nil) and FNeedUpdate then
+  //C:=TD2DBColumn(Columns[ColumnIndex]);
+  if (TD2DBColumn(Columns[ColumnIndex]) <> nil) and FNeedUpdate then
     TD2DBColumn(Columns[ColumnIndex]).SetData(FEditValue);
   FEditValue:=NULL;
   FNeedUpdate:=false;
@@ -2229,33 +2228,49 @@ begin
   UpdateRowCount;
 end;
 
-procedure TD2CustomDBGrid.SetSelected(const Value: integer);
-//var
-//  S:integer;
+procedure TD2CustomDBGrid.SetPreSelected(const Value: integer);
+var S:integer;
 begin
-  //S:=Selected;
-  //if Selected <> Value then
-  //begin
-    //inherited;
-  //  if not FDisableMove then
-  //  begin
-  //    if FDataController.Active then
-  //      FDataController.MoveBy(Selected - S);
-  //  end;
-  //  //UpdateSelection;
-  //end;
+  S:=FSelected;
+  if FSelected <> Value then
+  begin
+    inherited;
+    if (not FDisableMove) and (FDataController.Active)
+      then FDataController.MoveBy(FSelected - S);
+  end;
 end;
 
-procedure TD2CustomDBGrid.UpdateSelection;
+procedure TD2CustomDBGrid.SetSelected(const Value: integer);
+var S:integer;
 begin
-  if (FOldSelected<>FSelected) and (not FDisableMove) and
-    (FDataController.Active)
-  then begin
-         FDataController.MoveBy(FSelected - FOldSelected);
-         FOldSelected:=FSelected;
-       end;
-  inherited;
+  S:=FSelected;
+  if FSelected <> Value then
+  begin
+    inherited;
+    if (not FDisableMove) and (FDataController.Active)
+      then FDataController.MoveBy(FSelected - S);
+  end;
+end;
 
+procedure TD2CustomDBGrid.SetSelectedMoreRow(Idx: integer);
+var S:integer;
+begin
+  S:=FSelected;
+  if FSelected <> Idx then
+  begin
+    inherited;
+    if (not FDisableMove) and (FDataController.Active)
+      then FDataController.MoveBy(FSelected - S);
+  end;
+end;
+
+function TD2CustomDBGrid.ChangeSelectionRow(Idx: integer): boolean;
+var S:integer;
+begin
+  S:=FSelected;
+  inherited;
+  if (not FDisableMove) and (FDataController.Active)
+    then FDataController.MoveBy(FSelected - S);
 end;
 
 constructor TD2CustomDBGrid.Create(AOwner: TComponent);
