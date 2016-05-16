@@ -1931,20 +1931,19 @@ begin
 end;
 
 procedure TD2CustomDBGrid.UpdateRowCount;
+var R: Integer;
 begin
   if FDataController.Active then
   begin
-    //if FMultiSelect
-    //then begin
-           FDataController.BufferCount:=FDataController.DataSet.RecordCount;
-           RowCount:=FDataController.DataSet.RecordCount;
-    //     end
-    //else begin
-    //       FDataController.BufferCount:=VisibleRows * 2;
-    //       if FDataController.BufferCount < FDataController.DataSet.RecordCount
-    //         then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-    //         else RowCount:=FDataController.RecordCount;
-    //     end;
+    R:=FDataController.DataSet.RecordCount;
+    //FDataController.BufferCount:=FDataController.DataSet.RecordCount;
+    //RowCount:=FDataController.DataSet.RecordCount;
+    FDataController.BufferCount:=R;
+    RowCount:=R;
+
+    //if FDataController.BufferCount < FDataController.DataSet.RecordCount
+    //  then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+    //  else RowCount:=FDataController.RecordCount;
   end
   else begin
          RowCount:=0;
@@ -2088,52 +2087,56 @@ end;
 
 function TD2CustomDBGrid.CanEditModify: Boolean;
 begin
+
   Result:=False;
+
   if not ReadOnly and FDataController.Active and not FDataController.Readonly then
   with TD2DBColumn(Columns[ColumnIndex]) do
-    if (not ReadOnly) and Assigned(Field) and Field.CanModify then
-    begin
-      FDataController.Edit;
-      Result:=FDataController.Editing;
-      if Result then FDataController.Modified:=True;
-    end;
+    if (not ReadOnly) and Assigned(Field) then
+      Result:=Field.CanModify;
+    //if (not ReadOnly) and Assigned(Field) and Field.CanModify then
+    //begin
+    //  FDataController.Edit;
+    //  Result:=FDataController.Editing;
+    //  if Result then FDataController.Modified:=True;
+    //end;
 end;
 
 procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
-
-  procedure DoSelection(Direction:integer);
-  begin
-    BeginUpdate;
-    try
-      FDataController.MoveBy(Direction);
-    finally
-      EndUpdate;
-    end;
-  end;
-
-  procedure NextRow;
-  begin
-    with FDataController.Dataset do
-    begin
-      if (State=dsInsert) and (not Modified) and (not FDataController.Modified)
-        then if FDataController.EOF
-               then Exit
-               else Cancel
-        else DoSelection(1);
-        //if FDataController.EOF and CanModify and (not ReadOnly)
-        //  then Append;
-    end;
-  end;
-
-  procedure PriorRow;
-  begin
-    with FDataController.Dataset do
-      if (State=dsInsert) and (not Modified) and
-          FDataController.EOF and (not FDataController.Modified)
-        then Cancel
-        else DoSelection(-1);
-  end;
+//
+//  procedure DoSelection(Direction:integer);
+//  begin
+//    BeginUpdate;
+//    try
+//      FDataController.MoveBy(Direction);
+//    finally
+//      EndUpdate;
+//    end;
+//  end;
+//
+//  procedure NextRow;
+//  begin
+//    with FDataController.Dataset do
+//    begin
+//      if (State=dsInsert) and (not Modified) and (not FDataController.Modified)
+//        then if FDataController.EOF
+//               then Exit
+//               else Cancel
+//        else DoSelection(1);
+//        //if FDataController.EOF and CanModify and (not ReadOnly)
+//        //  then Append;
+//    end;
+//  end;
+//
+//  procedure PriorRow;
+//  begin
+//    with FDataController.Dataset do
+//      if (State=dsInsert) and (not Modified) and
+//          FDataController.EOF and (not FDataController.Modified)
+//        then Cancel
+//        else DoSelection(-1);
+//  end;
 
 begin
   if (FDataController.Active) then
@@ -2147,8 +2150,12 @@ begin
           then FDataController.DataSet.Delete;
       VK_INSERT:
         if (not ReadOnly) and
-           (FDataController.DataSet.CanModify)
-          then FDataController.DataSet.Insert;
+           (FDataController.DataSet.CanModify) then
+          begin
+            if RowCount > 0
+              then FDataController.DataSet.Insert
+              else FDataController.DataSet.Append;
+          end;
       VK_ESCAPE:
         begin
           if (FDataController.Modified)
@@ -2181,7 +2188,8 @@ procedure TD2CustomDBGrid.Reset;
 begin
   inherited;
   if FDataController.Active and FDataController.Modified
-    then FDataController.RecordChanged(nil) else FDataController.Dataset.Cancel;
+    then FDataController.RecordChanged(nil)
+    else FDataController.Dataset.Cancel;
 end;
 
 procedure TD2CustomDBGrid.OnUpdateData(aDataSet: TDataSet);
