@@ -1629,12 +1629,12 @@ TD2VisualObject = class(TD2Object)
     FRotateCenter: TD2Position;
     FCanFocused:boolean;
     FIsMouseOver:boolean;
-	FIsMouseOverChildren:boolean; //Added by GoldenFox
+    FIsMouseOverChildren:boolean; //флаг указатель мыши находится над дочерним объектом //Added by GoldenFox
     FIsFocused:boolean;
     FOnCanFocused: TD2CanFocusedEvent;
     FOnEnterFocus:TNotifyEvent;
     FOnKillFocus:TNotifyEvent;
-    FDisableFocusEffect:boolean;
+    FDisableFocusEffect:boolean;      //флаг отключения анимации и эффектов при получении фокуса
     FClipParent:boolean;
     //FVelocity: TD2Position;
     FOnMouseLeave:TNotifyEvent;
@@ -1760,7 +1760,7 @@ TD2VisualObject = class(TD2Object)
     procedure MouseEnterChildren;  virtual;	//Added by GoldenFox
     procedure MouseLeave;  virtual;
     procedure MouseLeaveChildren;  virtual;	//Added by GoldenFox
-    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  virtual;	//Added by GoldenFox
+    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  virtual;	//установить флаг нахождения указателя мыши над дочерним объектом у родителя //Added by GoldenFox
     procedure ContextMenu(const ScreenPosition: TD2Point);  virtual;
     procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  virtual;
     procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  virtual;
@@ -1831,12 +1831,12 @@ TD2VisualObject = class(TD2Object)
     property Canvas: TD2Canvas read GetCanvas;
     property AutoCapture: boolean read FAutoCapture write FAutoCapture  default false;
     property CanFocused: boolean read FCanFocused write FCanFocused  default false;
-    property DisableFocusEffect: boolean read FDisableFocusEffect write FDisableFocusEffect  default false;
+    property DisableFocusEffect: boolean read FDisableFocusEffect write FDisableFocusEffect  default false; //true - отключить анимацию и эффекты при получении фокуса
     property DisableDefaultAlign: boolean read FDisableDefaultAlign write FDisableDefaultAlign;
     property TabOrder: TTabOrder read GetTabOrder write SetTabOrder  default -1;
   published
     property IsMouseOver: boolean read FIsMouseOver;
-    property IsMouseOverChildren:boolean read FIsMouseOverChildren; //Added by GoldenFox
+    property IsMouseOverChildren:boolean read FIsMouseOverChildren; //флаг указатель мыши находится над дочерним объектом //Added by GoldenFox
     property IsDragOver: boolean read FIsDragOver;
     property IsFocused: boolean read FIsFocused;
     property IsVisible: boolean read FVisible;
@@ -3414,7 +3414,7 @@ TD2CustomButton = class(TD2TextControl)
     property StaysPressed: boolean read FStaysPressed write FStaysPressed;
     property IsPressed: boolean read FIsPressed write SetIsPressed;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Font;
     property ModalResult: TModalResult read FModalResult write FModalResult  default mrNone;
@@ -3434,7 +3434,7 @@ TD2Button = class(TD2CustomButton)
   public
   published
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property Default: boolean read FDefault write FDefault  default false;
     property Cancel: boolean read FCancel write FCancel  default false;
     property TabOrder;
@@ -3614,7 +3614,7 @@ TD2ColorButton = class(TD2CustomButton)
   published
     property AutoTranslate  default false;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;   //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Color: string read FColor write SetColor;
     property UseStandardDialog: boolean read FUseStandardDialog write FUseStandardDialog  default true;
@@ -3672,7 +3672,7 @@ TD2CheckBox = class(TD2TextControl)
     property AutoTranslate  default true;
     property BindingSource;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Font;
     property TextAlign;
@@ -3723,7 +3723,7 @@ TD2RadioButton = class(TD2TextControl)
     property AutoTranslate  default true;
     property BindingSource;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Font;
     property TextAlign;
@@ -3925,7 +3925,7 @@ TD2TrackBar = class(TD2CustomTrack)
   published
     property BindingSource;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Resource;
     property Min:single read FMin write SetMin;
@@ -4105,7 +4105,7 @@ TD2PopupBox = class(TD2CustomButton)
   published
     property BindingSource;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Text stored false;
     property Items: TD2WideStrings read FItems write SetItems;
@@ -4196,7 +4196,7 @@ TD2ImageControl = class(TD2Control)
     destructor Destroy;  override;
   published
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property EnableOpenDialog: boolean read FEnableOpenDialog write FEnableOpenDialog  default true;
     property TabOrder;
     property Bitmap: TD2Bitmap read FBitmap write SetBitmap;
@@ -4386,7 +4386,7 @@ TD2ScrollContent = class(TD2Content)
 TD2CustomScrollBox = class(TD2Control)
   private
     FScrollDuration: single;
-    FAutoHide:boolean;
+    FAutoHide:boolean;           //флаг автоматического скрытия скроллеров
     FDisableMouseWheel:boolean;
     FDown:boolean;
     FHScrollAni: TD2FloatAnimation;
@@ -4442,7 +4442,7 @@ TD2CustomScrollBox = class(TD2Control)
     function  ClientHeight:single;
     property  HScrollBar: TD2ScrollBar read FHScrollBar;
     property  VScrollBar: TD2ScrollBar read FVScrollBar;
-    property AutoHide: boolean read FAutoHide write FAutoHide  default true;
+    property AutoHide: boolean read FAutoHide write FAutoHide  default true;  //true - автоматически скрывать скроллеры
     property Animated: boolean read FAnimated write FAnimated  default true;
     property ScrollDuration: single read FScrollDuration write FScrollDuration default 0.7;
     property DisableMouseWheel: boolean read FDisableMouseWheel write FDisableMouseWheel  default false;
@@ -4454,7 +4454,7 @@ TD2CustomScrollBox = class(TD2Control)
 
 TD2ScrollBox = class(TD2CustomScrollBox)
   published
-    property AutoHide;
+    property AutoHide;  //true - автоматически скрывать скроллеры
     property Animated;
     property ScrollDuration;
     property DisableMouseWheel;
@@ -4654,7 +4654,7 @@ type
     property Resource;
     property AllowDrag: boolean read FAllowDrag write SetAllowDrag  default false;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
     property Columns: integer read FColumns write SetColumns  default 1;
@@ -4730,7 +4730,7 @@ type
     property  Count: integer read GetCount;
   published
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Resource;
     property ItemIndex: integer read GetItemIndex write SetItemIndex;
@@ -5050,7 +5050,7 @@ type
   published
     property Resource;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property AllowDrag: boolean read FAllowDrag write SetAllowDrag  default false;
     property ItemHeight:single read FItemHeight write SetItemHeight;
@@ -5162,7 +5162,7 @@ TD2CustomTextBox = class(TD2Control)
   published
     property Cursor  default crIBeam;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Font: TD2Font read FFont write SetFont;
     property TextAlign: TD2TextAlign read FTextAlign write SetTextAlign  default d2TextAlignNear;
@@ -5591,7 +5591,7 @@ TD2CustomMemo = class(TD2ScrollBox)        //Added by GoldenFox
   published
     property Cursor  default crIBeam;
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property AutoSelect: boolean read FAutoSelect write SetAutoSelect  default true;
     property CharCase: TEditCharCase read FCharCase write SetCharCase  default d2ecNormal;
@@ -5829,7 +5829,7 @@ TD2ComboColorBox = class(TD2Control)
     procedure DropDown;
   published
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Color: string read GetValue write SetValue;
     property UseAlpha: boolean read GetUseAlpha write SetUseAlpha  default true;
@@ -6126,7 +6126,7 @@ TD2CalendarBox = class(TD2TextControl)
     property Calendar: TD2Calendar read FCalendar;
   published
     property CanFocused  default true;
-    property DisableFocusEffect;
+    property DisableFocusEffect; //true - отключить анимацию и эффекты при получении фокуса
     property TabOrder;
     property Cursor  default crDefault;
     property Date: TDate read GetDate write SetDate;
@@ -6892,9 +6892,7 @@ TD2ImageColumn = class(TD2Column)
 
 TD2CustomGrid = class(TD2CustomScrollBox)
   private
-    //FMouseSelecting:boolean;
     FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
-    //FItemHeight:single;              //Deleted by GoldenFox
     FMultiSelect:boolean;              //флаг разрешения множественного выбора       //Uncomment by GoldenFox
     FOldSelected:integer;              //№ предыдущей выбранной строки
     FSelected:integer;                 //№ выбранной строки
@@ -6906,8 +6904,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     FRowCount:integer;                 //кол-во строк
     FRowHeight:single;                 //высота строк
     FAlternatingRowBackground:boolean; //флаг режима разных фонов для четных и нечетных строк
-    FOddFill: TD2Brush;                //указатель на фон нечетных строк
-    FLineFill: TD2Brush;
+    FOddFill: TD2Brush;                //указатель на альтернативный фон нечетных строк
+    FLineFill: TD2Brush;               //указатель на фон строк
     FReadOnly:boolean;          //флаг только чтение (редактирование не возможно)
     FColumnIndex:integer;       //№ выбранной колонки
     FHeader: TD2Header;         //указатель на строку заголовка
@@ -6915,7 +6913,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     FShowSelectedCell:boolean;  //флаг выделять выбранную ячейку
     FShowHorzLines:boolean;     //флаг рисовать горизонтальные линии
     FShowVertLines:boolean;     //флаг рисовать вертикальные линии
-    FOnEdititingDone: TOnEdititingDone;
+    FOnEdititingDone: TOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     FOnGetValue:TOnGetValue;             //указатель на процедуру прерывания при получении значения ячейки
     FOnSetValue:TOnSetValue;             //указатель на процедуру прерывания при записи значения ячейки
     function GetColumnCount:integer;                    //получить кол-во колонок
@@ -6932,29 +6930,28 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure SetShowSelectedCell(const Value:boolean); //установить режим отображения выбранной ячейки
   protected
     procedure ContentRemoveObject(AObject: TD2Object); override; //удаление дочерних объектов //Adedd by GoldenFox
-    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //Deleted by GoldenFox
     procedure ApplyStyle; override; //применить стиль
     procedure FreeStyle; override;  //освободить стиль
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
     procedure HScrollChange(Sender: TObject);  override; //обработка перемещения горизонтального скроллера
     procedure VScrollChange(Sender: TObject);  override; //обработка перемещения вертикального скроллера
-    function  GetContentBounds: TD2Rect;  override; //получить клиентскую область грида
+    function  GetContentBounds: TD2Rect;  override;      //получить клиентскую область грида
     procedure UpdateColumns;  virtual;  //обновить колоноки
     procedure UpdateHeader;             //обновить заголовки колонок
     procedure UpdateSelection; virtual; //обновить маркеры выбора строк
-    procedure Reset;  virtual;
-    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
-    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
-    function  GetTopRow:integer;  virtual;     //получить № вехней видимой строки
+    procedure Reset;  virtual;          //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);  //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); //отрисовка горизонтальных и вертикальных линий
+    function  GetTopRow:integer;  virtual;                                //получить № вехней видимой строки
     function  GetValue(Col, Row: integer): Variant; virtual;              //получить значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;  //сохранить значение ячейки в колонке Col строке Row
-    function  IsSelected(Row: integer):boolean;           //true - если строка Row выбрана
-    function  IsOneRowSelected:boolean;                   //true - если выбрана 1 стока  //Added by GoldenFox
+    function  IsSelected(Row: integer):boolean;              //true - если строка Row выбрана
+    function  IsOneRowSelected:boolean;                      //true - если выбрана 1 стока  //Added by GoldenFox
     procedure SetPreSelected(const Value: integer); virtual; //установить маркер предвыбора на выбранную строку
-    procedure SetSelected(const Value: integer); virtual; //установить выбранную строку
-    procedure SetSelectedMoreRow(Idx: integer); virtual;  //добавить к выбранным строки начиная с текущей до Idx   //Added by GoldenFox
-    function  ChangeSelectionRow(Idx: integer):boolean; virtual;  //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
+    procedure SetSelected(const Value: integer); virtual;    //установить выбранную строку
+    procedure SetSelectedMoreRow(Idx: integer); virtual;     //добавить к выбранным строки начиная с текущей до Idx   //Added by GoldenFox
+    function  ChangeSelectionRow(Idx: integer):boolean; virtual;           //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;   //проверка ввода с клавиатуры на соответствие
     function  CanEditModify: Boolean;  virtual;                            //true - если данные можно редактировать
     procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer); //изменить позицию колонки
     procedure DoResizeItem(Sender: TObject; var NewSize:single);           //изменить ширину колонки
@@ -6963,7 +6960,6 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     destructor Destroy;  override;                         //уничтожить грид
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обработка нажатий кнопок мыши
     procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;                 //обработка перемещения мыши
-    //procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //Deleted by GoldenFox
     function ItemClass: string;  override;                 //список классов колонок для дизайнера
     function ColumnByIndex(const Idx: integer): TD2Column; //получить указатель на колонку по индексу
     function ColumnByPoint(const X, Y:single): TD2Column;  //получить указатель на колонку по координатам
@@ -6971,9 +6967,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure AddObject(AObject: TD2Object);  override;    //добавить дочерний объект
     procedure ApplyResource;  override;	                   //применить ресурс //Added by GoldenFox
     procedure ScrollToRow(ARow: integer);                  //прокрутить грид до строки //Added by GoldenFox
-    //procedure RemoveObject(AObject: TD2Object);  override;  //Deleted by GoldenFox
     property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false; //рисовать другой фон для нечетных колонок
-    property CanFocused  default true;                                    //возможно получать фокус
+    property CanFocused  default true;                                    //флаг возможности получать фокус
     property ColumnCount: integer read GetColumnCount;                    //кол-во колонок
     property ColumnIndex: integer read FColumnIndex write SetColumnIndex; //№ выбранной колонки
     property Columns[Index: integer]: TD2Column read GetColumn;           //указатель на колонку по индексу
@@ -6988,12 +6983,12 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;          //рисовать вертикальные линии
     property TopRow: integer read GetTopRow;           //№ верхней видимой строки
     property VisibleRows: integer read GetVisibleRows; //кол-во видимых строк
-    property AutoHide;
-    property Animated;           //включить анимацию
+    property AutoHide;           //true - автоматически скрывать скроллеры
+    property Animated;           //true - включить анимацию
     property ScrollDuration;     //скорость перемещения скроллеров
-    property DisableMouseWheel;  //запретить реакцию на колесо мыши
-    property ShowScrollBars;     //показывать скроллеры
-    property UseSmallScrollBars; //использовать узкие скроллеры
+    property DisableMouseWheel;  //true - запретить реакцию на колесо мыши
+    property ShowScrollBars;     //true - показывать скроллеры
+    property UseSmallScrollBars; //true - использовать узкие скроллеры
     property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
     property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
@@ -7001,27 +6996,25 @@ end;
 
 TD2Grid = class(TD2CustomGrid)
   published
-    property AutoHide;
-    property Animated;
-    property AlternatingRowBackground;
-    property CanFocused;
-    property DisableFocusEffect;
-    property MultiSelect;
-    property ReadOnly;
-    property RowCount;
-    property RowHeight;
-    property ScrollDuration;
-    property ShowHeader;
-    property ShowHorzLines;
-    property ShowSelectedCell;
-    property ShowScrollBars;
-    property ShowSizeGrip;
-    property ShowVertLines;
-    property TabOrder;
-    property UseSmallScrollBars;
-    property OnGetValue;
-    property OnSetValue;
-    property OnEdititingDone;
+    property AutoHide;                   //автоматически скрывать скроллеры
+    property Animated;                   //включить анимацию
+    property AlternatingRowBackground;   //рисовать другой фон для нечетных колонок
+    property CanFocused;                 //флаг возможности получать фокус
+    property DisableFocusEffect;         //отключить анимацию и эффекты при получении фокуса
+    property MultiSelect;                //Разрешить множественный выбор
+    property ReadOnly;                   //флаг только чтение
+    property RowCount;                   //кол-во строк
+    property RowHeight;                  //высота строк
+    property ScrollDuration;             //скорость перемещения скроллеров
+    property ShowHeader;                 //показывать заголовки колонок
+    property ShowHorzLines;              //рисовать горизонтальные линии
+    property ShowSelectedCell;           //выделять выбранную ячейку
+    property ShowScrollBars;             //показывать скроллеры
+    property ShowVertLines;              //рисовать вертикальные линии
+    property UseSmallScrollBars;         //использовать узкие скроллеры
+    property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
+    property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
+    property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
 end;
 
 TD2StringColumn = class(TD2Column)
@@ -7413,14 +7406,18 @@ TD2DBProgressColumn = class(TD2DBColumn)
                           This part make by GoldenFox
 **********************************************************************}
 
-TD2GridDataController=class(TComponentDataLink)
+{ TD2GridDataController }
+
+TD2GridDataController=class(TComponentDataLink)   //невизуальный компонент для связи DBGrid c DataSource
+  protected
+    function  GetRecordCount: Integer; override;
   published
-    property DataSource;
+    property DataSource;   //указатель на DataSource
   end;
 
 { TD2CustomDBGrid }
 
-TD2CustomDBGrid = class(TD2CustomGrid)
+TD2CustomDBGrid = class(TD2CustomGrid)   //заказной класс сетки для отображения данных из базы данных описывающий все поля и свойства
   private
     FDataController: TD2GridDataController;  // указатель на DataController
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
@@ -7446,15 +7443,16 @@ TD2CustomDBGrid = class(TD2CustomGrid)
   protected
     function  GetValue(Col, Row: integer): Variant;  override;            //считать из DataSet значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  override; //записать в DataSet значение ячейки в колонке Col строке Row
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //
-    function  CanEditModify: Boolean;  override;  //
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //проверка ввода с клавиатуры на соответствие полю TField.ValidChars
+    function  CanEditModify: Boolean;  override;          //перевести DataSet в режим редактирования. true - переведено в реим редактирования
+    procedure HScrollChange(Sender: TObject);  override;  //обработка перемещения горизонтального скроллера
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //обработка нажатия клавиш
-    procedure Reset;  override;  //
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //
-    procedure Loaded;  override; //инициализация объекта после загрузки из потока
-    procedure ColumnsLinkFields; //переопределить Field для каждой колонки
-    procedure LinkActive(Value:Boolean);  //
-    function  GetContentBounds: TD2Rect;  override;       //получить клиентскую область грида
+    procedure Reset;  override;  //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //очистка указателя на DataSource при его удалении
+    procedure Loaded;  override;         //инициализация объекта после загрузки из потока
+    procedure ColumnsLinkFields;         //переопределить Field для каждой колонки
+    procedure LinkActive(Value:Boolean); //переинициализация грида при изменении свойста FDataController.Active
+    function  GetContentBounds: TD2Rect;  override;           //получить клиентскую область грида
     procedure SetPreSelected(const Value: integer); override; //установить маркер предвыбора на выбранную строку
     procedure SetSelected(const Value:integer); override;     //установить активную запись
     procedure SetSelectedMoreRow(Idx: integer); override;     //добавить к выбранным строки начиная с текущей до Idx   //Added by GoldenFox
@@ -7466,85 +7464,86 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     property SelectedField: TField read GetSelectedField write SetSelectedField;  //указатель на выбранную колонку
     property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
     property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
-  published
-    property AlternatingRowBackground; //рисовать другой фон для нечетных колонок
-    property CanFocused;               //возможно получать фокус
-    property DisableFocusEffect;       //запретить эффекты фокуса?
-    property MultiSelect;              //Разрешить множественный выбор
-    property ReadOnly;                 //флаг только чтение
-    property RowHeight;                //высота строк
-    property ScrollDuration;           //скорость перемещения скроллеров
-    property ShowSelectedCell;         //выделять выбранную ячейку
-    property ShowVertLines;            //рисовать вертикальные линии
-    property ShowHorzLines;            //рисовать горизонтальные линии
-    property ShowHeader;               //показывать заголовки колонок
-    //property TabOrder;
-    property OnGetValue;               //указатель на процедуру прерывания при получении данных из DataSet
-    property OnSetValue;               //указатель на процедуру прерывания при записи данных в DataSe
-    property OnEdititingDone;          //указатель на процедуру прерывания после окончания записи в DataSet
 end;
 
-TD2DBGrid = class(TD2CustomDBGrid)
+TD2DBGrid = class(TD2CustomDBGrid)       //класс сетки для отображения данных из базы данных
   published
-    property DataController;
+    property DataController;             //указатель на DataController
+    property AutoHide;                   //автоматически скрывать скроллеры
+    property Animated;                   //включить анимацию
+    property AlternatingRowBackground;   //рисовать другой фон для нечетных колонок
+    property CanFocused;                 //флаг возможности получать фокус
+    property DisableFocusEffect;         //отключить анимацию и эффекты при получении фокуса
+    property MultiSelect;                //Разрешить множественный выбор
+    property ReadOnly;                   //флаг только чтение
+    property RowHeight;                  //высота строк
+    property ScrollDuration;             //скорость перемещения скроллеров
+    property ShowHeader;                 //показывать заголовки колонок
+    property ShowHorzLines;              //рисовать горизонтальные линии
+    property ShowSelectedCell;           //выделять выбранную ячейку
+    property ShowScrollBars;             //показывать скроллеры
+    property ShowVertLines;              //рисовать вертикальные линии
+    property UseSmallScrollBars;         //использовать узкие скроллеры
+    property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
+    property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
+    property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
 end;
 
 type
- TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop);
- TD2DockingAllowAligns = set of TD2DockingAlign;
- TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,
+ TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop); //набор мест присоединения панелей
+ TD2DockingAllowAligns = set of TD2DockingAlign;                         //набор разрешеных мест присоединения панелей
+ TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,             //набор разрешений на изменение размера панели мышью
                             dmsBottom,dmsBottomLeft,dmsBottomRight,
                             dmsLeft, dmsRight, dmsNone);
 
-TD2DockingTab = class(TD2TextControl)
+TD2DockingTab = class(TD2TextControl)     //закладка площадки перемещаемых панелей
 private
-  FAutoWidth:boolean;       //автоматический подбор ширины
+  FAutoWidth:boolean;       //флаг автоматического подбора ширины
   FIsSelected:boolean;      //флаг выделения закладки
-  FLastPosition: TD2Point;   //последняя позиция закладки
-  FMouseDownPos: TD2Point;   //положение мыши при нажатии
-  FOldIndex: integer;        //индекс закладки до начала перемещения
-  FPanel: TD2VisualObject;   //ссылка на панель
-  FDisableSetText:boolean;      //флаг изменения текста закладки
-  FTextControl: TD2Text;            //ссылка на текст
-  FTimer: TD2Timer;          //ссылка на таймер закрытия
-  FIsShowPanel:boolean;    //флаг видимости панели: true - панель выдвинута; false - скрыта
-  function  GetAlign: TD2DockingAlign;
-  procedure SetAlign(const Value:TD2DockingAlign);
-  procedure SetAutoWidth(const Value:boolean);
+  FLastPosition: TD2Point;  //последняя позиция закладки
+  FMouseDownPos: TD2Point;  //положение мыши при нажатии
+  FOldIndex: integer;       //индекс закладки до начала перемещения
+  FPanel: TD2VisualObject;  //ссылка на панель
+  FDisableSetText:boolean;  //флаг изменения текста закладки
+  FTextControl: TD2Text;    //ссылка на текст
+  FTimer: TD2Timer;         //ссылка на таймер закрытия
+  FIsShowPanel:boolean;     //флаг видимости панели: true - панель выдвинута; false - скрыта
+  function  GetAlign: TD2DockingAlign;              //получить данные выравнивания
+  procedure SetAlign(const Value:TD2DockingAlign);  //задать выравнивание
+  procedure SetAutoWidth(const Value:boolean);      //задать флаг автоматического подбора ширины
 protected
   procedure ApplyStyle;  override;   //применить стиль
   procedure DesignSelect;  override; //выбор закладки в дизайн-моде (показать/скрыть панель)
-  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
-  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
-  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
-  procedure MouseEnter;  override;
-  procedure MouseLeave;  override;
+  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override; //обрабока нажатий клавиш мыши
+  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;               //обрабока перемещения мыши
+  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обрабока отпускания клавиш мыши
+  procedure MouseEnter;  override;   //обработка входа указателя мыши в видимую область объекта
+  procedure MouseLeave;  override;   //обработка выхода указателя мыши за видимую область объекта
   procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
-  procedure SetText(const Value:WideString);  override; //
+  procedure SetText(const Value:WideString);  override; //установка отображаемого на закладке текста
 public
   constructor Create(AOwner: TComponent);  override;  //создать объект
   destructor Destroy;  override;                      //уничтожить объект
-  procedure DoAutoWidth(AMinWidth:single);          //выполнить автоматический подбор ширины
-  procedure DoTimer(Sender: TObject);
-  procedure Realign;  override;
-  procedure Select(ASelected:boolean);              //выделение закладки
-  procedure ShowPanel(const Value:boolean);              //ture - выдвинуть панель; false - скрыть
-
-published
-  property Align: TD2DockingAlign read GetAlign write SetAlign;// write SetAlign;
-  property AutoTranslate default true;              //флаг автоматического перевода текста на закладке
-  property AutoWidth:boolean read FAutoWidth write SetAutoWidth default true;
-  property Font;                                    //шрифт
-  property IsSelected:boolean read FIsSelected;      //флаг выделения закладки
+  procedure DoAutoWidth(AMinWidth:single);  //выполнить автоматический подбор ширины
+  procedure DoTimer(Sender: TObject);       //обработка события таймера скрытия панели
+  procedure Realign;  override;             //перерисовать объект
+  procedure Select(ASelected:boolean);      //выделение закладки
+  procedure ShowPanel(const Value:boolean); //ture - показать (выдвинуть панель) false - скрыть
+  property IsSelected:boolean read FIsSelected;    //флаг выделения закладки
   property IsShowPanel:boolean read FIsShowPanel;  //флаг видимости панели: true - панель выдвинута; false - скрыта
-  property Panel: TD2VisualObject read FPanel write FPanel;
+published
+  property Align: TD2DockingAlign read GetAlign write SetAlign; //выравнивание
+  property AutoTranslate default true;              //флаг автоматического перевода текста на закладке
+  property AutoWidth:boolean read FAutoWidth write SetAutoWidth default true;  //установка автоматического подбора ширины
+  property Font;                                   //имя шрифта
+  property Panel: TD2VisualObject read FPanel write FPanel; //указатель на связанную панель
   property TextAlign;        //горизонтальное выравнивание текста на закладке
   property VertTextAlign;    //вертикальное выравнивание текста на закладке
   property Text;             //текст на закладке
-  property Resource;  //название ресурса
+  property Resource;         //имя ресурса
 end;
 
-TD2DockingPanel = class(TD2TextControl)
+TD2DockingPanel = class(TD2TextControl)  //перемещаемая панель
   private
     FTSplitter: TD2SplitLayout;   //ссылка на верхний сплиттер
     FTLSplitter: TD2SplitLayout;  //ссылка на верхний-левый сплиттер
@@ -7556,35 +7555,34 @@ TD2DockingPanel = class(TD2TextControl)
     FRSplitter: TD2SplitLayout;   //ссылка на правый сплиттер
     FCloseButton: TD2CloseButton; //ссылка на кнопку закрытия
     FContent: TD2Content;         //ссылка на клиентскую область
-    //FContent: TD2ScrollContent;
-    FDisableFixed:boolean;       //флаг запрета обрабтки изменения фиксации
+    FDisableFixed:boolean;        //флаг запрета обрабтки изменения фиксации
     FDisableSetText:boolean;      //флаг изменения текста закладки
     FDragDistance: TD2Point;      //расстояние от мыши до точки 0,0 панели при перемещении
     FDragMousePos: TD2Point;      //последнее положение мыши при перемещении панели
     FDragTarget: TD2VisualObject; //ссылка на целевой объект при перемещении панели
-    FIsNotDraged:boolean;        //флаг отсуствия перемещения панели
+    FIsNotDraged:boolean;         //флаг отсуствия перемещения панели
     FFixedCheckBox: TD2CheckBox;  //ссылка на кнопку фисации
-    FFreeOnClose:boolean;        //true - уничтожить панель при закрытии; false - делать невидимой вместо закрытия
+    FFreeOnClose:boolean;         //true - уничтожить панель при закрытии; false - делать невидимой вместо закрытия
     FHeader: TD2Rectangle;        //ссылка на заголовок
     FShadow: TD2ShadowEffect;     //ссылка на тень
     FTab: TD2VisualObject;        //ссылка на закладку
-    FTabAutoWidth:boolean;
-    FAlign: TD2DockingAlign;                   //расположение панели
-    FAllowDock: TD2DockingAllowAligns;         //разрешения на расположение панели
-    FIsDockable:boolean;    //разрешено изменять положение
-    FIsExpanded:boolean;    //панель развернута двойным щелчком
-    FIsFixed:boolean;       //панель зафиксирована
-    FMinHeight:single;  //минимальная высота окна
-    FMinWidth:single;   //минимальная ширина окна
+    FTabAutoWidth:boolean;        //флаг автоматический подбор ширины закладок
+    FAlign: TD2DockingAlign;      //расположение панели
+    FAllowDock: TD2DockingAllowAligns;  //разрешения на расположение панели
+    FIsDockable:boolean; //разрешено изменять положение
+    FIsExpanded:boolean; //панель развернута двойным щелчком
+    FIsFixed:boolean;    //панель зафиксирована
+    FMinHeight:single;   //минимальная высота окна
+    FMinWidth:single;    //минимальная ширина окна
     FMouseDownSide: TD2DockingMouseDownSide; //активный сплитер
-    FMouseDownPos: TD2Point;                //стартовые координаты мыши в активном сплиттере (нажатие мыши)
-    FOldAlign: TD2DockingAlign;   //расположение панели до раскрытия на все окно
+    FMouseDownPos: TD2Point;                 //стартовые координаты мыши в активном сплиттере (нажатие мыши)
+    FOldAlign: TD2DockingAlign;  //расположение панели до раскрытия на все окно
     FOldFixed:boolean;           //фиксация панели до распрытия на все окно
-    FOldPos: TD2Point;            //положение неприкрепленного окна
-    FOldSize: TD2Point;           //размеры неприкрепленного окна
-    FOnAlignChange:TNotifyEvent;             //прерывание при изменении расположения
-    FOnFixedChange:TNotifyEvent;    //прерывание при нажатии на кнопку фикасации
-    FOnCloseClick:TNotifyEvent;       //прерывание при нажатии на кнопку закрытия
+    FOldPos: TD2Point;           //положение неприкрепленного окна
+    FOldSize: TD2Point;          //размеры неприкрепленного окна
+    FOnAlignChange:TNotifyEvent; //прерывание при изменении расположения
+    FOnFixedChange:TNotifyEvent; //прерывание при нажатии на кнопку фикасации
+    FOnCloseClick:TNotifyEvent;  //прерывание при нажатии на кнопку закрытия
     FShowCloseButton:boolean;    //показать кнопку закрытия
     FShowFixedCheckBox:boolean;  //показать чек бокс фиксации окна
     FShowHeader:boolean;         //показать заголовок
@@ -7595,32 +7593,32 @@ TD2DockingPanel = class(TD2TextControl)
     procedure DoSplitterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single); //нажатие ЛКМ на сплиттере
     procedure DoSplitterMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);   //отпускание ЛКМ на сплиттере
     procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);               //перемещение мыши на сплиттере
-    procedure SetAlign(const Value:TD2DockingAlign);   //установить расположение панели
+    procedure SetAlign(const Value:TD2DockingAlign);     //установить расположение панели
     procedure SetAllowDock(Value:TD2DockingAllowAligns); //установить разрешения на расположение панели
-    procedure SetDragMode (const Value:TD2DragMode);
-    procedure SetIsDockable (const Value:boolean);     //установить/снять разрешение изменять положение
+    procedure SetDragMode (const Value:TD2DragMode);     //установить режим перетаскивания панели
+    procedure SetIsDockable (const Value:boolean);       //установить/снять разрешение изменять положение
     procedure SetIsFixed(const Value:boolean);           //установить/снять фиксацию панели
-    procedure SetMinHeight(const Value:Single);        //установка минимальной высоты панели
-    procedure SetMinWidth(const Value:Single);         //установка минимальной ширины панели
-    procedure SetShowCloseButton(const Value:boolean); //показать/скрыть кнопку закрытия панели
-    procedure SetShowFixedCheck(const Value:boolean);  //показать/скрыть чек бокс фиксации панели
-    procedure SetShowHeader(const Value:boolean);      //показать/скрыть заголовок панели
-    procedure SetTabAutoWidth (const Value:boolean);
+    procedure SetMinHeight(const Value:Single);          //установка минимальной высоты панели
+    procedure SetMinWidth(const Value:Single);           //установка минимальной ширины панели
+    procedure SetShowCloseButton(const Value:boolean);   //показать/скрыть кнопку закрытия панели
+    procedure SetShowFixedCheck(const Value:boolean);    //показать/скрыть чек бокс фиксации панели
+    procedure SetShowHeader(const Value:boolean);        //показать/скрыть заголовок панели
+    procedure SetTabAutoWidth (const Value:boolean);     //установить/снять автоматического подбора ширины закладки
   protected
-    procedure ApplyAlign;  virtual;  //применить размещение
-    procedure ApplyStyle;  override; //применить стиль
-    procedure FreeStyle;  override;  //удалить стиль
-    procedure DesignClick;  override;                     //двойной щелчок по панели в дизайн-моде (изменение фиксации)
-    procedure DesignInsert;  override;
-    procedure DesignSelect;  override;
+    procedure ApplyAlign;  virtual;     //применить размещение
+    procedure ApplyStyle;  override;    //применить стиль
+    procedure FreeStyle;  override;     //удалить стиль
+    procedure DesignClick;  override;   //двойной щелчок по панели в дизайн-моде (изменение фиксации)
+    procedure DesignInsert;  override;  //вставка в дизайн-моде
+    procedure DesignSelect;  override;  //одиночный щелчок щелчок по закладке в дизайн-моде (показать/скрыть панель)
     procedure TabInsert; //вставить закладку на связанном DockingPlace
     procedure TabDelete; //удалить закладку со связанного DockingPlace
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
     procedure SetHeight(const Value:single);  override;   //установить высоту панели
-    procedure SetText(const Value:WideString);  override; overload;  //
+    procedure SetText(const Value:WideString);  override; overload;  //установка отображаемого в заголовке текста
     procedure SetWidth(const Value:single);  override;    //установить ширину панели
     procedure SetVisible(const Value:boolean);  override; //установить видимость панели
-    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override;
+    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override; //установить флаг нахождения указателя мыши над дочерним объектом у родителя; остановить /запустить таймер скрытия панели //Added by GoldenFox
   public
     constructor Create(AOwner: TComponent);  override;  //создать объект
     destructor Destroy;  override;                      //разрушить объект
@@ -7628,68 +7626,69 @@ TD2DockingPanel = class(TD2TextControl)
     procedure Realign;  override;                       //перестроить клиентскую область
     procedure DragMove(Sender: TD2VisualObject; Point: TD2Point);  virtual; //сместить панель
   published
-    property Font;
-    property TextAlign;
-    property Text;
-    property Resource;
-    property AutoTranslate default true;
-    property Align: TD2DockingAlign read FAlign write SetAlign default daNone;
-    property AllowDock: TD2DockingAllowAligns read FAllowDock write SetAllowDock default [daNone, daClient, daBottom, daLeft, daRight, daTop];
-    property DragMode write SetDragMode default d2DragManual;
-    property FreeOnClose:boolean read FFreeOnClose write FFreeOnClose default true;
-    property IsDockable:boolean read FIsDockable write SetIsDockable default true;
-    property IsFixed:boolean read FIsFixed write SetIsFixed default true;
-    property MinHeight:single read FMinHeight write SetMinHeight;
-    property MinWidth:single read FMinWidth write SetMinWidth;
-    property ShowCloseButton:boolean read FShowCloseButton write SetShowCloseButton default true;
-    property ShowFixedCheckBox:boolean read FShowFixedCheckBox write SetShowFixedCheck default true;
-    property ShowHeader:boolean read FShowHeader write SetShowHeader default true;
-    property Tab: TD2VisualObject read FTab write FTab;
-    property TabAutoWidth:boolean read FTabAutoWidth write SetTabAutoWidth default true;
+    property Font;          //имя шрифта
+    property TextAlign;     //выравнивание текста заголовка
+    property Text;          //текст заголовка
+    property Resource;      //имя ресурса
+    property AutoTranslate default true;   //флаг автоматического перевода текста на закладке
+    property Align: TD2DockingAlign read FAlign write SetAlign default daNone;  //выравнивание панели относительно
+    property AllowDock: TD2DockingAllowAligns read FAllowDock write SetAllowDock default [daNone, daClient, daBottom, daLeft, daRight, daTop]; //разрешения на пристыковку панели
+    property DragMode write SetDragMode default d2DragManual;                       //режим перетаскивания панели
+    property FreeOnClose:boolean read FFreeOnClose write FFreeOnClose default true; //true - уничтожать панель при закрытии; false - скрывать при закрытии
+    property IsDockable:boolean read FIsDockable write SetIsDockable default true;  //true - разрешено изменять положение
+    property IsFixed:boolean read FIsFixed write SetIsFixed default true;           //true - панель зафиксирвоана
+    property MinHeight:single read FMinHeight write SetMinHeight;                   //минимальная высота панели
+    property MinWidth:single read FMinWidth write SetMinWidth;                      //минимальная ширина панели
+    property ShowCloseButton:boolean read FShowCloseButton write SetShowCloseButton default true;    //true - показывать кнопку закрытия панели
+    property ShowFixedCheckBox:boolean read FShowFixedCheckBox write SetShowFixedCheck default true; //true - показывать кнопку фиксации панели
+    property ShowHeader:boolean read FShowHeader write SetShowHeader default true;                   //true - показывать заголовок панели
+    property Tab: TD2VisualObject read FTab write FTab;                                              //указатель на связанную закладку
+    property TabAutoWidth:boolean read FTabAutoWidth write SetTabAutoWidth default true;             //true - автоматически подбирать ширину закладки
     property OnAlignChange:TNotifyEvent read FOnAlignChange write FOnAlignChange;  //прерывание измения положения
     property OnCloseClick:TNotifyEvent read FOnCloseClick write FOnCloseClick;     //прерывание нажатия кнопки закрытия
     property OnFixedChange:TNotifyEvent read FOnFixedChange write FOnFixedChange;  //прерывание измения фиксации
   end;
 
-TD2DockingPlace = class(TD2Control)
+TD2DockingPlace = class(TD2Control)   //площадка для размещения перемещаемых панелей
   private
     FAllowDockChildren: TD2DockingAllowAligns; //разрешения на расположение панелей
     FContent: TD2Content;         //ссылка на клиентскую область
     FDragPanel: TD2DockingPanel;  //ссылка на перемещаемую панель
-    FDragRectLeft: TD2Rect;        //область для размещения панели слева
-    FDragRectTop: TD2Rect;         //область для размещения панели сверху
-    FDragRectRight: TD2Rect;       //область для размещения панели справа
-    FDragRectBottom: TD2Rect;      //область для размещения панели снизу
-    FDragRectClient: TD2Rect;      //область для размещения панели как клиента
-    FIndexMaxLeft: integer;           //индекс последней левой закладки
-    FIndexMaxTop: integer;            //индекс последнейверхней закладки
-    FIndexMaxRight: integer;          //индекс последней правой закладки
-    FIndexMaxBottom: integer;         //индекс последней нижней закладки
+    FDragRectLeft: TD2Rect;       //область для размещения панели слева
+    FDragRectTop: TD2Rect;        //область для размещения панели сверху
+    FDragRectRight: TD2Rect;      //область для размещения панели справа
+    FDragRectBottom: TD2Rect;     //область для размещения панели снизу
+    FDragRectClient: TD2Rect;     //область для размещения панели как клиента
+    FIndexMaxLeft: integer;       //индекс последней левой закладки
+    FIndexMaxTop: integer;        //индекс последнейверхней закладки
+    FIndexMaxRight: integer;      //индекс последней правой закладки
+    FIndexMaxBottom: integer;     //индекс последней нижней закладки
     FTabHeight:single;            //высота закладок (или ширина для вертикальных)
-    FBackground: TD2VisualObject;  //ссылка на фон
+    FBackground: TD2VisualObject; //ссылка на фон
     procedure SetAllowDockChildren(Value:TD2DockingAllowAligns); //установить разрешения на расположение панелей
     procedure SetTabHeight(const Value:single);   //установить высоту закладки
-    procedure DoContentDragLeave(Sender: TObject);
-    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject;
+    procedure DoContentDragLeave(Sender: TObject);                            //обработка выхода перемещаемой панели за видимую область площадки
+    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject;  //обработка входа перемещаемой панели в видимую область площадки
                                  const Point: TD2Point);
-    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject;
+    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject;   //обработка нахождения перемещаемой панели над видимой областю площадки
                                 const Point: TD2Point; var Accept:boolean);
   protected
     procedure ApplyStyle;  override;       // применить стиль
     procedure FreeStyle;  override;        // удалить стиль
-
   public
     constructor Create(AOwner: TComponent);  override;  //создать объект
     destructor Destroy;  override;                      //уничтожить объект
-    procedure HideAllPanels(ANotHide: TD2DockingTab);  //скрыть все открытые панели кроме параметра
+    procedure HideAllPanels(ANotHide: TD2DockingTab);   //скрыть все открытые панели кроме указанной в параметре
     function ItemClass: string;  override;              //возвращает класс дочерних элементов
-    procedure Realign;  override;
-    procedure AddObject(AObject: TD2Object);  override;
-    procedure SetDragRects;
+    procedure Realign;  override;                       //перестроить объект
+    procedure AddObject(AObject: TD2Object);  override; //добавить дочерний объект
+    procedure SetDragRects;                             //переопределить области присоединения панелей
   published
-    property Resource;
-    property AllowDockChildren: TD2DockingAllowAligns read FAllowDockChildren write SetAllowDockChildren default [daNone, daClient, daBottom, daLeft, daRight, daTop];
-    property TabHeight:single read FTabHeight write SetTabHeight;
+    property Resource;                                  //имя ресурса
+    property AllowDockChildren: TD2DockingAllowAligns   //разрешеные места присоединения панелей
+               read FAllowDockChildren
+               write SetAllowDockChildren default [daNone, daClient, daBottom, daLeft, daRight, daTop];
+    property TabHeight:single read FTabHeight write SetTabHeight;  //высота закладок
   end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
@@ -7963,7 +7962,7 @@ var
   GvarD2frmDsgnImageList: TfrmDsgnImageList;
   GvarD2BrushDesign: TD2BrushDesign;
 
-  GlobalDisableFocusEffect: boolean = false;
+  GlobalDisableFocusEffect: boolean = false;    //true - глобально отключить анимацию и эффекты при получении фокуса
   CustomTranslateProc: TD2CustomTranslateProc;
 //=============================================================================
 //=============================================================================
