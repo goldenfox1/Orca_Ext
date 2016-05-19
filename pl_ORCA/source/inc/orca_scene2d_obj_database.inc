@@ -1218,6 +1218,37 @@ begin
   FDataController.Reset;
 end;
 
+
+{ TD2GridDataController }
+
+function TD2GridDataController.GetRecordCount: Integer;
+var BM: TBookmark;
+begin
+  //Result := 0;
+  //if Active then
+  //begin
+  //  DataSet.DisableControls;
+  //  try
+  //    BM := DataSet.GetBookmark;
+  //    try
+  //      DataSet.First;
+  //      DataSet.Last;
+  //      //while not DataSet.Eof do
+  //      //begin
+  //      //  Result := Result + 1;
+  //      //  DataSet.Next;
+  //      //end;
+  //      DataSet.GotoBookmark(BM);
+  //    finally
+  //      DataSet.FreeBookmark(BM);
+  //    end;
+  //  finally
+  //    DataSet.EnableControls;
+  //  end;
+    Result:=inherited GetRecordCount;
+  //end;
+end;
+
 //{ TD2GridDataLink }
 //
 //type
@@ -1935,20 +1966,25 @@ var R: Integer;
 begin
   if FDataController.Active then
   begin
-    R:=FDataController.DataSet.RecordCount;
-    //FDataController.BufferCount:=FDataController.DataSet.RecordCount;
-    //RowCount:=FDataController.DataSet.RecordCount;
-    FDataController.BufferCount:=R;
-    RowCount:=R;
-
-    //if FDataController.BufferCount < FDataController.DataSet.RecordCount
-    //  then RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-    //  else RowCount:=FDataController.RecordCount;
+    FDataController.BufferCount:=VisibleRows * 2;
+    if FDataController.BufferCount < FDataController.DataSet.RecordCount then
+      RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+    else
+      RowCount:=FDataController.RecordCount;
   end
-  else begin
-         RowCount:=0;
-         FDataController.BufferCount:=0;
-       end;
+  else RowCount:=0;
+
+  //if FDataController.Active then
+  //begin
+  //  R:=FDataController.DataSet.RecordCount;
+  //  FDataController.BufferCount:=R;
+  //  RowCount:=R;
+  //end
+  //else begin
+  //       RowCount:=0;
+  //       FDataController.BufferCount:=0;
+  //     end;
+
 end;
 
 procedure TD2CustomDBGrid.OnRecordChanged(Field: TField);
@@ -2087,57 +2123,28 @@ end;
 
 function TD2CustomDBGrid.CanEditModify: Boolean;
 begin
-
   Result:=False;
-
   if not ReadOnly and FDataController.Active and not FDataController.Readonly then
   with TD2DBColumn(Columns[ColumnIndex]) do
+  begin
     if (not ReadOnly) and Assigned(Field) then
       Result:=Field.CanModify;
-    //if (not ReadOnly) and Assigned(Field) and Field.CanModify then
-    //begin
-    //  FDataController.Edit;
-    //  Result:=FDataController.Editing;
-    //  if Result then FDataController.Modified:=True;
-    //end;
+    if (not ReadOnly) and Assigned(Field) and Field.CanModify then
+    begin
+      FDataController.Edit;
+      Result:=FDataController.Editing;
+      if Result then FDataController.Modified:=True;
+    end;
+  end;
+end;
+
+procedure TD2CustomDBGrid.HScrollChange(Sender: TObject);
+begin
+  inherited HScrollChange(Sender);
 end;
 
 procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
-//
-//  procedure DoSelection(Direction:integer);
-//  begin
-//    BeginUpdate;
-//    try
-//      FDataController.MoveBy(Direction);
-//    finally
-//      EndUpdate;
-//    end;
-//  end;
-//
-//  procedure NextRow;
-//  begin
-//    with FDataController.Dataset do
-//    begin
-//      if (State=dsInsert) and (not Modified) and (not FDataController.Modified)
-//        then if FDataController.EOF
-//               then Exit
-//               else Cancel
-//        else DoSelection(1);
-//        //if FDataController.EOF and CanModify and (not ReadOnly)
-//        //  then Append;
-//    end;
-//  end;
-//
-//  procedure PriorRow;
-//  begin
-//    with FDataController.Dataset do
-//      if (State=dsInsert) and (not Modified) and
-//          FDataController.EOF and (not FDataController.Modified)
-//        then Cancel
-//        else DoSelection(-1);
-//  end;
-
 begin
   if (FDataController.Active) then
   begin
@@ -2163,10 +2170,6 @@ begin
             else FDataController.Dataset.Cancel;
           SetFocus;
         end;
-      //VK_UP:PriorRow;
-      //VK_DOWN:NextRow;
-      //VK_NEXT:DoSelection(VisibleRows);
-      //VK_PRIOR:DoSelection(-VisibleRows);
       //VK_HOME:
       //  if ssCtrl in Shift
       //    then FDataController.DataSet.First
@@ -2181,7 +2184,6 @@ begin
     end;
     Key:=0;
   end;
-  //inherited;
 end;
 
 procedure TD2CustomDBGrid.Reset;

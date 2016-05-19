@@ -7406,7 +7406,11 @@ TD2DBProgressColumn = class(TD2DBColumn)
                           This part make by GoldenFox
 **********************************************************************}
 
+{ TD2GridDataController }
+
 TD2GridDataController=class(TComponentDataLink)   //невизуальный компонент для связи DBGrid c DataSource
+  protected
+    function  GetRecordCount: Integer; override;
   published
     property DataSource;   //указатель на DataSource
   end;
@@ -7440,7 +7444,8 @@ TD2CustomDBGrid = class(TD2CustomGrid)   //заказной класс сетк�
     function  GetValue(Col, Row: integer): Variant;  override;            //считать из DataSet значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  override; //записать в DataSet значение ячейки в колонке Col строке Row
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //проверка ввода с клавиатуры на соответствие полю TField.ValidChars
-    function  CanEditModify: Boolean;  override;                          //перевести DataSet в режим редактирования. true - переведено в реим редактирования
+    function  CanEditModify: Boolean;  override;          //перевести DataSet в режим редактирования. true - переведено в реим редактирования
+    procedure HScrollChange(Sender: TObject);  override;  //обработка перемещения горизонтального скроллера
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //обработка нажатия клавиш
     procedure Reset;  override;  //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //очистка указателя на DataSource при его удалении
