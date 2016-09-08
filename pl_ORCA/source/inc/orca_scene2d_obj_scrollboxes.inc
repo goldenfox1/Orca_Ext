@@ -15,13 +15,13 @@ end;
 
 function TD2ScrollContent.GetClipRect:TD2Rect;
 begin
-  if (Parent <> nil) and (Parent is TD2ScrollBox) and (TD2ScrollBox(Parent).ContentLayout <> nil) then
+  if (Parent <> nil) and (Parent is TD2CustomScrollBox) and (TD2CustomScrollBox(Parent).ContentLayout <> nil) then
   begin
-    Result:=TD2ScrollBox(Parent).ContentLayout.LocalRect;
-    if (TD2ScrollBox(Parent).VScrollBar <> nil) and (TD2ScrollBox(Parent).VScrollBar.Enabled) then
-      d2OffsetRect(Result,0,TD2ScrollBox(Parent).VScrollBar.Value);
-    if (TD2ScrollBox(Parent).HScrollBar <> nil) and (TD2ScrollBox(Parent).HScrollBar.Enabled) then
-      d2OffsetRect(Result,TD2ScrollBox(Parent).HScrollBar.Value,0);
+    Result:=TD2CustomScrollBox(Parent).ContentLayout.LocalRect;
+    if (TD2CustomScrollBox(Parent).VScrollBar <> nil) and (TD2CustomScrollBox(Parent).VScrollBar.Enabled) then
+      d2OffsetRect(Result,0,TD2CustomScrollBox(Parent).VScrollBar.Value);
+    if (TD2CustomScrollBox(Parent).HScrollBar <> nil) and (TD2CustomScrollBox(Parent).HScrollBar.Enabled) then
+      d2OffsetRect(Result,TD2CustomScrollBox(Parent).HScrollBar.Value,0);
   end
   else
     Result:=inherited GetClipRect;
@@ -49,9 +49,9 @@ begin
   Canvas.SetMatrix(AbsoluteMatrix);
   Canvas.IntersectClipRect(ClipRect);
 
-  if (Parent <> nil) and (Parent is TD2ScrollBox) and (TD2ScrollBox(Parent).ContentLayout <> nil) then
+  if (Parent <> nil) and (Parent is TD2CustomScrollBox) and (TD2CustomScrollBox(Parent).ContentLayout <> nil) then
   begin
-    TD2ScrollBox(Parent).ContentPaint(Canvas,LocalRect);
+    TD2CustomScrollBox(Parent).ContentPaint(Canvas,LocalRect);
   end;
 
   Canvas.RestoreCanvas(State);
@@ -65,17 +65,17 @@ end;
 procedure TD2ScrollContent.AddObject(AObject:TD2Object);
 begin
   inherited;
-  if (Parent <> nil) and (Parent is TD2ScrollBox) then
-    TD2ScrollBox(Parent).ContentAddObject(AObject);
+  if (Parent <> nil) and (Parent is TD2CustomScrollBox) then
+    TD2CustomScrollBox(Parent).ContentAddObject(AObject);
 end;
 
 procedure TD2ScrollContent.RemoveObject(AObject:TD2Object);
 begin
-  if (Parent <> nil) and (Parent is TD2ScrollBox) then
-    TD2ScrollBox(Parent).ContentBeforeRemoveObject(AObject);
+  if (Parent <> nil) and (Parent is TD2CustomScrollBox) then
+    TD2CustomScrollBox(Parent).ContentBeforeRemoveObject(AObject);
   inherited;
-  if (Parent <> nil) and (Parent is TD2ScrollBox) then
-    TD2ScrollBox(Parent).ContentRemoveObject(AObject);
+  if (Parent <> nil) and (Parent is TD2CustomScrollBox) then
+    TD2CustomScrollBox(Parent).ContentRemoveObject(AObject);
 end;
 
 function TD2ScrollContent.GetUpdateRect:TD2Rect;
@@ -84,20 +84,20 @@ begin
   exit;}
   if FRecalcUpdateRect then
   begin
-    if (Parent <> nil) and (Parent is TD2ScrollBox) then
+    if (Parent <> nil) and (Parent is TD2CustomScrollBox) then
     begin
-      if (TD2ScrollBox(Parent).ContentLayout <> nil) then
-        FUpdateRect:=TD2ScrollBox(Parent).ContentLayout.UpdateRect
+      if (TD2CustomScrollBox(Parent).ContentLayout <> nil) then
+        FUpdateRect:=TD2CustomScrollBox(Parent).ContentLayout.UpdateRect
       else
-        FUpdateRect:=TD2ScrollBox(Parent).UpdateRect;
+        FUpdateRect:=TD2CustomScrollBox(Parent).UpdateRect;
     end;
   end;
   Result:=FUpdateRect;
 end;
 
-//=============== TD2ScrollBox ==========================================
+//=============== TD2CustomScrollBox ==========================================
 
-constructor TD2ScrollBox.Create(AOwner:TComponent);
+constructor TD2CustomScrollBox.Create(AOwner:TComponent);
 begin
   inherited;
   AutoCapture:=true;
@@ -112,13 +112,13 @@ begin
   FScrollDuration:=0.7;
 end;
 
-destructor TD2ScrollBox.Destroy;
+destructor TD2CustomScrollBox.Destroy;
 begin
   FContent:=nil;
   inherited;
 end;
 
-procedure TD2ScrollBox.FreeStyle;
+procedure TD2CustomScrollBox.FreeStyle;
 begin
   inherited;
   FContentLayout:=nil;
@@ -126,7 +126,7 @@ begin
   FVScrollBar:=nil;
 end;
 
-procedure TD2ScrollBox.ApplyStyle;
+procedure TD2CustomScrollBox.ApplyStyle;
 var
   B:TD2Object;
 begin
@@ -197,7 +197,7 @@ begin
   FHScrollAni:=nil;
 end;
 
-function TD2ScrollBox.GetContentBounds:TD2Rect;
+function TD2CustomScrollBox.GetContentBounds:TD2Rect;
 var
   i:integer;
   R,LocalR:TD2Rect;
@@ -217,7 +217,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.RealignContent(R:TD2Rect);
+procedure TD2CustomScrollBox.RealignContent(R:TD2Rect);
 begin
   if (FContent <> nil) and (ContentLayout <> nil) then
   begin
@@ -226,7 +226,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.Realign;
+procedure TD2CustomScrollBox.Realign;
  procedure IntAlign;
  var
    R:TD2Rect;
@@ -367,7 +367,7 @@ begin
   end;
 end;
 
-function TD2ScrollBox.ContentRect:TD2Rect;
+function TD2CustomScrollBox.ContentRect:TD2Rect;
 begin
   if ContentLayout <> nil then
     Result:=ContentLayout.ParentedRect
@@ -375,7 +375,7 @@ begin
     Result:=LocalRect;
 end;
 
-function TD2ScrollBox.VScrollBarValue:single;
+function TD2CustomScrollBox.VScrollBarValue:single;
 begin
   if (VScrollBar <> nil) and (VScrollBar.Visible) then
     Result:=VScrollBar.Value
@@ -383,7 +383,7 @@ begin
     Result:=0;
 end;
 
-function TD2ScrollBox.HScrollBarValue:single;
+function TD2CustomScrollBox.HScrollBarValue:single;
 begin
   if (HScrollBar <> nil) and (HScrollBar.Visible) then
     Result:=HScrollBar.Value
@@ -391,7 +391,7 @@ begin
     Result:=0;
 end;
 
-procedure TD2ScrollBox.HScrollChange(Sender:TObject);
+procedure TD2CustomScrollBox.HScrollChange(Sender:TObject);
 begin
   if ContentLayout=nil then Exit;
   if HScrollBar.Visible then
@@ -401,7 +401,7 @@ begin
   FScrollDesign.X:=HScrollBar.Value;
 end;
 
-procedure TD2ScrollBox.VScrollChange(Sender:TObject);
+procedure TD2CustomScrollBox.VScrollChange(Sender:TObject);
 begin
   if ContentLayout=nil then Exit;
   if VScrollBar.Visible then
@@ -411,7 +411,7 @@ begin
   FScrollDesign.Y:=VScrollBar.Value;
 end;
 
-procedure TD2ScrollBox.CreateHScrollAni;
+procedure TD2CustomScrollBox.CreateHScrollAni;
 begin
   if FHScrollAni=nil then
   begin
@@ -425,7 +425,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.CreateVScrollAni;
+procedure TD2CustomScrollBox.CreateVScrollAni;
 begin
   if FVScrollAni=nil then
   begin
@@ -439,7 +439,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.MouseDown(Button:TMouseButton; Shift:TShiftState;
+procedure TD2CustomScrollBox.MouseDown(Button:TMouseButton; Shift:TShiftState;
   X,Y:single);
 begin
   inherited;
@@ -456,7 +456,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
+procedure TD2CustomScrollBox.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
 begin
   inherited;
   if FDown and FMouseTracking then
@@ -475,7 +475,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.MouseUp(Button:TMouseButton; Shift:TShiftState; X,
+procedure TD2CustomScrollBox.MouseUp(Button:TMouseButton; Shift:TShiftState; X,
   Y:single);
 begin
   inherited;
@@ -505,7 +505,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.MouseWheel(Shift:TShiftState; WheelDelta:integer;
+procedure TD2CustomScrollBox.MouseWheel(Shift:TShiftState; WheelDelta:integer;
   var Handled:boolean);
 begin
   inherited;
@@ -539,7 +539,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.AddObject(AObject:TD2Object);
+procedure TD2CustomScrollBox.AddObject(AObject:TD2Object);
 begin
   if (FContent <> nil) and (AObject.TagString <> 'self') and (AObject <> FContent) and (AObject <> FResourceLink) and not (AObject is TD2Effect) and not (AObject is TD2Animation) then
   begin
@@ -549,13 +549,13 @@ begin
     inherited;
 end;
 
-procedure TD2ScrollBox.Loaded;
+procedure TD2CustomScrollBox.Loaded;
 begin
   inherited;
   // ScrollTo(-FScrollDesign.X,-FScrollDesign.Y);
 end;
 
-procedure TD2ScrollBox.Centre;
+procedure TD2CustomScrollBox.Centre;
 begin
   if (VScrollBar <> nil) and (VScrollBar.Visible) then
   begin
@@ -567,7 +567,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.ScrollTo(const Dx,Dy:single);
+procedure TD2CustomScrollBox.ScrollTo(const Dx,Dy:single);
 begin
   if (VScrollBar <> nil) and (VScrollBar.Visible) then
     VScrollBar.Value:=VScrollBar.Value - Dy;
@@ -575,12 +575,12 @@ begin
     HScrollBar.Value:=HScrollBar.Value - Dx;
 end;
 
-procedure TD2ScrollBox.InViewRect(const Rect:TD2Rect);
+procedure TD2CustomScrollBox.InViewRect(const Rect:TD2Rect);
 begin
 
 end;
 
-procedure TD2ScrollBox.SetShowScrollBars(const Value:boolean);
+procedure TD2CustomScrollBox.SetShowScrollBars(const Value:boolean);
 begin
   if FShowScrollBars <> Value then
   begin
@@ -589,7 +589,7 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.SetShowSizeGrip(const Value:boolean);
+procedure TD2CustomScrollBox.SetShowSizeGrip(const Value:boolean);
 begin
   if FShowSizeGrip <> Value then
   begin
@@ -598,28 +598,28 @@ begin
   end;
 end;
 
-procedure TD2ScrollBox.DefineProperties(Filer:TFiler);
+procedure TD2CustomScrollBox.DefineProperties(Filer:TFiler);
 begin
   inherited;
   // Filer.DefineProperty('ScrollDesign',ReadScrollDesign,WriteScrollDesign,(FScrollDesign.X <> 0) and (FScrollDesign.Y <> 0));
 end;
 
-procedure TD2ScrollBox.ReadScrollDesign(Reader:TReader);
+procedure TD2CustomScrollBox.ReadScrollDesign(Reader:TReader);
 begin
   FScrollDesign:=d2StringToPoint(Reader.ReadString);;
 end;
 
-procedure TD2ScrollBox.WriteScrollDesign(Writer:TWriter);
+procedure TD2CustomScrollBox.WriteScrollDesign(Writer:TWriter);
 begin
   Writer.WriteString(d2PointToString(FScrollDesign));
 end;
 
-procedure TD2ScrollBox.ContentPaint(const Canvas:TD2Canvas; const ARect:TD2Rect);
+procedure TD2CustomScrollBox.ContentPaint(const Canvas:TD2Canvas; const ARect:TD2Rect);
 begin
 
 end;
 
-procedure TD2ScrollBox.SetUseSmallScrollBars(const Value:boolean);
+procedure TD2CustomScrollBox.SetUseSmallScrollBars(const Value:boolean);
 begin
   if FUseSmallScrollBars <> Value then
   begin
@@ -628,7 +628,7 @@ begin
   end;
 end;
 
-function TD2ScrollBox.ClientHeight:single;
+function TD2CustomScrollBox.ClientHeight:single;
 begin
   if ContentLayout <> nil then
     Result:=ContentLayout.Height
@@ -636,7 +636,7 @@ begin
     Result:=Height;
 end;
 
-function TD2ScrollBox.ClientWidth:single;
+function TD2CustomScrollBox.ClientWidth:single;
 begin
   if ContentLayout <> nil then
     Result:=ContentLayout.Width
@@ -644,19 +644,16 @@ begin
     Result:=Width;
 end;
 
-procedure TD2ScrollBox.ContentAddObject(AObject:TD2Object);
+procedure TD2CustomScrollBox.ContentAddObject(AObject:TD2Object);
 begin
-
 end;
 
-procedure TD2ScrollBox.ContentRemoveObject(AObject:TD2Object);
+procedure TD2CustomScrollBox.ContentRemoveObject(AObject:TD2Object);
 begin
-
 end;
 
-procedure TD2ScrollBox.ContentBeforeRemoveObject(AObject:TD2Object);
+procedure TD2CustomScrollBox.ContentBeforeRemoveObject(AObject:TD2Object);
 begin
-
 end;
 
 //=============== TD2VertScrollBox ============================================
