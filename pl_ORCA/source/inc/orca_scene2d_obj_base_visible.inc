@@ -1010,7 +1010,7 @@ begin
   Result:=true;
 end;
 
-procedure TD2VisualObject.InvalidateRect(ARect:TD2Rect);
+procedure TD2VisualObject.InvalidateRect(ARect: TD2Rect);
 begin
   if not Visible and (FScene <> nil) and (not FScene.GetDesignTime) then Exit;
   if FScene=nil then Exit;
