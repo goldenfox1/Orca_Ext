@@ -499,6 +499,21 @@ begin
   FSaveData:=TD2Object(Sender).Data;
 end;
 
+procedure TD2Column.DoKillFocus(Sender: TObject);
+begin
+  if TD2Object(Sender).IsVisual then  TD2VisualObject(Sender).CanFocused:=false;
+end;
+
+procedure TD2Column.DoDblClick(Sender: TObject);
+begin
+  if TD2Object(Sender).IsVisual then
+  with TD2VisualObject(Sender) do
+  begin
+    CanFocused:=true;
+    SetFocus;
+  end;
+end;
+
 procedure TD2Column.DoKeyDown(Sender:TObject; var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
@@ -614,8 +629,11 @@ begin
         FCellControls[i].Visible:=false;
         FCellControls[i].Locked:=true;
         FCellControls[i].Stored:=false;
+        FCellControls[i].CanFocused:=false;     //Added By GoldenFox
         FCellControls[i].OnCanFocused:=DoCanFocused;
+        FCellControls[i].OnDblClick:=DoDblClick;
         FCellControls[i].OnEnterFocus:=DoEnterFocus;
+        FCellControls[i].OnKillFocus:=DoKillFocus;
         FCellControls[i].OnKeyDown:=DoKeyDown;
       end;
     end;
@@ -657,12 +675,12 @@ begin
        Grid.IsSelected(Grid.TopRow + i) and		//Added by GoldenFox
       (Grid.ColumnIndex = Index) then			//Added by GoldenFox
     begin
-      FCellControls[i].CanFocused:=true;
+      //FCellControls[i].CanFocused:=true;   //Deleted by GoldenFox
       FCellControls[i].HitTest:=true
     end
     else
     begin
-      FCellControls[i].CanFocused:=false;
+      //FCellControls[i].CanFocused:=false;    //Deleted by GoldenFox
       FCellControls[i].HitTest:=false;
       if FCellControls[i].IsFocused then
         Grid.SetFocus;
@@ -796,6 +814,7 @@ begin
   FOddFill.Free;
   inherited;
 end;
+
 
 function TD2CustomGrid.ItemClass:string;
 begin
@@ -1275,7 +1294,10 @@ begin
         VK_F2:
           begin
             if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+            begin
+              Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
               Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+            end;
           end;
         VK_LEFT:
           begin

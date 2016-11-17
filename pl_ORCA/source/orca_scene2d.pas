@@ -6807,6 +6807,8 @@ TD2ImageCell = class(TD2ImageControl)
   public
   end;
 
+{ TD2Column }
+
 TD2Column = class(TD2Control)
   private
     FGrid: TD2CustomGrid;
@@ -6826,6 +6828,8 @@ TD2Column = class(TD2Control)
     procedure DoTextChanged(Sender: TObject);
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);
     procedure DoEnterFocus(Sender: TObject);
+    procedure DoKillFocus(Sender: TObject);
+    procedure DoDblClick(Sender: TObject);
     procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
     procedure SetWidth(const Value:single);  override; //Added by GoldenFox
   public
