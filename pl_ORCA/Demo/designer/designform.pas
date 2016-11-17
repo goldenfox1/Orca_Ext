@@ -18,19 +18,14 @@ type
   { TfrmDesigner }
 
   TfrmDesigner = class(TForm)
-    Button3: TD2Button;
-    Button4: TD2Button;
     d2SceneDesigner: TD2Scene;
-    DataSource1: TDataSource;
-    DBGrid1: TD2DBGrid;
-    DBTextColumn1: TD2DBTextColumn;
-    DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
+    DesignerRoot: TD2Background;
+    EditorStore: TD2Rectangle;
+    Label2: TD2Label;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
     Label1: TD2Label;
-    EditorStore: TD2Rectangle;
-    Label2: TD2Label;
     SpeedButton1: TD2SpeedButton;
     SpeedButton2: TD2SpeedButton;
     SpeedButton3: TD2SpeedButton;
@@ -38,14 +33,10 @@ type
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
     TrackBar1: TD2TrackBar;
-    OpenDialog1: TOpenDialog;
-    SaveDialog1: TSaveDialog;
     CheckBox1: TD2CheckBox;
     d2SceneInspector: TD2Scene;
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
-    ZConnection1: TZConnection;
-    tbl: TZTable;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -54,8 +45,6 @@ type
     procedure PopupBox2Change(Sender: TObject);
     procedure PopupBox3Change(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
     procedure CheckBox1Change(Sender: TObject);
   private
     { Private declarations }
@@ -81,12 +70,12 @@ end;
 
 procedure TfrmDesigner.Button1Click(Sender: TObject);
 begin
-  DBGrid1.DataController.DataSource:=DataSource1;
+
 end;
 
 procedure TfrmDesigner.Button2Click(Sender: TObject);
 begin
-   DBGrid1.DataController.DataSource:=nil;
+
 end;
 
 procedure TfrmDesigner.SpeedButton3Click(Sender: TObject);
@@ -122,37 +111,6 @@ begin
   TD2Shape(d2SceneDesigner.Selected).StrokeThickness := TrackBar1.Value;
 end;
 
-procedure TfrmDesigner.SpeedButton1Click(Sender: TObject);
-var
-  S: TStream;
-begin
-  if OpenDialog1.Execute then
-  begin
-    S := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
-    try
-      EditorStore.DeleteChildren;
-      EditorStore.LoadFromStream(S);
-    finally
-      S.Free;
-    end;
-  end;
-end;
-
-procedure TfrmDesigner.SpeedButton2Click(Sender: TObject);
-var
-  S: TStream;
-begin
-  SaveDialog1.FileName := OpenDialog1.FileName;
-  if SaveDialog1.Execute then
-  begin
-    S := TFileStream.Create(SaveDialog1.FileName, fmCreate);
-    try
-      EditorStore.SaveToStream(S);
-    finally
-      S.Free;
-    end;
-  end;
-end;
 
 procedure TfrmDesigner.CheckBox1Change(Sender: TObject);
 begin
