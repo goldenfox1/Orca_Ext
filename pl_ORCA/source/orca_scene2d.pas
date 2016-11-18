@@ -6933,6 +6933,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure SetShowHeader(const Value:boolean);       //установить режим отображения заголовков колонок
     procedure SetShowSelectedCell(const Value:boolean); //установить режим отображения выбранной ячейки
   protected
+    procedure DblClick;  override;
     procedure ContentRemoveObject(AObject: TD2Object); override; //удаление дочерних объектов //Adedd by GoldenFox
     procedure ApplyStyle; override; //применить стиль
     procedure FreeStyle; override;  //освободить стиль

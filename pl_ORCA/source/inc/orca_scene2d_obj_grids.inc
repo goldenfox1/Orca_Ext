@@ -501,7 +501,12 @@ end;
 
 procedure TD2Column.DoKillFocus(Sender: TObject);
 begin
-  if TD2Object(Sender).IsVisual then  TD2VisualObject(Sender).CanFocused:=false;
+  if TD2Object(Sender).IsVisual then
+    with TD2VisualObject(Sender) do
+    begin
+      CanFocused:=false;
+      HitTest:=false;
+    end;
 end;
 
 procedure TD2Column.DoDblClick(Sender: TObject);
@@ -520,7 +525,10 @@ begin
   if (KeyChar <> #0) and (Grid <> nil) and not Grid.CanEditAcceptKey(KeyChar) then
     KeyChar:=#0;
   if (Key=VK_RETURN) and (Grid <> nil) then
+  begin
+    Key:=VK_UNKNOWN;
     Grid.SetFocus;
+  end;
   if (Key=VK_ESCAPE) and (Grid <> nil) then
   begin
     FDisableChange:=true;
@@ -529,6 +537,7 @@ begin
     finally
       FDisableChange:=false;
     end;
+    Key:=VK_UNKNOWN;
     Grid.Reset;
   end;
   if (Key=VK_UP) or (Key=VK_DOWN) and (Grid <> nil) then
@@ -676,7 +685,7 @@ begin
       (Grid.ColumnIndex = Index) then			//Added by GoldenFox
     begin
       //FCellControls[i].CanFocused:=true;   //Deleted by GoldenFox
-      FCellControls[i].HitTest:=true
+      //FCellControls[i].HitTest:=true
     end
     else
     begin
@@ -1286,6 +1295,8 @@ begin
       begin
         if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
         begin
+          Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
+          Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
           Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
           TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
@@ -1295,6 +1306,7 @@ begin
           begin
             if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
             begin
+              HitTest:=true;
               Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
               Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
             end;
@@ -1799,6 +1811,17 @@ begin
   begin
     FShowSelectedCell:=Value;
     UpdateSelection;
+  end;
+end;
+
+procedure TD2CustomGrid.DblClick;
+begin
+  inherited DblClick;
+  if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+  begin
+    Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
+    Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
+    Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
   end;
 end;
 
