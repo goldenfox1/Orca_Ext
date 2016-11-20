@@ -1222,7 +1222,7 @@ end;
 { TD2GridDataController }
 
 function TD2GridDataController.GetRecordCount: Integer;
-var BM: TBookmark;
+//var BM: TBookmark;
 begin
   //Result := 0;
   //if Active then
@@ -1962,7 +1962,7 @@ begin
 end;
 
 procedure TD2CustomDBGrid.UpdateRowCount;
-var R: Integer;
+//var R: Integer;
 begin
   if FDataController.Active then
   begin
