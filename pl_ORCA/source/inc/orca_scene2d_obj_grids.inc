@@ -520,10 +520,10 @@ end;
 
 //=============== TD2CheckColumn ================================================
 
-constructor TD2CheckColumn.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
+//constructor TD2CheckColumn.Create(AOwner:TComponent);
+//begin
+//  inherited;
+//end;
 
 function TD2CheckColumn.CreateCellControl:TD2Control;
 begin
@@ -585,10 +585,10 @@ end;
 
 //=============== TD2ImageColumn =============================================
 
-constructor TD2ImageColumn.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
+//constructor TD2ImageColumn.Create(AOwner:TComponent);
+//begin
+//  inherited;
+//end;
 
 function TD2ImageColumn.CreateCellControl:TD2Control;
 begin

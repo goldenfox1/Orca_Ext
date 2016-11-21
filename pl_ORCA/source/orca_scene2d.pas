@@ -6837,7 +6837,7 @@ TD2CheckColumn = class(TD2Column)
   private
     procedure DoCheckChanged(Sender: TObject);
   public
-    constructor Create(AOwner: TComponent);  override;
+    //constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
   end;
 
@@ -6870,7 +6870,7 @@ TD2PopupColumn = class(TD2Column)
 TD2ImageColumn = class(TD2Column)
   private
   public
-    constructor Create(AOwner: TComponent);  override;
+    //constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
   end;
 
@@ -6880,7 +6880,7 @@ TD2ImageColumn = class(TD2Column)
 
 { TD2CustomGrid }
 
-TD2CustomGrid = class(TD2CustomScrollBox)
+TD2CustomGrid = class(TD2CustomScrollBox)   //базовый класс сетки описывающий все поля и свойства
   private
     FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
     FMultiSelect:boolean;              //флаг разрешения множественного выбора
@@ -7406,7 +7406,9 @@ TD2CustomDBGrid = class(TD2CustomGrid)   //заказной класс сетк�
     property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
-TD2DBGrid = class(TD2CustomDBGrid)       //класс сетки для отображения данных из базы данных
+{ TD2DBGrid }
+
+TD2DBGrid = class(TD2CustomDBGrid)       //заказной класс сетки для отображения данных из базы данных
   published
     property DataController;             //указатель на DataController
     property AutoHide;                   //автоматически скрывать скроллеры
@@ -7427,6 +7429,32 @@ TD2DBGrid = class(TD2CustomDBGrid)       //класс сетки для отоб
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
+end;
+
+
+{ TD2TGColumn }
+
+TD2TGColumn = class(TD2Column)
+  private
+  protected
+    function CreateCellControl: TD2Control;  override;
+  public
+  published
+  end;
+
+{ TD2CustomTreeGrid }
+
+TD2CustomTreeGrid = class(TD2CustomGrid)   //класс дерева описывающий все поля и свойства
+  public
+    constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
+    //destructor Destroy;  override;                      //уничтожить экземпляр объекта
+    function ItemClass: string;  override;              //список классов колонок для дизайнера
+end;
+
+{ TD2TreeGrid }
+
+TD2TreeGrid = class(TD2CustomTreeGrid)       //заказной класс сетки для отображения данных из базы данных
+
 end;
 
 type
@@ -10465,6 +10493,7 @@ end;
 {$I orca_scene2d_obj_database.inc}
 {$I orca_scene2d_obj_docking.inc} //Added by GoldenFox
 {$I orca_scene2d_obj_virtualtrees.inc} //Added by GoldenFox
+{$I orca_scene2d_obj_treegrid.inc}     //Added by GoldenFox
 
 //==============================================================
 //==============================================================
@@ -10553,7 +10582,7 @@ initialization
   Registerd2Objects('Items', [TD2ListBoxItem, TD2ImageListBoxItem,TD2TreeViewItem,
                               TD2TabItem, TD2HudTabItem, TD2HeaderItem]);
 
-  Registerd2Objects('Trees', [TD2TreeView]);
+  Registerd2Objects('Trees', [TD2TreeView, TD2TreeGrid]);
 
 
   Registerd2Objects('Text Edits', [TD2TextBox, TD2RoundTextBox, TD2NumberBox, TD2SpinBox, TD2ComboTextBox, TD2ComboTrackBar, TD2TextBoxClearBtn]);

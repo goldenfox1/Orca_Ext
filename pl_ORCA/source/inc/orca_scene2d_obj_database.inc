@@ -2313,7 +2313,7 @@ begin
   FDataController.OnDataSetChanged:=nil;
   FDataController.OnRecordChanged:=nil;
   FDataController.Free;
-  inherited Destroy;
+  inherited;
 end;
 
 function TD2CustomDBGrid.ItemClass: string;
