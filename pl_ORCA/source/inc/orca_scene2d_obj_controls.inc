@@ -454,20 +454,20 @@ end;
 
 //=============== TD2Content =========================================
 
-constructor TD2Content.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
+//constructor TD2Content.Create(AOwner:TComponent);
+//begin
+//  inherited;
+//end;
+//
+//destructor TD2Content.Destroy;
+//begin
+//  inherited;
+//end;
 
-destructor TD2Content.Destroy;
-begin
-  inherited;
-end;
-
-function TD2Content.GetParentComponent:TComponent;
-begin
-  Result:=inherited GetParentComponent;
-end;
+//function TD2Content.GetParentComponent:TComponent;
+//begin
+//  Result:=inherited GetParentComponent;
+//end;
 
 procedure TD2Content.Realign;
 begin
@@ -482,10 +482,10 @@ begin
   end;
 end;
 
-procedure TD2Content.Paint;
-begin
-  inherited;
-end;     
+//procedure TD2Content.Paint;
+//begin
+//  inherited;
+//end;     
 
 
 //=============== TD2DropTarget ====================================

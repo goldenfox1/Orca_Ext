@@ -1997,16 +1997,16 @@ TD2Background = class(TD2Control)
   end;
 
 TD2Content = class(TD2VisualObject)
-  private
+  //private
   protected
     FParentAligning:boolean;
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function GetParentComponent: TComponent;  override;
+    //constructor Create(AOwner: TComponent);  override;
+    //destructor Destroy;  override;
+    //function GetParentComponent: TComponent;  override;
     procedure Realign;  override;
-    procedure Paint;  override;
-  published
+    //procedure Paint;  override;
+  //published
   end;
 
 TD2Resources = class(TComponent)
