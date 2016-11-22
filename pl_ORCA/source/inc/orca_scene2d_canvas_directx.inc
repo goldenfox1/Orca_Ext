@@ -107,19 +107,6 @@ begin
   if IUnknown(i) <> nil then IUnknown(i):= nil;
 end;
 
-{ TD2CustomTreeGrid }
-
-constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
-begin
-  inherited;
-  FResource:='gridstyle';
-end;
-
-function TD2CustomTreeGrid.ItemClass: string;
-begin
-  Result:='TD2TGTextColumn;TD2TGCheckColumn;TD2TGPopupColumn;TD2TGImageColumn;TD2TGProgressColumn';
-end;
-
 //==================== TD2FilterWIC =======================================
 
 class function TD2FilterWIC.GetFileTypes:string;

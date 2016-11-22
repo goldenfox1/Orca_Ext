@@ -6770,28 +6770,28 @@ TD2Header = class(TD2Control)
   end;
 
 TD2TextCell = class(TD2TextBox)
-  private
-  end;
+  //private
+end;
 
 TD2CheckCell = class(TD2CheckBox)
-  private
-  public
-  end;
+  //private
+  //public
+end;
 
 TD2ProgressCell = class(TD2ProgressBar)
-  private
-  public
-  end;
+  //private
+  //public
+end;
 
 TD2PopupCell = class(TD2PopupBox)
-  private
-  public
-  end;
+  //private
+  //public
+end;
 
 TD2ImageCell = class(TD2ImageControl)
-  private
-  public
-  end;
+  //private
+  //public
+end;
 
 { TD2Column }
 
@@ -7432,6 +7432,59 @@ TD2DBGrid = class(TD2CustomDBGrid)       //заказной класс сетк�
 end;
 
 
+{ TD2TreeGridCell }
+TD2CustomTreeGrid = class;
+
+TD2TreeGridCell = class(TD2Control)
+  private
+
+    FButton: TD2CustomButton;     //указатель на кнопку разворачивания узла
+    FCheck: TD2CheckBox;          //указатель на чекбокс
+    FContent: TD2Content;         //указатель на клиентскую область
+    FTreeGrid: TD2CustomTreeGrid; //указатель на TreeGrid
+    FIsChecked: boolean;          //true - чекбокс отмечен
+    FIsExpanded: boolean;         //true - узел развернут
+
+    procedure DoButtonClick(Sender: TObject);
+    procedure DoCheckClick(Sender: TObject);
+    function GetHaveChildren: boolean;     //получить кол-во дочерних узлов
+    //function GetItem(Index: integer): TD2TreeViewItem;
+    procedure SetIsChecked(const Value:boolean);
+    procedure SetIsExpanded(const Value:boolean);
+    //procedure SetIsSelected(const Value:boolean);
+    //procedure UpdateCheck;
+
+
+  protected
+    //procedure DesignClick;  override;
+    procedure ApplyStyle;  override;
+    procedure FreeStyle;  override;
+    //procedure DragEnd;  override;
+    //function EnterFocusChildren(AObject: TD2VisualObject):boolean;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    //procedure Paint;  override;
+    //procedure Realign;  override;
+    //procedure AddObject(AObject: TD2Object);  override;
+    //procedure RemoveObject(AObject: TD2Object);  override;
+    //function ItemByPoint(const X, Y:single): TD2TreeViewItem;
+    //function ItemByIndex(const Idx: integer): TD2TreeViewItem;
+    //property GlobalIndex: integer read FGlobalIndex write FGlobalIndex;
+
+    //function Level:integer;
+    //property Items[Index: integer]: TD2TreeViewItem read GetItem;
+    property IsChecked: boolean read FIsChecked write SetIsChecked;
+    property IsExpanded: boolean read FIsExpanded write SetIsExpanded;
+    property IsHaveChildren: boolean read GetHaveChildren;
+    property TreeGrid: FTreeGrid;
+    //property IsSelected: boolean read FIsSelected write SetIsSelected;
+    //property AutoTranslate  default true;
+    //property Font;
+    //property Resource;
+    //property Text;
+    //property TextAlign  default d2TextAlignNear;
+  end;
+
 { TD2TGColumn }
 
 TD2TGColumn = class(TD2Column)
@@ -7440,15 +7493,21 @@ TD2TGColumn = class(TD2Column)
     function CreateCellControl: TD2Control;  override;
   public
   published
-  end;
+end;
 
 { TD2CustomTreeGrid }
 
 TD2CustomTreeGrid = class(TD2CustomGrid)   //класс дерева описывающий все поля и свойства
+  private
+    FOnChangeCheck:TNotifyEvent;
+    FShowCheckboxes: boolean;
+    procedure SetShowCheckboxes(const Value:boolean);
   public
     constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
     //destructor Destroy;  override;                      //уничтожить экземпляр объекта
     function ItemClass: string;  override;              //список классов колонок для дизайнера
+    property OnChangeCheck:TNotifyEvent read FOnChangeCheck write FOnChangeCheck;
+    property ShowCheckboxes: boolean read FShowCheckboxes write SetShowCheckboxes  default false;
 end;
 
 { TD2TreeGrid }
