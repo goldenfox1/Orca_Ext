@@ -862,7 +862,7 @@ procedure TD2CustomTextBox.SetText(const Value:String);
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
-  SetText(ss);
+  SetTextW(ss);
 end;
 
 Function TD2CustomTextBox.GetTextW:WideString;
