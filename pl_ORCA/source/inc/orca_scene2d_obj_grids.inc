@@ -278,21 +278,7 @@ end;
 
 function TD2Column.CreateCellControl:TD2Control;
 begin
-  Result:=TD2TextCell.Create(Self);
-  TD2TextCell(Result).OnChange:=DoTextChanged;
-end;
-
-procedure TD2Column.DoTextChanged(Sender:TObject);
-begin
-  if Grid=nil then Exit;
-  if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
-  begin
-    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(Grid.FOnEdititingDone) then
-      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
-  end;
+  Result:=nil;
 end;
 
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
@@ -518,12 +504,27 @@ begin
   end;
 end;
 
-//=============== TD2CheckColumn ================================================
+//=============== TD2TextColumn ================================================
+function TD2TextColumn.CreateCellControl:TD2Control;
+begin
+  Result:=TD2TextCell.Create(Self);
+  TD2TextCell(Result).OnChange:=DoTextChanged;
+  TD2TextCell(Result).Resource:='';
+end;
 
-//constructor TD2CheckColumn.Create(AOwner:TComponent);
-//begin
-//  inherited;
-//end;
+procedure TD2TextColumn.DoTextChanged(Sender:TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+//=============== TD2CheckColumn ================================================
 
 function TD2CheckColumn.CreateCellControl:TD2Control;
 begin

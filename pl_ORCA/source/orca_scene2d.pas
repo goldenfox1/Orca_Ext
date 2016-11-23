@@ -6770,27 +6770,18 @@ TD2Header = class(TD2Control)
   end;
 
 TD2TextCell = class(TD2TextBox)
-  //private
 end;
 
 TD2CheckCell = class(TD2CheckBox)
-  //private
-  //public
 end;
 
 TD2ProgressCell = class(TD2ProgressBar)
-  //private
-  //public
 end;
 
 TD2PopupCell = class(TD2PopupBox)
-  //private
-  //public
 end;
 
 TD2ImageCell = class(TD2ImageControl)
-  //private
-  //public
 end;
 
 { TD2Column }
@@ -6811,7 +6802,6 @@ TD2Column = class(TD2Control)
     procedure UpdateSelected;
     procedure ClearColumn;
     function CreateCellControl: TD2Control;  virtual;
-    procedure DoTextChanged(Sender: TObject);
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);
     procedure DoEnterFocus(Sender: TObject);
     procedure DoKillFocus(Sender: TObject);
@@ -6831,13 +6821,15 @@ TD2Column = class(TD2Control)
   end;
 
 TD2TextColumn = class(TD2Column)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoTextChanged(Sender: TObject);
   end;
 
 TD2CheckColumn = class(TD2Column)
   private
     procedure DoCheckChanged(Sender: TObject);
   public
-    //constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
   end;
 
@@ -7435,62 +7427,67 @@ end;
 { TD2TreeGridCell }
 TD2CustomTreeGrid = class;
 
-TD2TreeGridCell = class(TD2Control)
+TOnChangeCheck = procedure(Sender: TD2Control) of object;
+TOnGetHaveChildren  = function(Sender: TD2Control): boolean of object;
+
+TD2TreeCell = class(TD2Control)
   private
 
-    FButton: TD2CustomButton;     //указатель на кнопку разворачивания узла
     FCheck: TD2CheckBox;          //указатель на чекбокс
+    FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
     FContent: TD2Content;         //указатель на клиентскую область
-    FTreeGrid: TD2CustomTreeGrid; //указатель на TreeGrid
+    FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
     FIsChecked: boolean;          //true - чекбокс отмечен
     FIsExpanded: boolean;         //true - узел развернут
 
-    procedure DoButtonClick(Sender: TObject);
+    FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
+    FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
+
+    procedure DoExpanderClick(Sender: TObject);
     procedure DoCheckClick(Sender: TObject);
     function GetHaveChildren: boolean;     //получить кол-во дочерних узлов
-    //function GetItem(Index: integer): TD2TreeViewItem;
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsExpanded(const Value:boolean);
-    //procedure SetIsSelected(const Value:boolean);
-    //procedure UpdateCheck;
-
-
   protected
+              //рекация на двойной клик в дизайнмоде
     //procedure DesignClick;  override;
-    procedure ApplyStyle;  override;
-    procedure FreeStyle;  override;
-    //procedure DragEnd;  override;
-    //function EnterFocusChildren(AObject: TD2VisualObject):boolean;  override;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    //procedure Paint;  override;
-    //procedure Realign;  override;
-    //procedure AddObject(AObject: TD2Object);  override;
-    //procedure RemoveObject(AObject: TD2Object);  override;
-    //function ItemByPoint(const X, Y:single): TD2TreeViewItem;
-    //function ItemByIndex(const Idx: integer): TD2TreeViewItem;
-    //property GlobalIndex: integer read FGlobalIndex write FGlobalIndex;
 
-    //function Level:integer;
-    //property Items[Index: integer]: TD2TreeViewItem read GetItem;
-    property IsChecked: boolean read FIsChecked write SetIsChecked;
-    property IsExpanded: boolean read FIsExpanded write SetIsExpanded;
-    property IsHaveChildren: boolean read GetHaveChildren;
-    property TreeGrid: FTreeGrid;
-    //property IsSelected: boolean read FIsSelected write SetIsSelected;
-    //property AutoTranslate  default true;
-    //property Font;
-    //property Resource;
-    //property Text;
-    //property TextAlign  default d2TextAlignNear;
+              //применить стиль
+    procedure ApplyStyle;  override;
+              //освободить стиль
+    procedure FreeStyle;  override;
+  public
+              //дбавить дочерний объект
+    procedure AddObject(AObject: TD2Object);  override;
+               //уничтожить экземпляр объекта
+    destructor Destroy;  override;
+    property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
+    property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
+    property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
+    property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck; //обработчик прерывания изменения состояния отметки
+    property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;  // обработчик прерывания получения флага наличия детей
   end;
 
 { TD2TGColumn }
 
-TD2TGColumn = class(TD2Column)
+TD2TreeColumn = class(TD2Column)
   private
   protected
+             //Виртуальный метод определяемый в потомках. Создает ячейку
     function CreateCellControl: TD2Control;  override;
+  public
+  published
+end;
+
+{ TD2TGTextColumn }
+
+TD2TreeTextColumn = class(TD2TreeColumn)
+  private
+  protected
+             //Создает текстовую ячейку
+    function CreateCellControl: TD2Control;  override;
+             //обработка изменения текста в ячейке
+    procedure DoTextChanged(Sender: TObject);
   public
   published
 end;
@@ -10578,7 +10575,7 @@ initialization
                    TD2Bitmap, TD2PathData, TD2Brush, TD2Bounds, TD2Position, TD2Gradient, TD2GradientPoints,
                    TD2GradientPoint, TD2Visual, TD2Resources, TD2Object, TD2Content, TD2Control,
                    TD2WideStrings, TD2WideStringList, TD2SelectionItem, TD2Thumb, TD2ExpanderButton,
-                   TD2StringColumn, TD2TextCell, TD2CheckCell, TD2ProgressCell, TD2PopupCell,
+                   TD2StringColumn, {TD2TextCell, TD2CheckCell, TD2ProgressCell, TD2PopupCell,}
                    TD2NavButton, TD2DBColumn, TD2DBCheckColumn, TD2DBPopupColumn,
                    TD2DBImageColumn, TD2DBProgressColumn,
 {**************************************************************************************************

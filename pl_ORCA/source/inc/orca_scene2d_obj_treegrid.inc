@@ -6,31 +6,29 @@
  for CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
-{ TD2TreeGridCell }
+{ TD2TreeCell }
 
-procedure TD2TreeGridCell.DoButtonClick(Sender: TObject);
+procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
 begin
   IsExpanded:=not IsExpanded;
 end;
 
-procedure TD2TreeGridCell.DoCheckClick(Sender: TObject);
+procedure TD2TreeCell.DoCheckClick(Sender: TObject);
 begin
   if FCheck <> nil then
     FIsChecked:=FCheck.IsChecked;
-  if TreeGrid <> nil then
-  begin
-    TreeGrid.SetFocus;
-    //if Assigned(TreeGrid.OnChangeCheck) then
-    //  TreeGrid.OnChangeCheck(Self);
-  end;
+  if Assigned(FOnChangeCheck) then
+    FOnChangeCheck(Self);
 end;
 
-function TD2TreeGridCell.GetHaveChildren: boolean;
+function TD2TreeCell.GetHaveChildren: boolean;
 begin
-
+  if Assigned(FOnGetHaveChildren)
+    then Result:=FOnGetHaveChildren(Self)
+    else Result:=false;
 end;
 
-procedure TD2TreeGridCell.SetIsChecked(const Value: boolean);
+procedure TD2TreeCell.SetIsChecked(const Value: boolean);
 begin
   if FIsChecked <> Value then
   begin
@@ -40,37 +38,36 @@ begin
   end;
 end;
 
-procedure TD2TreeGridCell.SetIsExpanded(const Value: boolean);
+procedure TD2TreeCell.SetIsExpanded(const Value: boolean);
 begin
   if FIsExpanded <> Value then
   begin
     FIsExpanded:=Value;
-    if (FButton <> nil) and not (csLoading in ComponentState) then
+    if (FExpander <> nil) and not (csLoading in ComponentState) then
     begin
-      FButton.Visible:=GetHaveChildren;
-      if FButton.Visible then
-        FButton.StartTriggerAnimation(Self,'IsExpanded');
+      FExpander.Visible:=GetHaveChildren;
+      if FExpander.Visible then
+        FExpander.StartTriggerAnimation(Self,'IsExpanded');
     end;
-    if TreeGrid <> nil then
-      TreeGrid.Realign;
   end;
 end;
 
-procedure TD2TreeGridCell.ApplyStyle;
+procedure TD2TreeCell.ApplyStyle;
 var
   B:TD2Object;
 begin
   inherited;
-  B:=FindResource('button');
+
+  B:=FindResource('expander');
   if (B <> nil) and (B is TD2CustomButton) then
   begin
-    FButton:=TD2CustomButton(B);
-    FButton.OnClick:=DoButtonClick;
-    FButton.Visible:=GetHaveChildren;
-    if FButton.Visible then
+    FExpander:=TD2CustomButton(B);
+    FExpander.OnClick:=DoExpanderClick;
+    FExpander.Visible:=GetHaveChildren;
+    if FExpander.Visible then
     begin
-      FButton.ApplyResource;
-      FButton.StartTriggerAnimation(Self,'IsExpanded');
+      FExpander.ApplyResource;
+      FExpander.StartTriggerAnimation(Self,'IsExpanded');
     end;
   end;
   B:=FindResource('check');
@@ -79,34 +76,68 @@ begin
     FCheck:=TD2CheckBox(B);
     FCheck.IsChecked:=IsChecked;
     FCheck.OnChange:=DoCheckClick;
-    if TreeGrid <> nil then
-      FCheck.Visible:=TreeGrid.ShowCheckboxes;
   end;
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Content) then
-  begin
     FContent:=TD2Content(B);
-  end;
   StartTriggerAnimation(Self,'IsSelected');
 end;
 
-procedure TD2TreeGridCell.FreeStyle;
+procedure TD2TreeCell.FreeStyle;
 begin
   inherited;
-  FButton:=nil;
-  FCheck:=nil;
+  if FControl<>nil then FControl.Parent:=Self;
   FContent:=nil;
+  FExpander:=nil;
+  FCheck:=nil;
 end;
 
-constructor TD2TreeGridCell.Create(AOwner: TComponent);
+procedure TD2TreeCell.AddObject(AObject: TD2Object);
 begin
   inherited;
+  if (FContent<> nil) and (AObject is TD2Control) then
+  begin
+    TD2Control(AObject).Parent:=FContent;
+    TD2Control(AObject).Align:=vaClient;
+    TD2Control(AObject).Visible:=true;
+  end;
 end;
 
-function TD2TreeGridCell.TreeGrid: TD2CustomTreeGrid;
+destructor TD2TreeCell.Destroy;
 begin
-
+  FreeAndNil(FControl);
+  inherited Destroy;
 end;
+
+{ TD2TreeColumn }
+
+function TD2TreeColumn.CreateCellControl: TD2Control;
+begin
+  Result:=TD2TreeCell.Create(Self);
+end;
+
+{ TD2TreeTextColumn }
+
+function TD2TreeTextColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2TreeCell(Result).FControl:=TD2TextCell.Create(Result);
+  TD2TextCell(TD2TreeCell(Result).FControl).OnChange:=DoTextChanged;
+end;
+
+procedure TD2TreeTextColumn.DoTextChanged(Sender: TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
 
 { TD2CustomTreeGrid }
 
@@ -123,12 +154,7 @@ end;
 
 function TD2CustomTreeGrid.ItemClass: string;
 begin
-  Result:='TD2TGTextColumn;TD2TGCheckColumn;TD2TGPopupColumn;TD2TGImageColumn;TD2TGProgressColumn';
+  Result:='TD2TreeTextColumn;TD2TreeCheckColumn;TD2TreePopupColumn;TD2TreeImageColumn;TD2TreeProgressColumn';
 end;
 
-{ TD2TGColumn }
 
-function TD2TGColumn.CreateCellControl: TD2Control;
-begin
-  inherited;
-end;

@@ -84,11 +84,11 @@ begin
 end;
 
 procedure TD2CustomVirtualTreeOptions.SetPaintOptions(const Value: TD2VTPaintOptions);
-var
-  ToBeSet,
-  ToBeCleared: TD2VTPaintOptions;
-  Run: PD2VirtualNode;
-  HandleWasAllocated: Boolean;
+//var
+  //ToBeSet,
+  //ToBeCleared: TD2VTPaintOptions;
+  //Run: PD2VirtualNode;
+  //HandleWasAllocated: Boolean;
 begin
   //if FPaintOptions <> Value then
   //begin
@@ -178,9 +178,9 @@ begin
 end;
 
 procedure TD2CustomVirtualTreeOptions.SetSelectionOptions(const Value: TD2VTSelectionOptions);
-var
-  ToBeSet,
-  ToBeCleared: TD2VTSelectionOptions;
+//var
+  //ToBeSet,
+  //ToBeCleared: TD2VTSelectionOptions;
 
 begin
   //if FSelectionOptions <> Value then
@@ -1511,9 +1511,9 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.SetTopNode(Node: PD2VirtualNode);
-var
-  R: TRect;
-  Run: PD2VirtualNode;
+//var
+  //R: TRect;
+  //Run: PD2VirtualNode;
 begin
   //if Assigned(Node) then
   //begin
@@ -2786,9 +2786,9 @@ function TD2BaseVirtualTree.InternalGetNodeAt(X, Y: Single; Relative: Boolean; v
 // NodeTop gets the absolute or relative top position of the node returned or is untouched if no node
 // could be found.
 
-var
-  AbsolutePos,
-  CurrentPos: Cardinal;
+//var
+  //AbsolutePos,
+  //CurrentPos: Cardinal;
 
 begin
   //if Y < 0 then
@@ -6449,7 +6449,7 @@ end;
 procedure TD2BaseVirtualTree.InvalidateColumn(Column: TD2ColumnIndex);
 //Пометить недействительной видимую область колоннки Column.
 // Invalidates the client area part of a column.
-var R: TD2Rect;
+//var R: TD2Rect;
 begin
   //if (FUpdateCount = 0) and HandleAllocated and FHeader.FColumns.IsValidColumn(Column) then
   //begin
@@ -6481,8 +6481,8 @@ procedure TD2BaseVirtualTree.InvalidateToBottom(Node: PD2VirtualNode);
 // Initiates repaint of client area starting at given node. If this node is not visible or not yet initialized
 // then nothing happens.
 
-var
-  R: TD2Rect;
+//var
+  //R: TD2Rect;
 
 begin
 //  if (FUpdateCount = 0) and HandleAllocated then
@@ -7104,10 +7104,10 @@ function TD2BaseVirtualTree.ScrollIntoView(Column: TD2ColumnIndex;
 //иначе возвращает False.
 // Scrolls the columns so that the given column is in the client area and returns True if the columns really have been
 // scrolled (e.g. to avoid further updates) else returns False.
-var
-  ColumnLeft,
-  ColumnRight: Integer;
-  NewOffset: Integer;
+//var
+  //ColumnLeft,
+  //ColumnRight: Integer;
+  //NewOffset: Integer;
 
 begin
   //Result := False;
@@ -7164,13 +7164,13 @@ function TD2BaseVirtualTree.ScrollIntoView(Node: PD2VirtualNode;
 // If extened focus is enabled then the tree will also be horizontally scrolled if needed.
 // Note: All collapsed parents of the node are expanded.
 
-var
-  R: TRect;
-  Run: PD2VirtualNode;
-  UseColumns,
-  HScrollBarVisible: Boolean;
-  ScrolledVertically,
-  ScrolledHorizontally: Boolean;
+//var
+  //R: TRect;
+  //Run: PD2VirtualNode;
+  //UseColumns,
+  //HScrollBarVisible: Boolean;
+  //ScrolledVertically,
+  //ScrolledHorizontally: Boolean;
 
 begin
   ////todo: minimize calls to ClientHeight and ClientWidth
