@@ -637,7 +637,7 @@ end;
 
 function TD2CustomGrid.ItemClass:string;
 begin
-  Result:='TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
+  Result:='TD2TreeColumn;TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
 end;
 
 procedure TD2CustomGrid.FreeStyle;

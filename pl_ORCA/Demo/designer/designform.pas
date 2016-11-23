@@ -18,25 +18,27 @@ type
   { TfrmDesigner }
 
   TfrmDesigner = class(TForm)
+    CheckBox1: TD2CheckBox;
     d2SceneDesigner: TD2Scene;
+    d2SceneInspector: TD2Scene;
     d2Toolbar: TD2Scene;
     DesignerRoot: TD2Background;
     EditorStore: TD2Rectangle;
-    Label2: TD2Label;
-    Root2: TD2Background;
-    Rectangle1: TD2Rectangle;
+    GroupBox1: TD2GroupBox;
     Label1: TD2Label;
-    SpeedButton1: TD2SpeedButton;
-    SpeedButton2: TD2SpeedButton;
-    SpeedButton3: TD2SpeedButton;
+    Label2: TD2Label;
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
-    TrackBar1: TD2TrackBar;
-    CheckBox1: TD2CheckBox;
-    d2SceneInspector: TD2Scene;
+    Rectangle1: TD2Rectangle;
+    Resources1: TD2Resources;
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
+    Root2: TD2Background;
+    SpeedButton1: TD2SpeedButton;
+    SpeedButton2: TD2SpeedButton;
+    SpeedButton3: TD2SpeedButton;
+    TrackBar1: TD2TrackBar;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);

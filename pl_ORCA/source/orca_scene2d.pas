@@ -6802,11 +6802,11 @@ TD2Column = class(TD2Control)
     procedure UpdateSelected;
     procedure ClearColumn;
     function CreateCellControl: TD2Control;  virtual;
-    procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);
-    procedure DoEnterFocus(Sender: TObject);
-    procedure DoKillFocus(Sender: TObject);
-    procedure DoDblClick(Sender: TObject);
-    procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
+    procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
+    procedure DoEnterFocus(Sender: TObject); virtual;
+    procedure DoKillFocus(Sender: TObject); virtual;
+    procedure DoDblClick(Sender: TObject); virtual;
+    procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState); virtual;
     procedure SetWidth(const Value:single);  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -7482,14 +7482,23 @@ end;
 { TD2TGTextColumn }
 
 TD2TreeTextColumn = class(TD2TreeColumn)
-  private
   protected
              //Создает текстовую ячейку
     function CreateCellControl: TD2Control;  override;
              //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
-  public
-  published
+end;
+
+TD2TreeCheckColumn = class(TD2TreeColumn)
+end;
+
+TD2TreeProgressColumn = class(TD2TreeColumn)
+end;
+
+TD2TreePopupColumn = class(TD2TreeColumn)
+end;
+
+TD2TreeImageColumn = class(TD2TreeColumn)
 end;
 
 { TD2CustomTreeGrid }
@@ -10575,14 +10584,16 @@ initialization
                    TD2Bitmap, TD2PathData, TD2Brush, TD2Bounds, TD2Position, TD2Gradient, TD2GradientPoints,
                    TD2GradientPoint, TD2Visual, TD2Resources, TD2Object, TD2Content, TD2Control,
                    TD2WideStrings, TD2WideStringList, TD2SelectionItem, TD2Thumb, TD2ExpanderButton,
-                   TD2StringColumn, {TD2TextCell, TD2CheckCell, TD2ProgressCell, TD2PopupCell,}
+                   TD2StringColumn, TD2TextCell, TD2CheckCell, TD2ProgressCell, TD2PopupCell,
                    TD2NavButton, TD2DBColumn, TD2DBCheckColumn, TD2DBPopupColumn,
                    TD2DBImageColumn, TD2DBProgressColumn,
 {**************************************************************************************************
                        This part make by GoldenFox
 ***************************************************************************************************}
                    TD2DBTextColumn, TD2DockingTab, TD2Column,
-                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn
+                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
+                   TD2TreeTextColumn, TD2TreeCheckColumn, TD2TreeProgressColumn, TD2TreePopupColumn,
+                   TD2TreeImageColumn
 //======================= End part of make by GoldenFox =======================
 
                    ]);

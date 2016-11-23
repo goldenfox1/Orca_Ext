@@ -25,7 +25,7 @@ function TD2TreeCell.GetHaveChildren: boolean;
 begin
   if Assigned(FOnGetHaveChildren)
     then Result:=FOnGetHaveChildren(Self)
-    else Result:=false;
+    else Result:=true;
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
