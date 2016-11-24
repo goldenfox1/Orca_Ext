@@ -7430,6 +7430,8 @@ TD2CustomTreeGrid = class;
 TOnChangeCheck = procedure(Sender: TD2Control) of object;
 TOnGetHaveChildren  = function(Sender: TD2Control): boolean of object;
 
+{ TD2TreeCell }
+
 TD2TreeCell = class(TD2Control)
   private
 
@@ -7450,7 +7452,7 @@ TD2TreeCell = class(TD2Control)
     procedure SetIsExpanded(const Value:boolean);
   protected
               //рекация на двойной клик в дизайнмоде
-    //procedure DesignClick;  override;
+    procedure DesignClick;  override;
 
               //применить стиль
     procedure ApplyStyle;  override;
@@ -7459,7 +7461,9 @@ TD2TreeCell = class(TD2Control)
   public
               //дбавить дочерний объект
     procedure AddObject(AObject: TD2Object);  override;
-               //уничтожить экземпляр объекта
+              //создать экземпляр объекта
+    constructor Create(AOwner: TComponent);  override;
+              //уничтожить экземпляр объекта
     destructor Destroy;  override;
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
     property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут

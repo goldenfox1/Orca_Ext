@@ -47,9 +47,17 @@ begin
     begin
       FExpander.Visible:=GetHaveChildren;
       if FExpander.Visible then
+      begin
         FExpander.StartTriggerAnimation(Self,'IsExpanded');
+      end;
     end;
   end;
+end;
+
+procedure TD2TreeCell.DesignClick;
+begin
+  inherited;
+  IsExpanded:=not IsExpanded;
 end;
 
 procedure TD2TreeCell.ApplyStyle;
@@ -101,6 +109,12 @@ begin
     TD2Control(AObject).Align:=vaClient;
     TD2Control(AObject).Visible:=true;
   end;
+end;
+
+constructor TD2TreeCell.Create(AOwner: TComponent);
+begin
+  inherited;
+  FIsExpanded:=true;
 end;
 
 destructor TD2TreeCell.Destroy;
