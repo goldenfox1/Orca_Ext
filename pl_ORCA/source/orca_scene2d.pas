@@ -6801,11 +6801,14 @@ TD2Column = class(TD2Control)
     procedure UpdateColumn;  virtual;
     procedure UpdateSelected;
     procedure ClearColumn;
+              //создать специфическую ячейку столбца
     function CreateCellControl: TD2Control;  virtual;
+             //инициализировать специфическую ячейку столбца
+    procedure InitCellControl(ACellControl: TD2Control); virtual;
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
     procedure DoEnterFocus(Sender: TObject); virtual;
-    procedure DoKillFocus(Sender: TObject); virtual;
-    procedure DoDblClick(Sender: TObject); virtual;
+    procedure DoKillFocus(Sender: TObject);  virtual;
+    procedure DoDblClick(Sender: TObject);  virtual;
     procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState); virtual;
     procedure SetWidth(const Value:single);  override;
   public
@@ -6820,18 +6823,28 @@ TD2Column = class(TD2Control)
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
   end;
 
+{ TD2TextColumn }
+
 TD2TextColumn = class(TD2Column)
   protected
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
     procedure DoTextChanged(Sender: TObject);
+    procedure DoEnterFocus(Sender: TObject); override;
+    procedure DoKillFocus(Sender: TObject); override;
   end;
+
+{ TD2CheckColumn }
 
 TD2CheckColumn = class(TD2Column)
   private
     procedure DoCheckChanged(Sender: TObject);
   public
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   end;
+
+{ TD2ProgressColumn }
 
 TD2ProgressColumn = class(TD2Column)
   private
@@ -6839,6 +6852,7 @@ TD2ProgressColumn = class(TD2Column)
     FMax:single;
   protected
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   public
     constructor Create(AOwner: TComponent);  override;
   published
@@ -6846,12 +6860,15 @@ TD2ProgressColumn = class(TD2Column)
     property Max:single read FMax write FMax;
   end;
 
+{ TD2PopupColumn }
+
 TD2PopupColumn = class(TD2Column)
   private
     FItems: TD2WideStrings;
     procedure SetItems(const Value:TD2WideStrings);
   protected
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
@@ -6859,11 +6876,12 @@ TD2PopupColumn = class(TD2Column)
     property Items: TD2WideStrings read FItems write SetItems;
   end;
 
+{ TD2ImageColumn }
+
 TD2ImageColumn = class(TD2Column)
-  private
   public
-    //constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   end;
 
   TOnGetValue = procedure (Sender: TObject; const Col, Row:integer; var Value:Variant) of object;
@@ -7450,6 +7468,9 @@ TD2TreeCell = class(TD2Control)
     function GetHaveChildren: boolean;     //получить кол-во дочерних узлов
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsExpanded(const Value:boolean);
+    function  GetData: Variant;  override;
+    procedure SetData(const Value:Variant);  override;
+
   protected
               //рекация на двойной клик в дизайнмоде
     procedure DesignClick;  override;
@@ -7474,6 +7495,8 @@ TD2TreeCell = class(TD2Control)
 
 { TD2TGColumn }
 
+{ TD2TreeColumn }
+
 TD2TreeColumn = class(TD2Column)
   private
   protected
@@ -7485,12 +7508,15 @@ end;
 
 { TD2TGTextColumn }
 
+{ TD2TreeTextColumn }
+
 TD2TreeTextColumn = class(TD2TreeColumn)
   protected
              //Создает текстовую ячейку
     function CreateCellControl: TD2Control;  override;
              //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
+
 end;
 
 TD2TreeCheckColumn = class(TD2TreeColumn)

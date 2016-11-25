@@ -54,6 +54,19 @@ begin
   end;
 end;
 
+function TD2TreeCell.GetData: Variant;
+begin
+  if FControl<>nil
+    then Result:=FControl.GetData
+    else Result:=Null;
+end;
+
+procedure TD2TreeCell.SetData(const Value: Variant);
+begin
+  if FControl<>nil
+    then FControl.SetData(Value);
+end;
+
 procedure TD2TreeCell.DesignClick;
 begin
   inherited;
