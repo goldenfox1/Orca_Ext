@@ -6808,8 +6808,8 @@ TD2Column = class(TD2Control)
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
     procedure DoEnterFocus(Sender: TObject); virtual;
     procedure DoKillFocus(Sender: TObject);  virtual;
-    procedure DoDblClick(Sender: TObject);  virtual;
     procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState); virtual;
+    procedure CellSetFocus(ARow: integer);  virtual;
     procedure SetWidth(const Value:single);  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -6832,6 +6832,7 @@ TD2TextColumn = class(TD2Column)
     procedure DoTextChanged(Sender: TObject);
     procedure DoEnterFocus(Sender: TObject); override;
     procedure DoKillFocus(Sender: TObject); override;
+    procedure CellSetFocus(ARow: integer);  override;
   end;
 
 { TD2CheckColumn }
@@ -7479,6 +7480,8 @@ TD2TreeCell = class(TD2Control)
     procedure ApplyStyle;  override;
               //освободить стиль
     procedure FreeStyle;  override;
+
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
   public
               //дбавить дочерний объект
     procedure AddObject(AObject: TD2Object);  override;
@@ -7493,8 +7496,6 @@ TD2TreeCell = class(TD2Control)
     property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;  // обработчик прерывания получения флага наличия детей
   end;
 
-{ TD2TGColumn }
-
 { TD2TreeColumn }
 
 TD2TreeColumn = class(TD2Column)
@@ -7502,11 +7503,11 @@ TD2TreeColumn = class(TD2Column)
   protected
              //Виртуальный метод определяемый в потомках. Создает ячейку
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   public
   published
 end;
 
-{ TD2TGTextColumn }
 
 { TD2TreeTextColumn }
 
@@ -7514,8 +7515,13 @@ TD2TreeTextColumn = class(TD2TreeColumn)
   protected
              //Создает текстовую ячейку
     function CreateCellControl: TD2Control;  override;
-             //обработка изменения текста в ячейке
+
+    procedure InitCellControl(ACellControl: TD2Control); override;
+
+                 //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
+              //обработчик двойного клика по ячейке. используется из грида
+    procedure CellSetFocus(ARow: integer);  override;
 
 end;
 
@@ -10622,6 +10628,7 @@ initialization
 ***************************************************************************************************}
                    TD2DBTextColumn, TD2DockingTab, TD2Column,
                    TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
+                   TD2TreeCell, TD2TreeColumn,
                    TD2TreeTextColumn, TD2TreeCheckColumn, TD2TreeProgressColumn, TD2TreePopupColumn,
                    TD2TreeImageColumn
 //======================= End part of make by GoldenFox =======================

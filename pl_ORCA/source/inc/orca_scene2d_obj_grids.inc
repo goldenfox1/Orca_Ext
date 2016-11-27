@@ -290,7 +290,6 @@ begin
   ACellControl.Stored:=false;
   ACellControl.CanFocused:=false;
   ACellControl.OnCanFocused:=DoCanFocused;
-  ACellControl.OnDblClick:=DoDblClick;
   ACellControl.OnEnterFocus:=DoEnterFocus;
   ACellControl.OnKillFocus:=DoKillFocus;
   ACellControl.OnKeyDown:=DoKeyDown;
@@ -321,16 +320,6 @@ begin
     end;
 end;
 
-procedure TD2Column.DoDblClick(Sender: TObject);
-begin
-  if TD2Object(Sender).IsVisual then
-  with TD2VisualObject(Sender) do
-  begin
-    CanFocused:=true;
-    SetFocus;
-  end;
-end;
-
 procedure TD2Column.DoKeyDown(Sender:TObject; var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
@@ -357,6 +346,11 @@ begin
     Grid.SetFocus;
     Grid.KeyDown(Key,Keychar,Shift);
   end;
+end;
+
+procedure TD2Column.CellSetFocus(ARow: integer);
+begin
+  //виртуальный метод определяется в потомках
 end;
 
 procedure TD2Column.SetWidth(const Value: single);
@@ -542,6 +536,19 @@ begin
   end;
 end;
 
+procedure TD2TextColumn.CellSetFocus(ARow: integer);
+var C: TD2Control;
+begin
+  inherited;
+  C:=CellControlByRow(ARow);
+  if C <> nil then
+  begin
+    C.HitTest:=true;
+    C.CanFocused:=true;
+    C.SetFocus;
+  end;
+end;
+
 //=============== TD2CheckColumn ================================================
 
 function TD2CheckColumn.CreateCellControl:TD2Control;
@@ -671,7 +678,7 @@ end;
 
 function TD2CustomGrid.ItemClass:string;
 begin
-  Result:='TD2TreeColumn;TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
+  Result:='TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
 end;
 
 procedure TD2CustomGrid.FreeStyle;
@@ -1098,21 +1105,18 @@ begin
       begin
         if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
         begin
-          Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
-          Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-          Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          //Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
+          //Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
+          //Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
+          Columns[ColumnIndex].CellSetFocus(Selected);
           TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
       end;
       case Key of
         VK_F2:
           begin
-            if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-            begin
-              HitTest:=true;
-              Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-              Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-            end;
+            if Columns[ColumnIndex] <> nil
+               then Columns[ColumnIndex].CellSetFocus(Selected);
           end;
         VK_LEFT:
           begin
@@ -1593,12 +1597,8 @@ end;
 procedure TD2CustomGrid.DblClick;
 begin
   inherited DblClick;
-  if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-  begin
-    Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
-    Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-    Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-  end;
+  if Columns[ColumnIndex] <> nil
+    then Columns[ColumnIndex].CellSetFocus(Selected);
 end;
 
 procedure TD2CustomGrid.ContentRemoveObject(AObject: TD2Object);

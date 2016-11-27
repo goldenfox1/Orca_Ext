@@ -99,8 +99,16 @@ begin
     FCheck.OnChange:=DoCheckClick;
   end;
   B:=FindResource('content');
-  if (B <> nil) and (B is TD2Content) then
+  if (B <> nil) and (B is TD2Layout) then
+  begin
     FContent:=TD2Content(B);
+    if FControl<> nil then
+      begin
+        FControl.Parent:=FContent;
+        FControl.Align:=vaClient;
+        FControl.Visible:=true;
+      end;
+  end;
   StartTriggerAnimation(Self,'IsSelected');
 end;
 
@@ -113,20 +121,25 @@ begin
   FCheck:=nil;
 end;
 
+procedure TD2TreeCell.KeyDown(var Key: Word; var KeyChar: System.WideChar;
+  Shift: TShiftState);
+begin
+  inherited;
+  if FControl <> nil then
+    TD2HackVisualObject(FControl).KeyDown(Key,KeyChar,Shift);
+end;
+
 procedure TD2TreeCell.AddObject(AObject: TD2Object);
 begin
   inherited;
-  if (FContent<> nil) and (AObject is TD2Control) then
-  begin
-    TD2Control(AObject).Parent:=FContent;
-    TD2Control(AObject).Align:=vaClient;
-    TD2Control(AObject).Visible:=true;
-  end;
+  if (FContent<> nil) then
+    AObject.Parent:=FContent;
 end;
 
 constructor TD2TreeCell.Create(AOwner: TComponent);
 begin
   inherited;
+  FControl:=nil;
   FIsExpanded:=true;
 end;
 
@@ -143,13 +156,48 @@ begin
   Result:=TD2TreeCell.Create(Self);
 end;
 
+procedure TD2TreeColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  if (ACellControl <> nil) and
+     (ACellControl is TD2TreeCell) and
+     (TD2TreeCell(ACellControl).FControl <> nil) and
+     (TD2TreeCell(ACellControl).FControl is TD2Control) then
+    begin
+      ACellControl.OnEnterFocus:=nil;
+      ACellControl.OnKillFocus:=nil;
+      ACellControl.OnKeyDown:=nil;
+      ACellControl.OnCanFocused:=nil;
+      TD2TreeCell(ACellControl).FControl.OnCanFocused:=DoCanFocused;
+      TD2TreeCell(ACellControl).FControl.OnEnterFocus:=DoEnterFocus;
+      TD2TreeCell(ACellControl).FControl.OnKillFocus:=DoKillFocus;
+      TD2TreeCell(ACellControl).FControl.OnKeyDown:=DoKeyDown;
+    end;
+end;
+
 { TD2TreeTextColumn }
 
 function TD2TreeTextColumn.CreateCellControl: TD2Control;
 begin
   Result:=inherited;
-  TD2TreeCell(Result).FControl:=TD2TextCell.Create(Result);
-  TD2TextCell(TD2TreeCell(Result).FControl).OnChange:=DoTextChanged;
+  if Result <> nil then
+    begin
+      TD2TreeCell(Result).FControl:=TD2TextCell.Create(Result);
+      if TD2TreeCell(Result).FControl <> nil then
+        with TD2TreeCell(Result).FControl do
+        begin
+          HitTest:=false;
+          CanFocused:=false;
+          Locked:=true;
+        end;
+    end;
+end;
+
+procedure TD2TreeTextColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  if TD2TreeCell(ACellControl).FControl <> nil then
+    TD2TextCell(TD2TreeCell(ACellControl).FControl).OnChange:=DoTextChanged;
 end;
 
 procedure TD2TreeTextColumn.DoTextChanged(Sender: TObject);
@@ -165,6 +213,20 @@ begin
   end;
 end;
 
+procedure TD2TreeTextColumn.CellSetFocus(ARow: integer);
+var C: TD2Control;
+begin
+  inherited;
+  C:=CellControlByRow(ARow);
+  if (C <> nil) and (C is TD2TreeCell) and (TD2TreeCell(C).FControl <> nil) then
+  begin
+    //C.HitTest:=true;
+    //C.CanFocused:=true;
+    TD2TreeCell(C).FControl.HitTest:=true;
+    TD2TreeCell(C).FControl.CanFocused:=true;
+    TD2TreeCell(C).FControl.SetFocus;
+  end;
+end;
 
 { TD2CustomTreeGrid }
 

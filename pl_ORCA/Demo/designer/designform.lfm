@@ -1,7 +1,7 @@
 object frmDesigner: TfrmDesigner
-  Left = 11
+  Left = 0
   Height = 557
-  Top = 4
+  Top = 110
   Width = 936
   Caption = 'ORCA 2D Designer Demo'
   ClientHeight = 557
