@@ -7489,12 +7489,14 @@ TD2TreeCell = class(TD2Control)
     constructor Create(AOwner: TComponent);  override;
               //уничтожить экземпляр объекта
     destructor Destroy;  override;
+
+    property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck; //обработчик прерывания изменения состояния отметки
+    property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;  // обработчик прерывания получения флага наличия детей
+  published
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
     property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
     property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
-    property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck; //обработчик прерывания изменения состояния отметки
-    property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;  // обработчик прерывания получения флага наличия детей
-  end;
+end;
 
 { TD2TreeColumn }
 
