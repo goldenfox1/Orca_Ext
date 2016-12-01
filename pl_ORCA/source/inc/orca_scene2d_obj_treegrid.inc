@@ -11,6 +11,8 @@
 procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
 begin
   IsExpanded:=not IsExpanded;
+  if Assigned(FOnChangeExpander) then
+    FOnChangeExpander(Sender);
 end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
@@ -18,14 +20,14 @@ begin
   if FCheck <> nil then
     FIsChecked:=FCheck.IsChecked;
   if Assigned(FOnChangeCheck) then
-    FOnChangeCheck(Self);
+    FOnChangeCheck(Sender);
 end;
 
 function TD2TreeCell.GetHaveChildren: boolean;
 begin
   if Assigned(FOnGetHaveChildren)
     then Result:=FOnGetHaveChildren(Self)
-    else Result:=true;
+    else Result:=false;
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
@@ -67,18 +69,11 @@ begin
     then FControl.SetData(Value);
 end;
 
-procedure TD2TreeCell.DesignClick;
-begin
-  inherited;
-  IsExpanded:=not IsExpanded;
-end;
-
 procedure TD2TreeCell.ApplyStyle;
 var
   B:TD2Object;
 begin
   inherited;
-
   B:=FindResource('expander');
   if (B <> nil) and (B is TD2CustomButton) then
   begin
@@ -140,7 +135,6 @@ constructor TD2TreeCell.Create(AOwner: TComponent);
 begin
   inherited;
   FControl:=nil;
-  FIsExpanded:=true;
 end;
 
 destructor TD2TreeCell.Destroy;
@@ -150,6 +144,21 @@ begin
 end;
 
 { TD2TreeColumn }
+
+procedure TD2TreeColumn.DoChangeCheck(Sender: TObject);
+begin
+
+end;
+
+procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
+begin
+
+end;
+
+function TD2TreeColumn.DoGetHaveChildren(Sender: TObject): boolean;
+begin
+  Result:=true;
+end;
 
 function TD2TreeColumn.CreateCellControl: TD2Control;
 begin
@@ -172,6 +181,9 @@ begin
       TD2TreeCell(ACellControl).FControl.OnEnterFocus:=DoEnterFocus;
       TD2TreeCell(ACellControl).FControl.OnKillFocus:=DoKillFocus;
       TD2TreeCell(ACellControl).FControl.OnKeyDown:=DoKeyDown;
+      TD2TreeCell(ACellControl).OnChangeCheck:=DoChangeCheck;
+      TD2TreeCell(ACellControl).OnChangeExpander:=DoChangeExpander;
+      TD2TreeCell(ACellControl).OnGetHaveChildren:=DoGetHaveChildren;
     end;
 end;
 
@@ -220,8 +232,6 @@ begin
   C:=CellControlByRow(ARow);
   if (C <> nil) and (C is TD2TreeCell) and (TD2TreeCell(C).FControl <> nil) then
   begin
-    //C.HitTest:=true;
-    //C.CanFocused:=true;
     TD2TreeCell(C).FControl.HitTest:=true;
     TD2TreeCell(C).FControl.CanFocused:=true;
     TD2TreeCell(C).FControl.SetFocus;

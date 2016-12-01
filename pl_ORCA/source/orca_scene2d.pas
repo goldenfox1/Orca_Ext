@@ -7446,8 +7446,9 @@ end;
 { TD2TreeGridCell }
 TD2CustomTreeGrid = class;
 
-TOnChangeCheck = procedure(Sender: TD2Control) of object;
-TOnGetHaveChildren  = function(Sender: TD2Control): boolean of object;
+TOnChangeCheck = procedure(Sender: TObject) of object;
+TOnChangeExpander = procedure(Sender: TObject) of object;
+TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
 
 { TD2TreeCell }
 
@@ -7462,6 +7463,7 @@ TD2TreeCell = class(TD2Control)
     FIsExpanded: boolean;         //true - узел развернут
 
     FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
+    FOnChangeExpander: TOnChangeExpander;    //указатель на обработчик прерывания разворачивания/сворачивания узла
     FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
 
     procedure DoExpanderClick(Sender: TObject);
@@ -7473,9 +7475,6 @@ TD2TreeCell = class(TD2Control)
     procedure SetData(const Value:Variant);  override;
 
   protected
-              //рекация на двойной клик в дизайнмоде
-    procedure DesignClick;  override;
-
               //применить стиль
     procedure ApplyStyle;  override;
               //освободить стиль
@@ -7491,6 +7490,7 @@ TD2TreeCell = class(TD2Control)
     destructor Destroy;  override;
 
     property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck; //обработчик прерывания изменения состояния отметки
+    property OnChangeExpander: TOnChangeExpander read FOnChangeExpander write FOnChangeExpander; //обработчик прерывания разворачивания/сворачивания узла
     property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;  // обработчик прерывания получения флага наличия детей
   published
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
@@ -7502,9 +7502,16 @@ end;
 
 TD2TreeColumn = class(TD2Column)
   private
+              //обработчик изменения состояния отметки ячейки
+    procedure DoChangeCheck(Sender: TObject);
+              //обработчик изменения состояния разворачивания узла
+    procedure DoChangeExpander(Sender: TObject);
+              //обработчик запроса ячейки наличия дочерних узлов: true - есть дочерние узлы;
+    function DoGetHaveChildren(Sender: TObject): boolean;
   protected
-             //Виртуальный метод определяемый в потомках. Создает ячейку
+             //создание ячейки
     function CreateCellControl: TD2Control;  override;
+             //инициализация ячейки
     procedure InitCellControl(ACellControl: TD2Control); override;
   public
   published
