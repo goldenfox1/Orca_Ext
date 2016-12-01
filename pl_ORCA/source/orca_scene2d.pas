@@ -1834,12 +1834,12 @@ TD2VisualObject = class(TD2Object)
     property DisableFocusEffect: boolean read FDisableFocusEffect write FDisableFocusEffect  default false; //true - отключить анимацию и эффекты при получении фокуса
     property DisableDefaultAlign: boolean read FDisableDefaultAlign write FDisableDefaultAlign;
     property TabOrder: TTabOrder read GetTabOrder write SetTabOrder  default -1;
+  published
     property IsMouseOver: boolean read FIsMouseOver;
     property IsMouseOverChildren:boolean read FIsMouseOverChildren; //флаг указатель мыши находится над дочерним объектом //Added by GoldenFox
     property IsDragOver: boolean read FIsDragOver;
     property IsFocused: boolean read FIsFocused;
     property IsVisible: boolean read FVisible;
- published
     property Align: TD2Align read FAlign write SetAlign  default vaNone;
     property Cursor: TCursor read FCursor write SetCursor  default crDefault;
     property DragMode: TD2DragMode read FDragMode write FDragMode  default d2DragManual;
