@@ -217,7 +217,8 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
+  if TD2Object(Sender).Parent=nil then Exit;
+  with d2StringToPoint(TD2Object(Sender).Parent.TagString) do
   begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
     if Assigned(Grid.FOnEdititingDone) then

@@ -7501,18 +7501,20 @@ end;
 { TD2TreeColumn }
 
 TD2TreeColumn = class(TD2Column)
-  private
+  protected
               //обработчик изменения состояния отметки ячейки
     procedure DoChangeCheck(Sender: TObject);
               //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
               //обработчик запроса ячейки наличия дочерних узлов: true - есть дочерние узлы;
     function DoGetHaveChildren(Sender: TObject): boolean;
-  protected
+              //обработчик потери фокуса ячейкой
+    //procedure DoKillFocus(Sender: TObject);  override;
              //создание ячейки
     function CreateCellControl: TD2Control;  override;
              //инициализация ячейки
     procedure InitCellControl(ACellControl: TD2Control); override;
+
   public
   published
 end;
@@ -7892,15 +7894,15 @@ TD2VTNodeAttachMode = (
 
   // Опции настройки внешнего вида дерева. Options to customize tree appearance:
 TD2VTPaintOption = (
-    toHideFocusRect,         //Не отображать пунктирный прямоугольник фокуса по границам узла. Avoid drawing the dotted rectangle around the currently focused node.
+    toHideFocusRect,         //Не отображать прямоугольник фокуса узла. Avoid drawing the dotted rectangle around the currently focused node.
     toHideSelection,         //Не отображать прямоугольник выделения для выделенных узлов, когда дерево не имеет фокуса. Selected nodes are drawn as unselected nodes if the tree is unfocused.
     toHotTrack,              //Включить подсветку узла, находящегося под курсором. Track which node is under the mouse cursor.
     toPopupMode,             //Отображать дерево, как будто бы оно всегда имеет фокус (полезно для дерева с Комбобоксами и т.д.). Paint tree as would it always have the focus (useful for tree combo boxes etc.)
-    toShowBackground,        //Отображать фоновую картинку, если есть (параметр Background). Use the background image if there's one.
-    toShowButtons,           //Отображать кнопки развёртывания/свёртывания слева от узлов. Display collapse/expand buttons left to a node.
+    toShowBackground,        //Отображать фоновую картинку, если она есть (параметр Background). Use the background image if there's one.
+    toShowButtons,           //Отображать кнопки развёртывания/свёртывания. Display collapse/expand buttons left to a node.
     toShowDropmark,          //Показывать положение вставки узла при операциях drag&drop. Show the dropmark during drag'n drop operations.
     toShowHorzGridLines,     //Отображать горизонтальные линии сетки. Display horizontal lines to simulate a grid.
-    toShowRoot,              //Отображать соединительные линии для самых верхних узлов первого уровня вложенности (дочерних узлов RootNode). Show lines also at top level (does not show the hidden/internal root node).
+    toShowRoot,              //Показать служебный корневой узел Root (корневой узел является служебным и требуется для работы дерева). Show lines also at top level (does not show the hidden/internal root node).
     toShowTreeLines,         //Отображать соединительные линии для узлов. Display tree lines to show hierarchy of nodes.
     toShowVertGridLines,     //Отображать вертикальные линии сетки.  Display vertical lines (depending on columns) to simulate a grid.
     toThemeAware,            //Отображать все элементы управления дерева (кнопоки, отметоки и т.д.) в соответствии с текущей темой оформления Windows XP.
@@ -7930,17 +7932,17 @@ TD2VTAnimationOptions = set of TD2VTAnimationOption;
   //Опиции автоматической обработки определенных ситуаций. Options which toggle automatic handling of certain situations:
 TD2VTAutoOption = (
     toAutoDropExpand,           //Развернуть узел, если он будет оставаться целью drag&drop (DropTargetNode) дольше времени, заданного параметром AutoExpandDelay. Expand node if it is the drop target for more than a certain time.
-    toAutoExpand,               //Автоматически раскрывать/сворачивать узел при получении им фокуса. Nodes are expanded (collapsed) when getting (losing) the focus.
+    toAutoExpand,               //Автоматически раскрывать (сворачивать) узел при получении (потере) им фокуса. Nodes are expanded (collapsed) when getting (losing) the focus.
     toAutoScroll,               //Прокрутка дерева если мышь находится вблизи границы во время перетаскивания или выбора. Scroll if mouse is near the border while dragging or selecting.
     toAutoScrollOnExpand,       //Прокрутка дерева при разворачивании узла на кол-во дочерних узлов в поле зрения. Scroll as many child nodes in view as possible after expanding a node.
     toAutoSort,                 //Сортировать дерево при изменении параметра Header.SortDirection, или Header.SortColumn, или при добавлении нового узла. Sort tree when Header.SortColumn or Header.SortDirection change or sort node if child nodes are added.
     toAutoSpanColumns,          //Переносить текст, не помещающийся в ячейке в  соседнюю колонке, если она пуста (не содержит текста). Large entries continue into next column(s) if there's no text in them (no clipping).
     toAutoTristateTracking,     //Автоматическое отслеживание grayed-состояния для узлов с типом отметки ctTriStateCheckBox. Checkstates are automatically propagated for tri state check boxes.
     toAutoHideButtons,          //Скрывать кнопку развёртывания/свёртывания для узла, если все его дочерние будут спрятаны (vsVisible). Node buttons are hidden when there are child nodes, but all are invisible.
-    toAutoDeleteMovedNodes,     //Удаляться источники перемещённых узлов после операций drag&drop. Delete nodes which where moved in a drag operation (if not directed otherwise).
+    toAutoDeleteMovedNodes,     //Удалять источники перемещённых узлов после операций drag&drop. Delete nodes which where moved in a drag operation (if not directed otherwise).
     toDisableAutoscrollOnFocus, //Отключить автоматическую прокрутку колонки к видимой области при получении фокуса. Disable scrolling a node or column into view if it gets focused.
     toAutoChangeScale,          //Изменять высоту узлов в соответствии с настройками размера шрифтов Windows. Change default node height automatically if the system's font scale is set to big fonts.
-    toAutoFreeOnCollapse,       //Удалить все его дочерние узлы при сворачивании, при этом опция vsHasChildren для узла сохраняется. Frees any child node after a node has been collapsed (HasChildren flag stays there).
+    toAutoFreeOnCollapse,       //Удалить все дочерние узлы при сворачивании родителя, при этом опция vsHasChildren для узла сохраняется. Frees any child node after a node has been collapsed (HasChildren flag stays there).
     toDisableAutoscrollOnEdit,  //Не центровать узел по горизонали при его редактировании. Do not center a node horizontally when it is edited.
     toAutoBidiColumnOrdering    //Если установлен, то столбцы (если есть) сортируются от наименьшего индекса к наибольшему индексу и наоборот при отсутствии. When set then columns (if any exist) will be reordered from lowest index to highest index and vice versa when the tree's bidi mode is changed.
   );
