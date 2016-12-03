@@ -1423,6 +1423,8 @@ TD2Canvas = class(TPersistent)
   end;
   TD2CanvasClass = class of TD2Canvas;
 
+{ TD2Object }
+
 TD2Object = class(TComponent)
   private
     FStored:boolean;
@@ -1443,6 +1445,8 @@ TD2Object = class(TComponent)
     procedure SetBindingName(const Value:string);
     function  GetIndex:integer;
     procedure SetIndex(Idx: integer);
+    function GetTagString: string; virtual;
+    procedure SetTagString(const Value:string); virtual;
   protected
     FIsVisual:boolean;
     FVisual: TD2VisualObject;
@@ -1509,7 +1513,7 @@ TD2Object = class(TComponent)
     property Stored: boolean read FStored write SetStored;
     property TagObject: TObject read FTagObject write FTagObject;
     property TagFloat:single read FTagFloat write FTagFloat;
-    property TagString: string read FTagString write FTagString;
+    property TagString: string read GetTagString write SetTagString;
     property ChildrenCount: integer read GetChildrenCount;
     property Children[Index: integer]: TD2Object read GetChild;
     function FindBinding(const ABinding: string): TD2Object;
@@ -7473,6 +7477,7 @@ TD2TreeCell = class(TD2Control)
     procedure SetIsExpanded(const Value:boolean);
     function  GetData: Variant;  override;
     procedure SetData(const Value:Variant);  override;
+    procedure SetTagString(const Value:string); override;
 
   protected
               //применить стиль

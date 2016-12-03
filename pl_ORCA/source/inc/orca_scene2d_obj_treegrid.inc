@@ -69,6 +69,13 @@ begin
     then FControl.SetData(Value);
 end;
 
+procedure TD2TreeCell.SetTagString(const Value: string);
+begin
+  inherited;
+  if FControl<>nil
+    then FControl.TagString:=Value;
+end;
+
 procedure TD2TreeCell.ApplyStyle;
 var
   B:TD2Object;
@@ -217,8 +224,7 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  if TD2Object(Sender).Parent=nil then Exit;
-  with d2StringToPoint(TD2Object(Sender).Parent.TagString) do
+  with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
     if Assigned(Grid.FOnEdititingDone) then
