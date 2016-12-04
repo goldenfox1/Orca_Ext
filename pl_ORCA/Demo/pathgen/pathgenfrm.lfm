@@ -1,7 +1,7 @@
 object Form16: TForm16
-  Left = 374
+  Left = 184
   Height = 566
-  Top = 218
+  Top = 196
   Width = 870
   Caption = 'ORCA 2D Char to Path'
   ClientHeight = 566
@@ -12,7 +12,7 @@ object Form16: TForm16
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.6.0.4'
   object d2Scene1: TD2Scene
     Left = 0
     Height = 566

@@ -99,6 +99,21 @@ begin
   if FIsChecked <> Value then
   begin
     FIsChecked:=Value;
+    StartTriggerAnimation(Self,'IsGrayed');
+    StartTriggerAnimation(Self,'IsChecked');
+    if Assigned(FOnChange) then
+    begin
+      FOnChange(Self);
+    end;
+  end;
+end;
+
+procedure TD2CheckBox.SetIsGrayed(const Value: boolean);
+begin
+  if FIsGrayed <> Value then
+  begin
+    FIsGrayed:=Value;
+    StartTriggerAnimation(Self,'IsGrayed');
     StartTriggerAnimation(Self,'IsChecked');
     if Assigned(FOnChange) then
     begin
