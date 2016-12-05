@@ -3661,8 +3661,11 @@ TD2CheckBox = class(TD2TextControl)
     FIsPressed:boolean;
     FIsChecked:boolean;
     FIsGrayed:boolean;
+    FAllowGrayed:boolean;  //true - разрешено третье состояние отметки (grayed)
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsGrayed(const Value:boolean);
+    procedure SetAllowGrayed(const Value:boolean);
+    procedure DoCheckChange;
   protected
     procedure ApplyStyle;  override;
   public
@@ -3678,6 +3681,7 @@ TD2CheckBox = class(TD2TextControl)
     property IsPressed: boolean read FIsPressed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;
     property IsGrayed: boolean read FIsGrayed write SetIsGrayed;
+    property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
     property AutoTranslate default true;
     property BindingSource;
     property CanFocused  default true;
@@ -7668,7 +7672,7 @@ TD2TreeCell = class(TD2Control)
 
     FCheck: TD2CheckBox;          //указатель на чекбокс
     FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
-    FContent: TD2Content;         //указатель на клиентскую область
+    FContent: TD2Layout;         //указатель на клиентскую область
     FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
     FIsChecked: boolean;          //true - чекбокс отмечен
     FIsExpanded: boolean;         //true - узел развернут

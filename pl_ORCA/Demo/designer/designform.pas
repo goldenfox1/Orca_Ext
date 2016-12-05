@@ -24,14 +24,12 @@ type
     d2Toolbar: TD2Scene;
     DesignerRoot: TD2Background;
     EditorStore: TD2Rectangle;
-    GroupBox1: TD2GroupBox;
     Label1: TD2Label;
     Label2: TD2Label;
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
     Rectangle1: TD2Rectangle;
-    Resources1: TD2Resources;
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
     Root2: TD2Background;

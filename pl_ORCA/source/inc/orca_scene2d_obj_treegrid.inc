@@ -103,7 +103,7 @@ begin
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Layout) then
   begin
-    FContent:=TD2Content(B);
+    FContent:=TD2Layout(B);
     if FControl<> nil then
       begin
         FControl.Parent:=FContent;
