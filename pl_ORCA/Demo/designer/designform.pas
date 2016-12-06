@@ -37,6 +37,8 @@ type
     SpeedButton2: TD2SpeedButton;
     SpeedButton3: TD2SpeedButton;
     TrackBar1: TD2TrackBar;
+    TreeViewItem1: TD2TreeViewItem;
+    TreeViewItem2: TD2TreeViewItem;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);

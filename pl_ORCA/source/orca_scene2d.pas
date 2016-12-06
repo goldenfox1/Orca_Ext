@@ -7698,8 +7698,6 @@ TD2TreeCell = class(TD2Control)
 
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
   public
-              //дбавить дочерний объект
-    procedure AddObject(AObject: TD2Object);  override;
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;
               //уничтожить экземпляр объекта

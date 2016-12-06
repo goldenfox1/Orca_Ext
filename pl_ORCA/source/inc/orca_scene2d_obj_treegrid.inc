@@ -104,7 +104,7 @@ begin
   if (B <> nil) and (B is TD2Layout) then
   begin
     FContent:=TD2Layout(B);
-    if FControl<> nil then
+    if (FControl <> nil) and (FControl.Parent<>FContent) then
       begin
         FControl.Parent:=FContent;
         FControl.Align:=vaClient;
@@ -129,13 +129,6 @@ begin
   inherited;
   if FControl <> nil then
     TD2HackVisualObject(FControl).KeyDown(Key,KeyChar,Shift);
-end;
-
-procedure TD2TreeCell.AddObject(AObject: TD2Object);
-begin
-  inherited;
-  if (FContent<> nil) then
-    AObject.Parent:=FContent;
 end;
 
 constructor TD2TreeCell.Create(AOwner: TComponent);
