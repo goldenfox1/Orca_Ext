@@ -17,8 +17,10 @@ end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
 begin
-  if FCheck <> nil then
-    FIsChecked:=FCheck.IsChecked;
+  if FCheck <> nil
+    then FIsChecked:=FCheck.IsChecked
+    else if FRadio <> nil
+           then FIsChecked:=FRadio.IsChecked;
   if Assigned(FOnChangeCheck) then
     FOnChangeCheck(Sender);
 end;
@@ -37,6 +39,8 @@ begin
     FIsChecked:=Value;
     if FCheck <> nil then
       FCheck.IsChecked:=FIsChecked;
+    if FRadio <> nil then
+      FRadio.IsChecked:=FIsChecked;
   end;
 end;
 
@@ -99,6 +103,13 @@ begin
     FCheck:=TD2CheckBox(B);
     FCheck.IsChecked:=IsChecked;
     FCheck.OnChange:=DoCheckClick;
+  end;
+  B:=FindResource('radio');
+  if (B <> nil) and (B is TD2RadioButton) then
+  begin
+    FRadio:=TD2RadioButton(B);
+    FRadio.IsChecked:=IsChecked;
+    FRadio.OnChange:=DoCheckClick;
   end;
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Layout) then

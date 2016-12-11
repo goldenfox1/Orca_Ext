@@ -7671,8 +7671,9 @@ TD2TreeCell = class(TD2Control)
   private
 
     FCheck: TD2CheckBox;          //указатель на чекбокс
+    FRadio: TD2RadioButton;       //указатель на радиокнопку
     FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
-    FContent: TD2Layout;         //указатель на клиентскую область
+    FContent: TD2Layout;          //указатель на клиентскую область
     FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
     FIsChecked: boolean;          //true - чекбокс отмечен
     FIsExpanded: boolean;         //true - узел развернут
@@ -7695,8 +7696,8 @@ TD2TreeCell = class(TD2Control)
     procedure ApplyStyle;  override;
               //освободить стиль
     procedure FreeStyle;  override;
-
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
+              //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
   public
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;
