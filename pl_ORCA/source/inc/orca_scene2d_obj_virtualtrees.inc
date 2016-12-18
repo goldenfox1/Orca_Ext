@@ -87,7 +87,7 @@ procedure TD2CustomVirtualTreeOptions.SetPaintOptions(const Value: TD2VTPaintOpt
 //var
   //ToBeSet,
   //ToBeCleared: TD2VTPaintOptions;
-  //Run: PD2VirtualNode;
+  //Run: TD2TreeNodeArray;
   //HandleWasAllocated: Boolean;
 begin
   //if FPaintOptions <> Value then
@@ -227,7 +227,7 @@ end;
 
 { -------------------- TD2BaseVirtualTree -------------------- }
 
-procedure TD2BaseVirtualTree.AdjustTotalCount(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.AdjustTotalCount(Node: PD2TreeNode;
   Value: Integer; Relative: Boolean);
 //Изменяет общее кол-во узлов (TotalCount) узла Node и всех его родителей в соответствии со значеним Value.
 //При Relative = true - Value = величина изменения, иначе Value = абсолютное значение
@@ -236,7 +236,7 @@ procedure TD2BaseVirtualTree.AdjustTotalCount(Node: PD2VirtualNode;
 // (actually, the adjustment is done iteratively to avoid function call overheads).
 var
   Difference: Integer;
-  Run: PD2VirtualNode;
+  Run: PD2TreeNode;
 begin
   if Relative
     then Difference := Value
@@ -253,12 +253,12 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.AdjustTotalHeight(Node: PD2VirtualNode; Value: Single; Relative: Boolean);
+procedure TD2BaseVirtualTree.AdjustTotalHeight(Node: PD2TreeNode; Value: Single; Relative: Boolean);
 //Устанавливает высоту узла в заданное значение и рекурсивно изменяет общую высоту всех его родителей.
 // Sets a node's total height to the given value and recursively adjusts the parent's total height.
 var
   Difference: Single;
-  Run: PD2VirtualNode;
+  Run: PD2TreeNode;
 begin
   if Relative                 //если относительное значение
     then Difference := Value                              //то изменение высоты узла задана явно
@@ -282,14 +282,14 @@ begin
   UpdateVerticalRange;
 end;
 
-function TD2BaseVirtualTree.ChangeCheckState(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.ChangeCheckState(Node: PD2TreeNode;
   Value: TD2CheckState): Boolean;
 // Sets the check state of the node according to the given value and the node's check type.
 // If the check state must be propagated to the parent nodes and one of them refuses to change then
 // nothing happens and False is returned, otherwise True.
 
 var
-  Run: PD2VirtualNode;
+  Run: PD2TreeNode;
   UncheckedCount,
   MixedCheckCount,
   CheckedCount: Cardinal;
@@ -443,7 +443,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.CompareNodePositions(Node1, Node2: PD2VirtualNode;
+function TD2BaseVirtualTree.CompareNodePositions(Node1, Node2: PD2TreeNode;
   ConsiderChildrenAbove: Boolean): Integer;
 //Определяет находится ли позиция Node1 до позиции Node2 в дереве.
 //Если ConsiderChildrenAbove = True позиции узлов сравниватся в их визуальном порядке.
@@ -454,7 +454,7 @@ function TD2BaseVirtualTree.CompareNodePositions(Node1, Node2: PD2VirtualNode;
 
 var
   Run1,
-  Run2: PD2VirtualNode;
+  Run2: PD2TreeNode;
   Level1,
   Level2: Cardinal;
 
@@ -505,13 +505,13 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.FixupTotalCount(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.FixupTotalCount(Node: TD2TreeNodeArray);
 //Пересчитать общую сумму узла Node и его детей
 //Вызывается после загрузки поддерева из потока. Количество детей в каждом узле
 //уже установлено, но не их общая сумма.
 // Called after loading a subtree from stream. The child count in each node is already set but not
 // their total count.
-var Child: PD2VirtualNode;
+var Child: TD2TreeNodeArray;
 begin
   // Initial total count is set to one on node creation.
   Child := Node.FirstChild;
@@ -525,14 +525,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TD2BaseVirtualTree.FixupTotalHeight(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.FixupTotalHeight(Node: TD2TreeNodeArray);
 // Пересчитать общую высоту узла Node
 // Вызывается после загрузки поддерева из потока. Индивидуальная высота каждого
 // узла уже установлена, но их общая высота нуждается в корректировке в зависимости
 // от их состояния видимости.
 // Called after loading a subtree from stream. The individual height of each node is set already,
 // but their total height needs an adjustment depending on their visibility state.
-var Child: PD2VirtualNode;
+var Child: TD2TreeNodeArray;
 begin
   // Initial total height is set to the node height on load.
   Child := Node.FirstChild;
@@ -558,13 +558,13 @@ begin
           end;
 end;
 
-function TD2BaseVirtualTree.GetBottomNode: PD2VirtualNode;
+function TD2BaseVirtualTree.GetBottomNode: TD2TreeNodeArray;
 begin
   Result := InternalGetNodeAt(0, ClientHeight - 1);
 end;
 
 function TD2BaseVirtualTree.GetCheckedCount: Integer;
-var Node: PD2VirtualNode;
+var Node: TD2TreeNodeArray;
 begin
   Result := 0;
   Node := GetFirstChecked;
@@ -575,17 +575,17 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetCheckState(Node: PD2VirtualNode): TD2CheckState;
+function TD2BaseVirtualTree.GetCheckState(Node: TD2TreeNodeArray): TD2CheckState;
 begin
   Result := Node.CheckState;
 end;
 
-function TD2BaseVirtualTree.GetCheckType(Node: PD2VirtualNode): TD2CheckType;
+function TD2BaseVirtualTree.GetCheckType(Node: TD2TreeNodeArray): TD2CheckType;
 begin
   Result := Node.CheckType;
 end;
 
-function TD2BaseVirtualTree.GetChildCount(Node: PD2VirtualNode): Cardinal;
+function TD2BaseVirtualTree.GetChildCount(Node: TD2TreeNodeArray): Cardinal;
 begin
   if (Node = nil) or (Node = FRoot) then
     Result := FRoot.ChildCount
@@ -593,13 +593,13 @@ begin
     Result := Node.ChildCount;
 end;
 
-function TD2BaseVirtualTree.GetChildrenInitialized(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetChildrenInitialized(Node: TD2TreeNodeArray): Boolean;
 begin
   Result := not (vsHasChildren in Node.States) or (Node.ChildCount > 0);
 end;
 
 function TD2BaseVirtualTree.GetCutCopyCount: Integer;
-var Node: PD2VirtualNode;
+var Node: TD2TreeNodeArray;
 begin
   Result := 0;
   Node := GetFirstCutCopy;
@@ -610,7 +610,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetDisabled(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetDisabled(Node: TD2TreeNodeArray): Boolean;
 begin
   Result := Assigned(Node) and (vsDisabled in Node.States);
 end;
@@ -627,7 +627,7 @@ end;
 //  Result := FDragManager;
 //end;
 
-function TD2BaseVirtualTree.GetExpanded(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetExpanded(Node: TD2TreeNodeArray): Boolean;
 begin
   if Assigned(Node) then
     Result := vsExpanded in Node.States
@@ -635,12 +635,12 @@ begin
     Result := False;
 end;
 
-function TD2BaseVirtualTree.GetFiltered(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetFiltered(Node: TD2TreeNodeArray): Boolean;
 begin
   Result := vsFiltered in Node.States;
 end;
 
-function TD2BaseVirtualTree.GetFullyVisible(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetFullyVisible(Node: TD2TreeNodeArray): Boolean;
 //True - узел видим и все его родители видимы и развернуты.
 // Determines whether the given node has the visibility flag set as well as all its parents are expanded.
 begin
@@ -650,7 +650,7 @@ begin
     then Result := VisiblePath[Node];
 end;
 
-function TD2BaseVirtualTree.GetHasChildren(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetHasChildren(Node: TD2TreeNodeArray): Boolean;
 begin
   if Assigned(Node) then
     Result := vsHasChildren in Node.States
@@ -658,12 +658,12 @@ begin
     Result := vsHasChildren in FRoot.States;
 end;
 
-function TD2BaseVirtualTree.GetMultiline(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetMultiline(Node: TD2TreeNodeArray): Boolean;
 begin
   Result := Assigned(Node) and (Node <> FRoot) and (vsMultiline in Node.States);
 end;
 
-function TD2BaseVirtualTree.GetNodeHeight(Node: PD2VirtualNode): Single;
+function TD2BaseVirtualTree.GetNodeHeight(Node: TD2TreeNodeArray): Single;
 //Получить высоту узла Node
 begin
   if Assigned(Node) and (Node <> FRoot)
@@ -681,7 +681,7 @@ begin
     else  Result := 0;
 end;
 
-function TD2BaseVirtualTree.GetNodeParent(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNodeParent(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 //Получить родителя узла Node
 begin
   if Assigned(Node) and (Node.Parent <> FRoot)
@@ -704,13 +704,13 @@ begin
   Result := FRoot.ChildCount;
 end;
 
-function TD2BaseVirtualTree.GetSelected(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetSelected(Node: TD2TreeNodeArray): Boolean;
 //True если узел существует и выбран
 begin
   Result := Assigned(Node) and (vsSelected in Node.States);
 end;
 
-function TD2BaseVirtualTree.GetTopNode: PD2VirtualNode;
+function TD2BaseVirtualTree.GetTopNode: TD2TreeNodeArray;
 begin
   Result := InternalGetNodeAt(0, 0);
 end;
@@ -727,12 +727,12 @@ begin
   Result := FRoot.TotalCount - 1;
 end;
 
-function TD2BaseVirtualTree.GetVerticalAlignment(Node: PD2VirtualNode): Single;
+function TD2BaseVirtualTree.GetVerticalAlignment(Node: TD2TreeNodeArray): Single;
 begin
   Result := Node.Align;
 end;
 
-function TD2BaseVirtualTree.GetVisible(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetVisible(Node: TD2TreeNodeArray): Boolean;
 //True - узел Node видимый.
 // Determines if the given node is marked as being visible.
 begin
@@ -742,7 +742,7 @@ begin
   Result := vsVisible in Node.States;
 end;
 
-function TD2BaseVirtualTree.GetVisiblePath(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetVisiblePath(Node: TD2TreeNodeArray): Boolean;
 //True - все родители узла Node развернуты и видимы.
 // Determines if all parents of the given node are expanded and have the visibility flag set.
 begin
@@ -754,7 +754,7 @@ begin
   Result := Node = FRoot;
 end;
 
-function TD2BaseVirtualTree.HasVisibleNextSibling(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.HasVisibleNextSibling(Node: TD2TreeNodeArray): Boolean;
 //True - если следующий за узлом Node одноуровневый узел видимый.
 //Требуется, чтобы сделать правильные линии дерева
 // Helper method to determine if the given node has a visible next sibling.
@@ -772,7 +772,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.HasVisiblePreviousSibling(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.HasVisiblePreviousSibling(Node: TD2TreeNodeArray): Boolean;
 //True - если предыдущий перед узлом Node одноуровневый узел видимый.
 //Требуется, чтобы сделать правильные линии дерева
 // Helper method to determine if the given node has a visible previous sibling.
@@ -836,10 +836,10 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.IsFirstVisibleChild(Parent, Node: PD2VirtualNode ): Boolean;
+function TD2BaseVirtualTree.IsFirstVisibleChild(Parent, Node: TD2TreeNodeArray ): Boolean;
 //True - если узел Node является первым видимым ребенком узла Parent.
 // Helper method to check if Node is the same as the first visible child of Parent.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   // Find first visible child.
   Run := Parent.FirstChild;
@@ -849,10 +849,10 @@ begin
   Result := Assigned(Run) and (Run = Node);
 end;
 
-function TD2BaseVirtualTree.IsLastVisibleChild(Parent, Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.IsLastVisibleChild(Parent, Node: TD2TreeNodeArray): Boolean;
 //True - если узел Node является последним видимым ребенком узла Parent.
 // Helper method to check if Node is the same as the last visible child of Parent.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   // Find last visible child.
   Run := Parent.LastChild;
@@ -862,7 +862,7 @@ begin
   Result := Assigned(Run) and (Run = Node);
 end;
 
-function TD2BaseVirtualTree.MakeNewNode: PD2VirtualNode;
+function TD2BaseVirtualTree.MakeNewNode: TD2TreeNodeArray;
 //Создает новый узел дерева и возвращает его указатель
 var Size: Cardinal;
 begin
@@ -886,10 +886,10 @@ end;
 
 {$ifdef PACKARRAYPASCAL}
 
-function TD2BaseVirtualTree.PackArray(const TheArray: TD2NodeArray; Count: Integer): Integer;
+function TD2BaseVirtualTree.PackArray(const TheArray: TD2TreeNodeArray; Count: Integer): Integer;
 //Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
 var
-  Source, Dest: ^PD2VirtualNode;
+  Source, Dest: ^TD2TreeNodeArray;
   ConstOne: NativeInt;
 begin
   Source := Pointer(TheArray);
@@ -924,7 +924,7 @@ end;
 
 {$IMPLICITEXCEPTIONS OFF}
 
-function TD2BaseVirtualTree.PackArray(TheArray: TD2NodeArray; Count: Integer): Integer; assembler;
+function TD2BaseVirtualTree.PackArray(TheArray: TD2TreeNodeArray; Count: Integer): Integer; assembler;
 //Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
 //Массив выбора должен быть отсортирован для работы этого алгоритма. У удаляемых
 //узлов установлен бит 0 (LSB). Этот маленький трюк работает, потому что выделение
@@ -1003,9 +1003,9 @@ begin
     Include(FOptions.FAnimationOptions, toAnimatedToggle);
 end;
 
-procedure TD2BaseVirtualTree.SetBottomNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.SetBottomNode(Node: TD2TreeNodeArray);
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   R: TD2Rect;
 
 begin
@@ -1034,14 +1034,14 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetCheckState(Node: PD2VirtualNode; Value: TD2CheckState);
+procedure TD2BaseVirtualTree.SetCheckState(Node: TD2TreeNodeArray; Value: TD2CheckState);
 
 begin
   if (Node.CheckState <> Value) and not (vsDisabled in Node.States) and DoChecking(Node, Value) then
     DoCheckClick(Node, Value);
 end;
 
-procedure TD2BaseVirtualTree.SetCheckType(Node: PD2VirtualNode; Value: TD2CheckType);
+procedure TD2BaseVirtualTree.SetCheckType(Node: TD2TreeNodeArray; Value: TD2CheckType);
 
 begin
   if (Node.CheckType <> Value) and not (toReadOnly in FOptions.FMiscOptions) then
@@ -1068,7 +1068,7 @@ end;
 
 {$endif}
 
-procedure TD2BaseVirtualTree.SetChildCount(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.SetChildCount(Node: TD2TreeNodeArray;
   NewChildCount: Cardinal);
 //Установка кол-ва потомков узла Node в NewChildCount с изменением их структуры.
 //И спользуется для добавления или удаления дочерних узлов в / из конца списка дочернего узла.
@@ -1079,7 +1079,7 @@ procedure TD2BaseVirtualTree.SetChildCount(Node: PD2VirtualNode;
 var
   Remaining: Cardinal;
   Index: Cardinal;
-  Child: PD2VirtualNode;
+  Child: TD2TreeNodeArray;
   Count: Integer;
   NewHeight: Single;
   lNodeHeight: Single;
@@ -1206,7 +1206,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetDisabled(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetDisabled(Node: TD2TreeNodeArray; Value: Boolean);
 //Устанавливает флаг vsDisabled (отключен) у узла Node в соответствии с Value.
 begin
   if Assigned(Node) and (Value xor (vsDisabled in Node.States)) then
@@ -1221,14 +1221,14 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetExpanded(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetExpanded(Node: TD2TreeNodeArray; Value: Boolean);
 //Устанавливает флаг vsExpanded (развернутый) у узла Node в соответствии с Value
 begin
  if Assigned(Node) and (Node <> FRoot) and (Value xor (vsExpanded in Node.States)) then
     ToggleNode(Node);
 end;
 
-procedure TD2BaseVirtualTree.SetFiltered(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetFiltered(Node: TD2TreeNodeArray; Value: Boolean);
 //Устанавливает флаг vsFiltered (отфильтрованный) у узла Node в соответствии с Value и обновляет все зависимые статусы.
 // Sets the 'filtered' flag of the given node according to Value and updates all dependent states.
 var NeedUpdate: Boolean;
@@ -1312,7 +1312,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetFocusedNode(Value: PD2VirtualNode);
+procedure TD2BaseVirtualTree.SetFocusedNode(Value: TD2TreeNodeArray);
 var WasDifferent: Boolean;
 begin
   WasDifferent := Value <> FFocusedNode;
@@ -1322,7 +1322,7 @@ begin
     DoFocusChange(FFocusedNode, FFocusedColumn);
 end;
 
-procedure TD2BaseVirtualTree.SetFullyVisible(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetFullyVisible(Node: TD2TreeNodeArray; Value: Boolean);
 //При Value=True узел Node и все его родители становятся видимыми, а также все его родители раскрываются
 //При Value=False флаг видимости сбрасывается, без изменения состояния развернутости и видимости родительских узлов.
 // This method ensures that a node is visible and all its parent nodes are expanded and also visible
@@ -1345,7 +1345,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetHasChildren(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetHasChildren(Node: TD2TreeNodeArray; Value: Boolean);
 //Установить флаг vsHasChildren (наличие детей) в Value у узла Node
 begin
   if Assigned(Node) and not (toReadOnly in FOptions.FMiscOptions) then
@@ -1377,7 +1377,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetNodeHeight(Node: PD2VirtualNode; Value: Single);
+procedure TD2BaseVirtualTree.SetNodeHeight(Node: TD2TreeNodeArray; Value: Single);
 //Установить в Value высоту узла Node
 var Difference: Integer;
 begin
@@ -1409,14 +1409,14 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetNodeParent(Node: PD2VirtualNode; const Value: PD2VirtualNode);
+procedure TD2BaseVirtualTree.SetNodeParent(Node: TD2TreeNodeArray; const Value: TD2TreeNodeArray);
 //Задать родителя Value для узла Node
 begin
   if Assigned(Node) and Assigned(Value) and (Node.Parent <> Value) then
     MoveTo(Node, Value, amAddChildLast, False);
 end;
 
-procedure TD2BaseVirtualTree.SetMultiline(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.SetMultiline(Node: TD2TreeNodeArray;
   const Value: Boolean);
 begin
   if Assigned(Node) and (Node <> FRoot) then
@@ -1474,7 +1474,7 @@ begin
     end;
 end;
 
-procedure TD2BaseVirtualTree.SetSelected(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetSelected(Node: TD2TreeNodeArray; Value: Boolean);
 //Установить статус "выбран" узла Node в соответствие с Value
 begin
   if not FSelectionLocked and Assigned(Node) and (Node <> FRoot) and (Value xor (vsSelected in Node.States)) then
@@ -1510,10 +1510,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetTopNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.SetTopNode(Node: TD2TreeNodeArray);
 //var
   //R: TRect;
-  //Run: PD2VirtualNode;
+  //Run: TD2TreeNodeArray;
 begin
   //if Assigned(Node) then
   //begin
@@ -1533,7 +1533,7 @@ begin
   //end;
 end;
 
-procedure TD2BaseVirtualTree.SetVerticalAlignment(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.SetVerticalAlignment(Node: TD2TreeNodeArray;
   Value: Single);
 begin
   if Value > 100 then
@@ -1546,7 +1546,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetVisible(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetVisible(Node: TD2TreeNodeArray; Value: Boolean);
 //Устанавливает видимость узла Node в соответствии с Value.
 // Sets the visibility style of the given node according to Value.
 var NeedUpdate: Boolean;
@@ -1602,7 +1602,7 @@ begin
 end;
 
 
-procedure TD2BaseVirtualTree.SetVisiblePath(Node: PD2VirtualNode; Value: Boolean);
+procedure TD2BaseVirtualTree.SetVisiblePath(Node: TD2TreeNodeArray; Value: Boolean);
 //При Value = True разворачиваются все родительские узлы для узла Node.
 //При Value = False ни какие измененя не происходят
 // If Value is True then all parent nodes of Node are expanded.
@@ -1732,7 +1732,7 @@ begin
 //  end;
 end;
 
-procedure TD2BaseVirtualTree.AddToSelection(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.AddToSelection(Node: TD2TreeNodeArray);
 //Добавляет узел Node в массив текущего выбора.
 var Changed: Boolean;
 begin
@@ -1751,7 +1751,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TD2BaseVirtualTree.AddToSelection(const NewItems: TD2NodeArray;
+procedure TD2BaseVirtualTree.AddToSelection(const NewItems: TD2TreeNodeArray;
   NewLength: Integer; ForceInsert: Boolean = False);
 //Добавляет узлы, указанные в массиве NewItems в массив текущего выбора.
 //NewLength - количество узлов, для добавления (необходимо, чтобы позволить
@@ -1786,7 +1786,7 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.AdviseChangeEvent(StructureChange: Boolean;
-  Node: PD2VirtualNode; Reason: TD2ChangeReason);
+  Node: TD2TreeNodeArray; Reason: TD2ChangeReason);
 //Используется для регистрации отложенного событий изменения.
 //Если StructureChange = False, то имеется событие изменения выбора узлов
 //(без конкретной причины) иначе это изменение структуры.
@@ -1844,7 +1844,7 @@ begin
 
 end;
 
-procedure TD2BaseVirtualTree.Change(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.Change(Node: TD2TreeNodeArray);
 begin
   AdviseChangeEvent(False, Node, crIgnore);
 
@@ -1856,7 +1856,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.CheckParentCheckState(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.CheckParentCheckState(Node: TD2TreeNodeArray;
   NewCheckState: TD2CheckState): Boolean;
 //Проверяет все братья и сестры узла Node что бы определить кокое состояние отметки должен получить родитель.
 // Checks all siblings of node to determine which check state Node's parent must get.
@@ -1865,7 +1865,7 @@ var
   CheckCount,
   BoxCount: Cardinal;
   PartialCheck: Boolean;
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   CheckCount := 0;
@@ -1933,7 +1933,7 @@ begin
   FTempNodeCount := 0;
 end;
 
-function TD2BaseVirtualTree.CountLevelDifference(Node1, Node2: PD2VirtualNode
+function TD2BaseVirtualTree.CountLevelDifference(Node1, Node2: TD2TreeNodeArray
   ): Integer;
 // Этот метод подсчитывает, на сколько уровней отступа данные узлы отстоят друг от друга.
 // Если оба узла имеют одного родителя, то разница 0 в противном случае результат
@@ -1968,7 +1968,7 @@ begin
   Result := Level2 - Level1;
 end;
 
-function TD2BaseVirtualTree.CountVisibleChildren(Node: PD2VirtualNode): Cardinal;
+function TD2BaseVirtualTree.CountVisibleChildren(Node: TD2TreeNodeArray): Cardinal;
 //Возвращает количество видимых дочерних узлов узла Node.
 // Returns the number of visible child nodes of the given node.
 begin
@@ -1988,10 +1988,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DetermineHiddenChildrenFlag(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DetermineHiddenChildrenFlag(Node: TD2TreeNodeArray);
 // Обновление флага vsAllChildrenHidden (все дети скрыты) у узла Node.
 // Update the hidden children flag of the given node.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   if Node.ChildCount = 0 //если кол-во детей = 0
    then begin
@@ -2013,7 +2013,7 @@ end;
 
 procedure TD2BaseVirtualTree.DetermineHiddenChildrenFlagAllNodes;
 // Обновление флага vsAllChildrenHidden (все дети скрыты) у всех неинициализированных узлов.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   Run := GetFirstNoInit(False);
   while Assigned(Run) do
@@ -2060,7 +2060,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DoChange(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoChange(Node: TD2TreeNodeArray);
 //Вызывает прерывание OnChange
 begin
   //KillTimer(Handle, ChangeTimer);
@@ -2073,14 +2073,14 @@ begin
   FLastChangedNode := nil;
 end;
 
-procedure TD2BaseVirtualTree.DoCheckClick(Node: PD2VirtualNode; NewCheckState: TD2CheckState);
+procedure TD2BaseVirtualTree.DoCheckClick(Node: TD2TreeNodeArray; NewCheckState: TD2CheckState);
 
 begin
   if ChangeCheckState(Node, NewCheckState) then
     DoChecked(Node);
 end;
 
-procedure TD2BaseVirtualTree.DoChecked(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoChecked(Node: TD2TreeNodeArray);
 
 begin
   if Assigned(FOnChecked) then
@@ -2091,7 +2091,7 @@ begin
   {$endif}
 end;
 
-function TD2BaseVirtualTree.DoChecking(Node: PD2VirtualNode; var NewCheckState: TD2CheckState): Boolean;
+function TD2BaseVirtualTree.DoChecking(Node: TD2TreeNodeArray; var NewCheckState: TD2CheckState): Boolean;
 //Определяет может ли узел Node изменить состояние отметки проверки на NewCheckState и вызывает прерывание OnChecking
 // Determines if a node is allowed to change its check state to NewCheckState.
 begin
@@ -2105,10 +2105,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DoCollapsed(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoCollapsed(Node: TD2TreeNodeArray);
 var
-  lFirstSelected: PD2VirtualNode;
-  lParent: PD2VirtualNode;
+  lFirstSelected: TD2TreeNodeArray;
+  lParent: TD2TreeNodeArray;
 begin
   if Assigned(FOnCollapsed) then
     FOnCollapsed(Self, Node);
@@ -2137,7 +2137,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TD2BaseVirtualTree.DoCollapsing(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.DoCollapsing(Node: TD2TreeNodeArray): Boolean;
 
 begin
   Result := True;
@@ -2145,7 +2145,7 @@ begin
     FOnCollapsing(Self, Node, Result);
 end;
 
-function TD2BaseVirtualTree.DoCompare(Node1, Node2: PD2VirtualNode;
+function TD2BaseVirtualTree.DoCompare(Node1, Node2: TD2TreeNodeArray;
   Column: TD2ColumnIndex): Integer;
 //Вызывает прерывание сравнения узлов (OnCompareNodes)
 begin
@@ -2154,7 +2154,7 @@ begin
     FOnCompareNodes(Self, Node1, Node2, Column, Result);
 end;
 
-function TD2BaseVirtualTree.DoCreateEditor(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.DoCreateEditor(Node: TD2TreeNodeArray;
   Column: TD2ColumnIndex): ID2VTEditLink;
 begin
   Result := nil;
@@ -2162,7 +2162,7 @@ begin
     FOnCreateEditor(Self, Node, Column, Result);
 end;
 
-procedure TD2BaseVirtualTree.DoCanEdit(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.DoCanEdit(Node: TD2TreeNodeArray;
   Column: TD2ColumnIndex; var Allowed: Boolean);
 begin
   if Assigned(FOnEditing)
@@ -2228,7 +2228,7 @@ begin
   EnsureNodeSelected();
 end;
 
-procedure TD2BaseVirtualTree.DoFocusChange(Node: PD2VirtualNode; Column: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.DoFocusChange(Node: TD2TreeNodeArray; Column: TD2ColumnIndex);
 //Вызывает прерывание смены фокуса узла
 begin
   if Assigned(FOnFocusChanged) then
@@ -2243,7 +2243,7 @@ begin
   {$endif}
 end;
 
-function TD2BaseVirtualTree.DoFocusChanging(OldNode, NewNode: PD2VirtualNode;
+function TD2BaseVirtualTree.DoFocusChanging(OldNode, NewNode: TD2TreeNodeArray;
   OldColumn, NewColumn: TD2ColumnIndex): Boolean;
 begin
   Result := (OldColumn = NewColumn) or FHeader.AllowFocus(NewColumn);
@@ -2251,7 +2251,7 @@ begin
     FOnFocusChanging(Self, OldNode, NewNode, OldColumn, NewColumn, Result);
 end;
 
-procedure TD2BaseVirtualTree.DoFocusNode(Node: PD2VirtualNode; Ask: Boolean);
+procedure TD2BaseVirtualTree.DoFocusNode(Node: TD2TreeNodeArray; Ask: Boolean);
 begin
   if not (tsEditing in FStates) or EndEditNode then
   begin
@@ -2293,7 +2293,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DoFreeNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoFreeNode(Node: TD2TreeNodeArray);
 //Вызывает прерывание при освобождении узла
 begin
   // Prevent invalid references
@@ -2330,7 +2330,7 @@ begin
   if Self.UpdateCount = 0 then EnsureNodeSelected();
 end;
 
-function TD2BaseVirtualTree.DoInitChildren(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.DoInitChildren(Node: TD2TreeNodeArray;
   var ChildCount: Cardinal): Boolean;
 //Вызывает OnInitChildren и возвращает истину, если обработчик события определен;
 // The function calls the OnInitChildren and returns True if the event was called;
@@ -2344,15 +2344,15 @@ begin
     else Result := False;
 end;
 
-procedure TD2BaseVirtualTree.DoInitNode(Parent, Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.DoInitNode(Parent, Node: TD2TreeNodeArray;
 //Вызов прерывания OnInitNode
-var InitStates: TD2VirtualNodeInitStates);
+var InitStates: TD2TreeNodeInitStates);
 begin
   if Assigned(FOnInitNode) then
     FOnInitNode(Self, Parent, Node, InitStates);
 end;
 
-procedure TD2BaseVirtualTree.DoLoadUserData(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.DoLoadUserData(Node: TD2TreeNodeArray;
   Stream: TStream);
 begin
   if Assigned(FOnLoadNode) then
@@ -2363,21 +2363,21 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.DoMeasureItem(TargetCanvas: TD2Canvas;
-  Node: PD2VirtualNode; var NodeHeight: Single);
+  Node: TD2TreeNodeArray; var NodeHeight: Single);
 //Вызов прерывания определения высоты узла
 begin
   if Assigned(FOnMeasureItem) then
   FOnMeasureItem(Self, TargetCanvas, Node, NodeHeight);
 end;
 
-procedure TD2BaseVirtualTree.DoNodeCopied(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoNodeCopied(Node: TD2TreeNodeArray);
 
 begin
   if Assigned(FOnNodeCopied) then
     FOnNodeCopied(Self, Node);
 end;
 
-function TD2BaseVirtualTree.DoNodeCopying(Node, NewParent: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.DoNodeCopying(Node, NewParent: TD2TreeNodeArray): Boolean;
 
 begin
   Result := True;
@@ -2385,7 +2385,7 @@ begin
     FOnNodeCopying(Self, Node, NewParent, Result);
 end;
 
-procedure TD2BaseVirtualTree.DoNodeMoved(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoNodeMoved(Node: TD2TreeNodeArray);
 //Вызов прерывания OnNodeMoved после перемещения узла Node к новому родителю
 begin
   if Assigned(FOnNodeMoved) then
@@ -2394,7 +2394,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TD2BaseVirtualTree.DoNodeMoving(Node, NewParent: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.DoNodeMoving(Node, NewParent: TD2TreeNodeArray): Boolean;
 //Вызов прерывания OnNodeMoving перед перемещением узла Node к новому родителю NewParent
 begin
   Result := True;
@@ -2402,20 +2402,20 @@ begin
     FOnNodeMoving(Self, Node, NewParent, Result);
 end;
 
-procedure TD2BaseVirtualTree.DoRemoveFromSelection(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoRemoveFromSelection(Node: TD2TreeNodeArray);
 //Вызов прерывания удалении узла Node из списка выделенных
 begin
   if Assigned(FOnRemoveFromSelection) then
     FOnRemoveFromSelection(Self, Node);
 end;
 
-procedure TD2BaseVirtualTree.DoReset(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoReset(Node: TD2TreeNodeArray);
 begin
   if Assigned(FOnResetNode) then
     FOnResetNode(Self, Node);
 end;
 
-procedure TD2BaseVirtualTree.DoSaveUserData(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.DoSaveUserData(Node: TD2TreeNodeArray;
   Stream: TStream);
 //Вызов прерывания OnSaveNode при записи узла Node в поток Stream
 begin
@@ -2454,7 +2454,7 @@ begin
   FStates := FStates + Enter - Leave;
 end;
 
-procedure TD2BaseVirtualTree.DoStructureChange(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.DoStructureChange(Node: TD2TreeNodeArray;
   Reason: TD2ChangeReason);
 //Вызов прерывания OnStructureChange при изменении структуры дерева
 begin
@@ -2481,7 +2481,7 @@ begin
   DoEndOperation(OperationKind);
 end;
 
-function TD2BaseVirtualTree.FindNodeInSelection(P: PD2VirtualNode;
+function TD2BaseVirtualTree.FindNodeInSelection(P: TD2TreeNodeArray;
   var Index: Integer; LowBound, HighBound: Integer): Boolean;
 //Поиск узла P в массиве выбора. LowBound и HighBound нижняя и верхняя границы диапазона поиска.
 //LowBound = -1 или HighBound = -1 - максимальный диапазон, иначе нужно LowBound <= HighBound.
@@ -2532,7 +2532,7 @@ begin
   Result := FOperationCanceled and (FOperationCount > 0);
 end;
 
-procedure TD2BaseVirtualTree.InitChildren(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.InitChildren(Node: TD2TreeNodeArray);
 //Инициализация дочерних узлов для узла Node.
 // Initiates the initialization of the child number of the given node.
 var Count: Cardinal;
@@ -2549,10 +2549,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.InitNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.InitNode(Node: TD2TreeNodeArray);
 //Инициализация узла Node для обеспечения загрузки приложением его данных.
 // Initiates the initialization of the given node to allow the application to load needed data for it.
-var InitStates: TD2VirtualNodeInitStates;
+var InitStates: TD2TreeNodeInitStates;
 begin
   with Node^ do
   begin
@@ -2602,13 +2602,13 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.InternalAddFromStream(Stream: TStream;
-  Version: Integer; Node: PD2VirtualNode);
+  Version: Integer; Node: TD2TreeNodeArray);
 // Загружает все детали узла Node (в том числе его детей) из потока Stream.
 // Поскольку новые узлы могут быть выбраны этот метод также фиксирует массив выбора.
 // Loads all details for Node (including its children) from the given stream.
 // Because the new nodes might be selected this method also fixes the selection array.
 var
-  Stop: PD2VirtualNode;
+  Stop: TD2TreeNodeArray;
   Index: Integer;
   LastTotalHeight: Single;
   WasFullyVisible: Boolean;
@@ -2671,7 +2671,7 @@ begin
     end;
 end;
 
-function TD2BaseVirtualTree.InternalAddToSelection(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.InternalAddToSelection(Node: TD2TreeNodeArray;
   ForceInsert: Boolean): Boolean;
 begin
   Assert(Assigned(Node), 'Node must not be nil!'); //прервать выполение если Node=Nil
@@ -2679,7 +2679,7 @@ begin
   Result := InternalAddToSelection(FSingletonNodeArray, 1, ForceInsert);  //передать выполнение во внутреннюю процедуру
 end;
 
-procedure TD2BaseVirtualTree.InternalDisconnectNode(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.InternalDisconnectNode(Node: TD2TreeNodeArray;
   KeepFocus: Boolean; Reindex: Boolean);
 // Отключает узел Node от его родителя и братьев и сестер. Указатель на узел не
 // сбрасываются и он по-прежнему может быть использован после возврата из прцедуры
@@ -2697,7 +2697,7 @@ procedure TD2BaseVirtualTree.InternalDisconnectNode(Node: PD2VirtualNode;
 
 var
   Parent,
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   Index: Integer;
   AdjustHeight: Boolean;
 
@@ -2765,7 +2765,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.InternalGetNodeAt(X, Y: Single): PD2VirtualNode;
+function TD2BaseVirtualTree.InternalGetNodeAt(X, Y: Single): TD2TreeNodeArray;
 //Получить ссылку на узел по координатам
 var Dummy: Integer;
 begin
@@ -2774,7 +2774,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TD2BaseVirtualTree.InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Integer): PD2VirtualNode;
+function TD2BaseVirtualTree.InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Integer): TD2TreeNodeArray;
 //Получить ссылку на узел по координатам
 //lclheader this is the original version of GetNodeAt used internally since expects coordinates
 //  relative to the image tree. In LCL the image tree and control coordinates are different
@@ -2831,7 +2831,7 @@ begin
   //end;
 end;
 
-procedure TD2BaseVirtualTree.InternalRemoveFromSelection(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.InternalRemoveFromSelection(Node: TD2TreeNodeArray);
 //Внутренняя версия метода RemoveFromSelection для удаления узла Node из массива выбранных.
 //Для окончательного удаления узла необходимо использовать функцию PackArray.
 // Special version to mark a node to be no longer in the current selection. PackArray must
@@ -2851,7 +2851,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.InternalAddToSelection(const NewItems: TD2NodeArray;
+function TD2BaseVirtualTree.InternalAddToSelection(const NewItems: TD2TreeNodeArray;
   NewLength: Integer; ForceInsert: Boolean): Boolean;
 // Внутренняя версия метода AddToSelection, не вызвающая событие OnChange
 // Internal version of method AddToSelection which does not trigger OnChange events
@@ -2953,7 +2953,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.InternalCacheNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.InternalCacheNode(Node: TD2TreeNodeArray);
 // Добавляет узел Node в массив временных узлов (используется при сборе возможно большого количества узлов).
 // Adds the given node to the temporary node cache (used when collecting possibly large amounts of nodes).
 var Len: Cardinal;
@@ -2970,7 +2970,7 @@ begin
   Inc(FTempNodeCount);
 end;
 
-procedure TD2BaseVirtualTree.InternalConnectNode(Node, Destination: PD2VirtualNode;
+procedure TD2BaseVirtualTree.InternalConnectNode(Node, Destination: TD2TreeNodeArray;
   Target: TD2BaseVirtualTree; Mode: TD2VTNodeAttachMode);
 //Присоединить узел Node к узлу Destination в дереве Target в зависимости от Mode.
 //Ни какие проверки не проводятся. Узлы Node и Destination должны быть действительным.
@@ -2979,7 +2979,7 @@ procedure TD2BaseVirtualTree.InternalConnectNode(Node, Destination: PD2VirtualNo
 // No error checking takes place. Node as well as Destination must be valid.
 // Node must never be a root node and Destination must not be a root node if Mode
 // is amInsertBefore or amInsertAfter.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   // Keep in mind that the destination node might belong to another tree.
   with Target do
@@ -3184,7 +3184,7 @@ procedure TD2BaseVirtualTree.MarkCutCopyNodes;
 // Sets the vsCutOrCopy style in every currently selected but not disabled node
 // to indicate it is now part of a clipboard operation.
 var
-  Nodes: TD2NodeArray;
+  Nodes: TD2TreeNodeArray;
   I: Integer;
 
 begin
@@ -3202,7 +3202,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.ReadChunk(Stream: TStream; Version: Integer;
-  Node: PD2VirtualNode; ChunkType, ChunkSize: Integer): Boolean;
+  Node: TD2TreeNodeArray; ChunkType, ChunkSize: Integer): Boolean;
 //Вызывается при чтении структуры дерева, узел Node уже действителен (распределен) на данный момент.
 //Возвращает True, если блок обработан, иначе false.
 //Функция обрабатывает базовый и пользовательский блоки, любой другой блок помечается как неизвестный
@@ -3214,7 +3214,7 @@ function TD2BaseVirtualTree.ReadChunk(Stream: TStream; Version: Integer;
 // Returns True if the chunk could be handled, otherwise False.
 var
   ChunkBody: TD2BaseChunkBody;
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   LastPosition: Integer;
 begin
   case ChunkType of
@@ -3276,7 +3276,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.ReadNode(Stream: TStream; Version: Integer; Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.ReadNode(Stream: TStream; Version: Integer; Node: TD2TreeNodeArray);
 // Считывает якорь блока каждого узла и начинает читать подблоки узла Node из потока Stream
 // Reads the anchor chunk of each node and initiates reading the sub chunks for this node
 var
@@ -3306,7 +3306,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.RemoveFromSelection(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.RemoveFromSelection(Node: TD2TreeNodeArray);
 //Удаляет узел Node из массива выбранных узлов
 var Index: Integer;
 begin
@@ -3342,7 +3342,7 @@ begin
   FLastSelectionLevel := -1;
 end;
 
-procedure TD2BaseVirtualTree.SelectNodes(StartNode, EndNode: PD2VirtualNode;
+procedure TD2BaseVirtualTree.SelectNodes(StartNode, EndNode: TD2TreeNodeArray;
   AddOnly: Boolean);
 //Выбирает диапазон узлов от узла StartNode до узла и EndNode отменяет выделение всех
 //ранее выбранных узлов, которые не находятся в этом диапазоне, если AddOnly = false.
@@ -3361,7 +3361,7 @@ procedure TD2BaseVirtualTree.SelectNodes(StartNode, EndNode: PD2VirtualNode;
 var
   NodeFrom,
   NodeTo,
-  LastAnchor: PD2VirtualNode;
+  LastAnchor: TD2TreeNodeArray;
   Index: Integer;
 
 begin
@@ -3410,7 +3410,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetFocusedNodeAndColumn(Node: PD2VirtualNode; Column: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.SetFocusedNodeAndColumn(Node: TD2TreeNodeArray; Column: TD2ColumnIndex);
 
 var
   OldColumn: TD2ColumnIndex;
@@ -3468,7 +3468,7 @@ begin
     FOperationCanceled := False;
 end;
 
-procedure TD2BaseVirtualTree.StructureChange(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.StructureChange(Node: TD2TreeNodeArray;
   Reason: TD2ChangeReason);
 
 begin
@@ -3563,7 +3563,7 @@ begin
   //end;
 end;
 
-procedure TD2BaseVirtualTree.UpdateNextNodeToSelect(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.UpdateNextNodeToSelect(Node: TD2TreeNodeArray);
 //Обновить узел для последующего выбора после удаления теущего выбранного узела.
 //Это заставит VT вести себя как Win32 TreeView, который всегда выбирает новый узел,
 //если выбранный узел будет удален.
@@ -3582,7 +3582,7 @@ begin
                     else FNextNodeToSelect := GetFirstChild(Node);
 end;//if Assigned(Node);
 
-procedure TD2BaseVirtualTree.WriteChunks(Stream: TStream; Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.WriteChunks(Stream: TStream; Node: TD2TreeNodeArray);
 //Записывает основные элементы узла Node в поток Stream.
 //Внимание! Потомки могут опционально переопределить этот метод для добавления
 //          других специфический элементов собственных узлов. Имейте в виду,
@@ -3600,7 +3600,7 @@ var
   LastPosition,
   ChunkSize: Integer;
   Chunk: TD2BaseChunk;
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   with Stream do
@@ -3654,7 +3654,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.WriteNode(Stream: TStream; Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.WriteNode(Stream: TStream; Node: TD2TreeNodeArray);
 //Записывает основной элемент "обертку" узла Node в поток Stream и инициирует
 //запись дочерних узлов и элементов.
 // Writes the "cover" chunk for Node to Stream and initiates writing child nodes and chunks.
@@ -3684,7 +3684,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DoExpanded(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.DoExpanded(Node: TD2TreeNodeArray);
 begin
   if Assigned(FOnExpanded) then
     FOnExpanded(Self, Node);
@@ -3693,14 +3693,14 @@ begin
   {$endif}
 end;
 
-function TD2BaseVirtualTree.DoExpanding(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.DoExpanding(Node: TD2TreeNodeArray): Boolean;
 begin
   Result := True;
   if Assigned(FOnExpanding) then
     FOnExpanding(Self, Node, Result);
 end;
 
-function TD2BaseVirtualTree.AbsoluteIndex(Node: PD2VirtualNode): Cardinal;
+function TD2BaseVirtualTree.AbsoluteIndex(Node: TD2TreeNodeArray): Cardinal;
 //Возвращает абсолютный № узла Node в дереве
 begin
   Result := 0;
@@ -3723,7 +3723,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.AddChild(Parent: PD2VirtualNode; UserData: Pointer): PD2VirtualNode;
+function TD2BaseVirtualTree.AddChild(Parent: TD2TreeNodeArray; UserData: Pointer): TD2TreeNodeArray;
 //Добавляет новый дочерний узел к родительскому узлу Parent и увеличивает кол-во
 //дочерних узлов. Если Parent равен Nil, то новый узел добавляется в качестве
 //последнего узла верхнего уровня.
@@ -3810,7 +3810,7 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.AddFromStream(Stream: TStream;
-  TargetNode: PD2VirtualNode);
+  TargetNode: TD2TreeNodeArray);
 //Загружает узлы из потока Stream и добавляет их к TargetNode. Текущее содержимое
 //не очищается до начала процесса загрузки (см также LoadFromStream)
 // loads nodes from the given stream and adds them to TargetNode the current content
@@ -3819,7 +3819,7 @@ var
   ThisID: TD2MagicID;
   Version,
   Count: Cardinal;
-  Node: PD2VirtualNode;
+  Node: TD2TreeNodeArray;
 begin
   if not (toReadOnly in FOptions.FMiscOptions) then
   begin
@@ -3874,7 +3874,7 @@ begin
     Result := True;
 end;
 
-function TD2BaseVirtualTree.CanEdit(Node: PD2VirtualNode; Column: TD2ColumnIndex
+function TD2BaseVirtualTree.CanEdit(Node: TD2TreeNodeArray; Column: TD2ColumnIndex
   ): Boolean;
 // True - если данный узел может быть отредактирован.
 // Returns True if the given node can be edited.
@@ -3929,7 +3929,7 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.ClearChecked;
-var Node: PD2VirtualNode;
+var Node: TD2TreeNodeArray;
 begin
   Node := RootNode.FirstChild;
   while Assigned(Node) do
@@ -3943,7 +3943,7 @@ end;
 procedure TD2BaseVirtualTree.ClearSelection;
 //Очистить массив выбора узлов
 var
-  Node: PD2VirtualNode;
+  Node: TD2TreeNodeArray;
   R: TD2Rect;
   Counter: Integer;
 begin
@@ -3981,8 +3981,8 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.CopyTo(Source: PD2VirtualNode; Tree: TD2BaseVirtualTree;
-  Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.CopyTo(Source: TD2TreeNodeArray; Tree: TD2BaseVirtualTree;
+  Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean): TD2TreeNodeArray;
 // Упрощенный метод CopyTo, чтобы скопировать узел Source в корень другого дерева Tree.
 // A simplified CopyTo method to allow to copy nodes to the root of another tree.
 begin
@@ -3991,8 +3991,8 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TD2BaseVirtualTree.CopyTo(Source, Target: PD2VirtualNode;
-  Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.CopyTo(Source, Target: TD2TreeNodeArray;
+  Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean): TD2TreeNodeArray;
 //Копирует Source и всех его детей в узел Target.
 //Mode используется для указания, где добавить новый узел (как одноуровневый или
 //дочерний к Target). При ChildrenOnly = False результатом является вновь созданный
@@ -4091,12 +4091,12 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.DeleteChild(Node: PD2VirtualNode; ResetHasChildren: Boolean);
+procedure TD2BaseVirtualTree.DeleteChild(Node: TD2TreeNodeArray; ResetHasChildren: Boolean);
 //Удаление всех детей и их детей узла Node из памяти, не меняя флмг vsHasChildren узла.
 // Removes all children and their children from memory without changing the vsHasChildren style by default.
 var
   Run,
-  Mark: PD2VirtualNode;
+  Mark: TD2TreeNodeArray;
   LastTop,
   LastLeft:Single;
   NewSize: Integer;
@@ -4182,12 +4182,12 @@ begin
     Exclude(Node.States, vsHasChildren);
 end;
 
-procedure TD2BaseVirtualTree.DeleteNode(Node: PD2VirtualNode; Reindex: Boolean);
+procedure TD2BaseVirtualTree.DeleteNode(Node: TD2TreeNodeArray; Reindex: Boolean);
 //Удаление узла Node и всех его детей и их детей и т.д.
 var
   LastTop,
   LastLeft: Single;
-  LastParent: PD2VirtualNode;
+  LastParent: TD2TreeNodeArray;
   WasInSynchMode: Boolean;
   ParentClearing: Boolean;
 
@@ -4263,7 +4263,7 @@ procedure TD2BaseVirtualTree.DeleteSelectedNodes;
 // Удаляет все выбранные узлы (включая их дочерние узлы).
 // Deletes all currently selected nodes (including their child nodes).
 var
-  Nodes: TD2NodeArray;
+  Nodes: TD2TreeNodeArray;
   I: Integer;
   LevelChange: Boolean;
 begin
@@ -4285,7 +4285,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.EditNode(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.EditNode(Node: TD2TreeNodeArray;
   Column: TD2ColumnIndex): Boolean;
 //Начать редактирование узла Node в колонке Column.
 //Возвращает True, если начато редактирование иначе - False.
@@ -4339,7 +4339,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.FullCollapse(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.FullCollapse(Node: TD2TreeNodeArray);
 //Эта процедура сворачивает все развернутые узлы в поддереве узла Node или всего
 //дерева если Node = FRoot или Nil. Свернуты будут только те узлы, которые были
 //развернуты. Это исключает неинициализированные узлы, но узлы помеченые как видимые
@@ -4347,7 +4347,7 @@ procedure TD2BaseVirtualTree.FullCollapse(Node: PD2VirtualNode);
 // This routine collapses all expanded nodes in the subtree given by Node or the whole tree
 // if Node is FRoot or nil. Only nodes which are expanded will be collapsed. This excludes
 // uninitialized nodes but nodes marked as visible will still be collapsed if they are expanded.
-var Stop: PD2VirtualNode;
+var Stop: TD2TreeNodeArray;
 begin
   if FRoot.TotalCount > 1 then
   begin
@@ -4379,7 +4379,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.FullExpand(Node: PD2VirtualNode = nil);
+procedure TD2BaseVirtualTree.FullExpand(Node: TD2TreeNodeArray = nil);
 //Эта процедура разворачивает все свернутые узлы в поддереве узла Node или всего дерева,
 //если Node = Froot или Nil. Все узлы на пути вниз инициализируются поэтому процедура
 //может занять длительное время. Поскольку все узлы проверяются, дерево не может
@@ -4388,7 +4388,7 @@ procedure TD2BaseVirtualTree.FullExpand(Node: PD2VirtualNode = nil);
 // All nodes on the way down are initialized so this procedure might take a long time.
 // Since all nodes are validated, the tree cannot make use of optimatizations. Hence it is counter productive and you
 // should consider avoiding its use.
-var Stop: PD2VirtualNode;
+var Stop: TD2TreeNodeArray;
 begin
   if FRoot.TotalCount > 1 then
   begin
@@ -4432,7 +4432,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetDisplayRect(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.GetDisplayRect(Node: TD2TreeNodeArray;
   Column: TD2ColumnIndex; TextOnly: Boolean; Unclipped: Boolean;
   ApplyCellContentMargin: Boolean): TD2Rect;
 // Определяет прямоугольник на экране, который занимает узел Node
@@ -4453,7 +4453,7 @@ begin
 
 end;
 
-function TD2BaseVirtualTree.GetEffectivelyFiltered(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetEffectivelyFiltered(Node: TD2TreeNodeArray): Boolean;
 //True -  если узел Node эффективно отфильтрован.
 //Это зависит от статуса узла и опции отрисовки отфильтрованных узлов.
 // Checks if a node is effectively filtered out. This depends on the nodes state and the paint options.
@@ -4463,7 +4463,7 @@ begin
     else Result := False;
 end;
 
-function TD2BaseVirtualTree.GetEffectivelyVisible(Node: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.GetEffectivelyVisible(Node: TD2TreeNodeArray): Boolean;
 //True -  если узел Node эффективно видим.
 //Это зависит от статуса узла и опции отрисовки отфильтрованных узлов.
 begin
@@ -4472,7 +4472,7 @@ begin
     else Result := False;
 end;
 
-function TD2BaseVirtualTree.GetFirst(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirst(ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 
@@ -4510,7 +4510,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.GetFirstChecked(State: TD2CheckState = csCheckedNormal;
-  ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+  ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node in the tree with the given check state.
 
@@ -4518,7 +4518,7 @@ begin
   Result := GetNextChecked(nil, State, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetFirstChild(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstChild(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the first child of the given node. The result node is initialized before exit.
 
@@ -4543,7 +4543,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetFirstChildNoInit(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstChildNoInit(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 // Determines the first child of the given node but does not initialize it.
 
 begin
@@ -4558,7 +4558,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node in the tree which is currently marked for a clipboard operation.
 // See also GetNextCutCopy for comments on initialization.
@@ -4567,7 +4567,7 @@ begin
   Result := GetNextCutCopy(nil, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node which is already initialized.
 
@@ -4577,7 +4577,7 @@ begin
     Result := GetNextInitialized(Result, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetFirstLeaf: PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstLeaf: TD2TreeNodeArray;
 
 // Returns the first node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -4586,7 +4586,7 @@ begin
   Result := GetNextLeaf(nil);
 end;
 
-function TD2BaseVirtualTree.GetFirstLevel(NodeLevel: Cardinal): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstLevel(NodeLevel: Cardinal): TD2TreeNodeArray;
 
 // Returns the first node in the tree on a specific level.
 // The result is initialized if necessary.
@@ -4603,7 +4603,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -4631,7 +4631,7 @@ begin
     Result := FRoot.FirstChild;
 end;
 
-function TD2BaseVirtualTree.GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstSelected(ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first node in the current selection while optionally considering toChildrenAbove.
 
@@ -4639,8 +4639,8 @@ begin
   Result := GetNextSelected(nil, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetFirstVisible(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-  IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstVisible(Node: TD2TreeNodeArray = nil; ConsiderChildrenAbove: Boolean = True;
+  IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first visible node in the tree while optionally considering toChildrenAbove.
 // If necessary nodes are initialized on demand.
@@ -4735,7 +4735,7 @@ begin
     Result := GetNextVisible(Result);
 end;
 
-function TD2BaseVirtualTree.GetFirstVisibleChild(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstVisibleChild(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first visible child node of Node. If necessary nodes are initialized on demand.
 
@@ -4749,7 +4749,7 @@ begin
     Result := GetNextVisibleSibling(Result, IncludeFiltered);
 end;
 
-function TD2BaseVirtualTree.GetFirstVisibleChildNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstVisibleChildNoInit(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first visible child node of Node.
 
@@ -4762,8 +4762,8 @@ begin
     Result := GetNextVisibleSiblingNoInit(Result, IncludeFiltered);
 end;
 
-function TD2BaseVirtualTree.GetFirstVisibleNoInit(Node: PD2VirtualNode = nil;
-  ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetFirstVisibleNoInit(Node: TD2TreeNodeArray = nil;
+  ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the first visible node in the tree or given subtree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -4842,13 +4842,13 @@ begin
 end;
 
 
-function TD2BaseVirtualTree.GetLast(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLast(Node: TD2TreeNodeArray = nil; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the very last node in the tree branch given by Node and initializes the nodes all the way down including the
 // result. toChildrenAbove is optionally considered. By using Node = nil the very last node in the tree is returned.
 
 var
-  Next: PD2VirtualNode;
+  Next: TD2TreeNodeArray;
 
 begin
   Result := GetLastChild(Node);
@@ -4864,8 +4864,8 @@ begin
     end;
 end;
 
-function TD2BaseVirtualTree.GetLastInitialized(Node: PD2VirtualNode = nil;
-  ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastInitialized(Node: TD2TreeNodeArray = nil;
+  ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the very last initialized child node in the tree branch given by Node.
 
@@ -4875,12 +4875,12 @@ begin
     Result := GetPreviousInitialized(Result, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetLastNoInit(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastNoInit(Node: TD2TreeNodeArray = nil; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the very last node in the tree branch given by Node without initialization.
 
 var
-  Next: PD2VirtualNode;
+  Next: TD2TreeNodeArray;
 
 begin
   Result := GetLastChildNoInit(Node);
@@ -4896,7 +4896,7 @@ begin
     end;
 end;
 
-function TD2BaseVirtualTree.GetLastChild(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastChild(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Determines the last child of the given node and initializes it if there is one.
 
@@ -4921,7 +4921,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetLastChildNoInit(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastChildNoInit(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Determines the last child of the given node but does not initialize it.
 
@@ -4937,12 +4937,12 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetLastVisible(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-  IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastVisible(Node: TD2TreeNodeArray = nil; ConsiderChildrenAbove: Boolean = True;
+  IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
 // The nodes are intialized all the way up including the result node.
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   Result := GetLastVisibleNoInit(Node, ConsiderChildrenAbove);
 
@@ -4955,7 +4955,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetLastVisibleChild(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastVisibleChild(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Determines the last visible child of the given node and initializes it if necessary.
 
@@ -4976,7 +4976,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetLastVisibleChildNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastVisibleChildNoInit(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Determines the last visible child of the given node without initialization.
 
@@ -4994,8 +4994,8 @@ begin
     Result := GetPreviousVisibleSiblingNoInit(Result, IncludeFiltered);
 end;
 
-function TD2BaseVirtualTree.GetLastVisibleNoInit(Node: PD2VirtualNode = nil;
-  ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetLastVisibleNoInit(Node: TD2TreeNodeArray = nil;
+  ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -5014,7 +5014,7 @@ begin
     Result := nil;
 end;
 
-function TD2BaseVirtualTree.GetNext(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNext(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns next node in tree while optionally considering toChildrenAbove. The Result will be initialized if needed.
 
@@ -5096,8 +5096,8 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetNextChecked(Node: PD2VirtualNode; State: TD2CheckState = csCheckedNormal;
-  ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextChecked(Node: TD2TreeNodeArray; State: TD2CheckState = csCheckedNormal;
+  ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 begin
   if (Node = nil) or (Node = FRoot) then
@@ -5112,12 +5112,12 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetNextChecked(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextChecked(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean): TD2TreeNodeArray;
 begin
   Result := Self.GetNextChecked(Node, csCheckedNormal, ConsiderChildrenAbove);
 end;
 
-function TD2BaseVirtualTree.GetNextCutCopy(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextCutCopy(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the next node in the tree which is currently marked for a clipboard operation. Since only visible nodes can
 // be marked (or they are hidden after they have been marked) it is not necessary to initialize nodes to check for
@@ -5139,7 +5139,7 @@ begin
     Result := nil;
 end;
 
-function TD2BaseVirtualTree.GetNextInitialized(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextInitialized(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the next node in tree which is initialized.
 
@@ -5150,7 +5150,7 @@ begin
   until (Result = nil) or (vsInitialized in Result.States);
 end;
 
-function TD2BaseVirtualTree.GetNextLeaf(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextLeaf(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the next node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -5166,7 +5166,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetNextLevel(Node: PD2VirtualNode; NodeLevel: Cardinal): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextLevel(Node: TD2TreeNodeArray; NodeLevel: Cardinal): TD2TreeNodeArray;
 
 // Returns the next node in the tree on a specific level.
 // The result is initialized if necessary.
@@ -5213,7 +5213,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetNextNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextNoInit(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean): TD2TreeNodeArray;
 
 // Optimized version of GetNext performing no initialization, but optionally considering toChildrenAbove.
 
@@ -5278,7 +5278,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNextSelected(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextSelected(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the next node in the tree which is currently selected. Since children of unitialized nodes cannot be
 // in the current selection (because they simply do not exist yet) it is not necessary to initialize nodes here.
@@ -5300,7 +5300,7 @@ begin
     Result := nil;
 end;
 
-function TD2BaseVirtualTree.GetNextSibling(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextSibling(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the next sibling of Node and initializes it if necessary.
 
@@ -5316,7 +5316,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNextSiblingNoInit(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextSiblingNoInit(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the next sibling of Node.
 
@@ -5330,7 +5330,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNextVisible(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextVisible(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = True): TD2TreeNodeArray;
 
 // Returns next node in tree, with regard to Node, which is visible.
 // Nodes which need an initialization (including the result) are initialized.
@@ -5446,7 +5446,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNextVisibleNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextVisibleNoInit(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = True): TD2TreeNodeArray;
 
 // Returns the next node in tree, with regard to Node, which is visible.
 // toChildrenAbove is optionally considered (which is the default). No initialization is done.
@@ -5543,7 +5543,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNextVisibleSibling(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextVisibleSibling(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the next visible sibling after Node. Initialization is done implicitly.
 
@@ -5557,7 +5557,7 @@ begin
         (IncludeFiltered or not IsEffectivelyFiltered[Result]));
 end;
 
-function TD2BaseVirtualTree.GetNextVisibleSiblingNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetNextVisibleSiblingNoInit(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the next visible sibling after Node.
 
@@ -5571,7 +5571,7 @@ begin
        (IncludeFiltered or not IsEffectivelyFiltered[Result]));
 end;
 
-function TD2BaseVirtualTree.GetNodeData(Node: PD2VirtualNode): Pointer;
+function TD2BaseVirtualTree.GetNodeData(Node: TD2TreeNodeArray): Pointer;
 
 // Returns the address of the user defined data area in the node.
 
@@ -5586,12 +5586,12 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetNodeLevel(Node: PD2VirtualNode): Cardinal;
+function TD2BaseVirtualTree.GetNodeLevel(Node: TD2TreeNodeArray): Cardinal;
 
 // returns the level of the given node
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   Result := 0;
@@ -5606,7 +5606,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPrevious(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPrevious(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns previous node in tree. If ConsiderChildrenAbove is True the function considers
 // whether toChildrenAbove is currently set, otherwise the result will always be the previous
@@ -5614,7 +5614,7 @@ function TD2BaseVirtualTree.GetPrevious(Node: PD2VirtualNode; ConsiderChildrenAb
 // The Result will be initialized if needed.
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   Result := Node;
@@ -5675,8 +5675,8 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetPreviousChecked(Node: PD2VirtualNode; State: TD2CheckState = csCheckedNormal;
-  ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousChecked(Node: TD2TreeNodeArray; State: TD2CheckState = csCheckedNormal;
+  ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 begin
   if (Node = nil) or (Node = FRoot) then
@@ -5691,7 +5691,7 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetPreviousCutCopy(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousCutCopy(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the previous node in the tree which is currently marked for a clipboard operation. Since only visible nodes can
 // be marked (or they are hidden after they have been marked) it is not necessary to initialize nodes to check for
@@ -5713,7 +5713,7 @@ begin
     Result := nil;
 end;
 
-function TD2BaseVirtualTree.GetPreviousInitialized(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousInitialized(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the previous node in tree which is initialized.
 
@@ -5724,7 +5724,7 @@ begin
   until (Result = nil) or (vsInitialized in Result.States);
 end;
 
-function TD2BaseVirtualTree.GetPreviousLeaf(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousLeaf(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the previous node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -5740,14 +5740,14 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetPreviousLevel(Node: PD2VirtualNode; NodeLevel: Cardinal): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousLevel(Node: TD2TreeNodeArray; NodeLevel: Cardinal): TD2TreeNodeArray;
 
 // Returns the previous node in the tree on a specific level.
 // The result is initialized if necessary.
 
 var
   StartNodeLevel: Cardinal;
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   Result := nil;
@@ -5803,12 +5803,12 @@ begin
     InitNode(Result);
 end;
 
-function TD2BaseVirtualTree.GetPreviousNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousNoInit(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns previous node in tree, optionally considering toChildrenAbove. No initialization is performed.
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   Result := Node;
@@ -5862,7 +5862,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPreviousSelected(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousSelected(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = False): TD2TreeNodeArray;
 
 // Returns the previous node in the tree which is currently selected. Since children of unitialized nodes cannot be
 // in the current selection (because they simply do not exist yet) it is not necessary to initialize nodes here.
@@ -5884,7 +5884,7 @@ begin
     Result := nil;
 end;
 
-function TD2BaseVirtualTree.GetPreviousSibling(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousSibling(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the previous sibling of Node and initializes it if necessary.
 
@@ -5900,7 +5900,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPreviousSiblingNoInit(Node: PD2VirtualNode): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousSiblingNoInit(Node: TD2TreeNodeArray): TD2TreeNodeArray;
 
 // Returns the previous sibling of Node
 
@@ -5914,14 +5914,14 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPreviousVisible(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousVisible(Node: TD2TreeNodeArray; ConsiderChildrenAbove: Boolean = True): TD2TreeNodeArray;
 
 // Returns the previous node in tree, with regard to Node, which is visible.
 // Nodes which need an initialization (including the result) are initialized.
 // toChildrenAbove is optionally considered which is the default here.
 
 var
-  Marker: PD2VirtualNode;
+  Marker: TD2TreeNodeArray;
 
 begin
   Result := Node;
@@ -6021,14 +6021,14 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPreviousVisibleNoInit(Node: PD2VirtualNode;
-  ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousVisibleNoInit(Node: TD2TreeNodeArray;
+  ConsiderChildrenAbove: Boolean = True): TD2TreeNodeArray;
 
 // Returns the previous node in tree, with regard to Node, which is visible.
 // toChildrenAbove is optionally considered which is the default here.
 
 var
-  Marker: PD2VirtualNode;
+  Marker: TD2TreeNodeArray;
 
 begin
   Result := Node;
@@ -6120,7 +6120,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetPreviousVisibleSibling(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousVisibleSibling(Node: TD2TreeNodeArray; IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the previous visible sibling before Node. Initialization is done implicitly.
 
@@ -6134,8 +6134,8 @@ begin
         (IncludeFiltered or not IsEffectivelyFiltered[Result]));
 end;
 
-function TD2BaseVirtualTree.GetPreviousVisibleSiblingNoInit(Node: PD2VirtualNode;
-  IncludeFiltered: Boolean = False): PD2VirtualNode;
+function TD2BaseVirtualTree.GetPreviousVisibleSiblingNoInit(Node: TD2TreeNodeArray;
+  IncludeFiltered: Boolean = False): TD2TreeNodeArray;
 
 // Returns the previous visible sibling before Node.
 
@@ -6149,17 +6149,17 @@ begin
         (IncludeFiltered or not IsEffectivelyFiltered[Result]));
 end;
 
-function TD2BaseVirtualTree.GetSortedCutCopySet(Resolve: Boolean): TD2NodeArray;
+function TD2BaseVirtualTree.GetSortedCutCopySet(Resolve: Boolean): TD2TreeNodeArray;
 
 // Same as GetSortedSelection but with nodes marked as being part in the current cut/copy set (e.g. for clipboard).
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   Counter: Cardinal;
 
   //--------------- local function --------------------------------------------
 
-  procedure IncludeThisNode(Node: PD2VirtualNode);
+  procedure IncludeThisNode(Node: TD2TreeNodeArray);
 
   // adds the given node to the result
 
@@ -6227,7 +6227,7 @@ begin
   SetLength(Result, Counter);
 end;
 
-function TD2BaseVirtualTree.GetSortedSelection(Resolve: Boolean): TD2NodeArray;
+function TD2BaseVirtualTree.GetSortedSelection(Resolve: Boolean): TD2TreeNodeArray;
 
 // Returns a list of selected nodes sorted in logical order, that is, as they appear in the tree.
 // If Resolve is True then nodes which are children of other selected nodes are not put into the new array.
@@ -6239,7 +6239,7 @@ function TD2BaseVirtualTree.GetSortedSelection(Resolve: Boolean): TD2NodeArray;
 //       doesn't need additional attention as it is automatically freed by Delphi when it gets out of scope.
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   Counter: Cardinal;
 
 begin
@@ -6297,8 +6297,8 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.GetVisibleParent(Node: PD2VirtualNode;
-  IncludeFiltered: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.GetVisibleParent(Node: TD2TreeNodeArray;
+  IncludeFiltered: Boolean): TD2TreeNodeArray;
 //Возвращает первого (ближайшего) видимого родителя для узла Node. Этот метод
 //один из очень редких случаев, когда может быть возвращен скрытый корневой узел.
 // Returns the first (nearest) parent node of Node which is visible.
@@ -6312,11 +6312,11 @@ begin
     Result := Result.Parent;
 end;
 
-function TD2BaseVirtualTree.HasAsParent(Node, PotentialParent: PD2VirtualNode): Boolean;
+function TD2BaseVirtualTree.HasAsParent(Node, PotentialParent: TD2TreeNodeArray): Boolean;
 //True - если PotentialParent является родителем любого уровня для узла Node
 // Determines whether Node has got PotentialParent as one of its parents.
 
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   Result := Assigned(Node) and Assigned(PotentialParent) and (Node <> PotentialParent);
   if Result then
@@ -6335,8 +6335,8 @@ end;
 
 
 
-function TD2BaseVirtualTree.InsertNode(Node: PD2VirtualNode;
-  Mode: TD2VTNodeAttachMode; UserData: Pointer): PD2VirtualNode;
+function TD2BaseVirtualTree.InsertNode(Node: TD2TreeNodeArray;
+  Mode: TD2VTNodeAttachMode; UserData: Pointer): TD2TreeNodeArray;
 // Adds a new node relative to Node. The final position is determined by Mode.
 // UserData can be used to set the first SizeOf(Pointer) bytes of the user data area to
 // an initial value which can be used in OnInitNode and will also cause to trigger the
@@ -6412,7 +6412,7 @@ begin
     Result := nil;
 end;
 
-procedure TD2BaseVirtualTree.InvalidateChildren(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.InvalidateChildren(Node: TD2TreeNodeArray;
   Recursive: Boolean);
 //Инициирует перерисовку узла и его непосредственных потомков.
 //Если Recursive = True, то все внуки также перерисовываются.
@@ -6423,7 +6423,7 @@ procedure TD2BaseVirtualTree.InvalidateChildren(Node: PD2VirtualNode;
 // If Recursive is True then all grandchildren are invalidated as well.
 // The node itself is initialized if necessary and its child nodes are created
 // (and initialized too if Recursive is True).
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 begin
   if Assigned(Node) then
   begin
@@ -6463,7 +6463,7 @@ begin
   //end;
 end;
 
-function TD2BaseVirtualTree.InvalidateNode(Node: PD2VirtualNode): TRect;
+function TD2BaseVirtualTree.InvalidateNode(Node: TD2TreeNodeArray): TRect;
 //Инициирует перерисовку данного узла. Возвращает аннулированый прямоугольник.
 // Initiates repaint of the given node and returns the just invalidated rectangle.
 
@@ -6475,7 +6475,7 @@ begin
   //end;
 end;
 
-procedure TD2BaseVirtualTree.InvalidateToBottom(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.InvalidateToBottom(Node: TD2TreeNodeArray);
 //Инициирует перерисовку клиентской области, начиная с узла Node. Если этот
 //узел не виден или не инициализирован, то ничего не происходит.
 // Initiates repaint of client area starting at given node. If this node is not visible or not yet initialized
@@ -6513,7 +6513,7 @@ procedure TD2BaseVirtualTree.InvertSelection(VisibleOnly: Boolean);
 // Inverts the current selection (so nodes which are selected become unselected and vice versa).
 // If VisibleOnly is True then only visible nodes are considered.
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   NewSize: Integer;
   NextFunction: TD2GetNextNodeProc;
   TriggerChange: Boolean;
@@ -6574,9 +6574,9 @@ begin
   Result := (Self.ChildCount[nil] = 0);
 end;
 
-function TD2BaseVirtualTree.IterateSubtree(Node: PD2VirtualNode;
-  Callback: TD2VTGetNodeProc; Data: Pointer; Filter: TD2VirtualNodeStates;
-  DoInit: Boolean; ChildNodesOnly: Boolean): PD2VirtualNode;
+function TD2BaseVirtualTree.IterateSubtree(Node: TD2TreeNodeArray;
+  Callback: TD2VTGetNodeProc; Data: Pointer; Filter: TD2TreeNodeStates;
+  DoInit: Boolean; ChildNodesOnly: Boolean): TD2TreeNodeArray;
 //Перебирает всех детей и внуков и т.д. узла Node (все дерево при Node = nil) и
 //вызывает для каждого узла метод Callback. Фильтр определяет, какие узлы рассматривать
 //(пустое множество - все узлы). Если DoInit = True, то неинициализированные узлы,
@@ -6595,7 +6595,7 @@ function TD2BaseVirtualTree.IterateSubtree(Node: PD2VirtualNode;
 //       Otherwise (no abort) nil is returned.
 
 var
-  Stop: PD2VirtualNode;
+  Stop: TD2TreeNodeArray;
   Abort: Boolean;
   GetNextNode: TD2GetNextNodeProc;
   WasIterating: Boolean;
@@ -6707,7 +6707,7 @@ var
   ThisID: TD2MagicID;
   Version,
   Count: Cardinal;
-  Node: PD2VirtualNode;
+  Node: TD2TreeNodeArray;
 begin
   if not (toReadOnly in FOptions.FMiscOptions) then
   begin
@@ -6752,7 +6752,7 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.MeasureItemHeight(const Canvas: TD2Canvas;
-  Node: PD2VirtualNode);
+  Node: TD2TreeNodeArray);
 //Опредяет высоту узла Node если это до сих пор не сделайте.
 // If the height of the given node has not yet been measured then do it now.
 var NewNodeHeight: Single;
@@ -6786,7 +6786,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.MoveTo(Node: PD2VirtualNode; Tree: TD2BaseVirtualTree;
+procedure TD2BaseVirtualTree.MoveTo(Node: TD2TreeNodeArray; Tree: TD2BaseVirtualTree;
   Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean);
 //Упрощенный метод перемещения узла к корню другого дерева.
 // A simplified method to allow to move nodes to the root of another tree.
@@ -6796,7 +6796,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TD2BaseVirtualTree.MoveTo(Source, Target: PD2VirtualNode;
+procedure TD2BaseVirtualTree.MoveTo(Source, Target: TD2TreeNodeArray;
    Mode: TD2VTNodeAttachMode; ChildrenOnly: Boolean);
 //Перемещение узла Source и всех его детей к узлу Target. Source должен принадлежать
 //экземпляру дерева, которое вызывает этот метод. Mode определяет, как подключить Source к Target.
@@ -6808,7 +6808,7 @@ procedure TD2BaseVirtualTree.MoveTo(Source, Target: PD2VirtualNode;
 var
   TargetTree: TD2BaseVirtualTree;
   Allowed: Boolean;
-  NewNode: PD2VirtualNode;
+  NewNode: TD2TreeNodeArray;
   Stream: TMemoryStream;
 
 begin
@@ -6967,13 +6967,13 @@ end;
 
 
 
-procedure TD2BaseVirtualTree.ReinitChildren(Node: PD2VirtualNode; Recursive: Boolean);
+procedure TD2BaseVirtualTree.ReinitChildren(Node: TD2TreeNodeArray; Recursive: Boolean);
 //Принудительная переинициализация всех детей узла Node, при Recursive=true в том числе и внуки.
 // Forces all child nodes of Node to be reinitialized.
 // If Recursive is True then also the grandchildren are reinitialized.
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
 
 begin
   if Assigned(Node) then
@@ -6994,7 +6994,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.ReinitNode(Node: PD2VirtualNode; Recursive: Boolean);
+procedure TD2BaseVirtualTree.ReinitNode(Node: TD2TreeNodeArray; Recursive: Boolean);
 //Принудительная переинициализация узла Node и всех его потомков (при Recursive=True) без изменения данных и удаления детей (если приложение не запрашивает другое).
 // Forces the given node and all its children (if recursive is True) to be initialized again without
 // modifying any data in the nodes nor deleting children (unless the application requests a different amount).
@@ -7010,7 +7010,7 @@ begin
     ReinitChildren(Node, True);
 end;
 
-procedure TD2BaseVirtualTree.ResetNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.ResetNode(Node: TD2TreeNodeArray);
 //Удаление всех детей узла Node и его пометка не инициализированным.
 // Deletes all children of the given node and marks it as being uninitialized.
 
@@ -7045,7 +7045,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SaveToStream(Stream: TStream; Node: PD2VirtualNode = nil);
+procedure TD2BaseVirtualTree.SaveToStream(Stream: TStream; Node: TD2TreeNodeArray = nil);
 //Сохраняет узел и всех его потомков в поток. Если Node = Nil, то все узлы верхнего уровня будут сохранены.
 //Внимание! Вы должны быть внимательны при сохранении. Проблема здесь заключается в том,
 //          что мы имеем дело с виртуальными данными. Дерево может не знать, что нужно
@@ -7152,7 +7152,7 @@ begin
   //  Result := True;
 end;
 
-function TD2BaseVirtualTree.ScrollIntoView(Node: PD2VirtualNode;
+function TD2BaseVirtualTree.ScrollIntoView(Node: TD2TreeNodeArray;
   Center: Boolean; Horizontally: Boolean): Boolean;
 //Прокручивает дерево чтобы узел Node был видимым. Возвращает True, если дерево было прокручено
 //(например чтобы избежать дальнейших обновлений) иначе возвращает False. Если расширенная
@@ -7166,7 +7166,7 @@ function TD2BaseVirtualTree.ScrollIntoView(Node: PD2VirtualNode;
 
 //var
   //R: TRect;
-  //Run: PD2VirtualNode;
+  //Run: TD2TreeNodeArray;
   //UseColumns,
   //HScrollBarVisible: Boolean;
   //ScrolledVertically,
@@ -7244,7 +7244,7 @@ procedure TD2BaseVirtualTree.SelectAll(VisibleOnly: Boolean);
 // Select all nodes in the tree.
 // If VisibleOnly is True then only visible nodes are selected.
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   NextFunction: TD2GetNextNodeProc;
 begin
   if not FSelectionLocked and (toMultiSelect in FOptions.FSelectionOptions) then
@@ -7274,7 +7274,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
+procedure TD2BaseVirtualTree.Sort(Node: TD2TreeNodeArray; Column: TD2ColumnIndex;
   Direction: TD2SortDirection; DoInit: Boolean);
 //Сортировка узла Node по колонке Column в направлении Direction.
 // Sorts the given node. The application is queried about how to sort via the OnCompareNodes event.
@@ -7284,7 +7284,7 @@ procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
 
   //--------------- local functions -------------------------------------------
 
-  function MergeAscending(A, B: PD2VirtualNode): PD2VirtualNode;
+  function MergeAscending(A, B: TD2TreeNodeArray): TD2TreeNodeArray;
 
   // Merges A and B (which both must be sorted via Compare) into one list.
 
@@ -7326,7 +7326,7 @@ procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
 
   //---------------------------------------------------------------------------
 
-  function MergeDescending(A, B: PD2VirtualNode): PD2VirtualNode;
+  function MergeDescending(A, B: TD2TreeNodeArray): TD2TreeNodeArray;
 
   // Merges A and B (which both must be sorted via Compare) into one list.
 
@@ -7369,12 +7369,12 @@ procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
 
   //---------------------------------------------------------------------------
 
-  function MergeSortAscending(var Node: PD2VirtualNode; N: Cardinal): PD2VirtualNode;
+  function MergeSortAscending(var Node: TD2TreeNodeArray; N: Cardinal): TD2TreeNodeArray;
 
   // Sorts the list of nodes given by Node (which must not be nil).
 
   var
-    A, B: PD2VirtualNode;
+    A, B: TD2TreeNodeArray;
 
   begin
     if N > 1 then
@@ -7393,12 +7393,12 @@ procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
 
   //---------------------------------------------------------------------------
 
-  function MergeSortDescending(var Node: PD2VirtualNode; N: Cardinal): PD2VirtualNode;
+  function MergeSortDescending(var Node: TD2TreeNodeArray; N: Cardinal): TD2TreeNodeArray;
 
   // Sorts the list of nodes given by Node (which must not be nil).
 
   var
-    A, B: PD2VirtualNode;
+    A, B: TD2TreeNodeArray;
 
   begin
     if N > 1 then
@@ -7418,7 +7418,7 @@ procedure TD2BaseVirtualTree.Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex;
   //--------------- end local functions ---------------------------------------
 
 var
-  Run: PD2VirtualNode;
+  Run: TD2TreeNodeArray;
   Index: Cardinal;
 
 begin
@@ -7482,11 +7482,11 @@ procedure TD2BaseVirtualTree.SortTree(Column: TD2ColumnIndex;
   Direction: TD2SortDirection; DoInit: Boolean);
 //--------------- local function --------------------------------------------
 
-procedure DoSort(Node: PD2VirtualNode);
+procedure DoSort(Node: TD2TreeNodeArray);
 // Рекурсивно сортирует Node и его дочерние узлы.
 // Recursively sorts Node and its child nodes.
 
-var Run: PD2VirtualNode;
+var Run: TD2TreeNodeArray;
 
 begin
   Sort(Node, Column, Direction, DoInit);
@@ -7533,7 +7533,7 @@ end;
 
 end;
 
-procedure TD2BaseVirtualTree.QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
+procedure TD2BaseVirtualTree.QuickSort(const TheArray: TD2TreeNodeArray; L, R: Integer);
 //Быстрая сортировка массива TheArray в диапазоне индексов от L до R
 var
   I, J: Integer;
@@ -7579,13 +7579,13 @@ begin
 
 end;
 
-procedure TD2BaseVirtualTree.ValidateChildren(Node: PD2VirtualNode;
+procedure TD2BaseVirtualTree.ValidateChildren(Node: TD2TreeNodeArray;
   Recursive: Boolean);
 //Обеспечивает инициализацию всех детей (и всех их детей, если Recursive = True) узла Node.
 //Узел должен быть уже инициализирован.
 // Ensures that the children of the given node (and all their children, if Recursive is True) are initialized.
 // Node must already be initialized
-var Child: PD2VirtualNode;
+var Child: TD2TreeNodeArray;
 begin
   if Node = nil then Node := FRoot;
   if (vsHasChildren in Node.States) and (Node.ChildCount = 0)
@@ -7598,10 +7598,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.ValidateNode(Node: PD2VirtualNode; Recursive: Boolean);
+procedure TD2BaseVirtualTree.ValidateNode(Node: TD2TreeNodeArray; Recursive: Boolean);
 //Обеспечивает инициализацию узла Node (и всех его детей и их детей, если Recursive = True)
 // Ensures that the given node (and all its children, if Recursive is True) are initialized.
-var Child: PD2VirtualNode;
+var Child: TD2TreeNodeArray;
 begin
   if Node = nil
     then Node := FRoot
@@ -7620,13 +7620,13 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.ToggleNode(Node: PD2VirtualNode);
+procedure TD2BaseVirtualTree.ToggleNode(Node: TD2TreeNodeArray);
 //Изменение развернутого/свернутого состояния узла на противоположное.
 // Changes a node's expand state to the opposite state.
 
 var
   Child,
-  FirstVisible: PD2VirtualNode;
+  FirstVisible: TD2TreeNodeArray;
   HeightDelta,
   StepsR1: Single;
   StepsR2: Single;
@@ -8072,7 +8072,7 @@ begin
   end;
 end;
 
-function TD2BaseVirtualTree.TreeFromNode(Node: PD2VirtualNode): TD2BaseVirtualTree;
+function TD2BaseVirtualTree.TreeFromNode(Node: TD2TreeNodeArray): TD2BaseVirtualTree;
 // Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
 // Returns the tree the node currently belongs to or nil if the node is not attached to a tree.
 

@@ -463,10 +463,10 @@ end;
 procedure TD2Object.StartTriggerAnimation(AInstance:TD2Object; ATrigger:string);
 var
   i:integer;
-  c:integer;
+  //c:integer;
 begin
-  if FChildren <> nil then
-    c:= FChildren.Count;
+  //if FChildren <> nil then
+  //  c:= FChildren.Count;
   StopTriggerAnimation(AInstance);
   if FChildren <> nil then
     for i:=0 to FChildren.Count - 1 do
