@@ -260,6 +260,146 @@ constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
 begin
   inherited;
   FResource:='gridstyle';
+
+  //ControlStyle := ControlStyle - [csSetCaption] + [csCaptureMouse, csOpaque, csReplicatable, csDisplayDragImage,
+  //  csReflector];
+  FTotalInternalDataSize := 0;
+  FNodeDataSize := -1;
+  Width := 200;
+  Height := 100;
+  //TabStop := True;
+  //ParentColor := False;
+  FDefaultNodeHeight := 18;
+  //FDragOperations := [doCopy, doMove];
+  //FHotCursor := crDefault;
+  //FScrollBarOptions := TScrollBarOptions.Create(Self);
+  //FFocusedColumn := NoColumn;
+  //FDragImageKind := diComplete;
+  FLastSelectionLevel := -1;
+  //FSelectionBlendFactor := 128;
+
+  //FIndent := 18;
+
+  //FPlusBM := TBitmap.Create;
+  //FHotPlusBM := TBitmap.Create;
+  //FMinusBM := TBitmap.Create;
+  //FHotMinusBM := TBitmap.Create;
+
+  //BorderStyle := bsSingle;
+  //FButtonStyle := bsRectangle;
+  //FButtonFillMode := fmTreeColor;
+
+  //FHeader := GetHeaderClass.Create(Self);
+
+  // we have an own double buffer handling
+  //inherited DoubleBuffered := False;
+
+  //FCheckImageKind := ckSystemDefault;
+  //FCheckImages := SystemCheckImages;
+  //
+  //FImageChangeLink := TChangeLink.Create;
+  //FImageChangeLink.OnChange := ImageListChange;
+  //FStateChangeLink := TChangeLink.Create;
+  //FStateChangeLink.OnChange := ImageListChange;
+  //FCustomCheckChangeLink := TChangeLink.Create;
+  //FCustomCheckChangeLink.OnChange := ImageListChange;
+
+  //FAutoExpandDelay := 1000;
+  //FAutoScrollDelay := 1000;
+  //FAutoScrollInterval := 1;
+
+  //FBackground := TPicture.Create;
+
+  FDefaultPasteMode := amAddChildLast;
+  //FMargin := 4;
+  //FTextMargin := 4;
+  //FLastDragEffect := DROPEFFECT_NONE;
+  //FDragType := dtOLE;
+  //FDragHeight := 350;
+  //FDragWidth := 200;
+
+  //FColors := TVTColors.Create(Self);
+  //FEditDelay := 1000;
+  //
+  //FDragImage := TVTDragImage.Create(Self);
+  //with FDragImage do
+  //begin
+  //  Fade := True;
+  //  PostBlendBias := 0;
+  //  PreBlendBias := 0;
+  //  Transparency := 200;
+  //end;
+
+  SetLength(FSingletonNodeArray, 1);
+  //FAnimationDuration := 200;
+  //FSearchTimeout := 1000;
+  //FSearchStart := ssFocusedNode;
+  //FNodeAlignment := naProportional;
+  //FLineStyle := lsDotted;
+  //FIncrementalSearch := isNone;
+  //FClipboardFormats := TClipboardFormats.Create(Self);
+  FOptions := GetOptionsClass.Create(Self);
+
+  {$ifdef EnableThreadSupport}
+  AddThreadReference;
+  {$endif}
+
+  //FVclStyleEnabled := False;
+  // XE2+ VCL Style
+  {$ifdef VCLStyleSupport}
+  FSetOrRestoreBevelKindAndBevelWidth := False;
+  FSavedBevelKind := bkNone;
+  FSavedBorderWidth := 0;
+  {$ifend}
+end;
+
+destructor TD2CustomTreeGrid.Destroy;
+begin
+  InterruptValidation();
+  Exclude(FOptions.FMiscOptions, toReadOnly);
+  {$ifdef EnableThreadSupport}
+  ReleaseThreadReference(Self);
+  {$endif}
+  //StopWheelPanning;
+  //lcl
+  //FPanningWindow.Free;
+
+  // Just in case it didn't happen already release the edit link.
+  //FEditLink := nil;
+  //FClipboardFormats.Free;
+  // Clear will also free the drag manager if it is still alive.
+  Clear;
+  //FDragImage.Free;
+  //FColors.Free;
+  //FBackground.Free;
+  //FImageChangeLink.Free;
+  //FStateChangeLink.Free;
+  //FCustomCheckChangeLink.Free;
+  //FScrollBarOptions.Free;
+
+  // The window handle must be destroyed before the header is freed because it is needed in WM_NCDESTROY.
+  //todo_lcl_check
+  {
+  if HandleAllocated then
+    DestroyWindowHandle;
+  }
+
+  // Release FDottedBrush in case WM_NCDESTROY hasn't been triggered.
+  //if FDottedBrush <> 0 then
+  //  DeleteObject(FDottedBrush);
+  //FDottedBrush := 0;
+
+  FOptions.Free;
+  //FreeAndNil(FHeader);
+
+  FreeMem(FRoot);
+
+  //FPlusBM.Free;
+  //FHotPlusBM.Free;
+  //FMinusBM.Free;
+  //FHotMinusBM.Free;
+
+  inherited;
 end;
 
 function TD2CustomTreeGrid.ItemClass: string;
@@ -1292,7 +1432,7 @@ begin
   if FBottomSpace <> Value then
   begin
     FBottomSpace := Value;
-    UpdateVerticalScrollBar(True);
+    //UpdateVerticalScrollBar(True);
   end;
 end;
 
@@ -1369,10 +1509,10 @@ begin
           if Assigned(Node.LastChild) then
             Index := Node.LastChild.Index + 1
           else
-          begin
-            Index := 0;
-            Include(Node.States, vsHasChildren);
-          end;
+            begin
+              Index := 0;
+              Include(Node.States, vsHasChildren);
+            end;
           Node.States := Node.States - [vsAllChildrenHidden, vsHeightMeasured];
 
           //Новые узлы по умолчанию видны, видимость проверять не нужно. New nodes are by default always visible, so we don't need to check the visibility.
@@ -1430,9 +1570,9 @@ begin
         if FUpdateCount = 0 then
         begin
           ValidateCache;
-          UpdateScrollBars(True);
+          //UpdateScrollBars(True);
           //Invalidate;
-          Realign; //вместо Invalidate
+          Realign; //вместо UpdateScrollBars(True) и Invalidate
         end;
 
         if Node = FRoot then
@@ -1461,9 +1601,9 @@ begin
     if (FUpdateCount = 0) {and HandleAllocated} and not (csLoading in ComponentState) then
     begin
       ValidateCache;
-      UpdateScrollBars(True);
+      //UpdateScrollBars(True);
       ScrollIntoView(FFocusedNode, toCenterScrollIntoView in FOptions.SelectionOptions, True);
-      Realign; //вместо Invalidate;
+      Realign; //вместо UpdateScrollBars(True) и Invalidate;
     end;
   end;
 end;
@@ -1546,8 +1686,9 @@ begin
     if NeedUpdate and (FUpdateCount = 0) then
     begin
       ValidateCache;
-      UpdateScrollBars(True);
-      Realign; //вместо  Invalidate;
+      //UpdateScrollBars(True);
+      //Invalidate;
+      Realign; //вместо UpdateScrollBars(True) и Invalidate
     end;
   end;
 end;
@@ -1664,7 +1805,8 @@ begin
         begin
           ValidateCache;
           InvalidateToBottom(Node);
-          UpdateScrollBars(True);
+          //UpdateScrollBars(True);
+          Realign; //вместо UpdateScrollBars(True)
         end;
       end;
     end;
@@ -1856,9 +1998,9 @@ begin
     if NeedUpdate and (FUpdateCount = 0) then
     begin
       ValidateCache;
-      UpdateScrollBars(True);
+      //UpdateScrollBars(True);
       //Invalidate;
-      Realign; //вместо Invalidate
+      Realign; //вместо UpdateScrollBars(True) и Invalidate
     end;
   end;
 end;
@@ -2311,15 +2453,15 @@ function TD2CustomTreeGrid.DoCancelEdit: Boolean;
 // Called when the current edit action or a pending edit must be cancelled.
 begin
   ////KillTimer(Handle, EditTimer);
-  //DoStateChange([], [tsEditPending]);
-  //Result := (tsEditing in FStates) and FEditLink.CancelEdit;
-  //if Result then
-  //begin
-  //  DoStateChange([], [tsEditing]);
-  //  if Assigned(FOnEditCancelled) then
-  //    FOnEditCancelled(Self, FEditColumn);
-  //  FEditLink := nil;
-  //end;
+  DoStateChange([], [tsEditPending]);
+  Result := (tsEditing in FStates) {and FEditLink.CancelEdit};
+  if Result then
+  begin
+    DoStateChange([], [tsEditing]);
+    if Assigned(FOnEditCancelled) then
+      FOnEditCancelled(Self, FEditColumn);
+    //FEditLink := nil;
+  end;
 end;
 
 procedure TD2CustomTreeGrid.DoChange(Node: PD2TreeNode);
@@ -2787,6 +2929,11 @@ begin
   Stream.Position := EndPos; // ... и переместься к последнему конечному положению. and seek to the last endposition
 end;
 
+function TD2CustomTreeGrid.GetOptionsClass: TD2TreeOptionsClass;
+begin
+  Result := TD2TreeOptions;
+end;
+
 function TD2CustomTreeGrid.GetOperationCanceled: Boolean;
 begin
   Result := FOperationCanceled and (FOperationCount > 0);
@@ -2843,7 +2990,8 @@ begin
         AdjustTotalHeight(Node, -NodeHeight, True);  // установим в 0 общую высоту узла и уменьшаем общую высоту его родителей
         if FullyVisible[Node] then
           Dec(FVisibleCount);
-        UpdateScrollBars(True);
+        //UpdateScrollBars(True);
+        Realign; //вместо UpdateScrollBars(True)
       end;
     end;
 
@@ -3435,7 +3583,6 @@ procedure TD2CustomTreeGrid.InvalidateCache;
 // Marks the cache as invalid.
 begin
   DoStateChange([tsValidationNeeded], [tsUseCache]);
-  //ChangeTreeStatesAsync([csValidationNeeded], [csUseCache]);
 end;
 
 procedure TD2CustomTreeGrid.MarkCutCopyNodes;
@@ -4016,20 +4163,22 @@ begin
     if not (vsInitialized in Parent.States) then
       InitNode(Parent);
 
+    //Локальная остановака обновлений дерева, чтобы избежать использования нового узла, прежде чем он правильно настроен.
+    //Если счетчик изменений 0 тогда будет правильное обновление в конце этого метода.
     // Locally stop updates of the tree in order to avoid usage of the new node before it is correctly set up.
     // If the update count was 0 on enter then there will be a correct update at the end of this method.
     Inc(FUpdateCount);
     try
-      SetChildCount(Parent, Parent.ChildCount + 1);
+      SetChildCount(Parent, Parent.ChildCount + 1);  //увеличим кол-во дочерних узлов у Parent
       // Update the hidden children flag of the parent. Nodes are added as being visible by default.
-      Exclude(Parent.States, vsAllChildrenHidden);
+      Exclude(Parent.States, vsAllChildrenHidden); // Отключим у родителья флаг "Все дети скрыты". По умолчанию узлы добавляются как видимые.
     finally
-      Dec(FUpdateCount);
+      Dec(FUpdateCount); //уменьшим счетчки обновлений
     end;
-    Result := Parent.LastChild;
+    Result := Parent.LastChild; //вернем последний дочерний узела Parent
 
     // Check if there is initial user data and there is also enough user data space allocated.
-    if Assigned(UserData) then
+    if Assigned(UserData) then    //проверим наличие данных пользователя и достаточно ли для них выделенно памяти
       if FNodeDataSize >= SizeOf(Pointer) then
       begin
         NodeData := Pointer(PByte(@Result.Data) + FTotalInternalDataSize);
@@ -4039,8 +4188,8 @@ begin
       else
         ShowError(SCannotSetUserData, hcTFCannotSetUserData);
 
-    InvalidateCache;
-    if FUpdateCount = 0 then
+    InvalidateCache;  //пометить кэш недействительным
+    if FUpdateCount = 0 then    //если обновлений сейчас нет, то
     begin
       ValidateCache;
       if tsStructureChangePending in FStates then
@@ -4062,11 +4211,11 @@ begin
       //sized and the node can not be selected by a click.
 
       //if HandleAllocated then
-        UpdateVerticalScrollBar(True)
+        //UpdateVerticalScrollBar(True)
+        Realign; //вместо UpdateScrollBars(True)
    end;
   end
-  else
-    Result := nil;
+  else Result := nil;
 end;
 
 procedure TD2CustomTreeGrid.AddFromStream(Stream: TStream;
@@ -4121,6 +4270,13 @@ begin
     else
       ShowError(SWrongStreamVersion, hcTFWrongStreamVersion);
   end;
+end;
+
+procedure TD2CustomTreeGrid.AfterConstruction;
+begin
+  inherited;
+  if FRoot = nil then
+    InitRootNode;
 end;
 
 function TD2CustomTreeGrid.CancelEditNode: Boolean;
@@ -4342,8 +4498,9 @@ begin
         if FUpdateCount = 0 then
         begin
           ValidateCache;
-          UpdateScrollBars(True);
-          Realign;// вместо Invalidate;
+          //UpdateScrollBars(True);
+          //Invalidate;
+          Realign; //вместо UpdateScrollBars(True) и Invalidate
         end;
         StructureChange(Source, crNodeCopied);
       end;
@@ -4429,7 +4586,8 @@ begin
       end;
 
       ValidateCache;
-      UpdateScrollBars(True);
+      //UpdateScrollBars(True);
+      Realign; //вместо UpdateScrollBars(True)
       // Invalidate entire tree if it scrolled e.g. to make the last node also the
       // bottom node in the treeview.
       if (LastLeft <> FOffsetX) or (LastTop <> FOffsetY)
@@ -4507,12 +4665,12 @@ begin
       if FUpdateCount = 0 then
       begin
         ValidateCache;
-        UpdateScrollBars(True);
+        //UpdateScrollBars(True);
         // Invalidate entire tree if it scrolled e.g. to make the last node also the
         // bottom node in the treeview.
-        if (LastLeft <> FOffsetX) or (LastTop <> FOffsetY) then
-          //Invalidate;
-          Realign; // вместо Invalidate
+        //if (LastLeft <> FOffsetX) or (LastTop <> FOffsetY) then
+        //  //Invalidate;
+          Realign; //вместо UpdateScrollBars(True) и Invalidate
       end;
     end;
   end;
@@ -6660,7 +6818,8 @@ begin
       //      Sort(Node, FHeader.FSortColumn, FHeader.FSortDirection, True);
       //  end;
 
-      UpdateScrollBars(True);
+      //UpdateScrollBars(True);
+      Realign; //вместо UpdateScrollBars(True)
       if Mode = amInsertBefore then
         InvalidateToBottom(Result)
       else
@@ -6765,6 +6924,7 @@ begin
 //        end;
 //      end;
 // end;
+  Realign;
 end;
 
 procedure TD2CustomTreeGrid.InvertSelection(VisibleOnly: Boolean);
@@ -7215,8 +7375,8 @@ begin
     if (FUpdateCount = 0) and Allowed then
     begin
       ValidateCache;
-      UpdateScrollBars(True);
-      Realign; // вместо Invalidate;
+      //UpdateScrollBars(True);
+      Realign; //вместо UpdateScrollBars(True) и Invalidate
       if TargetTree <> Self
         then TargetTree.Realign; // вместо Invalidate;
     end;
@@ -7833,11 +7993,11 @@ begin
   FRangeY := FRoot.TotalHeight - FRoot.NodeHeight + FBottomSpace;
 end;
 
-procedure TD2CustomTreeGrid.UpdateVerticalScrollBar(DoRepaint: Boolean);
-//Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
-begin
-
-end;
+//procedure TD2CustomTreeGrid.UpdateVerticalScrollBar(DoRepaint: Boolean);
+////Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
+//begin
+//
+//end;
 
 procedure TD2CustomTreeGrid.ValidateChildren(Node: PD2TreeNode;
   Recursive: Boolean);
@@ -8265,7 +8425,8 @@ begin
           if Node.ChildCount > 0 then
           begin
             UpdateRanges;
-            UpdateScrollBars(True);
+            //UpdateScrollBars(True);
+            Realign; //вместо UpdateScrollBars(True)
             if [tsPainting, tsExpanding] * FStates = [] then
             begin
               if (vsExpanded in Node.States) and ((toAutoScrollOnExpand in FOptions.FAutoOptions) or
@@ -8313,7 +8474,7 @@ begin
 
             // Check for automatically scrolled tree.
             if NeedFullInvalidate then
-              Realign //вместо Invalidate
+              Realign  //вместо UpdateScrollBars(True) и Invalidate
             else
               InvalidateToBottom(Node);
           end
@@ -8354,10 +8515,10 @@ begin
 
 end;
 
-procedure TD2CustomTreeGrid.UpdateHorizontalScrollBar(DoRepaint: Boolean);
-begin
-
-end;
+//procedure TD2CustomTreeGrid.UpdateHorizontalScrollBar(DoRepaint: Boolean);
+//begin
+//
+//end;
 
 procedure TD2CustomTreeGrid.UpdateRanges;
 begin
@@ -8365,11 +8526,11 @@ begin
   UpdateHorizontalRange;
 end;
 
-procedure TD2CustomTreeGrid.UpdateScrollBars(DoRepaint: Boolean);
-//Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
-// adjusts scrollbars to reflect current size and paint offset of the tree
-begin
-  UpdateVerticalScrollBar(DoRepaint);
-  UpdateHorizontalScrollBar(DoRepaint);
-end;
+//procedure TD2CustomTreeGrid.UpdateScrollBars(DoRepaint: Boolean);
+////Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
+//// adjusts scrollbars to reflect current size and paint offset of the tree
+//begin
+//  UpdateVerticalScrollBar(DoRepaint);
+//  UpdateHorizontalScrollBar(DoRepaint);
+//end;
 

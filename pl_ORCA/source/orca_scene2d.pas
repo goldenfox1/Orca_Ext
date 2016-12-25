@@ -7909,7 +7909,8 @@ TD2TreeAutoOption = (
     toAutoHideButtons,          //Скрывать кнопку развёртывания/свёртывания для узла, если все его дочерние будут спрятаны (vsVisible). Node buttons are hidden when there are child nodes, but all are invisible.
     toAutoDeleteMovedNodes,     //Удалять источники перемещённых узлов после операций drag&drop. Delete nodes which where moved in a drag operation (if not directed otherwise).
     toDisableAutoscrollOnFocus, //Отключить автоматическую прокрутку колонки к видимой области при получении фокуса. Disable scrolling a node or column into view if it gets focused.
-    toAutoChangeScale,          //Изменять высоту узлов в соответствии с настройками размера шрифтов Windows. Change default node height automatically if the system's font scale is set to big fonts.
+    //toAutoChangeScale,          //Изменять высоту узлов в соответствии с настройками размера шрифтов Windows. Change default node height automatically if the system's font scale is set to big fonts.
+
     toAutoFreeOnCollapse,       //Удалить все дочерние узлы при сворачивании родителя, при этом опция vsHasChildren для узла сохраняется. Frees any child node after a node has been collapsed (HasChildren flag stays there).
     toDisableAutoscrollOnEdit,  //Не центровать узел по горизонали при его редактировании. Do not center a node horizontally when it is edited.
     toAutoBidiColumnOrdering    //Если установлен, то столбцы (если есть) сортируются от наименьшего индекса к наибольшему индексу и наоборот при отсутствии. When set then columns (if any exist) will be reordered from lowest index to highest index and vice versa when the tree's bidi mode is changed.
@@ -8089,7 +8090,7 @@ UnpressedState: array[TD2CheckState] of TD2CheckState = (
                          toThemeAware, toUseBlendedImages];
   DefaultTreeAnimationOptions = [];
   DefaultTreeAutoOptions = [toAutoDropExpand, toAutoTristateTracking, toAutoScrollOnExpand,
-                        toAutoDeleteMovedNodes, toAutoChangeScale, toAutoSort];
+                        toAutoDeleteMovedNodes, {toAutoChangeScale,} toAutoSort];
   DefaultTreeSelectionOptions = [];
   DefaultTreeMiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave,
                         toToggleOnDblClick, toWheelPanning, toEditOnClick];
@@ -8372,24 +8373,6 @@ TD2TreeUpdateState = (
   usEndSynch     //Дерево вышло из состояния синхронизации (вызван Synch последнего уровня). The tree just left the synch update state (EndSynch called for the last level).
 );
 
-
-//// Communication interface between a tree editor and the tree itself (declared as using stdcall in case it
-//// is implemented in a (C/C++) DLL). The GUID is not nessecary in Delphi but important for BCB users
-//// to allow QueryInterface and _uuidof calls.
-//ID2treeEditLink = interface
-//  ['{2BE3EAFA-5ACB-45B4-9D9A-B58BCC496E17}']
-//  function BeginEdit: Boolean; stdcall;                  // Called when editing actually starts.
-//  function CancelEdit: Boolean; stdcall;                 // Called when editing has been cancelled by the tree.
-//  function EndEdit: Boolean; stdcall;                    // Called when editing has been finished by the tree.
-//  function PrepareEdit(Tree: TD2CustomTreeGrid; Node: PD2TreeNode; Column: TD2ColumnIndex): Boolean; stdcall;
-//                                                         // Called after creation to allow a setup.
-//  function GetBounds: TRect; stdcall;                    // Called to get the current size of the edit window
-//                                                         // (only important if the edit resizes itself).
-//  procedure ProcessMessage(var Message: TLMessage); stdcall;
-//                                                         // Used to forward messages to the edit window(s)-
-//  procedure SetBounds(R: TRect); stdcall;                // Called to place the editor.
-//end;
-
 //Класс исключения используется деревом. The exception used by the trees.
 ED2TreeError = class(Exception);
 
@@ -8475,6 +8458,18 @@ public
   property Owner: TD2CustomTreeGrid read FOwner;
 end;
 
+TD2TreeOptionsClass = class of TD2CustomTreeOptions;
+
+TD2TreeOptions = class(TD2CustomTreeOptions)
+published
+  property AnimationOptions; //Опиции анимации
+  property AutoOptions;      //Опиции автоматической обработки определенных ситуаций
+  property ExportMode;       //Опиции экспорта данных
+  property MiscOptions;      //Прочие опиции, которые не вписываются ни в одну из других групп
+  property PaintOptions;     //Опции настройки внешнего вида дерева
+  property SelectionOptions; //Опиции, определяющие поведение дерева при выборе узлов
+end;
+
 
 { TD2CustomTreeGrid }
 
@@ -8487,7 +8482,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)   //класс дерева описы�
     FCheckPropagationCount: Cardinal;            //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
     FCurrentHotNode: PD2TreeNode;                //Узел, над которым располагается указатель мыши. Node over which the mouse is hovering.
     FBottomSpace: Single;                        //Дополнительное место ниже последнего узла. Extra space below the last node.
+
     FDefaultNodeHeight: Single;                  //Высота узла по умолчанию
+    FDefaultPasteMode: TD2TreeNodeAttachMode;    //Используется для определения, где добавить вставляемый узел. Used to determine where to add pasted nodes to.
     FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
     FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
     //FEditLink: ID2VTEditLink;                  //Используется для связи с каким-либо приложением редактора. used to comunicate with an application defined editor
@@ -8778,8 +8775,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)   //класс дерева описы�
     function DoCollapsing(Node: PD2TreeNode): Boolean; virtual;
              //Вызывает прерывание сравнения узлов (OnCompareNodes)
     function DoCompare(Node1, Node2: PD2TreeNode; Column: Integer): Integer; virtual;
-    //          //Вызывает прерывание OnCreateEditor
-    //function DoCreateEditor(Node: PD2TreeNode; Column: Integer): ID2TreeEditLink; virtual;
               //Начать редактирование узла,имеющего фокус
     procedure DoEdit; virtual;
              //Закончить редактирование и вызвать предывание OnEdited
@@ -8835,6 +8830,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)   //класс дерева описы�
                                  LowBound, HighBound: Integer): Boolean; virtual;
               //Используется при потоковой передаче узла для завершающей записи размер блока
     procedure FinishChunkHeader(Stream: TStream; StartPos, EndPos: Integer); virtual;
+
+    function GetOptionsClass: TD2TreeOptionsClass; virtual;
 
     function GetOperationCanceled: Boolean;
               //Инициализация дочерних узлов для узла Node.
@@ -8994,6 +8991,8 @@ public
     function AddChild(Parent: PD2TreeNode; UserData: Pointer = nil): PD2TreeNode; virtual;
               //Загружает узлы из потока Stream и добавляет их к TargetNode.
     procedure AddFromStream(Stream: TStream; TargetNode: PD2TreeNode);
+
+    procedure AfterConstruction; override;
              //Вызывается приложением или текущим редактором для отмены редактирования.
     function CancelEditNode: Boolean;
              // True - если данный узел может быть отредактирован.
@@ -9174,20 +9173,22 @@ public
     function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
               //Обновить общую витруальную ширину дерева
     procedure UpdateHorizontalRange;
-              //Обновляет горизонтальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateHorizontalScrollBar(DoRepaint: Boolean);
+
               //Обновить общие витруальные высоту и ширину дерева
     procedure UpdateRanges;
-              //Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateScrollBars(DoRepaint: Boolean); virtual;
-              //Обновить общую витруальную высоту дерева
+               //Обновить общую витруальную высоту дерева
     procedure UpdateVerticalRange;
-              //Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateVerticalScrollBar(DoRepaint: Boolean);
               //Обеспечивает инициализацию всех детей (и всех их детей, если Recursive = True) узла Node.
     procedure ValidateChildren(Node: PD2TreeNode; Recursive: Boolean);
               //Обеспечивает инициализацию узла Node (и всех его детей и их детей, если Recursive = True)
     procedure ValidateNode(Node: PD2TreeNode; Recursive: Boolean);
+
+    //          //Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
+    //procedure UpdateScrollBars(DoRepaint: Boolean); virtual;
+    //          //Обновляет горизонтальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
+    //procedure UpdateHorizontalScrollBar(DoRepaint: Boolean);
+    //          //Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
+    //procedure UpdateVerticalScrollBar(DoRepaint: Boolean);
 
     //------ свойства ----------
 
@@ -9281,7 +9282,7 @@ public
 
 
     constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
-    //destructor Destroy;  override;                      //уничтожить экземпляр объекта
+    destructor Destroy;  override;                      //уничтожить экземпляр объекта
     function ItemClass: string;  override;              //список классов колонок для дизайнера
     property OnChangeCheck:TNotifyEvent read FOnChangeCheck write FOnChangeCheck;
     property ShowCheckboxes: boolean read FShowCheckboxes write SetShowCheckboxes  default false;
@@ -9291,6 +9292,8 @@ end;
 
 TD2TreeGrid = class(TD2CustomTreeGrid)       //заказной класс сетки для отображения данных из базы данных
 
+published
+  property TreeOptions;
 end;
 
 
