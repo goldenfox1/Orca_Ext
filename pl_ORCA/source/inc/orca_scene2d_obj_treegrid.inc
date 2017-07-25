@@ -251,11 +251,6 @@ end;
 
 { TD2CustomTreeGrid }
 
-procedure TD2CustomTreeGrid.SetShowCheckboxes(const Value: boolean);
-begin
-
-end;
-
 constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
 begin
   inherited;
@@ -686,6 +681,9 @@ end;
 
 function TD2CustomTreeGrid.ChangeCheckState(Node: PD2TreeNode;
   Value: TD2CheckState): Boolean;
+//Устанавливает состояние проверки узла в соответствии с заданным значением и типом проверки узла.
+//Если состояние проверки должно распространяться на родительские узлы, и один из них отказывается
+//изменяться, то ничего не происходит и возвращается False, иначе True.
 // Sets the check state of the node according to the given value and the node's check type.
 // If the check state must be propagated to the parent nodes and one of them refuses to change then
 // nothing happens and False is returned, otherwise True.
@@ -961,11 +959,13 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetBottomNode: PD2TreeNode;
+//получить ссылку на нижний видимый узел
 begin
-  Result := InternalGetNodeAt(0, ClientHeight - 1);
+  Result := InternalGetNodeAt(0, ClientHeight - 0.01);
 end;
 
-function TD2CustomTreeGrid.GetCheckedCount: Integer;
+function TD2CustomTreeGrid.GetCheckedCount: Cardinal;
+//Получить количество отмеченных узлов в дереве
 var Node: PD2TreeNode;
 begin
   Result := 0;
@@ -978,16 +978,19 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetCheckState(Node: PD2TreeNode): TD2CheckState;
+//Получить состояние отметки узла Node
 begin
   Result := Node.CheckState;
 end;
 
 function TD2CustomTreeGrid.GetCheckType(Node: PD2TreeNode): TD2CheckType;
+//Получить тип отметки узла Node
 begin
   Result := Node.CheckType;
 end;
 
 function TD2CustomTreeGrid.GetChildCount(Node: PD2TreeNode): Cardinal;
+//Получить кол-во детей узла Node
 begin
   if (Node = nil) or (Node = FRoot) then
     Result := FRoot.ChildCount
@@ -996,11 +999,13 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetChildrenInitialized(Node: PD2TreeNode): Boolean;
+//true - установлено наличие детей для узла
 begin
   Result := not (vsHasChildren in Node.States) or (Node.ChildCount > 0);
 end;
 
-function TD2CustomTreeGrid.GetCutCopyCount: Integer;
+function TD2CustomTreeGrid.GetCutCopyCount: Cardinal;
+//Получить кол-во копируемых узлов
 var Node: PD2TreeNode;
 begin
   Result := 0;
@@ -1013,6 +1018,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetDisabled(Node: PD2TreeNode): Boolean;
+//true - узел Node отключен
 begin
   Result := Assigned(Node) and (vsDisabled in Node.States);
 end;
@@ -1030,6 +1036,7 @@ end;
 //end;
 
 function TD2CustomTreeGrid.GetExpanded(Node: PD2TreeNode): Boolean;
+//true - узел Node развернут
 begin
   if Assigned(Node) then
     Result := vsExpanded in Node.States
@@ -1038,12 +1045,13 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFiltered(Node: PD2TreeNode): Boolean;
+//true - узел Node отфильтрован
 begin
   Result := vsFiltered in Node.States;
 end;
 
 function TD2CustomTreeGrid.GetFullyVisible(Node: PD2TreeNode): Boolean;
-//True - узел видим и все его родители видимы и развернуты.
+//True - узел Node видим и все его родители видимы и развернуты.
 // Determines whether the given node has the visibility flag set as well as all its parents are expanded.
 begin
   Assert(Assigned(Node), 'Invalid parameter GetFullyVisible.');
@@ -1053,6 +1061,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetHasChildren(Node: PD2TreeNode): Boolean;
+//true - узел Node имеет дочерние узлы
 begin
   if Assigned(Node) then
     Result := vsHasChildren in Node.States
@@ -1061,6 +1070,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetMultiline(Node: PD2TreeNode): Boolean;
+//true - текст узла Node многострочный
 begin
   Result := Assigned(Node) and (Node <> FRoot) and (vsMultiline in Node.States);
 end;
@@ -1102,6 +1112,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetRootNodeCount: Cardinal;
+//получить кол-во детей узла Root
 begin
   Result := FRoot.ChildCount;
 end;
@@ -1113,11 +1124,13 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetTopNode: PD2TreeNode;
+//Получить верхний видимый узел
 begin
   Result := InternalGetNodeAt(0, 0);
 end;
 
 function TD2CustomTreeGrid.GetTotalCount: Cardinal;
+//Получить общее кол-во узлов в дереве (не считая узел Root)
 begin
   Inc(FUpdateCount);
   try
@@ -1130,6 +1143,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetVerticalAlignment(Node: PD2TreeNode): Single;
+//Получить вертикальное смещение кнопки открытия/сворачивания узла Node
 begin
   Result := Node.Align;
 end;
@@ -1406,6 +1420,7 @@ end;
 //end;
 
 procedure TD2CustomTreeGrid.SetBottomNode(Node: PD2TreeNode);
+//Установить узел Node самым нижним
 var
   Run: PD2TreeNode;
   R: TD2Rect;
@@ -1428,23 +1443,35 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetBottomSpace(const Value: Single);
+//Установить высоту дополнительного пространства ниже последнего видимого узла
 begin
   if FBottomSpace <> Value then
   begin
     FBottomSpace := Value;
     //UpdateVerticalScrollBar(True);
+    Realign;
+  end;
+end;
+
+procedure TD2CustomTreeGrid.SetShowCheckboxes(const Value: boolean);
+//Установить видимость чек-боксов: true - показывать; false - не показывать
+begin
+  if FShowCheckboxes <> Value then
+  begin
+    FShowCheckboxes := Value;
+    Realign;
   end;
 end;
 
 procedure TD2CustomTreeGrid.SetCheckState(Node: PD2TreeNode; Value: TD2CheckState);
-
+//Установить состояние отметки для узла Node
 begin
   if (Node.CheckState <> Value) and not (vsDisabled in Node.States) and DoChecking(Node, Value) then
     DoCheckClick(Node, Value);
 end;
 
 procedure TD2CustomTreeGrid.SetCheckType(Node: PD2TreeNode; Value: TD2CheckType);
-
+//Установить тип отметки для узла Node
 begin
   if (Node.CheckType <> Value) and not (toReadOnly in FOptions.FMiscOptions) then
   begin
@@ -1694,6 +1721,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetFocusedColumn(Value: Integer);
+//установить фокус в колонку с индексом Value
 begin
   if (FColumnIndex <> Value) and
      DoFocusChanging(FFocusedNode, FFocusedNode, FColumnIndex, Value) then
@@ -1716,6 +1744,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetFocusedNode(Value: PD2TreeNode);
+//Передать фокус узлу Value
 var WasDifferent: Boolean;
 begin
   WasDifferent := Value <> FFocusedNode;
@@ -1764,6 +1793,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetNodeDataSize(Value: Integer);
+//Установить кол-во байт для распределения с каждым узлом. Если -1 то делать обратный вызов
 var LastRootCount: Cardinal;
 begin
   if Value < -1 then
@@ -1820,8 +1850,8 @@ begin
     MoveTo(Node, Value, amAddChildLast, False);
 end;
 
-procedure TD2CustomTreeGrid.SetMultiline(Node: PD2TreeNode;
-  const Value: Boolean);
+procedure TD2CustomTreeGrid.SetMultiline(Node: PD2TreeNode; const Value: Boolean);
+//Задать многострочный режим текста в Value для узла Node
 begin
   if Assigned(Node) and (Node <> FRoot) then
     if Value <> (vsMultiline in Node.States) then
@@ -1837,19 +1867,19 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetOffsetX(const Value: Single);
-
+//Задать значение прокрутки слева
 begin
   DoSetOffsetXY(d2Point(Value, FOffsetY), DefaultScrollUpdateFlags);
 end;
 
 procedure TD2CustomTreeGrid.SetOffsetXY(const Value: TD2Point);
-
+//Установить значение прокрутки слева и сверху
 begin
   DoSetOffsetXY(Value, DefaultScrollUpdateFlags);
 end;
 
 procedure TD2CustomTreeGrid.SetOffsetY(const Value: Single);
-
+//Установить значение прокрутки сверху
 begin
   DoSetOffsetXY(d2Point(FOffsetX, Value), DefaultScrollUpdateFlags);
 end;
@@ -1861,8 +1891,10 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetRootNodeCount(Value: Cardinal);
+//установить кол-во детей для узла Root
 begin
-    // Don't set the root node count until all other properties (in particular the OnInitNode event) have been set.
+  // Не устанавливайте кол-во для узла Root до тех пор, пока не будут установлены все другие свойства (в частности, событие OnInitNode).
+  // Don't set the root node count until all other properties (in particular the OnInitNode event) have been set.
   if csLoading in ComponentState then
   begin
     FRoot.ChildCount := Value;
@@ -1915,6 +1947,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.SetTopNode(Node: PD2TreeNode);
+//Установить узел Node верхним видимым
 var
   R: TRect;
   Run: PD2TreeNode;
@@ -1937,8 +1970,8 @@ begin
   end;
 end;
 
-procedure TD2CustomTreeGrid.SetVerticalAlignment(Node: PD2TreeNode;
-  Value: Single);
+procedure TD2CustomTreeGrid.SetVerticalAlignment(Node: PD2TreeNode; Value: Single);
+//Установить в Value значение вертикального смещения кнопки экспандера для узла Node
 begin
   if Value > 100 then
     Value := 100;
@@ -2023,8 +2056,8 @@ begin
   end;
 end;
 
-function TD2CustomTreeGrid.ToggleCallback(Step, StepSize: Integer;
-  Data: Pointer): Boolean;
+//function TD2CustomTreeGrid.ToggleCallback(Step, StepSize: Integer;
+//  Data: Pointer): Boolean;
 //var
 //  Column: Integer;
 //  Run: TRect;
@@ -2102,7 +2135,7 @@ function TD2CustomTreeGrid.ToggleCallback(Step, StepSize: Integer;
 //
 //  //--------------- end local functions ---------------------------------------
 //
-begin
+//begin
 //  Result := True;
 //  if StepSize > 0 then
 //  begin
@@ -2134,7 +2167,7 @@ begin
 //          DoScrollDown(DC, Brush, R2, SecondaryStepSize);
 //    end;
 //  end;
-end;
+//end;
 
 procedure TD2CustomTreeGrid.AddToSelection(Node: PD2TreeNode);
 //Добавляет узел Node в массив текущего выбора.
@@ -2242,11 +2275,11 @@ begin
   InitRootNode(Result);
 end;
 
-procedure TD2CustomTreeGrid.Animate(Steps, Duration: Single;
-  Callback: TD2VTAnimationCallback; Data: Pointer);
-begin
-
-end;
+//procedure TD2CustomTreeGrid.Animate(Steps, Duration: Single;
+//  Callback: TD2VTAnimationCallback; Data: Pointer);
+//begin
+//
+//end;
 
 procedure TD2CustomTreeGrid.Change(Node: PD2TreeNode);
 begin
@@ -2337,8 +2370,7 @@ begin
   FTempNodeCount := 0;
 end;
 
-function TD2CustomTreeGrid.CountLevelDifference(Node1, Node2: PD2TreeNode
-  ): Integer;
+function TD2CustomTreeGrid.CountLevelDifference(Node1, Node2: PD2TreeNode): Integer;
 // Этот метод подсчитывает, на сколько уровней отступа данные узлы отстоят друг от друга.
 // Если оба узла имеют одного родителя, то разница 0 в противном случае результат
 // GetNodeLevel (Node2) - GetNodeLevel (Node1), но со знаком.
@@ -2478,7 +2510,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoCheckClick(Node: PD2TreeNode; NewCheckState: TD2CheckState);
-
+//Устанавливает состояние отметки узла Node в NewCheckState
 begin
   if ChangeCheckState(Node, NewCheckState) then
     DoChecked(Node);
@@ -2510,6 +2542,8 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoCollapsed(Node: PD2TreeNode);
+//Вызывает прерывание после сворачиванием узла (OnCollapsed).
+//При установленной опции toAlwaysSelectNode выбирается узел, заданный в FNextNodeToSelect
 var
   lFirstSelected: PD2TreeNode;
   lParent: PD2TreeNode;
@@ -2523,9 +2557,12 @@ begin
 
   if (toAlwaysSelectNode in TreeOptions.SelectionOptions) then
   begin
-    // Select the next visible parent if the currently selected node gets invisible due to a collapse
-    // This makes the VT behave more like the Win32 custom TreeView control
-    // This makes only sense no no multi selection is allowed and if there is a selected node at all
+    {Выбрать следующий видимый родительский элемент, если текущий выбранный узел становится невидимым из-за сворачивания
+     Это делает VT более похожим Win32 элемент управления TreeView
+     Это означает, что не допускается множественный выбор и если есть выбранный узел вообще }
+    {Select the next visible parent if the currently selected node gets invisible due to a collapse
+     This makes the VT behave more like the Win32 custom TreeView control
+     This makes only sense no no multi selection is allowed and if there is a selected node at all}
     lFirstSelected := GetFirstSelected();
     if Assigned(lFirstSelected) and not FullyVisible[lFirstSelected] then
     begin
@@ -2533,6 +2570,7 @@ begin
       Selected[lParent] := True;
       Selected[lFirstSelected] := False;
     end;//if
+    //Если нет (еще нет) выбранного узла,то использовать FNextNodeToSelect чтобы выбрать
     //if there is (still) no selected node, then use FNextNodeToSelect to select one
     if SelectedCount = 0 then
       EnsureNodeSelected();
@@ -2542,7 +2580,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TD2CustomTreeGrid.DoCollapsing(Node: PD2TreeNode): Boolean;
-
+//Вызывает прерывание перед сворачиванием узла (OnCollapsing)
 begin
   Result := True;
   if Assigned(FOnCollapsing) then
@@ -2628,6 +2666,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoEnter;
+//Выделить узел при при получении деревом фокуса
 begin
   EnsureNodeSelected();
 end;
@@ -2649,10 +2688,11 @@ end;
 
 function TD2CustomTreeGrid.DoFocusChanging(OldNode, NewNode: PD2TreeNode;
   OldColumn, NewColumn: Integer): Boolean;
+//Вызывает прерывание перед изменением фокуса узла и/или колонки
 begin
   //Result := (OldColumn = NewColumn) or FHeader.AllowFocus(NewColumn);
-  //if Assigned(FOnFocusChanging) then
-  //  FOnFocusChanging(Self, OldNode, NewNode, OldColumn, NewColumn, Result);
+  if Assigned(FOnFocusChanging) then
+    FOnFocusChanging(Self, OldNode, NewNode, OldColumn, NewColumn, Result);
 end;
 
 procedure TD2CustomTreeGrid.DoFocusNode(Node: PD2TreeNode; Ask: Boolean);
@@ -2755,14 +2795,13 @@ begin
     FOnInitNode(Self, Parent, Node, InitStates);
 end;
 
-procedure TD2CustomTreeGrid.DoLoadUserData(Node: PD2TreeNode;
-  Stream: TStream);
+procedure TD2CustomTreeGrid.DoLoadUserData(Node: PD2TreeNode; Stream: TStream);
+//Вызов прерывания после загрузки узла из потока (FOnLoadNode) для загрузки из потока Stream данных узла Node
 begin
   if Assigned(FOnLoadNode) then
-    if Node = FRoot then
-      FOnLoadNode(Self, nil, Stream)
-    else
-      FOnLoadNode(Self, Node, Stream);
+    if Node = FRoot
+      then FOnLoadNode(Self, nil, Stream)
+      else FOnLoadNode(Self, Node, Stream);
 end;
 
 procedure TD2CustomTreeGrid.DoMeasureItem(TargetCanvas: TD2Canvas;
@@ -2774,14 +2813,14 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoNodeCopied(Node: PD2TreeNode);
-
+//Вызов прерывания OnNodeCopied (вызывается после копирования узла)
 begin
   if Assigned(FOnNodeCopied) then
     FOnNodeCopied(Self, Node);
 end;
 
 function TD2CustomTreeGrid.DoNodeCopying(Node, NewParent: PD2TreeNode): Boolean;
-
+//Вызов прерывания OnNodeCopying (вызывается, перед копированием узла на другой родительский узел)
 begin
   Result := True;
   if Assigned(FOnNodeCopying) then
@@ -2798,7 +2837,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function TD2CustomTreeGrid.DoNodeMoving(Node, NewParent: PD2TreeNode): Boolean;
-//Вызов прерывания OnNodeMoving перед перемещением узла Node к новому родителю NewParent
+//Вызов прерывания OnNodeMoving (вызывается перед перемещением узла Node к новому родителю NewParent)
 begin
   Result := True;
   if Assigned(FOnNodeMoving) then
@@ -2806,13 +2845,14 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoRemoveFromSelection(Node: PD2TreeNode);
-//Вызов прерывания удалении узла Node из списка выделенных
+//Вызов прерывания OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
 begin
   if Assigned(FOnRemoveFromSelection) then
     FOnRemoveFromSelection(Self, Node);
 end;
 
 procedure TD2CustomTreeGrid.DoReset(Node: PD2TreeNode);
+//Вызов прерывания nResetNode (вызывается, когда узел устанавливается как неинициализированный)
 begin
   if Assigned(FOnResetNode) then
     FOnResetNode(Self, Node);
@@ -2820,7 +2860,7 @@ end;
 
 procedure TD2CustomTreeGrid.DoSaveUserData(Node: PD2TreeNode;
   Stream: TStream);
-//Вызов прерывания OnSaveNode при записи узла Node в поток Stream
+//Вызов прерывания OnSaveNode (вызывается при сериализации узла в поток) при записи узла Node в поток Stream
 begin
   if Assigned(FOnSaveNode)
     then if Node = FRoot
@@ -2835,6 +2875,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoStartOperation(OperationKind: TD2TreeOperationKind);
+//Вызов прерывания OnStartOperation
 begin
   if Assigned(FOnStartOperation) then
     FOnStartOperation(Self, OperationKind);
@@ -2930,6 +2971,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetOptionsClass: TD2TreeOptionsClass;
+//Получить класс опций дерева. Может быть переопределено у потомков
 begin
   Result := TD2TreeOptions;
 end;
@@ -4092,6 +4134,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoExpanded(Node: PD2TreeNode);
+//Вызвать прерывание после раскрытия узла (FOnExpanded)
 begin
   if Assigned(FOnExpanded) then
     FOnExpanded(Self, Node);
@@ -4101,6 +4144,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.DoExpanding(Node: PD2TreeNode): Boolean;
+//Вызывает прерывание перед разворачиванием узла (OnExpanding)
 begin
   Result := True;
   if Assigned(FOnExpanding) then
@@ -4273,6 +4317,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.AfterConstruction;
+//Вызывается после создания экземпляра дерева для инициализации корневого узла
 begin
   inherited;
   if FRoot = nil then
@@ -4309,7 +4354,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.Clear;
-
+//полное удаление всех узлов дерева
 begin
   if not (toReadOnly in FOptions.FMiscOptions) or (csDestroying in ComponentState) then
   begin
@@ -4345,6 +4390,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.ClearChecked;
+//Снимает отметку у всех узлов
 var Node: PD2TreeNode;
 begin
   Node := RootNode.FirstChild;
@@ -4891,7 +4937,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirst(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+//Возвращает первый узел в дереве, принимая во внимание опцию toChildrenAbove.
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 
 begin
@@ -4929,7 +4975,7 @@ end;
 
 function TD2CustomTreeGrid.GetFirstChecked(State: TD2CheckState = csCheckedNormal;
   ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+//Возвращает первый узел в дереве с заданным состоянием отметки
 // Returns the first node in the tree with the given check state.
 
 begin
@@ -4937,7 +4983,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstChild(Node: PD2TreeNode): PD2TreeNode;
-
+//Возвращает первый дочерний элемент узла Node. Узел Node и возвращаемый узел инициализируется если не инициализированы.
 // Returns the first child of the given node. The result node is initialized before exit.
 
 begin
@@ -4962,6 +5008,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstChildNoInit(Node: PD2TreeNode): PD2TreeNode;
+//Возвращает первый дочерний элемент узла Node, без их инициализации.
 // Determines the first child of the given node but does not initialize it.
 
 begin
@@ -4977,6 +5024,8 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+//Возвращает первый узел в дереве, который в настоящее время помечен для операции с буфером обмена.
+// См. Также GetNextCutCopy для комментариев об инициализации.
 
 // Returns the first node in the tree which is currently marked for a clipboard operation.
 // See also GetNextCutCopy for comments on initialization.
@@ -4986,7 +5035,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает первый инициализированный узел.
 // Returns the first node which is already initialized.
 
 begin
@@ -4996,6 +5045,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstLeaf: PD2TreeNode;
+// Возвращает первый узел в дереве, у которого нет детей. Результат при необходимости инициализируется.
 
 // Returns the first node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -5005,7 +5055,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstLevel(NodeLevel: Cardinal): PD2TreeNode;
-
+// Возвращает первый узел в дереве на указанном уровне. Результат при необходимости инициализируется.
 // Returns the first node in the tree on a specific level.
 // The result is initialized if necessary.
 
@@ -5022,6 +5072,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+//Возвращает первый узел в дереве, c учетом опции toChildrenAbove (необязательно). Инициализация не выполняется.
 
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -5050,7 +5101,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает первый выбранный узел с учетом опции toChildrenAbove (необязательно).
 // Returns the first node in the current selection while optionally considering toChildrenAbove.
 
 begin
@@ -5059,7 +5110,7 @@ end;
 
 function TD2CustomTreeGrid.GetFirstVisible(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
   IncludeFiltered: Boolean = False): PD2TreeNode;
-
+// Возвращает первый видимый узел в дереве, с учетом опции toChildrenAbove (необязательно). Если необходимо узлы инициализируются.
 // Returns the first visible node in the tree while optionally considering toChildrenAbove.
 // If necessary nodes are initialized on demand.
 
@@ -5154,7 +5205,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstVisibleChild(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
-
+// Возвращает первый видимый дочерний узел узла. При необходимости узлы инициализируются.
 // Returns the first visible child node of Node. If necessary nodes are initialized on demand.
 
 begin
@@ -5168,7 +5219,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetFirstVisibleChildNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
-
+// Возвращает первый видимый дочерний узел узла. Узлы не инициализируются
 // Returns the first visible child node of Node.
 
 begin
@@ -5182,6 +5233,7 @@ end;
 
 function TD2CustomTreeGrid.GetFirstVisibleNoInit(Node: PD2TreeNode = nil;
   ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PD2TreeNode;
+// Возвращает первый видимый узел в дереве или заданном поддереве, с учетом опции toChildrenAbove (необязательно). Узлы не инициализируются
 
 // Returns the first visible node in the tree or given subtree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -5261,7 +5313,8 @@ end;
 
 
 function TD2CustomTreeGrid.GetLast(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+//Возвращает самый последний узел в ветке, заданной узлом, и инициализирует узлы до конца, включая результат.
+//Учитывается опция toChildrenAbove (необязательно). Если Node = nil, то возвращается последний узел в дереве.
 // Returns the very last node in the tree branch given by Node and initializes the nodes all the way down including the
 // result. toChildrenAbove is optionally considered. By using Node = nil the very last node in the tree is returned.
 
@@ -5284,7 +5337,7 @@ end;
 
 function TD2CustomTreeGrid.GetLastInitialized(Node: PD2TreeNode = nil;
   ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает самый последний инициализированный дочерний узел в ветке узла Node. Учитывается опция toChildrenAbove (необязательно)
 // Returns the very last initialized child node in the tree branch given by Node.
 
 begin
@@ -5294,7 +5347,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetLastNoInit(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает самый последний узел в ветке узла Node. Инициализация не выполеняется. Учитывается опция toChildrenAbove (необязательно)
 // Returns the very last node in the tree branch given by Node without initialization.
 
 var
@@ -5315,7 +5368,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetLastChild(Node: PD2TreeNode): PD2TreeNode;
-
+//Возвращяет последний дочерний элемент узла Node и инициализирует его, если он есть.
 // Determines the last child of the given node and initializes it if there is one.
 
 begin
@@ -5340,7 +5393,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetLastChildNoInit(Node: PD2TreeNode): PD2TreeNode;
-
+//Возвращяет последний дочерний элемент узла Node, но не инициализирует его.
 // Determines the last child of the given node but does not initialize it.
 
 begin
@@ -5357,7 +5410,8 @@ end;
 
 function TD2CustomTreeGrid.GetLastVisible(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
   IncludeFiltered: Boolean = False): PD2TreeNode;
-
+//Возвращает самый последний видимый узел в дереве с учетом опции toChildrenAbove (необязательно).
+//Узлы полностью инициализируются, включая узел результата.
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
 // The nodes are intialized all the way up including the result node.
 var Run: PD2TreeNode;
@@ -5374,7 +5428,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetLastVisibleChild(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
-
+// Возвращает последний видимый дочерний узел для узла Node и при необходимости инициализирует его.
 // Determines the last visible child of the given node and initializes it if necessary.
 
 begin
@@ -5395,7 +5449,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetLastVisibleChildNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
-
+//Возвращает последний видимый дочерний узел для узла Node без инициализации.
 // Determines the last visible child of the given node without initialization.
 
 begin
@@ -5414,7 +5468,7 @@ end;
 
 function TD2CustomTreeGrid.GetLastVisibleNoInit(Node: PD2TreeNode = nil;
   ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PD2TreeNode;
-
+//Возвращает самый последний видимый узел в дереве с учетом опции toChildrenAbove (необязательно). Инициализация не выполняется.
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
 // No initialization is performed.
 
@@ -5433,7 +5487,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNext(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает следующий узел в дереве, с учетом поции toChildrenAbove (необязательно). Результат инициализируется если нужно.
 // Returns next node in tree while optionally considering toChildrenAbove. The Result will be initialized if needed.
 
 begin
@@ -5516,12 +5570,11 @@ end;
 
 function TD2CustomTreeGrid.GetNextChecked(Node: PD2TreeNode; State: TD2CheckState = csCheckedNormal;
   ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+//Возвращает следующий узел начиная после Node с состоянием отметки State, с учетом поции toChildrenAbove (необязательно)
 begin
-  if (Node = nil) or (Node = FRoot) then
-    Result := GetFirstNoInit(ConsiderChildrenAbove)
-  else
-    Result := GetNextNoInit(Node, ConsiderChildrenAbove);
+  if (Node = nil) or (Node = FRoot)
+    then Result := GetFirstNoInit(ConsiderChildrenAbove)
+    else Result := GetNextNoInit(Node, ConsiderChildrenAbove);
 
   while Assigned(Result) and (Result.CheckState <> State) do
     Result := GetNextNoInit(Result, ConsiderChildrenAbove);
@@ -5531,34 +5584,37 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNextChecked(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean): PD2TreeNode;
+//Возвращает следующий узел после Node с состоянием отметки csCheckedNormal, с учетом поции toChildrenAbove (необязательно)
 begin
   Result := Self.GetNextChecked(Node, csCheckedNormal, ConsiderChildrenAbove);
 end;
 
 function TD2CustomTreeGrid.GetNextCutCopy(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+// Возвращает следующий узел в дереве, который в настоящее время помечен для операции с буфером обмена.
+// Поскольку только видимые узлы (или скрытые после их маркировки) могут быть помечены, то нет необходимости
+// проверять на инициализированость узлы. Результат, однако, при необходимости инициализируется.
 
 // Returns the next node in the tree which is currently marked for a clipboard operation. Since only visible nodes can
 // be marked (or they are hidden after they have been marked) it is not necessary to initialize nodes to check for
 // child nodes. The result, however, is initialized if necessary.
 
 begin
-  if ClipboardStates * FStates <> [] then
-  begin
-    if (Node = nil) or (Node = FRoot) then
-      Result := GetFirstNoInit(ConsiderChildrenAbove)
-    else
-      Result := GetNextNoInit(Node, ConsiderChildrenAbove);
-    while Assigned(Result) and not (vsCutOrCopy in Result.States) do
-      Result := GetNextNoInit(Result, ConsiderChildrenAbove);
-    if Assigned(Result) and not (vsInitialized in Result.States) then
-      InitNode(Result);
-  end
-  else
-    Result := nil;
+  if ClipboardStates * FStates <> []
+    then  begin
+            if (Node = nil) or (Node = FRoot)
+              then Result := GetFirstNoInit(ConsiderChildrenAbove)
+              else Result := GetNextNoInit(Node, ConsiderChildrenAbove);
+
+            while Assigned(Result) and not (vsCutOrCopy in Result.States) do
+              Result := GetNextNoInit(Result, ConsiderChildrenAbove);
+            if Assigned(Result) and not (vsInitialized in Result.States)
+              then InitNode(Result);
+          end
+    else Result := nil;
 end;
 
 function TD2CustomTreeGrid.GetNextInitialized(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+//Возвращает следующий инициализированный узел в дереве.
 // Returns the next node in tree which is initialized.
 
 begin
@@ -5569,23 +5625,22 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNextLeaf(Node: PD2TreeNode): PD2TreeNode;
-
+// Возвращает следующий узел в дереве у которого нет детей. Результат при необходимости инициализируется.
 // Returns the next node in the tree which has currently no children.
 // The result is initialized if necessary.
 
 begin
-  if (Node = nil) or (Node = FRoot) then
-    Result := FRoot.FirstChild
-  else
-    Result := GetNext(Node);
+  if (Node = nil) or (Node = FRoot)
+    then Result := FRoot.FirstChild
+    else Result := GetNext(Node);
   while Assigned(Result) and (vsHasChildren in Result.States) do
     Result := GetNext(Result);
-  if Assigned(Result) and not (vsInitialized in Result.States) then
-    InitNode(Result);
+  if Assigned(Result) and not (vsInitialized in Result.States)
+    then InitNode(Result);
 end;
 
 function TD2CustomTreeGrid.GetNextLevel(Node: PD2TreeNode; NodeLevel: Cardinal): PD2TreeNode;
-
+// Возвращает следующий после Node узел в дереве определенного уровня. Результат при необходимости инициализируется.
 // Returns the next node in the tree on a specific level.
 // The result is initialized if necessary.
 
@@ -5632,7 +5687,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNextNoInit(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean): PD2TreeNode;
-
+// Возвращает следующий узел в дереве, с учетом поции toChildrenAbove (необязательно). Результаты не инициализируются.
 // Optimized version of GetNext performing no initialization, but optionally considering toChildrenAbove.
 
 begin
@@ -5697,7 +5752,9 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNextSelected(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
-
+// Возвращает следующий выбранный узел в дереве. При необходимости результат инициализируется.
+// Поскольку дети не ниализованных узлов не могут быть в текущем выборе (потому что они еще не существуют),
+// то здесь нет необходимости инициализировать узлы.
 // Returns the next node in the tree which is currently selected. Since children of unitialized nodes cannot be
 // in the current selection (because they simply do not exist yet) it is not necessary to initialize nodes here.
 // The result however is initialized if necessary.
@@ -5705,21 +5762,19 @@ function TD2CustomTreeGrid.GetNextSelected(Node: PD2TreeNode; ConsiderChildrenAb
 begin
   if FSelectionCount > 0 then
   begin
-    if (Node = nil) or (Node = FRoot) then
-      Result := GetFirstNoInit(ConsiderChildrenAbove)
-    else
-      Result := GetNextNoInit(Node, ConsiderChildrenAbove);
+    if (Node = nil) or (Node = FRoot)
+      then Result := GetFirstNoInit(ConsiderChildrenAbove)
+      else Result := GetNextNoInit(Node, ConsiderChildrenAbove);
     while Assigned(Result) and not (vsSelected in Result.States) do
       Result := GetNextNoInit(Result, ConsiderChildrenAbove);
-    if Assigned(Result) and not (vsInitialized in Result.States) then
-      InitNode(Result);
+    if Assigned(Result) and not (vsInitialized in Result.States)
+      then InitNode(Result);
   end
-  else
-    Result := nil;
+  else Result := nil;
 end;
 
 function TD2CustomTreeGrid.GetNextSibling(Node: PD2TreeNode): PD2TreeNode;
-
+// Возвращает следующий братский узел для узла Node и при необходимости инициализирует его.
 // Returns the next sibling of Node and initializes it if necessary.
 
 begin
@@ -5735,7 +5790,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNextSiblingNoInit(Node: PD2TreeNode): PD2TreeNode;
-
+// Возвращает следующий братский узел для узла Node без его инициализации.
 // Returns the next sibling of Node.
 
 begin
@@ -6980,16 +7035,19 @@ begin
 end;
 
 function TD2CustomTreeGrid.IsEditing: Boolean;
+//true - идет редактирование данных дерева
 begin
   Result := tsEditing in FStates;
 end;
 
 function TD2CustomTreeGrid.IsMouseSelecting: Boolean;
+//true - производится выделение прямоугольником
 begin
   Result := (tsDrawSelPending in FStates) or (tsDrawSelecting in FStates);
 end;
 
 function TD2CustomTreeGrid.IsEmpty: Boolean;
+//true - дерево пустое
 begin
   Result := (Self.ChildCount[nil] = 0);
 end;
@@ -7696,7 +7754,12 @@ end;
 
 procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
   Direction: TD2SortDirection; DoInit: Boolean);
-//Сортировка узла Node по колонке Column в направлении Direction.
+//Сортировка дерева заданного узлом Node по колонке Column в направлении Direction.
+// Приложение запрашивает, как сортировать событие OnCompareNodes.
+// Столбец просто передается функции сравнения, поэтому приложение также может сортировать в определенном столбце.
+// Чтобы освободить приложение от заботы о направлении сортировки, используется параметр Direction.
+// Таким образом, приложение всегда может сортировать в порядке возрастания, тогда как этот метод переупорядочивает узлы в соответствии с этим флагом.
+
 // Sorts the given node. The application is queried about how to sort via the OnCompareNodes event.
 // Column is simply passed to the the compare function so the application can also sort in a particular column.
 // In order to free the application from taking care about the sort direction the parameter Direction is used.
@@ -7900,6 +7963,8 @@ end;
 
 procedure TD2CustomTreeGrid.SortTree(Column: Integer;
   Direction: TD2SortDirection; DoInit: Boolean);
+//Сортировка всего дерева по колонке Column в направлении Direction с инициализацией узлов при необходимости.
+
 //--------------- local function --------------------------------------------
 
 procedure DoSort(Node: PD2TreeNode);
