@@ -1612,7 +1612,7 @@ end;
 
 function TD2CustomDBGrid.GetSelectedField: TField;
 begin
-  Result:=TD2DBColumn(Columns[ColumnIndex]).Field;
+  Result:=TD2DBColumn(Columns[FocusedColumn]).Field;
 end;
 
 procedure TD2CustomDBGrid.SetSelectedField(const Value: TField);
@@ -1623,7 +1623,7 @@ begin
   begin
     if TD2DBColumn(Columns[i]).Field=Value then
     begin
-      ColumnIndex:=i;
+      FocusedColumn:=i;
       Break;
     end;
   end;
@@ -1790,7 +1790,7 @@ end;
 
 function TD2CustomDBGrid.CanEditAcceptKey(Key: System.WideChar): Boolean;
 begin
-  with TD2DBColumn(Columns[ColumnIndex]) do
+  with TD2DBColumn(Columns[FocusedColumn]) do
       Result:=FDataController.Active and Assigned(Field) and Field.IsValidChar(Char(Key));
 end;
 
@@ -1798,7 +1798,7 @@ function TD2CustomDBGrid.CanEditModify: Boolean;
 begin
   Result:=False;
   if not ReadOnly and FDataController.Active and not FDataController.Readonly then
-  with TD2DBColumn(Columns[ColumnIndex]) do
+  with TD2DBColumn(Columns[FocusedColumn]) do
   begin
     if (not ReadOnly) and Assigned(Field) then
       Result:=Field.CanModify;
@@ -1846,11 +1846,11 @@ begin
       //VK_HOME:
       //  if ssCtrl in Shift
       //    then FDataController.DataSet.First
-      //    else ColumnIndex:=0;
+      //    else FocusedColumn:=0;
       //VK_END:
       //  if ssCtrl in Shift
       //    then FDataController.DataSet.Last
-      //    else ColumnIndex:=ColumnCount - 1;
+      //    else FocusedColumn:=ColumnCount - 1;
       else
         inherited ;
         Exit;
@@ -1870,9 +1870,9 @@ end;
 procedure TD2CustomDBGrid.OnUpdateData(aDataSet: TDataSet);
 //var C: TD2DBColumn;
 begin
-  //C:=TD2DBColumn(Columns[ColumnIndex]);
-  if (TD2DBColumn(Columns[ColumnIndex]) <> nil) and FNeedUpdate then
-    TD2DBColumn(Columns[ColumnIndex]).SetData(FEditValue);
+  //C:=TD2DBColumn(Columns[FocusedColumn]);
+  if (TD2DBColumn(Columns[FocusedColumn]) <> nil) and FNeedUpdate then
+    TD2DBColumn(Columns[FocusedColumn]).SetData(FEditValue);
   FEditValue:=NULL;
   FNeedUpdate:=false;
 end;

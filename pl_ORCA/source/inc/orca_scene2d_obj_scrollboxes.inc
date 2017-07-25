@@ -541,12 +541,10 @@ end;
 
 procedure TD2CustomScrollBox.AddObject(AObject:TD2Object);
 begin
-  if (FContent <> nil) and (AObject.TagString <> 'self') and (AObject <> FContent) and (AObject <> FResourceLink) and not (AObject is TD2Effect) and not (AObject is TD2Animation) then
-  begin
-    FContent.AddObject(AObject);
-  end
-  else
-    inherited;
+  if (FContent <> nil) and (AObject.TagString <> 'self') and (AObject <> FContent) and
+     (AObject <> FResourceLink) and not (AObject is TD2Effect) and not (AObject is TD2Animation)
+    then FContent.AddObject(AObject)
+    else inherited;
 end;
 
 procedure TD2CustomScrollBox.Loaded;
@@ -575,10 +573,10 @@ begin
     HScrollBar.Value:=HScrollBar.Value - Dx;
 end;
 
-procedure TD2CustomScrollBox.InViewRect(const Rect:TD2Rect);
-begin
-
-end;
+//procedure TD2CustomScrollBox.InViewRect(const Rect:TD2Rect);
+//begin
+//
+//end;
 
 procedure TD2CustomScrollBox.SetShowScrollBars(const Value:boolean);
 begin

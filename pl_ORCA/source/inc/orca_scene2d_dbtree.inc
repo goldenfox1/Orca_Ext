@@ -33,16 +33,16 @@ begin
   Result := ColumnByIndex(Index);
 end;
 
-procedure TD2DBTreeView.SetColumnIndex(const Value: integer);
+procedure TD2DBTreeView.SetFocusedColumn(const Value: integer);
 begin
-  if FColumnIndex <> Value then
+  if FFocusedColumn <> Value then
   begin
-    FColumnIndex := Value;
+    FFocusedColumn := Value;
     UpdateSelection;
-    if Columns[FColumnIndex].Position.X < HScrollBar.Value then
-      HScrollBar.Value := Columns[FColumnIndex].Position.X;
-    if Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width > HScrollBar.Value + ClientWidth then
-      HScrollBar.Value := Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width - ClientWidth;
+    if Columns[FFocusedColumn].Position.X < HScrollBar.Value then
+      HScrollBar.Value := Columns[FFocusedColumn].Position.X;
+    if Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width > HScrollBar.Value + ClientWidth then
+      HScrollBar.Value := Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width - ClientWidth;
   end;
 end;
 
@@ -91,8 +91,8 @@ end;
 procedure TD2DBTreeView.DoRealignItem(Sender: TObject; OldIndex,
   NewIndex: integer);
 begin
-  if ColumnIndex = Columns[OldIndex].Index then
-    ColumnIndex := NewIndex;
+  if FocusedColumn = Columns[OldIndex].Index then
+    FocusedColumn := NewIndex;
   Columns[OldIndex].Index := NewIndex;
 end;
 

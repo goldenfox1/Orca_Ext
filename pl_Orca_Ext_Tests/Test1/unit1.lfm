@@ -1,0 +1,178 @@
+object Form1: TForm1
+  Left = 318
+  Height = 560
+  Top = 120
+  Width = 953
+  Caption = 'Form1'
+  ClientHeight = 560
+  ClientWidth = 953
+  OnCreate = FormCreate
+  LCLVersion = '1.6.4.0'
+  object D2Scene1: TD2Scene
+    Left = 0
+    Height = 560
+    Top = 0
+    Width = 676
+    Align = alLeft
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 676
+      Height = 560
+      object TextBox1: TD2TextBox
+        Position.Point = '(555,511)'
+        RotateAngle = 0
+        Width = 100
+        Height = 20
+        Resource = 'TextBox1Style1'
+        TabOrder = 0
+        ReadOnly = False
+        Password = False
+        Text = 'Проба'
+      end
+      object VT: TD2TreeGrid
+        Position.Point = '(42,91)'
+        RotateAngle = 0
+        Width = 282
+        Height = 245
+        Resource = 'gridstyle'
+        TabOrder = 1
+        object TreeTextColumn1: TD2TreeTextColumn
+          RotateAngle = 0
+          Width = 149
+          Height = 220
+          HitTest = False
+          TabOrder = 0
+        end
+      end
+      object TreeView1: TD2TreeView
+        Position.Point = '(69,391)'
+        RotateAngle = 0
+        Width = 193
+        Height = 140
+        TabOrder = 2
+        ItemHeight = 0
+        object TreeViewItem1: TD2TreeViewItem
+          RotateAngle = 0
+          Width = 189
+          Height = 19
+          HitTest = False
+          TabOrder = 0
+          IsChecked = False
+          IsExpanded = True
+          IsSelected = False
+          object TreeViewItem2: TD2TreeViewItem
+            Position.Point = '(19,19)'
+            RotateAngle = 0
+            Width = 170
+            Height = 19
+            HitTest = False
+            TabOrder = 0
+            IsChecked = False
+            IsExpanded = False
+            IsSelected = False
+          end
+          object TreeViewItem3: TD2TreeViewItem
+            Position.Point = '(19,38)'
+            RotateAngle = 0
+            Width = 170
+            Height = 19
+            HitTest = False
+            TabOrder = 1
+            IsChecked = False
+            IsExpanded = False
+            IsSelected = False
+          end
+        end
+        object TreeViewItem4: TD2TreeViewItem
+          Position.Point = '(0,57)'
+          RotateAngle = 0
+          Width = 189
+          Height = 19
+          HitTest = False
+          TabOrder = 1
+          IsChecked = False
+          IsExpanded = False
+          IsSelected = False
+          object TreeViewItem5: TD2TreeViewItem
+            Position.Point = '(19,19)'
+            RotateAngle = 0
+            Width = 170
+            Height = 19
+            Opacity = 0
+            HitTest = False
+            Visible = False
+            TabOrder = 0
+            IsChecked = False
+            IsExpanded = False
+            IsSelected = False
+          end
+          object TreeViewItem6: TD2TreeViewItem
+            Position.Point = '(19,38)'
+            RotateAngle = 0
+            Width = 170
+            Height = 19
+            Opacity = 0
+            HitTest = False
+            Visible = False
+            TabOrder = 1
+            IsChecked = False
+            IsExpanded = False
+            IsSelected = False
+          end
+        end
+      end
+      object Grid1: TD2Grid
+        Position.Point = '(331,91)'
+        RotateAngle = 0
+        Width = 315
+        Height = 245
+        TabOrder = 3
+        MultiSelect = True
+        RowCount = 100
+        RowHeight = 21
+        ScrollDuration = 0.300000011920929
+        object TextColumn2: TD2TextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 220
+          HitTest = False
+          TabOrder = 0
+        end
+        object TextColumn1: TD2TextColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 220
+          HitTest = False
+          TabOrder = 1
+        end
+      end
+      object CheckBox1: TD2CheckBox
+        Position.Point = '(408,439)'
+        RotateAngle = 0
+        Width = 120
+        Height = 19
+        TabOrder = 4
+        IsChecked = False
+        IsGrayed = False
+        AllowGrayed = True
+        TextAlign = d2TextAlignNear
+      end
+    end
+  end
+  object DBStringTree1: TDBStringTree
+    Left = 731
+    Height = 100
+    Top = 32
+    Width = 197
+    DefaultText = 'Node'
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    NodeDataSize = 4
+    TabOrder = 1
+  end
+end
