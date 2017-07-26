@@ -7106,88 +7106,141 @@ TD2ImageColumn = class(TD2Column)
 
 { TD2CustomGrid }
 
-TD2CustomGrid = class(TD2CustomScrollBox)   //базовый класс сетки описывающий все поля и свойства
+//базовый класс сетки описывающий все поля и свойства
+TD2CustomGrid = class(TD2CustomScrollBox)
   private
-    FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
-    FMultiSelect:boolean;              //флаг разрешения множественного выбора
-    FOldSelected:integer;              //№ предыдущей выбранной строки
-    FSelected:integer;                 //№ выбранной строки
-    FSelectedRows: array of integer;   //массив №-ов выбранных строк
-    FSelection: TD2VisualObject;       //указатель на эталонный маркер выбора строки
-    FSelections: TList;                //указатель на набор маркеров выбора строк
-    FPreSelection: TD2VisualObject;    //указатель на маркер пред.выбора строки
-    FIsPreSelected:boolean;            //флаг показа пред.выбора строки
-    FRowCount:integer;                 //кол-во строк
-    FRowHeight:single;                 //высота строк
-    FAlternatingRowBackground:boolean; //флаг режима разных фонов для четных и нечетных строк
-    FOddFill: TD2Brush;                //указатель на альтернативный фон нечетных строк
-    FLineFill: TD2Brush;               //указатель на фон строк
-    FReadOnly:boolean;          //флаг только чтение (редактирование не возможно)
-    FColumnIndex:integer;       //№ выбранной колонки
-    FHeader: TD2Header;         //указатель на строку заголовка
-    FShowHeader:boolean;        //флаг показывать заголовки колонок
-    FShowSelectedCell:boolean;  //флаг выделять выбранную ячейку
-    FShowHorzLines:boolean;     //флаг рисовать горизонтальные линии
-    FShowVertLines:boolean;     //флаг рисовать вертикальные линии
-    FOnEdititingDone: TOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
-    FOnGetValue:TOnGetValue;             //указатель на процедуру прерывания при получении значения ячейки
-    FOnSetValue:TOnSetValue;             //указатель на процедуру прерывания при записи значения ячейки
-    function GetColumnCount:integer;                    //получить кол-во колонок
-    function GetColumn(Index: integer): TD2Column;      //получить указатель на колонку по ее индексу
-    procedure SetRowCount(const Value:integer);         //установить кол-во строк
-    procedure SetRowHeight(const Value:single);         //установить высоту строки
-    function GetVisibleRows:integer;                    //получить кол-во видимых строк
-    procedure SetAlternatingRowBackground(const Value:boolean); //установить режим разных фонов для четных и нечетных строк
-    procedure SetShowHorzLines(const Value:boolean);    //установить режим отрисовки горизонтальных линий
-    procedure SetShowVertLines(const Value:boolean);    //установить режим отрисовки вертикальных линий
-    procedure SetColumnIndex(const Value:integer);      //установить выбранную колонку по ее номеру
-    procedure SetMultiSelect (const Value:boolean);     //установить режим множественного выбора
-    procedure SetShowHeader(const Value:boolean);       //установить режим отображения заголовков колонок
-    procedure SetShowSelectedCell(const Value:boolean); //установить режим отображения выбранной ячейки
+    FFocus: TD2VisualObject;            //указатель на маркер выбранной ячейки
+    FMultiSelect:boolean;               //флаг разрешения множественного выбора
+    FOldSelected:integer;               //№ предыдущей выбранной строки
+    FSelected:integer;                  //№ выбранной строки
+    FSelectedRows: array of integer;    //массив №-ов выбранных строк
+    FSelection: TD2VisualObject;        //указатель на эталонный маркер выбора строки
+    FSelections: TList;                 //указатель на набор маркеров выбора строк
+    FPreSelection: TD2VisualObject;     //указатель на маркер пред.выбора строки
+    FIsPreSelected:boolean;             //флаг показа пред.выбора строки
+    FRowCount:integer;                  //общее кол-во строк в гриде
+    FRowHeight:single;                  //высота строк
+    FAlternatingRowBackground:boolean;  //флаг режима разных фонов для четных и нечетных строк
+    FOddFill: TD2Brush;                 //указатель на альтернативный фон нечетных строк
+    FLineFill: TD2Brush;                //указатель на фон строк
+    FReadOnly:boolean;                  //флаг только чтение (редактирование не возможно)
+    FFocusedColumn:integer;             //№ выбранной колонки
+    FHeader: TD2Header;                 //указатель на строку заголовка
+    FShowHeader:boolean;                //флаг показывать заголовки колонок
+    FShowSelectedCell:boolean;          //флаг выделять выбранную ячейку
+    FShowHorzLines:boolean;             //флаг рисовать горизонтальные линии
+    FShowVertLines:boolean;             //флаг рисовать вертикальные линии
+    FOnEdititingDone: TOnEdititingDone; //указатель на процедуру прерывания после окончания записи в DataSet
+    FOnGetValue:TOnGetValue;            //указатель на процедуру прерывания при получении значения ячейки
+    FOnSetValue:TOnSetValue;            //указатель на процедуру прерывания при записи значения ячейки
+
+             //получить кол-во колонок
+    function GetColumnCount:integer;
+             //получить указатель на колонку по ее индексу
+    function GetColumn(Index: integer): TD2Column;
+             //установить кол-во строк
+    procedure SetRowCount(const Value:integer);
+              //установить высоту строки
+    procedure SetRowHeight(const Value:single);
+             //получить кол-во видимых строк
+    function GetVisibleRows:integer;
+              //установить режим разных фонов для четных и нечетных строк
+    procedure SetAlternatingRowBackground(const Value:boolean);
+              //установить режим отрисовки горизонтальных линий
+    procedure SetShowHorzLines(const Value:boolean);
+              //установить режим отрисовки вертикальных линий
+    procedure SetShowVertLines(const Value:boolean);
+              //установить выбранную колонку по ее номеру
+    procedure SetFocusedColumn(const Value:integer);
+              //установить режим множественного выбора
+    procedure SetMultiSelect (const Value:boolean);
+              //установить режим отображения заголовков колонок
+    procedure SetShowHeader(const Value:boolean);
+              //установить режим отображения выбранной ячейки
+    procedure SetShowSelectedCell(const Value:boolean);
   protected
+              //двойной клик ЛКМ
     procedure DblClick;  override;
-    procedure ContentRemoveObject(AObject: TD2Object); override; //удаление дочерних объектов
-    procedure ApplyStyle; override; //применить стиль
-    procedure FreeStyle; override;  //освободить стиль
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
-    procedure HScrollChange(Sender: TObject);  override; //обработка перемещения горизонтального скроллера
-    procedure VScrollChange(Sender: TObject);  override; //обработка перемещения вертикального скроллера
-    function  GetContentBounds: TD2Rect;  override;      //получить клиентскую область грида
-    procedure UpdateColumns;  virtual;  //обновить колоноки
-    procedure UpdateHeader;             //обновить заголовки колонок
-    procedure UpdateSelection; virtual; //обновить маркеры выбора строк
-    procedure Reset;  virtual;          //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
-    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);  //отрисовка альтернативного фона нечетных строк
-    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); //отрисовка горизонтальных и вертикальных линий
-    function  GetTopRow:integer;  virtual;                                //получить № вехней видимой строки
-    function  GetValue(Col, Row: integer): Variant; virtual;              //получить значение ячейки в колонке Col строке Row
-    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;  //сохранить значение ячейки в колонке Col строке Row
-    function  IsSelected(Row: integer):boolean;              //true - если строка Row выбрана
-    function  IsOneRowSelected:boolean;                      //true - если выбрана 1 стока
-    procedure SetPreSelected(const Value: integer); virtual; //установить маркер предвыбора на выбранную строку
-    procedure SetSelected(const Value: integer); virtual;    //установить выбранную строку
-    procedure SetSelectedMoreRow(Idx: integer); virtual;     //добавить к выбранным строки начиная с текущей до Idx
-    function  ChangeSelectionRow(Idx: integer):boolean; virtual;           //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;   //проверка ввода с клавиатуры на соответствие
-    function  CanEditModify: Boolean;  virtual;                            //true - если данные можно редактировать
-    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer); //изменить позицию колонки
-    procedure DoResizeItem(Sender: TObject; var NewSize:single);           //изменить ширину колонки
+              //удаление дочерних объектов
+    procedure ContentRemoveObject(AObject: TD2Object); override;
+              //применить стиль
+    procedure ApplyStyle; override;
+              //освободить стиль
+    procedure FreeStyle; override;
+              //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //обработка перемещения горизонтального скроллера
+    procedure HScrollChange(Sender: TObject);  override;
+              //обработка перемещения вертикального скроллера
+    procedure VScrollChange(Sender: TObject);  override;
+              //получить клиентскую область грида
+    function  GetContentBounds: TD2Rect;  override;
+              //обновить колоноки
+    procedure UpdateColumns;  virtual;
+              //обновить заголовки колонок
+    procedure UpdateHeader;
+              //обновить маркеры выбора строк
+    procedure UpdateSelection; virtual;
+              //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
+    procedure Reset;  virtual;
+              //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+              //отрисовка горизонтальных и вертикальных линий
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+              //получить № вехней видимой строки
+    function  GetTopRow:integer;  virtual;
+              //получить значение ячейки в колонке Col строке Row
+    function  GetValue(Col, Row: integer): Variant; virtual;
+              //сохранить значение ячейки в колонке Col строке Row
+    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
+              //true - если строка Row выбрана
+    function  IsSelected(Row: integer):boolean;
+              //true - если выбрана 1 стока
+    function  IsOneRowSelected:boolean;
+              //установить маркер предвыбора на выбранную строку
+    procedure SetPreSelected(const Value: integer); virtual;
+              //установить выбранную строку
+    procedure SetSelected(const Value: integer); virtual;
+              //добавить к выбранным строки начиная с текущей до Idx
+    procedure SetSelectedMoreRow(Idx: integer); virtual;
+              //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRow(Idx: integer):boolean; virtual;
+              //проверка ввода с клавиатуры на соответствие
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
+              //true - если данные можно редактировать
+    function  CanEditModify: Boolean;  virtual;
+              //изменить позицию колонки
+    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
+              //изменить ширину колонки
+    procedure DoResizeItem(Sender: TObject; var NewSize:single);
   public
-    constructor Create(AOwner: TComponent);  override;     //создать грид
-    destructor Destroy;  override;                         //уничтожить грид
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обработка нажатий кнопок мыши
-    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;                 //обработка перемещения мыши
-    function ItemClass: string;  override;                 //список классов колонок для дизайнера
-    function ColumnByIndex(const Idx: integer): TD2Column; //получить указатель на колонку по индексу
-    function ColumnByPoint(const X, Y:single): TD2Column;  //получить указатель на колонку по координатам
-    function RowByPoint(const X, Y:single):integer;        //получить № стоки по координатам
-    procedure AddObject(AObject: TD2Object);  override;    //добавить дочерний объект
-    procedure ApplyResource;  override;	                   //применить ресурс
-    procedure ScrollToRow(ARow: integer);                  //прокрутить грид до строки
-    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false; //рисовать другой фон для нечетных колонок
+                //создать грид
+    constructor Create(AOwner: TComponent);  override;
+                //уничтожить грид
+    destructor Destroy;  override;
+               //обработка нажатий кнопок мыши
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+              //обработка перемещения мыши
+    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
+              //список классов колонок для дизайнера
+    function ItemClass: string;  override;
+             //получить указатель на колонку по индексу
+    function ColumnByIndex(const Idx: integer): TD2Column;
+             //получить указатель на колонку по координатам
+    function ColumnByPoint(const X, Y:single): TD2Column;
+             //получить № стоки по координатам
+    function RowByPoint(const X, Y:single):integer;
+             //добавить дочерний объект
+    procedure AddObject(AObject: TD2Object);  override;
+              //применить ресурс
+    procedure ApplyResource;  override;
+              //прокрутить грид до строки
+    procedure ScrollToRow(ARow: integer);
+              //рисовать другой фон для нечетных колонок
+    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false;
     property CanFocused  default true;                                    //флаг возможности получать фокус
     property ColumnCount: integer read GetColumnCount;                    //кол-во колонок
-    property ColumnIndex: integer read FColumnIndex write SetColumnIndex; //№ выбранной колонки
+    property FocusedColumn: integer read FFocusedColumn write SetFocusedColumn; //№ выбранной колонки
     property Columns[Index: integer]: TD2Column read GetColumn;           //указатель на колонку по индексу
     property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Разрешить множественный выбор
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;  //флаг только чтение
@@ -8465,7 +8518,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FDefaultPasteMode: TD2TreeNodeAttachMode;    //Используется для определения, где добавить вставляемый узел. Used to determine where to add pasted nodes to.
     FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
     FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
-    FFocusedColumn: Integer;                     //NoColumn если столбцы не активны, иначе столбец в котором находится узел имеющий фокус в данный момент. NoColumn if no columns are active otherwise the last hit column of the currently focused node
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
@@ -8480,9 +8532,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
                                                   основной структуре и внутренним данным), если -1, то делать обратный вызов.
                                                    number of bytes to allocate with each node (in addition to its base
                                                    structure and the internal data), if -1 then do callback  }
-    FEffectiveOffsetX: Single;                 //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от двунаправленного режима). Actual position of the horizontal scroll bar (varies depending on bidi mode).
-    FOffsetX: Single;                          //Определяет смещение прокрутки слева. Determines left scroll offset.
-    FOffsetY: Single;                          //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
+    FEffectiveOffsetX: Single;                   //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от двунаправленного режима). Actual position of the horizontal scroll bar (varies depending on bidi mode).
+    FOffsetX: Single;                            //Определяет смещение прокрутки слева. Determines left scroll offset.
+    FOffsetY: Single;                            //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
 
 
     //------Ссылки на обработчики прерываний
@@ -8495,9 +8547,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FOnCollapsed: TD2VTChangeEvent;                //Вызывается после сворачивания узла. called after a node has been collapsed
     FOnCollapsing: TD2VTChangingEvent;             //Вызывается перед сворачиванием узла. called just before a node is collapsed
     FOnCompareNodes: TD2VTCompareEvent;            //Используется для сортировки. used during sort
-    //FOnCreateEditor: TD2VTCreateEditorEvent;       { Вызывается, когда узел переходит в режим редактирования, это позволяет приложению предоставить свой собственный редактор
-    //                                                 called when a node goes into edit mode, this allows applications to supply their own editor }
-
     FOnEditCancelled: TD2VTEditCancelEvent;        //Вызывается при отмене редактирования. called when editing has been cancelled
     FOnEdited: TD2VTEditChangeEvent;               //Вызывается после успешного окончания редактирования. called when editing has successfully been finished
     FOnEditing: TD2VTEditChangingEvent;            //Вызывается непосредственно перед переходом узла в режим редактирования. called just before a node goes into edit mode
@@ -8549,8 +8598,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
     FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
     FRoot: PD2TreeNode;                //Корневой узел дерева.
-    FSelection: TD2NodeArray;          //Массив выделенных узлов. list of currently selected nodes
-    FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelection). number of currently selected nodes (size of FSelection might differ)
+    FSelectionNodes: TD2NodeArray;     //Массив выделенных узлов. list of currently selected nodes
+    FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelectionNodes). number of currently selected nodes (size of FSelectionNodes might differ)
     FSelectionLocked: Boolean;         //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
     FShowCheckboxes: boolean;          //True - Показывать чек-боксы ???
     FSingletonNodeArray: TD2NodeArray; //Содержит только один элемент для быстрого добавления отдельных узлов. Contains only one element for quick addition of single nodes
@@ -8672,8 +8721,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure SetExpanded(Node: PD2TreeNode; Value: Boolean);
               //Устанавливает флаг vsFiltered (отфильтрованный) у узла Node в соответствии с Value и обновляет все зависимые статусы.
     procedure SetFiltered(Node: PD2TreeNode; Value: Boolean);
-              //установить фокус в колонку с индексом Value
-    procedure SetFocusedColumn(Value: Integer);
               //Передать фокус узлу Value
     procedure SetFocusedNode(Value: PD2TreeNode);
               {При Value = True узел Node и все его родители становятся видимыми, а также все его родители раскрываются.
@@ -9231,6 +9278,7 @@ public
     procedure ValidateNode(Node: PD2TreeNode; Recursive: Boolean);
 
     //------ свойства ----------
+
              //Нижный видимый узел
     property BottomNode: PD2TreeNode read GetBottomNode write SetBottomNode;
              //Кол-во отмеченный узлов
@@ -9249,17 +9297,12 @@ public
     property DropTargetNode: PD2TreeNode read FDropTargetNode write FDropTargetNode;
              //true - узел развернут; false - свернут
     property Expanded[Node: PD2TreeNode]: Boolean read GetExpanded write SetExpanded;
-             //Индекс колонки имеющей фокус
-    property FocusedColumn: Integer read FFocusedColumn write SetFocusedColumn default InvalidColumn;
              //Узел имееющий фокус
     property FocusedNode: PD2TreeNode read FFocusedNode write SetFocusedNode;
              //True - узел видим и все его родители развернуты.
     property FullyVisible[Node: PD2TreeNode]: Boolean read GetFullyVisible write SetFullyVisible;
              //Наличие детей у узла Node: true - есть дети; false - нет детей
     property HasChildren[Node: PD2TreeNode]: Boolean read GetHasChildren write SetHasChildren;
-             //Узел, над которым располагается указатель мыши
-    //property HotNode: PD2TreeNode read FCurrentHotNode;
-
              //Смещение прокрутки слева
     property OffsetX: Single read FOffsetX write SetOffsetX;
              //Смещение прокрутки слева и сверху

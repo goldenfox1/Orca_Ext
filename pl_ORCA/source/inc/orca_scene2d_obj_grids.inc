@@ -306,7 +306,7 @@ end;
 procedure TD2Column.DoEnterFocus(Sender:TObject);
 begin
   if Grid=nil then Exit;
-  Grid.ColumnIndex:=Index;
+  Grid.FocusedColumn:=Index;
   FSaveData:=TD2Object(Sender).Data;
 end;
 
@@ -820,15 +820,15 @@ begin
           begin
 	    FFocus.Visible:=true;
 	    FFocus.BringToFront;
-	    P:=d2Point(Columns[ColumnIndex].Position.X,0);
+	    P:=d2Point(Columns[FocusedColumn].Position.X,0);
 	    P:=FContent.LocalToAbsolute(P);
 	    if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
 	      P:=FSelection.Parent.Visual.AbsoluteToLocal(P);
             if FShowHorzLines then b:=1 else b:=0;
-            if (FShowVertLines) and (ColumnIndex>0) then l:=1 else l:=0;
+            if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;
             with SelRects[i] do                                                                  //установить координаты маркера ячейки
               FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,
-                              Columns[FColumnIndex].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
+                              Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
                               SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);
           end
         else FFocus.Visible := false;  // иначе скрыть маркер ячейки
@@ -859,8 +859,8 @@ end;
 
 procedure TD2CustomGrid.DoRealignItem(Sender:TObject; OldIndex,NewIndex:integer);
 begin
-  if ColumnIndex=Columns[OldIndex].Index then
-    ColumnIndex:=NewIndex;
+  if FocusedColumn=Columns[OldIndex].Index then
+    FocusedColumn:=NewIndex;
   Columns[OldIndex].Index:=NewIndex;
 end;
 
@@ -1101,34 +1101,34 @@ begin
   begin
     if IsOneRowSelected then
     begin
-      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
+      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
-        if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+        if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
         begin
-          //Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
-          //Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-          //Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-          Columns[ColumnIndex].CellSetFocus(Selected);
-          TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
+          //Columns[FocusedColumn].CellControlByRow(Selected).HitTest:=true;
+          //Columns[FocusedColumn].CellControlByRow(Selected).CanFocused:=true;
+          //Columns[FocusedColumn].CellControlByRow(Selected).SetFocus;
+          Columns[FocusedColumn].CellSetFocus(Selected);
+          TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
       end;
       case Key of
         VK_F2:
           begin
-            if Columns[ColumnIndex] <> nil
-               then Columns[ColumnIndex].CellSetFocus(Selected);
+            if Columns[FocusedColumn] <> nil
+               then Columns[FocusedColumn].CellSetFocus(Selected);
           end;
         VK_LEFT:
           begin
-            if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
-            if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
+            if (Shift = []) and (FocusedColumn > 0) then FocusedColumn := FocusedColumn - 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0) then FocusedColumn := 0;
           end;
         VK_RIGHT:
           begin
-            if (Shift = []) and (ColumnIndex < ColumnCount - 1)
-              then ColumnIndex := ColumnIndex + 1;
-            if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
-               then ColumnIndex := ColumnCount - 1;
+            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
+              then FocusedColumn := FocusedColumn + 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
+               then FocusedColumn := ColumnCount - 1;
           end;
       end;
     end;
@@ -1210,7 +1210,7 @@ begin
     if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y));  //если нажаты ЛКМ + Ctrl
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
-      ColumnIndex:=Column.Index;
+      FocusedColumn:=Column.Index;
   end;
 end;
 
@@ -1223,7 +1223,7 @@ begin
   begin
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
-      ColumnIndex:=Column.Index;
+      FocusedColumn:=Column.Index;
   end;
 end;
 
@@ -1597,8 +1597,8 @@ end;
 procedure TD2CustomGrid.DblClick;
 begin
   inherited DblClick;
-  if Columns[ColumnIndex] <> nil
-    then Columns[ColumnIndex].CellSetFocus(Selected);
+  if Columns[FocusedColumn] <> nil
+    then Columns[FocusedColumn].CellSetFocus(Selected);
 end;
 
 procedure TD2CustomGrid.ContentRemoveObject(AObject: TD2Object);
@@ -1625,16 +1625,16 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.SetColumnIndex(const Value:integer);
+procedure TD2CustomGrid.SetFocusedColumn(const Value:integer);
 begin
-  if FColumnIndex <> Value then
+  if FFocusedColumn <> Value then
   begin
-    FColumnIndex:=Value;
+    FFocusedColumn:=Value;
     UpdateSelection;
-    if Columns[FColumnIndex].Position.X < HScrollBar.Value then
-      HScrollBar.Value:=Columns[FColumnIndex].Position.X;
-    if Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width > HScrollBar.Value + ClientWidth then
-      HScrollBar.Value:=Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width - ClientWidth;
+    if Columns[FFocusedColumn].Position.X < HScrollBar.Value then
+      HScrollBar.Value:=Columns[FFocusedColumn].Position.X;
+    if Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width > HScrollBar.Value + ClientWidth then
+      HScrollBar.Value:=Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width - ClientWidth;
   end;
 end;
 

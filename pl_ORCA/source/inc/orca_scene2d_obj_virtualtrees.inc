@@ -1290,7 +1290,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetFocusedColumn(Value: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.SetFocusedColumn(Value: TD2FocusedColumn);
 begin
   if (FFocusedColumn <> Value) and
      DoFocusChanging(FFocusedNode, FFocusedNode, FFocusedColumn, Value) then
@@ -1622,7 +1622,7 @@ end;
 function TD2BaseVirtualTree.ToggleCallback(Step, StepSize: Integer;
   Data: Pointer): Boolean;
 //var
-//  Column: TD2ColumnIndex;
+//  Column: TD2FocusedColumn;
 //  Run: TRect;
 //  SecondaryStepSize: Integer;
 //
@@ -2146,7 +2146,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.DoCompare(Node1, Node2: TD2TreeNodeArray;
-  Column: TD2ColumnIndex): Integer;
+  Column: TD2FocusedColumn): Integer;
 //Вызывает прерывание сравнения узлов (OnCompareNodes)
 begin
   Result := 0;
@@ -2155,7 +2155,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.DoCreateEditor(Node: TD2TreeNodeArray;
-  Column: TD2ColumnIndex): ID2VTEditLink;
+  Column: TD2FocusedColumn): ID2VTEditLink;
 begin
   Result := nil;
   if Assigned(FOnCreateEditor) then
@@ -2163,7 +2163,7 @@ begin
 end;
 
 procedure TD2BaseVirtualTree.DoCanEdit(Node: TD2TreeNodeArray;
-  Column: TD2ColumnIndex; var Allowed: Boolean);
+  Column: TD2FocusedColumn; var Allowed: Boolean);
 begin
   if Assigned(FOnEditing)
     then FOnEditing(Self, Node, Column, Allowed);
@@ -2228,7 +2228,7 @@ begin
   EnsureNodeSelected();
 end;
 
-procedure TD2BaseVirtualTree.DoFocusChange(Node: TD2TreeNodeArray; Column: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.DoFocusChange(Node: TD2TreeNodeArray; Column: TD2FocusedColumn);
 //Вызывает прерывание смены фокуса узла
 begin
   if Assigned(FOnFocusChanged) then
@@ -2244,7 +2244,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.DoFocusChanging(OldNode, NewNode: TD2TreeNodeArray;
-  OldColumn, NewColumn: TD2ColumnIndex): Boolean;
+  OldColumn, NewColumn: TD2FocusedColumn): Boolean;
 begin
   Result := (OldColumn = NewColumn) or FHeader.AllowFocus(NewColumn);
   if Assigned(FOnFocusChanging) then
@@ -3410,10 +3410,10 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SetFocusedNodeAndColumn(Node: TD2TreeNodeArray; Column: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.SetFocusedNodeAndColumn(Node: TD2TreeNodeArray; Column: TD2FocusedColumn);
 
 var
-  OldColumn: TD2ColumnIndex;
+  OldColumn: TD2FocusedColumn;
   WasDifferent: Boolean;
 
 begin
@@ -3874,7 +3874,7 @@ begin
     Result := True;
 end;
 
-function TD2BaseVirtualTree.CanEdit(Node: TD2TreeNodeArray; Column: TD2ColumnIndex
+function TD2BaseVirtualTree.CanEdit(Node: TD2TreeNodeArray; Column: TD2FocusedColumn
   ): Boolean;
 // True - если данный узел может быть отредактирован.
 // Returns True if the given node can be edited.
@@ -4286,7 +4286,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.EditNode(Node: TD2TreeNodeArray;
-  Column: TD2ColumnIndex): Boolean;
+  Column: TD2FocusedColumn): Boolean;
 //Начать редактирование узла Node в колонке Column.
 //Возвращает True, если начато редактирование иначе - False.
 // Application triggered edit event for the given node.
@@ -4433,7 +4433,7 @@ begin
 end;
 
 function TD2BaseVirtualTree.GetDisplayRect(Node: TD2TreeNodeArray;
-  Column: TD2ColumnIndex; TextOnly: Boolean; Unclipped: Boolean;
+  Column: TD2FocusedColumn; TextOnly: Boolean; Unclipped: Boolean;
   ApplyCellContentMargin: Boolean): TD2Rect;
 // Определяет прямоугольник на экране, который занимает узел Node
 
@@ -6446,7 +6446,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.InvalidateColumn(Column: TD2ColumnIndex);
+procedure TD2BaseVirtualTree.InvalidateColumn(Column: TD2FocusedColumn);
 //Пометить недействительной видимую область колоннки Column.
 // Invalidates the client area part of a column.
 //var R: TD2Rect;
@@ -7097,7 +7097,7 @@ begin
     FOnSaveTree(Self, Stream);
 end;
 
-function TD2BaseVirtualTree.ScrollIntoView(Column: TD2ColumnIndex;
+function TD2BaseVirtualTree.ScrollIntoView(Column: TD2FocusedColumn;
   Center: Boolean): Boolean;
 //Прокручивает дерево чтобы столбец Column был видимым. Возвращает True, если
 //столбцы были прокручены (например чтобы избежать дальнейших обновлений)
@@ -7274,7 +7274,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.Sort(Node: TD2TreeNodeArray; Column: TD2ColumnIndex;
+procedure TD2BaseVirtualTree.Sort(Node: TD2TreeNodeArray; Column: TD2FocusedColumn;
   Direction: TD2SortDirection; DoInit: Boolean);
 //Сортировка узла Node по колонке Column в направлении Direction.
 // Sorts the given node. The application is queried about how to sort via the OnCompareNodes event.
@@ -7478,7 +7478,7 @@ begin
   end;
 end;
 
-procedure TD2BaseVirtualTree.SortTree(Column: TD2ColumnIndex;
+procedure TD2BaseVirtualTree.SortTree(Column: TD2FocusedColumn;
   Direction: TD2SortDirection; DoInit: Boolean);
 //--------------- local function --------------------------------------------
 
@@ -8133,42 +8133,42 @@ begin
 
 end;
 
-function TD2VTHeader.GetMainColumn: TD2ColumnIndex;
+function TD2VTHeader.GetMainColumn: TD2FocusedColumn;
 begin
 
 end;
 
-procedure TD2VTHeader.SetMainColumn(Value: TD2ColumnIndex);
+procedure TD2VTHeader.SetMainColumn(Value: TD2FocusedColumn);
 begin
 
 end;
 
-function TD2VTHeader.AllowFocus(ColumnIndex: TD2ColumnIndex): Boolean;
+function TD2VTHeader.AllowFocus(FocusedColumn: TD2FocusedColumn): Boolean;
 begin
 
 end;
 
 { TD2VirtualTreeColumns }
 
-function TD2VirtualTreeColumns.GetItem(Index: TD2ColumnIndex
+function TD2VirtualTreeColumns.GetItem(Index: TD2FocusedColumn
   ): TD2VirtualTreeColumn;
 begin
 
 end;
 
-procedure TD2VirtualTreeColumns.SetItem(Index: TD2ColumnIndex;
+procedure TD2VirtualTreeColumns.SetItem(Index: TD2FocusedColumn;
   Value: TD2VirtualTreeColumn);
 begin
 
 end;
 
-function TD2VirtualTreeColumns.IsValidColumn(Column: TD2ColumnIndex): Boolean;
+function TD2VirtualTreeColumns.IsValidColumn(Column: TD2FocusedColumn): Boolean;
 begin
 
 end;
 
 function TD2VirtualTreeColumns.GetFirstVisibleColumn(ConsiderAllowFocus: Boolean
-  ): TD2ColumnIndex;
+  ): TD2FocusedColumn;
 begin
 
 end;

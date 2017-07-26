@@ -592,15 +592,15 @@ begin
   //      ([toLevelSelectConstraint, toSiblingSelectConstraint] * ToBeSet <> []) then
   //      ClearSelection;
   //
-  //    if (toExtendedFocus in ToBeCleared) and (FColumnIndex > 0) and HandleAllocated then
+  //    if (toExtendedFocus in ToBeCleared) and (FFocusedColumn > 0) and HandleAllocated then
   //    begin
-  //      FColumnIndex := FHeader.MainColumn;
+  //      FFocusedColumn := FHeader.MainColumn;
   //      //Invalidate;
   //      Realign;
   //    end;
   //
   //    if not (toExtendedFocus in FSelectionOptions) then
-  //      FColumnIndex := FHeader.MainColumn;
+  //      FFocusedColumn := FHeader.MainColumn;
   //  end;
   //end;
 end;
@@ -1701,28 +1701,28 @@ begin
   end;
 end;
 
-procedure TD2CustomTreeGrid.SetFocusedColumn(Value: Integer);
-//установить фокус в колонку с индексом Value
-begin
-  if (FColumnIndex <> Value) and
-     DoFocusChanging(FFocusedNode, FFocusedNode, FColumnIndex, Value) then
-  begin
-    CancelEditNode;
-    InvalidateColumn(FColumnIndex);
-    InvalidateColumn(Value);
-    FColumnIndex := Value;
-    if Assigned(FFocusedNode) and not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions) then
-    begin
-      if ScrollIntoView(FFocusedNode, toCenterScrollIntoView in FOptions.SelectionOptions, True) then
-        InvalidateNode(FFocusedNode);
-    end;
-
-    if Assigned(FDropTargetNode) then
-      InvalidateNode(FDropTargetNode);
-
-    DoFocusChange(FFocusedNode, FColumnIndex);
-  end;
-end;
+//procedure TD2CustomTreeGrid.SetFocusedColumn(Value: Integer);
+////установить фокус в колонку с индексом Value
+//begin
+//  if (FFocusedColumn <> Value) and
+//     DoFocusChanging(FFocusedNode, FFocusedNode, FFocusedColumn, Value) then
+//  begin
+//    CancelEditNode;
+//    InvalidateColumn(FFocusedColumn);
+//    InvalidateColumn(Value);
+//    FFocusedColumn := Value;
+//    if Assigned(FFocusedNode) and not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions) then
+//    begin
+//      if ScrollIntoView(FFocusedNode, toCenterScrollIntoView in FOptions.SelectionOptions, True) then
+//        InvalidateNode(FFocusedNode);
+//    end;
+//
+//    if Assigned(FDropTargetNode) then
+//      InvalidateNode(FDropTargetNode);
+//
+//    DoFocusChange(FFocusedNode, FFocusedColumn);
+//  end;
+//end;
 
 procedure TD2CustomTreeGrid.SetFocusedNode(Value: PD2TreeNode);
 //Передать фокус узлу Value
@@ -1732,7 +1732,7 @@ begin
   DoFocusNode(Value, True);
   // Do change event only if there was actually a change.
   if WasDifferent and (FFocusedNode = Value) then
-    DoFocusChange(FFocusedNode, FColumnIndex);
+    DoFocusChange(FFocusedNode, FFocusedColumn);
 end;
 
 procedure TD2CustomTreeGrid.SetFullyVisible(Node: PD2TreeNode; Value: Boolean);
@@ -1918,12 +1918,12 @@ begin
       AddToSelection(Node);
 
       // Make sure there is a valid column selected (if there are columns at all).
-      //if ((FColumnIndex < 0) or not (coVisible in FHeader.Columns[FColumnIndex].Options)) and
+      //if ((FFocusedColumn < 0) or not (coVisible in FHeader.Columns[FFocusedColumn].Options)) and
       //  (FHeader.MainColumn > NoColumn) then
       //  if ([coVisible, coAllowFocus] *  FHeader.Columns[FHeader.MainColumn].Options = [coVisible, coAllowFocus]) then
-      //    FColumnIndex := FHeader.MainColumn
+      //    FFocusedColumn := FHeader.MainColumn
       //  else
-      //    FColumnIndex := FHeader.Columns.GetFirstVisibleColumn(True);
+      //    FFocusedColumn := FHeader.Columns.GetFirstVisibleColumn(True);
       if FRangeAnchor = nil then
         FRangeAnchor := Node;
     end
@@ -2694,7 +2694,7 @@ begin
   begin
     if Node = FRoot then
       Node := nil;
-    if (FFocusedNode <> Node) and (not Ask or DoFocusChanging(FFocusedNode, Node, FColumnIndex, FColumnIndex)) then
+    if (FFocusedNode <> Node) and (not Ask or DoFocusChanging(FFocusedNode, Node, FFocusedColumn, FFocusedColumn)) then
     begin
       if Assigned(FFocusedNode) then
       begin
@@ -2713,8 +2713,8 @@ begin
     if Assigned(FFocusedNode) then
     begin
       //// Make sure a valid column is set if columns are used and no column has currently the focus.
-      //if FHeader.UseColumns and (not FHeader.FColumns.IsValidColumn(FColumnIndex)) then
-      //  FColumnIndex := FHeader.MainColumn;
+      //if FHeader.UseColumns and (not FHeader.FColumns.IsValidColumn(FFocusedColumn)) then
+      //  FFocusedColumn := FHeader.MainColumn;
       // Do automatic expansion of the newly focused node if enabled.
       if (toAutoExpand in FOptions.FAutoOptions) and not (vsExpanded in FFocusedNode.States) then
         ToggleNode(FFocusedNode);
@@ -2938,11 +2938,11 @@ begin
   while L <= H do
   begin
     I := (L + H) shr 1;
-    if PAnsiChar(FSelection[I]) < PAnsiChar(P)
+    if PAnsiChar(FSelectionNodes[I]) < PAnsiChar(P)
       then L := I + 1
       else  begin
               H := I - 1;
-              if FSelection[I] = P then
+              if FSelectionNodes[I] = P then
               begin
                 Result := True;
                 L := I;
@@ -3100,7 +3100,7 @@ begin
     // Add all nodes which were selected before to the current selection (unless they are already there).
     while Node <> Stop do
     begin
-      if (vsSelected in Node.States) and not FindNodeInSelection(Node, Index, 0, High(FSelection)) then
+      if (vsSelected in Node.States) and not FindNodeInSelection(Node, Index, 0, High(FSelectionNodes)) then
         InternalCacheNode(Node);
       Node := GetNextNoInit(Node);
     end;
@@ -3152,7 +3152,7 @@ begin
   if (Node = FFocusedNode) and not KeepFocus then
   begin
     DoFocusNode(nil, False);
-    DoFocusChange(FFocusedNode, FColumnIndex);
+    DoFocusChange(FFocusedNode, FFocusedColumn);
   end;
 
   if Node = FRangeAnchor then
@@ -3290,7 +3290,7 @@ begin
   if FindNodeInSelection(Node, Index, -1, -1) then
   begin
     Exclude(Node.States, vsSelected);
-    Inc(PAnsiChar(FSelection[Index]));
+    Inc(PAnsiChar(FSelectionNodes[Index]));
     DoRemoveFromSelection(Node);
     AdviseChangeEvent(False, Node, crIgnore);
   end;
@@ -3309,7 +3309,7 @@ var
 
 begin
   // The idea behind this code is to use a kind of reverse merge sort. QuickSort is quite fast
-  // and would do the job here too but has a serious problem with already sorted lists like FSelection.
+  // and would do the job here too but has a serious problem with already sorted lists like FSelectionNodes.
 
   // 1) Remove already selected items, mark all other as being selected.
   if ForceInsert then
@@ -3353,9 +3353,9 @@ begin
     // 2) Sort the new item list so we can easily traverse it.
     if NewLength > 1 then
       QuickSort(NewItems, 0, NewLength - 1);
-    // 3) Make room in FSelection for the new items.
-    if FSelectionCount + NewLength >= Length(FSelection) then
-      SetLength(FSelection, FSelectionCount + NewLength);
+    // 3) Make room in FSelectionNodes for the new items.
+    if FSelectionCount + NewLength >= Length(FSelectionNodes) then
+      SetLength(FSelectionNodes, FSelectionCount + NewLength);
 
     // 4) Merge in new items
     J := NewLength - 1;
@@ -3368,9 +3368,9 @@ begin
       // array and only the remaining new items must be inserted.
       if CurrentEnd >= 0 then
       begin
-        while (J >= 0) and (PAnsiChar(NewItems[J]) > PAnsiChar(FSelection[CurrentEnd])) do
+        while (J >= 0) and (PAnsiChar(NewItems[J]) > PAnsiChar(FSelectionNodes[CurrentEnd])) do
         begin
-          FSelection[CurrentEnd + J + 1] := NewItems[J];
+          FSelectionNodes[CurrentEnd + J + 1] := NewItems[J];
           Dec(J);
         end;
         // early out if nothing more needs to be copied
@@ -3380,7 +3380,7 @@ begin
       else
       begin
         // insert remaining new entries at position 0
-        Move(NewItems[0], FSelection[0], (J + 1) * SizeOf(Pointer));
+        Move(NewItems[0], FSelectionNodes[0], (J + 1) * SizeOf(Pointer));
         // nothing more to do so exit main loop
         Break;
       end;
@@ -3391,7 +3391,7 @@ begin
       Dec(I);
       // move all entries which are greater than the greatest entry in the new items list up
       // so the remaining gap travels down to where new items must be inserted
-      Move(FSelection[I + 1], FSelection[I + J + 2], (CurrentEnd - I) * SizeOf(Pointer));
+      Move(FSelectionNodes[I + 1], FSelectionNodes[I + J + 2], (CurrentEnd - I) * SizeOf(Pointer));
       CurrentEnd := I;
     end;
     Inc(FSelectionCount, NewLength);
@@ -3596,22 +3596,22 @@ begin
   // Handle this potentially dangerous situation by packing the selection array explicitely.
   if FUpdateCount > 0 then
   begin
-    Count := PackArray(FSelection, FSelectionCount);
+    Count := PackArray(FSelectionNodes, FSelectionCount);
     if Count > -1 then
     begin
       FSelectionCount := Count;
-      SetLength(FSelection, FSelectionCount);
+      SetLength(FSelectionNodes, FSelectionCount);
     end;
   end;
 
   while FSelectionCount > 0 do
   begin
     Dec(FSelectionCount);
-    Exclude(FSelection[FSelectionCount].States, vsSelected);
-    DoRemoveFromSelection(FSelection[FSelectionCount]);
+    Exclude(FSelectionNodes[FSelectionCount].States, vsSelected);
+    DoRemoveFromSelection(FSelectionNodes[FSelectionCount]);
   end;
   ResetRangeAnchor;
-  FSelection := nil;
+  FSelectionNodes := nil;
   DoStateChange([], [tsClearPending]);
 end;
 
@@ -3761,10 +3761,10 @@ begin
     begin
       Exclude(Node.States, vsSelected);
       if FindNodeInSelection(Node, Index, -1, -1) and (Index < FSelectionCount - 1) then
-        Move(FSelection[Index + 1], FSelection[Index], (FSelectionCount - Index - 1) * SizeOf(Pointer));
+        Move(FSelectionNodes[Index + 1], FSelectionNodes[Index], (FSelectionCount - Index - 1) * SizeOf(Pointer));
       if FSelectionCount > 0 then
         Dec(FSelectionCount);
-      SetLength(FSelection, FSelectionCount);
+      SetLength(FSelectionNodes, FSelectionCount);
 
       if FSelectionCount = 0 then
         ResetRangeAnchor;
@@ -3862,12 +3862,12 @@ var
 
 begin
   //if not FHeader.AllowFocus(Column) then
-  //  Column := FColumnIndex;
+  //  Column := FFocusedColumn;
   //
-  //WasDifferent := (Node <> FFocusedNode) or (Column <> FColumnIndex);
+  //WasDifferent := (Node <> FFocusedNode) or (Column <> FFocusedColumn);
   //
-  //OldColumn := FColumnIndex;
-  //FColumnIndex := Column;
+  //OldColumn := FFocusedColumn;
+  //FFocusedColumn := Column;
   //
   //DoFocusNode(Node, True);
   //
@@ -3876,12 +3876,12 @@ begin
   //begin
   //  CancelEditNode;
   //  if WasDifferent then
-  //    DoFocusChange(FFocusedNode, FColumnIndex);
+  //    DoFocusChange(FFocusedNode, FFocusedColumn);
   //end
   //else
   //  // If the user did not accept the new cell to focus then set also the focused column back
   //  // to its original state.
-  //  FColumnIndex := OldColumn;
+  //  FFocusedColumn := OldColumn;
 end;
 
 procedure TD2CustomTreeGrid.SkipNode(Stream: TStream);
@@ -4619,11 +4619,11 @@ begin
     InvalidateCache;
     if FUpdateCount = 0 then
     begin
-      NewSize := PackArray(FSelection, FSelectionCount);
+      NewSize := PackArray(FSelectionNodes, FSelectionCount);
       if NewSize > -1 then
       begin
         FSelectionCount := NewSize;
-        SetLength(FSelection, FSelectionCount);
+        SetLength(FSelectionNodes, FSelectionCount);
       end;
 
       ValidateCache;
@@ -7034,11 +7034,11 @@ begin
     // do some housekeeping
     // Need to trigger the OnChange event from here if nodes were only deleted but not added.
     TriggerChange := False;
-    NewSize := PackArray(FSelection, FSelectionCount);
+    NewSize := PackArray(FSelectionNodes, FSelectionCount);
     if NewSize > -1 then
     begin
       FSelectionCount := NewSize;
-      SetLength(FSelection, FSelectionCount);
+      SetLength(FSelectionNodes, FSelectionCount);
       TriggerChange := True;
     end;
     if FTempNodeCount > 0 then
@@ -7687,8 +7687,8 @@ begin
   //    Run := Run.Parent;
   //  end;
   //  UseColumns := FHeader.UseColumns;
-  //  if UseColumns and FHeader.FColumns.IsValidColumn(FColumnIndex) then
-  //    R := GetDisplayRect(Node, FColumnIndex, not (toGridExtensions in FOptions.FMiscOptions))
+  //  if UseColumns and FHeader.FColumns.IsValidColumn(FFocusedColumn) then
+  //    R := GetDisplayRect(Node, FFocusedColumn, not (toGridExtensions in FOptions.FMiscOptions))
   //  else
   //    R := GetDisplayRect(Node, NoColumn, not (toGridExtensions in FOptions.FMiscOptions));
   //
@@ -7725,7 +7725,7 @@ begin
   //
   //  if Horizontally then
   //    // 2) scroll horizontally
-  //    ScrolledHorizontally := ScrollIntoView(FColumnIndex, Center);
+  //    ScrolledHorizontally := ScrollIntoView(FFocusedColumn, Center);
   //
   //end;
   //
