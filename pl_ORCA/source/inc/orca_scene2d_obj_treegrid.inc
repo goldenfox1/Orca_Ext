@@ -1773,6 +1773,17 @@ begin
   end;
 end;
 
+procedure TD2CustomTreeGrid.SetNodeAlignment(const Value: TD2TreeNodeAlignment);
+//Установить тип выравнивария для узлов
+begin
+  if FNodeAlignment <> Value then
+  begin
+    FNodeAlignment := Value;
+    if {HandleAllocated and} not (csReading in ComponentState)
+      then Realign; //вместо Invalidate;
+  end;
+end;
+
 procedure TD2CustomTreeGrid.SetNodeDataSize(Value: Integer);
 //Установить кол-во байт для распределения с каждым узлом. Если -1 то делать обратный вызов
 var LastRootCount: Cardinal;
@@ -2724,7 +2735,7 @@ procedure TD2CustomTreeGrid.DoFreeNode(Node: PD2TreeNode);
 begin
   // Prevent invalid references
   if Node = FLastChangedNode then FLastChangedNode := nil;
-  if Node = FCurrentHotNode then FCurrentHotNode := nil;
+  //if Node = FCurrentHotNode then FCurrentHotNode := nil;
   if Node = FDropTargetNode then FDropTargetNode := nil;
   if Node = FLastStructureChangeNode then FLastStructureChangeNode := nil;
   if Node = FNextNodeToSelect then FNextNodeToSelect := nil;
@@ -4356,11 +4367,11 @@ begin
       ClearSelection;
       FFocusedNode := nil;
       FLastSelected := nil;
-      FCurrentHotNode := nil;
+      //FCurrentHotNode := nil;
       FDropTargetNode := nil;
       FLastChangedNode := nil;
       FRangeAnchor := nil;
-      FCheckNode := nil;
+      //FCheckNode := nil;
       FLastVCLDragTarget := nil;
       FLastSearchNode := nil;
       DeleteChild(FRoot, True);
