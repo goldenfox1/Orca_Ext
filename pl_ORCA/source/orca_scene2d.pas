@@ -4450,7 +4450,7 @@ TD2CustomScrollBox = class(TD2Control)
     procedure Realign;  override;
     procedure Centre;
     procedure ScrollTo(const Dx, Dy:single);
-    procedure InViewRect(const Rect: TD2Rect);
+    //procedure InViewRect(const Rect: TD2Rect);
     function  ClientWidth:single;
     function  ClientHeight:single;
     property  HScrollBar: TD2ScrollBar read FHScrollBar;

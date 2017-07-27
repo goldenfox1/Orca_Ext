@@ -6822,15 +6822,16 @@ begin
   end;
 end;
 
-
-
-
-
-
-
-
 function TD2CustomTreeGrid.InsertNode(Node: PD2TreeNode;
   Mode: TD2TreeNodeAttachMode; UserData: Pointer): PD2TreeNode;
+// Добавляет новый узел относительно узла Node. Конечная позиция определяется параметром Mode.
+// UserData может использоваться для установки первых байтов SizeOf(Pointer) области пользовательских данных для
+// начальное значение, которое может быть использовано в OnInitNode, а также вызывает запуск
+// Событие OnFreeNode (если <> nil), даже если узел еще не «официально» инициализирован.
+// InsertNode - это метод совместимости и будет неявно проверять данный узел
+// если новый узел должен быть добавлен как дочерний узел. Однако это противоречит виртуальному
+// парадигма и, следовательно, я отговариваюсь от ее использования.
+
 // Adds a new node relative to Node. The final position is determined by Mode.
 // UserData can be used to set the first SizeOf(Pointer) bytes of the user data area to
 // an initial value which can be used in OnInitNode and will also cause to trigger the
