@@ -6881,19 +6881,21 @@ begin
 
     if FUpdateCount = 0 then
     begin
-      // If auto sort is enabled then sort the node or its parent (depending on the insert mode).
-      //if (toAutoSort in FOptions.FAutoOptions) and (FHeader.FSortColumn > InvalidColumn) then
-      //  case Mode of
-      //    amInsertBefore,
-      //    amInsertAfter:
-      //      // Here no initialization is necessary because *if* a node has already got children then it
-      //      // must also be initialized.
-      //      // Note: Node can never be FRoot at this point.
-      //      Sort(Node.Parent, FHeader.FSortColumn, FHeader.FSortDirection, True);
-      //    amAddChildFirst,
-      //    amAddChildLast:
-      //      Sort(Node, FHeader.FSortColumn, FHeader.FSortDirection, True);
-      //  end;
+      // Если включена автоматическая сортировка, сортировать узел или его родителя (в зависимости от режима вставки).
+      //If auto sort is enabled then sort the node or its parent (depending on the insert mode).
+      if (toAutoSort in FOptions.FAutoOptions) and (FSortColumn > InvalidColumn) then
+        case Mode of
+          amInsertBefore,
+          amInsertAfter:
+            // Здесь не требуется инициализация, т.к. если узел уже имеет детей, то он уже инициализирован.
+            // Примечание: Узел не может быть FRoot в этот момент.
+            // Here no initialization is necessary because *if* a node has already got children then it must also be initialized.
+            // Note: Node can never be FRoot at this point.
+            Sort(Node.Parent, FSortColumn, FSortDirection, True);
+          amAddChildFirst,
+          amAddChildLast:
+            Sort(Node, FSortColumn, FSortDirection, True);
+        end;
 
       //UpdateScrollBars(True);
       Realign; //вместо UpdateScrollBars(True)
@@ -7776,7 +7778,7 @@ end;
 
 procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
   Direction: TD2SortDirection; DoInit: Boolean);
-//Сортировка дерева заданного узлом Node по колонке Column в направлении Direction.
+// Сортировка дерева заданного узлом Node по колонке Column в направлении Direction.
 // Приложение запрашивает, как сортировать событие OnCompareNodes.
 // Столбец просто передается функции сравнения, поэтому приложение также может сортировать в определенном столбце.
 // Чтобы освободить приложение от заботы о направлении сортировки, используется параметр Direction.
@@ -7791,40 +7793,41 @@ procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
 
   function MergeAscending(A, B: PD2TreeNode): PD2TreeNode;
 
+  // Слияние узлов  A и B (которые оба должны быть отсортированы с помощью Compare) по возрастаниюв в один список.
   // Merges A and B (which both must be sorted via Compare) into one list.
 
   var
     Dummy: TD2TreeNode;
     CompareResult: Integer;
   begin
+    // Это позволяет избежать проверки для Result = nil в циклах.
     // This avoids checking for Result = nil in the loops.
     Result := @Dummy;
     while Assigned(A) and Assigned(B) do
     begin
-      if OperationCanceled then
-        CompareResult := 0
-      else
-        CompareResult := DoCompare(A, B, Column);
+      if OperationCanceled
+        then CompareResult := 0
+        else CompareResult := DoCompare(A, B, Column);
 
-      if CompareResult <= 0 then
-      begin
-        Result.NextSibling := A;
-        Result := A;
-        A := A.NextSibling;
-      end
-      else
-      begin
-        Result.NextSibling := B;
-        Result := B;
-        B := B.NextSibling;
-      end;
+      if CompareResult <= 0
+        then  begin
+                Result.NextSibling := A;
+                Result := A;
+                A := A.NextSibling;
+              end
+        else  begin
+                Result.NextSibling := B;
+                Result := B;
+                B := B.NextSibling;
+              end;
     end;
 
+    // Просто добавьте список, который не равен nil (или установите конец списка результатов в nil, если оба списка равны нулю).
     // Just append the list which is not nil (or set end of result list to nil if both lists are nil).
-    if Assigned(A) then
-      Result.NextSibling := A
-    else
-      Result.NextSibling := B;
+    if Assigned(A)
+      then Result.NextSibling := A
+      else Result.NextSibling := B;
+    // возвращает начало нового объединенного списка
     // return start of the new merged list
     Result := Dummy.NextSibling;
   end;
@@ -7832,7 +7835,7 @@ procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
   //---------------------------------------------------------------------------
 
   function MergeDescending(A, B: PD2TreeNode): PD2TreeNode;
-
+  // Слияние узлов A и B (которые оба должны быть отсортированы с помощью Compare) по убыванию в один список.
   // Merges A and B (which both must be sorted via Compare) into one list.
 
   var
@@ -7840,34 +7843,34 @@ procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
     CompareResult: Integer;
 
   begin
+    // это позволяет избежать проверки для результата = nil в циклах
     // this avoids checking for Result = nil in the loops
     Result := @Dummy;
     while Assigned(A) and Assigned(B) do
     begin
-      if OperationCanceled then
-        CompareResult := 0
-      else
-        CompareResult := DoCompare(A, B, Column);
+      if OperationCanceled
+        then CompareResult := 0
+        else CompareResult := DoCompare(A, B, Column);
 
-      if CompareResult >= 0 then
-      begin
-        Result.NextSibling := A;
-        Result := A;
-        A := A.NextSibling;
-      end
-      else
-      begin
-        Result.NextSibling := B;
-        Result := B;
-        B := B.NextSibling;
-      end;
+      if CompareResult >= 0
+        then  begin
+                Result.NextSibling := A;
+                Result := A;
+                A := A.NextSibling;
+              end
+        else  begin
+                Result.NextSibling := B;
+                Result := B;
+                B := B.NextSibling;
+              end;
     end;
 
+    // Просто добавьте список, который не равен nil (или установите конец списка результатов в nil, если оба списка равны нулю).
     // Just append the list which is not nil (or set end of result list to nil if both lists are nil).
-    if Assigned(A) then
-      Result.NextSibling := A
-    else
-      Result.NextSibling := B;
+    if Assigned(A)
+      then Result.NextSibling := A
+      else Result.NextSibling := B;
+    // Вернем начало вновь объединенного списка.
     // Return start of the newly merged list.
     Result := Dummy.NextSibling;
   end;
@@ -7875,49 +7878,42 @@ procedure TD2CustomTreeGrid.Sort(Node: PD2TreeNode; Column: Integer;
   //---------------------------------------------------------------------------
 
   function MergeSortAscending(var Node: PD2TreeNode; N: Cardinal): PD2TreeNode;
-
+  // Рекурсивно сортирует по возрастанию список узлов, заданных Node (узел не должен быть nil).
   // Sorts the list of nodes given by Node (which must not be nil).
-
-  var
-    A, B: PD2TreeNode;
-
+  var A, B: PD2TreeNode;
   begin
-    if N > 1 then
-    begin
-      A := MergeSortAscending(Node, N div 2);
-      B := MergeSortAscending(Node, (N + 1) div 2);
-      Result := MergeAscending(A, B);
-    end
-    else
-    begin
-      Result := Node;
-      Node := Node.NextSibling;
-      Result.NextSibling := nil;
-    end;
+    if N > 1
+       then begin
+              A := MergeSortAscending(Node, N div 2);
+              B := MergeSortAscending(Node, (N + 1) div 2);
+              Result := MergeAscending(A, B);
+            end
+       else begin
+              Result := Node;
+              Node := Node.NextSibling;
+              Result.NextSibling := nil;
+            end;
   end;
 
   //---------------------------------------------------------------------------
 
   function MergeSortDescending(var Node: PD2TreeNode; N: Cardinal): PD2TreeNode;
-
+  // Рекурсивно сортирует по убыванию список узлов, заданных Node (узел не должен быть nil).
   // Sorts the list of nodes given by Node (which must not be nil).
 
-  var
-    A, B: PD2TreeNode;
-
+  var A, B: PD2TreeNode;
   begin
-    if N > 1 then
-    begin
-      A := MergeSortDescending(Node, N div 2);
-      B := MergeSortDescending(Node, (N + 1) div 2);
-      Result := MergeDescending(A, B);
-    end
-    else
-    begin
-      Result := Node;
-      Node := Node.NextSibling;
-      Result.NextSibling := nil;
-    end;
+    if N > 1
+       then begin
+              A := MergeSortDescending(Node, N div 2);
+              B := MergeSortDescending(Node, (N + 1) div 2);
+              Result := MergeDescending(A, B);
+            end
+       else begin
+              Result := Node;
+              Node := Node.NextSibling;
+              Result.NextSibling := nil;
+            end;
   end;
 
   //--------------- end local functions ---------------------------------------
@@ -7942,22 +7938,25 @@ begin
     begin
       if (Node.ChildCount = 0) and DoInit then
         InitChildren(Node);
+      // Удостовериться, что дети действительны, и их можно сортировать.
       // Make sure the children are valid, so they can be sorted at all.
-      if DoInit and (Node.ChildCount > 0) then
-        ValidateChildren(Node, False);
+      if DoInit and (Node.ChildCount > 0)
+         then ValidateChildren(Node, False);
+      // Возможно, число детей изменилось.
       // Child count might have changed.
       if Node.ChildCount > 1 then
       begin
         StartOperation(okSortNode);
         try
+          // Сортируем связанный список, проверяем флаг направления только один раз.
           // Sort the linked list, check direction flag only once.
-          if Direction = sdAscending then
-            Node.FirstChild := MergeSortAscending(Node.FirstChild, Node.ChildCount)
-          else
-            Node.FirstChild := MergeSortDescending(Node.FirstChild, Node.ChildCount);
+          if Direction = sdAscending
+            then Node.FirstChild := MergeSortAscending(Node.FirstChild, Node.ChildCount)
+            else Node.FirstChild := MergeSortDescending(Node.FirstChild, Node.ChildCount);
         finally
           EndOperation(okSortNode);
         end;
+        // Консолидация дочернего списка.
         // Consolidate the child list finally.
         Run := Node.FirstChild;
         Run.PrevSibling := nil;
@@ -7965,8 +7964,8 @@ begin
         repeat
           Run.Index := Index;
           Inc(Index);
-          if Run.NextSibling = nil then
-            Break;
+          if Run.NextSibling = nil
+             then Break;
           Run.NextSibling.PrevSibling := Run;
           Run := Run.NextSibling;
         until False;
@@ -7974,11 +7973,11 @@ begin
 
         InvalidateCache;
       end;
-      if FUpdateCount = 0 then
-      begin
-        ValidateCache;
-        Realign; //вместо Invalidate;
-      end;
+      if FUpdateCount = 0
+         then begin
+                ValidateCache;
+                Realign; //вместо Invalidate;
+              end;
     end;
   end;
 end;

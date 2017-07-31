@@ -7104,6 +7104,12 @@ TD2ImageColumn = class(TD2Column)
   TOnSetValue = procedure (Sender: TObject; const Col, Row:integer; const Value:Variant) of object;
   TOnEdititingDone = procedure (Sender: TObject; const Col, Row: integer) of object;
 
+//Направления сортировки
+  TD2SortDirection = (
+      sdAscending,   //сортировка по возрастанию
+      sdDescending   //сортировка по убыванию
+    );
+
 { TD2CustomGrid }
 
 //базовый класс сетки описывающий все поля и свойства
@@ -7130,6 +7136,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     FShowSelectedCell:boolean;          //флаг выделять выбранную ячейку
     FShowHorzLines:boolean;             //флаг рисовать горизонтальные линии
     FShowVertLines:boolean;             //флаг рисовать вертикальные линии
+    FSortColumn: integer;               //Индекс колонки, в которой происходит сортировка строк
+    FSortDirection: TD2SortDirection;     //
     FOnEdititingDone: TOnEdititingDone; //указатель на процедуру прерывания после окончания записи в DataSet
     FOnGetValue:TOnGetValue;            //указатель на процедуру прерывания при получении значения ячейки
     FOnSetValue:TOnSetValue;            //указатель на процедуру прерывания при записи значения ячейки
@@ -7957,7 +7965,7 @@ TD2TreeAutoOption = (
     toAutoExpand,               //Автоматически раскрывать (сворачивать) узел при получении (потере) им фокуса. Nodes are expanded (collapsed) when getting (losing) the focus.
     toAutoScroll,               //Прокрутка дерева если мышь находится вблизи границы во время перетаскивания или выбора. Scroll if mouse is near the border while dragging or selecting.
     toAutoScrollOnExpand,       //Прокрутка дерева при разворачивании узла на кол-во дочерних узлов в поле зрения. Scroll as many child nodes in view as possible after expanding a node.
-    toAutoSort,                 //Сортировать дерево при изменении параметра Header.SortDirection, или Header.SortColumn, или при добавлении нового узла. Sort tree when Header.SortColumn or Header.SortDirection change or sort node if child nodes are added.
+    toAutoSort,                 //Сортировать дерево при изменении параметра SortDirection, или SortColumn, или при добавлении нового узла. Sort tree when SortColumn or SortDirection change or sort node if child nodes are added.
     toAutoSpanColumns,          //Переносить текст, не помещающийся в ячейке в  соседнюю колонке, если она пуста (не содержит текста). Large entries continue into next column(s) if there's no text in them (no clipping).
     toAutoTristateTracking,     //Автоматическое отслеживание grayed-состояния для узлов с типом отметки ctTriStateCheckBox. Checkstates are automatically propagated for tri state check boxes.
     toAutoHideButtons,          //Скрывать кнопку развёртывания/свёртывания для узла, если все его дочерние будут спрятаны (vsVisible). Node buttons are hidden when there are child nodes, but all are invisible.
@@ -8430,12 +8438,6 @@ TD2VTOperationEvent = procedure(Sender: TD2CustomTreeGrid; OperationKind: TD2Tre
 
 //Функция вызывается процедурой Animate для каждого шага анимации. Method called by the Animate routine for each animation step.
 TD2VTAnimationCallback = function(Step, StepSize: Integer; Data: Pointer): Boolean of object;
-
-//Направления сортировки
-TD2SortDirection = (
-    sdAscending,
-    sdDescending
-  );
 
 //Определяет, как использовать выравнивание (Align) узла. Determines how to use the align member of a node.
 TD2TreeNodeAlignment = (
@@ -8952,8 +8954,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property NextNodeToSelect: PD2TreeNode read FNextNodeToSelect;
              //Тип выравнивания для узлов
     property NodeAlignment: TD2TreeNodeAlignment read FNodeAlignment write SetNodeAlignment default naProportional;
-             //Количество байт для распределения с каждым узлом (в дополнение к основной структуре и внутренним данным)
-    property NodeDataSize: Integer read FNodeDataSize write SetNodeDataSize default -1;
              //true - длительная операция должна быть завершена
     property OperationCanceled: Boolean read GetOperationCanceled;
              //Кол-во детей у узла Root
@@ -9237,6 +9237,8 @@ public
               //Перемещение узла Source и всех его детей к узлу Target. Mode - режим подключения.
     procedure MoveTo(Source, Target: PD2TreeNode; Mode: TD2TreeNodeAttachMode;
                      ChildrenOnly: Boolean); overload;
+                 //Количество байт для распределения с каждым узлом (в дополнение к основной структуре и внутренним данным)
+    property NodeDataSize: Integer read FNodeDataSize write SetNodeDataSize default -1;
               //Принудительная переинициализация всех детей узла Node, при Recursive=true в том числе и внуки.
     procedure ReinitChildren(Node: PD2TreeNode; Recursive: Boolean); virtual;
               //Принудительная переинициализация узла Node и всех его потомков (при Recursive=True) без изменения данных и удаления детей
