@@ -7789,6 +7789,17 @@ TD2TreeNodeInitStates = set of TD2TreeNodeInitState;
 // Указатель на узел дерева TVirtualNode
 PD2TreeNode = ^TD2TreeNode;
 
+// Эта запись уже должна быть определена здесь, а не позже, поскольку в противном случае пользователи BCB не смогут
+// компилировать (преобразование, сделанное BCB, неверно).
+// This record must already be defined here and not later because otherwise BCB users will not be able
+// to compile (conversion done by BCB is wrong).
+ TD2CacheEntry = record
+   Node: PD2TreeNode;
+   AbsoluteTop: Single;
+ end;
+
+ TD2Cache = array of TD2CacheEntry;
+
 // Массив указателей на узлы дерева TVirtualNode
 TD2NodeArray = array of PD2TreeNode;
 
@@ -8028,12 +8039,13 @@ TD2TreeExportMode = (
     emSelected               //Экспортировать только выделенные узлы. export selected nodes only
   );
 
+// Параметры, используемые при изменении положения скроллеров прокрутки.
 // Options which are used when modifying the scroll offsets.
 TD2ScrollUpdateOptions = set of (
-  suoRepaintHeader,        // if suoUpdateNCArea is also set then invalidate the header
-  suoRepaintScrollBars,    // if suoUpdateNCArea is also set then repaint both scrollbars after updating them
-  suoScrollClientArea,     // scroll and invalidate the proper part of the client area
-  suoUpdateNCArea          // update non-client area (scrollbars, header)
+  suoRepaintHeader,        // Если установлен suoUpdateNCArea, то перерисовать заголовок. if suoUpdateNCArea is also set then invalidate the header
+  suoRepaintScrollBars,    // Если установлен suoUpdateNCArea, то перерисовать все скроллеры после их обновления. if suoUpdateNCArea is also set then repaint both scrollbars after updating them
+  suoScrollClientArea,     // Прокрутка и аннулирование правильной части клиентской области. scroll and invalidate the proper part of the client area
+  suoUpdateNCArea          // Обновить неклиентскую область (полосы прокрутки, заголовок). update non-client area (scrollbars, header)
 );
 
 //// Options per column.
@@ -8521,6 +8533,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
     FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
+    FIndent: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
     FLastSelected: PD2TreeNode;                  //Ссылка на узел, который был выбран последним???
@@ -8596,6 +8609,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FOperationCanceled: Boolean;       //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
     FOperationCount: Cardinal;         //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
     FOptions: TD2CustomTreeOptions;    //Текущие опции поведения дерева
+    FPositionCache: TD2Cache;            //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
     FRangeAnchor: PD2TreeNode;         //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
     FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
     FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
@@ -8628,6 +8642,12 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //Если ConsiderChildrenAbove = True позиции узлов сравниватся в их визуальном порядке.
              //Возвращает 0, если Node1 = Node2, < 0, если Node1 расположен перед Node2, иначе > 0.
     function CompareNodePositions(Node1, Node2: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): Integer;
+             // Просматривает кеш позиции и возвращает узел, ближайший к Node (позиция меньше или равна заданной)
+             // CurrentPos - положение найденного узла
+    function FindInPositionCache(Node: PD2TreeNode; var CurrentPos: Single): PD2TreeNode; overload;
+             // Просматривает кеш позиции и возвращает ближайший к заданной Position позиции узел
+             // (позиция меньше или равна заданной). CurrentPos - позиция найденного узла
+    function FindInPositionCache(Position: Single; var CurrentPos: Single): PD2TreeNode; overload;
               //Пересчитать общую сумму узла Node и его детей
     procedure FixupTotalCount(Node: PD2TreeNode);
               // Пересчитать общую высоту узла Node
@@ -8730,6 +8750,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure SetFullyVisible(Node: PD2TreeNode; Value: Boolean);
               //Установить флаг vsHasChildren (наличие детей) в Value у узла Node
     procedure SetHasChildren(Node: PD2TreeNode; Value: Boolean);
+              //установить отступ границы вложенного узла от границы родителя
+    procedure SetIndent(Value: Single);
               //Установить тип выравнивария для узлов
     procedure SetNodeAlignment(const Value: TD2TreeNodeAlignment);
               //Установить в Value кол-во байт для распределения с каждым узлом. Если -1 то делать обратный вызов
@@ -8949,7 +8971,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property DefaultNodeHeight: Single read FDefaultNodeHeight write SetDefaultNodeHeight default 18;
              //Индекс колонки в которой идет редактирование данных
     property EditColumn: integer read FEditColumn write FEditColumn;
-
+             //отступ границы вложенного узла от границы родителя
+    property Indent: Single read FIndent write SetIndent default 18;
              //Следующий узел дерева, который должен быть выбран, если текущий будет удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted
     property NextNodeToSelect: PD2TreeNode read FNextNodeToSelect;
              //Тип выравнивания для узлов
@@ -9062,7 +9085,7 @@ public
     procedure FullCollapse(Node: PD2TreeNode = nil);  virtual;
               //Эта процедура разворачивает все свернутые узлы в поддереве узла Node или всего дерева
     procedure FullExpand(Node: PD2TreeNode = nil); virtual;
-              // Определяет прямоугольник на экране, который занимает узел Node
+              // Определяет координаты клиентской области, которые занимает узел Node, в зависимости от положения скроллеров, развернутости узла и т.д.
     function GetDisplayRect(Node: PD2TreeNode; Column: Integer; TextOnly: Boolean;
                             Unclipped: Boolean = False; ApplyCellContentMargin: Boolean = False): TD2Rect;
              //True -  если узел Node эффективно отфильтрован.

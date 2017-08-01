@@ -13,11 +13,13 @@ type
 
   TForm1 = class(TForm)
     CheckBox1: TD2CheckBox;
+    D2ImageList1: TD2ImageList;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
     Root1: TD2Background;
     TextBox1: TD2TextBox;
+    TextBox2: TD2TextBox;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     VT: TD2TreeGrid;
@@ -73,13 +75,13 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 var
   i: Integer;
-  NewNode: PD2TreeNode;
+  NewNode, Node: PD2TreeNode;
   NewPhone: PPhoneNode;
 begin
   VT.NodeDataSize := SizeOf(TPhoneNode);
   for i := 0 to Length(Names) - 1 do
   begin
-    NewNode := VT.AddChild(VT.FocusedNode);
+    NewNode := VT.AddChild(VT.RootNode);
     NewPhone := VT.GetNodeData(NewNode);
     if Assigned(NewPhone) then
       with NewPhone^ do
@@ -87,6 +89,22 @@ begin
         Name := Names[i];
         Phone := Phones[i];
       end;
+  end;
+  Node:=VT.GetFirstChild(VT.RootNode);
+  while Node<>nil do
+  begin
+    for i := 0 to Length(Names) - 1 do
+    begin
+      NewNode := VT.AddChild(Node);
+      NewPhone := VT.GetNodeData(NewNode);
+      if Assigned(NewPhone) then
+        with NewPhone^ do
+        begin
+          Name := Names[i];
+          Phone := Phones[i];
+        end;
+    end;
+    Node:=VT.GetNextSibling(Node)
   end;
 end;
 

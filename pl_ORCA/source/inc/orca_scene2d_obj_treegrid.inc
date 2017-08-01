@@ -905,6 +905,79 @@ begin
   end;
 end;
 
+function TD2CustomTreeGrid.FindInPositionCache(Node: PD2TreeNode;
+  var CurrentPos: Single): PD2TreeNode;
+// Просматривает кеш позиции и возвращает узел, ближайший к Node (позиция меньше или равна заданной)
+// CurrentPos - положение найденного узла
+// Looks through the position cache and returns the node whose top position is the largest one which is smaller or equal
+// to the position of the given node.
+
+var
+  L, H, I: Integer;
+
+begin
+  L := 0;
+  H := High(FPositionCache);
+  while L <= H do
+  begin
+    I := (L + H) shr 1;
+    if CompareNodePositions(FPositionCache[I].Node, Node) <= 0 then
+      L := I + 1
+    else
+      H := I - 1;
+  end;
+  if L = 0 then // High(FPositionCache) = -1
+  begin
+    Result := nil;
+    CurrentPos := 0;
+  end
+  else
+  begin
+    Result := FPositionCache[L - 1].Node;
+    CurrentPos := FPositionCache[L - 1].AbsoluteTop;
+  end;
+end;
+
+function TD2CustomTreeGrid.FindInPositionCache(Position: Single;
+  var CurrentPos: Single): PD2TreeNode;
+// Просматривает кеш позиции и возвращает ближайший к заданной Position позиции узел (позиция меньше или равна заданной)
+// CurrentPos - положение найденного узла
+// Возвращенный узел не обязательно занимает данную позицию, но является ближайшей
+// итерация от подхода к реальному узлу для заданной позиции. CurrentPos получает
+// фактическое положение найденного узла, которое необходимо для дальнейшей итерации.
+
+// Looks through the position cache and returns the node whose top position is the
+// largest one which is smaller or equal to the given vertical position.  The returned
+// node does not necessarily occupy the given position but is the nearest one to start
+// iterating from to approach the real node for a given position. CurrentPos receives
+// the actual position of the found node which is needed for further iteration.
+
+var
+  L, H, I: Integer;
+
+begin
+  L := 0;
+  H := High(FPositionCache);
+  while L <= H do
+  begin
+    I := (L + H) shr 1;
+    if FPositionCache[I].AbsoluteTop <= Position then
+      L := I + 1
+    else
+      H := I - 1;
+  end;
+  if L = 0 then // High(FPositionCache) = -1
+  begin
+    Result := nil;
+    CurrentPos := 0;
+  end
+  else
+  begin
+    Result := FPositionCache[L - 1].Node;
+    CurrentPos := FPositionCache[L - 1].AbsoluteTop;
+  end;
+end;
+
 procedure TD2CustomTreeGrid.FixupTotalCount(Node: PD2TreeNode);
 //Пересчитать общую сумму узла Node и его детей
 //Вызывается после загрузки поддерева из потока. Количество детей в каждом узле
@@ -1418,7 +1491,7 @@ begin
       Run := Run.Parent;
     end;
     //R := GetDisplayRect(Node, FHeader.MainColumn, True);
-    //DoSetOffsetXY(d2Point(FOffsetX, FOffsetY + ClientHeight - R.Top - Integer(NodeHeight[Node])),
+    //DoSetOffsetXY(d2Point(FOffsetX, FOffsetY + ClientHeight - R.Top - NodeHeight[Node]),
     //              [suoRepaintScrollBars, suoUpdateNCArea]);
   end;
 end;
@@ -1770,6 +1843,20 @@ begin
       Exclude(Node.States, vsHasChildren);
       DeleteChild(Node);
     end;
+  end;
+end;
+
+procedure TD2CustomTreeGrid.SetIndent(Value: Single);
+//установить отступ границы вложенного узла от границы родителя
+begin
+  if FIndent <> Value then
+  begin
+    FIndent := Value;
+    if not (csLoading in ComponentState) and (FUpdateCount = 0) {and HandleAllocated}
+       then begin
+              //UpdateScrollBars(True);
+              Realign; //вместо Invalidate;
+            end;
   end;
 end;
 
@@ -4894,7 +4981,16 @@ end;
 function TD2CustomTreeGrid.GetDisplayRect(Node: PD2TreeNode;
   Column: Integer; TextOnly: Boolean; Unclipped: Boolean;
   ApplyCellContentMargin: Boolean): TD2Rect;
-// Определяет прямоугольник на экране, который занимает узел Node
+// Определяет координаты клиентской области, которые занимает узел Node, в зависимости от положения скроллеров, развернутости узла и т.д.
+// Если узел не может быть найден (потому что один из его родителей свернут или он невидим),
+// то возвращается пустой прямоугольник.
+// Если TextOnly = True, возвращаются только текстовые границы, т.е. левая и правая границы прямоугольника
+// в соответствии с BidiMode (направление письма), выравниванием и шириной текста узла.
+// Если Unclipped = True (только при TextOnly = True), тогда вычисленный прямоугольник текста не обрезается,
+// если текст не полностью вписывается в текстовое поле. Это необходимо для вывода подсказок.
+// Если ApplyCellContentMargin = True (только при TextOnly = True), тогда область для текста учитывает отступы ячейки
+// Если Column = -1, то для определения ширины используется ширина всей клиентской области, иначе используется указанный столбец.
+// Примечание. Столбец должен быть допустимым столбцом и используется независимо от того, является ли заголовок видимым или нет.
 
 // Determines the client coordinates the given node covers, depending on scrolling, expand state etc.
 // If the given node cannot be found (because one of its parents is collapsed or it is invisible) then an empty
@@ -4908,7 +5004,203 @@ function TD2CustomTreeGrid.GetDisplayRect(Node: PD2TreeNode;
 // If Column is -1 then the entire client width is used before determining the node's width otherwise the bounds of the
 // particular column are used.
 // Note: Column must be a valid column and is used independent of whether the header is visible or not.
+
+var
+  Temp: PD2TreeNode;
+  //Offset: Cardinal;
+  CacheIsAvailable: Boolean;
+  Offset,
+  Indent,
+  TextWidth: Single;
+  MainColumnHit: Boolean;
+  CurrentBidiMode: TBidiMode;
+  CurrentAlignment: TAlignment;
+  MaxUnclippedHeight: Single;
+  TM: TTextMetric;
+  ExtraVerticalMargin: Single;
+  PColumn: TD2Column;
 begin
+  //{$ifdef DEBUG_VTV}Logger.EnterMethod([lcPaintHeader],'GetDisplayRect');{$endif}
+  Assert(Assigned(Node), 'Node must not be nil.');
+  Assert(Node <> FRoot, 'Node must not be the hidden root node.');
+
+  MainColumnHit := (Column + 1) in [0, 1];
+  if not (vsInitialized in Node.States) then
+    InitNode(Node);
+
+  Result := d2Rect(0, 0, 0, 0);
+
+  //Проверка узла на видимость (определение уровня отступа)
+  // Check whether the node is visible (determine indentation level btw.).
+  if not IsEffectivelyVisible[Node] then Exit;
+  Temp := Node;
+  Indent := 0;
+
+  if not (toFixedIndent in FOptions.FPaintOptions) then
+  begin
+    while Temp <> FRoot do
+    begin
+      if not (vsVisible in Temp.States) or
+         not (vsExpanded in Temp.Parent.States) then Exit;
+      Temp := Temp.Parent;
+      if MainColumnHit and (Temp <> FRoot)
+        then d2IncFloat(Indent, FIndent);
+    end;
+  end;//if not toFixedIndent
+
+  // Здесь мы знаем, что узел виден.
+  // Here we know the node is visible.
+  Offset := 0;
+  CacheIsAvailable := False;
+  if tsUseCache in FStates then
+  begin
+    // Если можно использовать кеш позиции, то выполнить двоичный поиск, чтобы найти кешированный узел,
+    // который как можно ближе к текущему узлу. Затем итерировать все следующие видимые узлы и суммировать их высоты.
+    // If we can use the position cache then do a binary search to find a cached node which is as close as possible
+    // to the current node. Iterate then through all following and visible nodes and sum up their heights.
+    Temp := FindInPositionCache(Node, Offset);
+    CacheIsAvailable := Assigned(Temp);
+    while Assigned(Temp) and (Temp <> Node) do
+    begin
+      d2IncFloat(Offset, NodeHeight[Temp]);
+      Temp := GetNextVisibleNoInit(Temp, True);
+    end;
+  end;
+  if not CacheIsAvailable then
+  begin
+    // If the cache is not available then go straight through all nodes up to the root and sum up their heights.
+    Temp := Node;
+    repeat
+      Temp := GetPreviousVisibleNoInit(Temp, True);
+      if Temp = nil then
+        Break;
+      d2IncFloat(Offset, NodeHeight[Temp]);
+    until False;
+  end;
+
+  Result := d2Rect(0, Offset, Max(FRangeX, ClientWidth), Offset + NodeHeight[Node]);
+
+  // Ограничить левую и правую границы в указанном столбце (если есть) и переместить границы в соответствии с текущим состоянием прокрутки.
+  // Limit left and right bounds to the given column (if any) and move bounds according to current scroll state.
+  if Column > NoColumn then
+  begin
+    PColumn:= GetColumn(Column);
+    //FHeader.FColumns.GetColumnBounds(Column, Result.Left, Result.Right);
+    Result.Left:= PColumn.BoundsRect.Left;
+    Result.Right:= PColumn.BoundsRect.Right;
+    // Правая граница столбца не является частью этой ячейки. The right column border is not part of this cell.
+    //Dec(Result.Right);
+    Result.Right:=Result.Right - 1;
+    d2OffsetRect(Result, 0, FOffsetY);
+  end
+  else d2OffsetRect(Result, -FEffectiveOffsetX, FOffsetY);
+
+  // Ограничить границы слева и справа, если требуется только текстовая область.
+  // Limit left and right bounds further if only the text area is required.
+  if TextOnly then
+  begin
+    // Начнем со смещения текста в столбце и рассмотрим также уровень отступа.
+    // Если текст узла задействован, мы также должны учитывать направленность и выравнивание.
+    // Start with the offset of the text in the column and consider the indentation level too.
+    // If the text of a node is involved then we have to consider directionality and alignment too.
+    if Column <= NoColumn
+       then begin
+              Offset := FMargins.Left + Indent;
+              CurrentBidiMode := BidiMode;
+              CurrentAlignment := Alignment;
+            end
+       else begin
+              Offset := PColumn.FMargins.Left + Indent;
+              CurrentBidiMode := PColumn.BidiMode;
+              CurrentAlignment := PColumn.Alignment;
+            end;
+
+    if MainColumnHit then
+    begin
+      if toShowRoot in FOptions.FPaintOptions
+         then d2IncFloat(Offset, FIndent);
+      if (toCheckSupport in FOptions.FMiscOptions) {and Assigned(FCheckImages)} and (Node.CheckType <> ctNone)
+         then d2IncFloat(Offset, FCheckImages.Width + 2);
+    end;
+    // Consider associated images.
+    if Assigned(FStateImages) and HasImage(Node, ikState, Column) then
+      d2IncFloat(Offset, FStateImages.Width + 2);
+    if Assigned(FImages) and HasImage(Node, ikNormal, Column) then
+      d2IncFloat(Offset, GetNodeImageSize(Node).cx + 2);
+
+    // Offset contains now the distance from the left or right border of the rectangle (depending on bidi mode).
+    // Now consider the alignment too and calculate the final result.
+    if CurrentBidiMode = bdLeftToRight then
+    begin
+      d2IncFloat(Result.Left, Offset);
+      // Left-to-right reading does not need any special adjustment of the alignment.
+    end
+    else
+    begin
+      d2DecFloat(Result.Right, Offset);
+
+      // Consider bidi mode here. In RTL context does left alignment actually mean right alignment and vice versa.
+      ChangeBiDiModeAlignment(CurrentAlignment);
+    end;
+
+    TextWidth := DoGetNodeWidth(Node, Column);
+
+    // Keep cell height before applying cell content margin in order to increase cell height if text does not fit
+    // and Unclipped it true (see below).
+    MaxUnclippedHeight := Result.Bottom - Result.Top;
+
+    if ApplyCellContentMargin then
+      DoBeforeCellPaint(Self.Canvas, Node, Column, cpmGetContentMargin, Result, Result);
+
+    if Unclipped then
+    begin
+      // The caller requested the text coordinates unclipped. This means they must be calculated so as would
+      // there be enough space, regardless of column bounds etc.
+      // The layout still depends on the available space too, because this determines the position
+      // of the unclipped text rectangle.
+      if Result.Right - Result.Left < TextWidth - 1 then
+        if CurrentBidiMode = bdLeftToRight then
+          CurrentAlignment := taLeftJustify
+        else
+          CurrentAlignment := taRightJustify;
+
+      // Increase cell height (up to MaxUnclippedHeight determined above) if text does not fit.
+      GetTextMetrics(Self.Canvas.Handle, TM);
+      ExtraVerticalMargin := Math.Min(TM.tmHeight, MaxUnclippedHeight) - (Result.Bottom - Result.Top);
+      if ExtraVerticalMargin > 0 then
+        d2InflateRect(Result, 0, (ExtraVerticalMargin + 1) / 2);
+
+      case CurrentAlignment of
+        taCenter:
+          begin
+            Result.Left := (Result.Left + Result.Right - TextWidth) / 2;
+            Result.Right := Result.Left + TextWidth;
+          end;
+        taRightJustify:
+          Result.Left := Result.Right - TextWidth;
+      else // taLeftJustify
+        Result.Right := Result.Left + TextWidth - 1;
+      end;
+    end
+    else
+      // Modify rectangle only if the text fits entirely into the given room.
+      if Result.Right - Result.Left > TextWidth then
+        case CurrentAlignment of
+          taCenter:
+            begin
+              Result.Left := (Result.Left + Result.Right - TextWidth) / 2;
+              Result.Right := Result.Left + TextWidth;
+            end;
+          taRightJustify:
+            Result.Left := Result.Right - TextWidth;
+        else // taLeftJustify
+          Result.Right := Result.Left + TextWidth;
+        end;
+  end;
+  //lclheader
+  //todo: add a parameter to decide if the result must be returned as
+  //a tree offset or a control offset
+  if ShowHeader then d2OffsetRect(Result, 0, FHeader.Height);
 
 end;
 
