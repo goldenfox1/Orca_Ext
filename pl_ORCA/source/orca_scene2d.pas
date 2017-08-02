@@ -7195,6 +7195,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
               //отрисовка горизонтальных и вертикальных линий
     procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+              // Возвращает левую и правую границу столбца Column. Если Column = NoColumn, то возвращается вся ширина клиетской части грида.
+    procedure GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);
               //получить № вехней видимой строки
     function  GetTopRow:integer;  virtual;
               //получить значение ячейки в колонке Col строке Row
@@ -8044,7 +8046,7 @@ TD2TreeExportMode = (
 TD2ScrollUpdateOptions = set of (
   suoRepaintHeader,        // Если установлен suoUpdateNCArea, то перерисовать заголовок. if suoUpdateNCArea is also set then invalidate the header
   suoRepaintScrollBars,    // Если установлен suoUpdateNCArea, то перерисовать все скроллеры после их обновления. if suoUpdateNCArea is also set then repaint both scrollbars after updating them
-  suoScrollClientArea,     // Прокрутка и аннулирование правильной части клиентской области. scroll and invalidate the proper part of the client area
+  suoScrollClientArea,     // Прокрутить и перерисовать клиентскую область. scroll and invalidate the proper part of the client area
   suoUpdateNCArea          // Обновить неклиентскую область (полосы прокрутки, заголовок). update non-client area (scrollbars, header)
 );
 
@@ -8174,7 +8176,7 @@ NodeChunk = 1;     //Блок узла дерева
   //Прочие опиции дерева, не вошедшие в другие группы по умолчанию.
   DefaultTreeMiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave,
                         toToggleOnDblClick, toWheelPanning, toEditOnClick];
-
+  // Параметры, используемые при изменении положения скроллеров прокрутки. По умолчанию обновляется заголовок, скроллеры и клиентскую область
   DefaultScrollUpdateFlags = [suoRepaintHeader, suoRepaintScrollBars, suoScrollClientArea, suoUpdateNCArea];
 
   //DefaultTreeColumnOptions = [coAllowClick, coDraggable, coEnabled, coParentColor,
@@ -8541,15 +8543,16 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FLastSelectionLevel: Integer;                //Содержит уровень последнего выбранного узла для ограниченного мультивыбора. keeps the last node level for constrained multiselection
     FLastStructureChangeNode: PD2TreeNode;       //Ссылка на узел, в котором быле последнее изменение структуры??? dito?
     FLastStructureChangeReason: TD2ChangeReason; //Используется для задержки события изменения структуры. Used for delayed structure change event.
+    FMainColumn: Integer;                        //Колонка, отображающая структуру дерева  the column which holds the tree
     FNextNodeToSelect: PD2TreeNode;              //Следующий узел, который должен быть выбрать, если текущий выбранный узел удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted or looses selection for other reasons.
     FNodeAlignment: TD2TreeNodeAlignment;        //Определяет, как интерпретировать выравние элементов узла. determines how to interpret the align member of a node
     FNodeDataSize: Integer;                      {Количество байт для распределения с каждым узлом (в дополнение к
                                                   основной структуре и внутренним данным), если -1, то делать обратный вызов.
                                                    number of bytes to allocate with each node (in addition to its base
                                                    structure and the internal data), if -1 then do callback  }
-    FEffectiveOffsetX: Single;                   //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от двунаправленного режима). Actual position of the horizontal scroll bar (varies depending on bidi mode).
-    FOffsetX: Single;                            //Определяет смещение прокрутки слева. Determines left scroll offset.
-    FOffsetY: Single;                            //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
+    //FEffectiveOffsetX: Single;                   //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от Направления письма BidiMode). Actual position of the horizontal scroll bar (varies depending on bidi mode).
+    //FOffsetX: Single;                            //Определяет смещение прокрутки слева. Determines left scroll offset.
+    //FOffsetY: Single;                            //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
 
 
     //------Ссылки на обработчики прерываний
@@ -8676,6 +8679,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function GetFullyVisible(Node: PD2TreeNode): Boolean;
              //true - узел имеет дочерние узлы
     function GetHasChildren(Node: PD2TreeNode): Boolean;
+             //Получить колонку, отображающая структуру дерева
+    function GetMainColumn: integer;
              //true - текст узла Node многострочный
     function GetMultiline(Node: PD2TreeNode): Boolean;
              //Получить высоту узла Node
@@ -8727,6 +8732,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure SetBottomNode(Node: PD2TreeNode);
               //Установить высоту дополнительного пространства ниже последнего видимого узла
     procedure SetBottomSpace(const Value: Single);
+              //Изменить колонку, отображающую структуру дерева
+    procedure SetMainColumn(Value: Integer);
               //Установить видимость чек-боксов: true - показывать; false - не показывать
     procedure SetShowCheckboxes(const Value:boolean);
               //Установить состояние отметки для узла Node
@@ -8878,6 +8885,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoReset(Node: PD2TreeNode); virtual;
               //Вызов прерывания OnSaveNode (вызывается при сериализации узла в поток) при записи узла Node в поток Stream
     procedure DoSaveUserData(Node: PD2TreeNode; Stream: TStream); virtual;
+
+    function DoSetOffsetXY(Value: TD2Point; Options: TD2ScrollUpdateOptions{; ClipRect: PRect}): Boolean;
               //Вызов прерывания OnStartOperation (вызывается при начале длительной операции)
     procedure DoStartOperation(OperationKind: TD2TreeOperationKind); virtual;
               //Изменяет текущие флаги состояния дерева: Enter - добавляемые, Leave - исключаемые
@@ -8924,6 +8933,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure InternalRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Пометить кэш недействительным.
     procedure InvalidateCache;
+              //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
+    procedure MainColumnChanged; virtual;
               //Устанавливает флаг vsCutOrCopy в каждом выбранном в данный момент узле, кроме
               //недействительных чтобы указать, что они является частью операции с буфером обмена.
     procedure MarkCutCopyNodes; virtual;
@@ -9216,6 +9227,8 @@ public
              // Возвращает список выбранных узлов, отсортированных в порядке их появления в дереве.
              // Если Resolve=True, то узлы, являющиеся дочерними элементами других выбранных узлов, массив не помещаются.
     function GetSortedSelection(Resolve: Boolean): TD2NodeArray;
+             // Определяет горизонтальное пространство, которое занимают все видимые {(todo) и фиксированные} столбцы.
+    function GetVisibleFixedWidth: Single;
              //Возвращает первого (ближайшего) видимого родителя для узла Node.
     function GetVisibleParent(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
              //True - если PotentialParent является родителем любого уровня для узла Node
@@ -9329,11 +9342,11 @@ public
              //Наличие детей у узла Node: true - есть дети; false - нет детей
     property HasChildren[Node: PD2TreeNode]: Boolean read GetHasChildren write SetHasChildren;
              //Смещение прокрутки слева
-    property OffsetX: Single read FOffsetX write SetOffsetX;
+    property OffsetX: Single read HScrollBarValue write SetOffsetX;
              //Смещение прокрутки слева и сверху
     property OffsetXY: TD2Point read GetOffsetXY write SetOffsetXY;
              //Смещение прокрутки сверху
-    property OffsetY: Single read FOffsetY write SetOffsetY;
+    property OffsetY: Single read VScrollBarValue write SetOffsetY;
              //Кол-во продолжительных вложенных операций
     property OperationCount: Cardinal read FOperationCount;
              //True -  узел Node отключен
@@ -9346,6 +9359,8 @@ public
     property IsFiltered[Node: PD2TreeNode]: Boolean read GetFiltered write SetFiltered;
              //True - узел Node видимый
     property IsVisible[Node: PD2TreeNode]: Boolean read GetVisible write SetVisible;
+             //Колонка, отображающая структуру дерева
+    property MainColumn: Integer read GetMainColumn write SetMainColumn default 0;
              //true - многострочный текст для узла Node
     property MultiLine[Node: PD2TreeNode]: Boolean read GetMultiline write SetMultiline;
              //Высота узла Node

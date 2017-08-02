@@ -1130,6 +1130,14 @@ begin
     Result := vsHasChildren in FRoot.States;
 end;
 
+function TD2CustomTreeGrid.GetMainColumn: integer;
+//Получить колонку, отображающая структуру дерева
+begin
+  if ColumnCount > 0
+    then Result := FMainColumn
+    else Result := NoColumn;
+end;
+
 function TD2CustomTreeGrid.GetMultiline(Node: PD2TreeNode): Boolean;
 //true - текст узла Node многострочный
 begin
@@ -1165,7 +1173,7 @@ end;
 function TD2CustomTreeGrid.GetOffsetXY: TD2Point;
 //Получить смещение прокрутки слева и сверху
 begin
-  Result := d2Point(FOffsetX, FOffsetY);
+  Result := d2Point(HScrollBarValue, VScrollBarValue);
 end;
 
 function TD2CustomTreeGrid.GetRangeX: Single;
@@ -1490,9 +1498,9 @@ begin
         ToggleNode(Run);
       Run := Run.Parent;
     end;
-    //R := GetDisplayRect(Node, FHeader.MainColumn, True);
-    //DoSetOffsetXY(d2Point(FOffsetX, FOffsetY + ClientHeight - R.Top - NodeHeight[Node]),
-    //              [suoRepaintScrollBars, suoUpdateNCArea]);
+    R := GetDisplayRect(Node, MainColumn, True);
+    DoSetOffsetXY(d2Point(HScrollBarValue, VScrollBarValue + ClientHeight - R.Top - NodeHeight[Node]),
+                  [suoRepaintScrollBars, suoUpdateNCArea]);
   end;
 end;
 
@@ -1505,6 +1513,25 @@ begin
     //UpdateVerticalScrollBar(True);
     Realign;
   end;
+end;
+
+procedure TD2CustomTreeGrid.SetMainColumn(Value: Integer);
+//Изменить колонку, отображающую структуру дерева
+begin
+  if csLoading in ComponentState
+     then FMainColumn := Value
+     else begin
+            if Value < 0 then Value := 0;
+            if Value > ColumnCount - 1 then Value := ColumnCount - 1;
+            if Value <> FMainColumn then
+            begin
+              FMainColumn := Value;
+              MainColumnChanged;
+              if not (toExtendedFocus in FOptions.FSelectionOptions)
+                 then FFocusedColumn := Value;
+              Realign;
+            end;
+          end;
 end;
 
 procedure TD2CustomTreeGrid.SetShowCheckboxes(const Value: boolean);
@@ -1948,19 +1975,19 @@ end;
 procedure TD2CustomTreeGrid.SetOffsetX(const Value: Single);
 //Установить значение прокрутки слева
 begin
-  //DoSetOffsetXY(d2Point(Value, FOffsetY), DefaultScrollUpdateFlags);
+  DoSetOffsetXY(d2Point(Value, VScrollBarValue), DefaultScrollUpdateFlags);
 end;
 
 procedure TD2CustomTreeGrid.SetOffsetXY(const Value: TD2Point);
 //Установить значение прокрутки слева и сверху
 begin
-  //DoSetOffsetXY(Value, DefaultScrollUpdateFlags);
+  DoSetOffsetXY(Value, DefaultScrollUpdateFlags);
 end;
 
 procedure TD2CustomTreeGrid.SetOffsetY(const Value: Single);
 //Установить значение прокрутки сверху
 begin
-  //DoSetOffsetXY(d2Point(FOffsetX, Value), DefaultScrollUpdateFlags);
+  DoSetOffsetXY(d2Point(HScrollBarValue, Value), DefaultScrollUpdateFlags);
 end;
 
 procedure TD2CustomTreeGrid.SetOptions(const Value: TD2CustomTreeOptions);
@@ -2045,7 +2072,7 @@ begin
     //lclheader
     //if hoVisible in FHeader.Options then
     //  Dec(R.Top, FHeader.Height);
-    SetOffsetY(FOffsetY - R.Top);
+    SetOffsetY(VScrollBarValue - R.Top);
   end;
 end;
 
@@ -2948,11 +2975,171 @@ begin
            else FOnSaveNode(Self, Node, Stream);
 end;
 
-//function TD2CustomTreeGrid.DoSetOffsetXY(Value: TD2Point;
-//  Options: TD2ScrollUpdateOptions; ClipRect: PRect): Boolean;
-//begin
-//
-//end;
+function TD2CustomTreeGrid.DoSetOffsetXY(Value: TD2Point;
+  Options: TD2ScrollUpdateOptions{; ClipRect: PRect}): Boolean;
+
+// Actual offset setter used to scroll the client area, update scroll bars and invalidating the header (all optional).
+// Returns True if the offset really changed otherwise False is returned.
+
+var
+  DeltaX: Single;
+  DeltaY: Single;
+  DWPStructure: THandle;//HDWP;
+  I: Integer;
+  P: TD2Point;
+  R: TD2Rect;
+
+begin
+  {$ifdef DEBUG_VTV}Logger.EnterMethod([lcScroll],'DoSetOffsetXY');{$endif}
+  {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'Value',Value);{$endif}
+  //{$ifdef DEBUG_VTV}Logger.SendCallStack([lcScroll],'CallStack');{$endif}
+  // Range check, order is important here.
+  if Value.X < (ClientWidth - Integer(FRangeX)) then
+    Value.X := ClientWidth - Integer(FRangeX);
+  if Value.X > 0 then
+    Value.X := 0;
+  DeltaX := Value.X - HScrollBarValue;
+  //if UseRightToLeftAlignment then
+  //  DeltaX := -DeltaX;
+  if Value.Y < (ClientHeight - Integer(FRangeY)) then
+    Value.Y := ClientHeight - Integer(FRangeY);
+  if Value.Y > 0 then
+    Value.Y := 0;
+  DeltaY := Value.Y - VScrollBarValue;
+  {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'FOffsetX: %d FOffsetY: %d',[FOffsetX,FOffsetY]);{$endif}
+  {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'DeltaX: %d DeltaY: %d',[DeltaX,DeltaY]);{$endif}
+  Result := (DeltaX <> 0) or (DeltaY <> 0);
+  if Result then
+  begin
+    HScrollBar.Value := Value.X;
+    VScrollBar.Value := Value.Y;
+    if tsHint in Self.FStates then
+      Application.CancelHint;
+
+    if FUpdateCount = 0 then
+    begin
+      ScrollTo(DeltaX, DeltaY);
+      Realign;
+      //остатки от родной функции VirtualTree
+      //// The drag image from VCL controls need special consideration.
+      //{$ifndef INCOMPLETE_WINAPI}
+      //if tsVCLDragging in FStates then
+      //  ImageList_DragShowNolock(False);
+      //{$endif}
+      //
+      //if (suoScrollClientArea in Options) and not (tsToggling in FStates) then
+      //begin
+      //  // Have to invalidate the entire window if there's a background.
+      //  if (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) then
+      //  begin
+      //    //todo: reimplement
+      //    {$ifndef INCOMPLETE_WINAPI}
+      //    // Since we don't use ScrollWindow here we have to move all client windows ourselves.
+      //    DWPStructure := BeginDeferWindowPos(ControlCount);
+      //    for I := 0 to ControlCount - 1 do
+      //      if Controls[I] is TWinControl then
+      //      begin
+      //        with Controls[I] as TWinControl do
+      //          DWPStructure := DeferWindowPos(DWPStructure, Handle, 0, Left + DeltaX, Top + DeltaY, 0, 0,
+      //            SWP_NOZORDER or SWP_NOACTIVATE or SWP_NOSIZE);
+      //        if DWPStructure = 0 then
+      //          Break;
+      //      end;
+      //    if DWPStructure <> 0 then
+      //      EndDeferWindowPos(DWPStructure);
+      //    InvalidateRect(Handle, nil, False);
+      //    {$endif}
+      //  end
+      //  else
+      //  begin
+      //    if (DeltaX <> 0) and (GetVisibleFixedWidth > 0) then
+      //    begin
+      //      // When fixed columns exists we have to scroll separately horizontally and vertically.
+      //      // Horizontally is scroll only the client area not occupied by fixed columns and
+      //      // vertically entire client area (or clipping area if one exists).
+      //      R := ClientRect;
+      //      R.Left := GetVisibleFixedWidth;
+      //      //lclheader
+      //      if hoVisible in FHeader.FOptions then
+      //      begin
+      //        Inc(R.Top,FHeader.Height);
+      //        Inc(R.Bottom,FHeader.Height);
+      //      end;
+      //      //scrollwindow implementation under gtk is broken
+      //      {$ifdef Gtk}
+      //      InvalidateRect(Handle, nil, True);
+      //      {$else}
+      //      ScrollWindow(Handle, DeltaX, 0, @R, @R);
+      //      if DeltaY <> 0 then
+      //        ScrollWindow(Handle, 0, DeltaY, @R, @R);
+      //      {$endif}
+      //    end
+      //    else
+      //    begin
+      //      //lclheader
+      //      if ClipRect <> nil then
+      //      begin
+      //        {$ifdef DEBUG_VTV}Logger.SendWarning([lcWarning], 'DoSetOffsetXY called with a non nil ClipRect');{$endif}
+      //        R := ClipRect^;
+      //      end
+      //      else
+      //        R := ClientRect;
+      //      if hoVisible in FHeader.FOptions then
+      //      begin
+      //        Inc(R.Top, FHeader.Height);
+      //        Inc(R.Bottom, FHeader.Height);
+      //      end;
+      //      {$ifdef DEBUG_VTV}Logger.Send([lcScroll], 'Rect to Scroll', R);{$endif}
+      //      //todo: temporary hack to avoid some drawing problems.
+      //      //Will be removed when scrollwindowex is properly implemented in all widgets
+      //      {$ifdef LCLQt}
+      //      ScrollWindow(Handle, DeltaX, DeltaY, @R, @R);
+      //      {$else}
+      //      {$ifdef Gtk}
+      //      InvalidateRect(Handle, nil, True);
+      //      {$else}
+      //      ScrollWindowEx(Handle, DeltaX, DeltaY, @R, @R,0, nil, SW_INVALIDATE or SW_SCROLLCHILDREN);
+      //      {$endif}
+      //      {$endif}
+      //    end;
+      //  end;
+      //end;
+      //
+      //if suoUpdateNCArea in Options then
+      //begin
+      //  if DeltaX <> 0 then
+      //  begin
+      //    if (suoRepaintHeader in Options) and (hoVisible in FHeader.FOptions) then
+      //      FHeader.Invalidate(nil);
+      //    if not (tsSizing in FStates) and (FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth]) then
+      //      UpdateHorizontalScrollBar(suoRepaintScrollBars in Options);
+      //  end;
+      //
+      //  if (DeltaY <> 0) and ([tsThumbTracking, tsSizing] * FStates = []) then
+      //  begin
+      //    UpdateVerticalScrollBar(suoRepaintScrollBars in Options);
+      //    if not (FHeader.UseColumns or IsMouseSelecting) and
+      //      (FScrollBarOptions.ScrollBars in [ssHorizontal, ssBoth]) then
+      //      UpdateHorizontalScrollBar(suoRepaintScrollBars in Options);
+      //  end;
+      //end;
+      //{$ifndef INCOMPLETE_WINAPI}
+      //if tsVCLDragging in FStates then
+      //  ImageList_DragShowNolock(True);
+      //{$endif}
+    end;
+
+    //// Finally update "hot" node if hot tracking is activated
+    //GetCursorPos(P);
+    //P := ScreenToClient(P);
+    //if PtInRect(ClientRect, P) then
+    //  HandleHotTrack(P.X, P.Y);
+    //
+    //DoScroll(DeltaX, DeltaY);
+    //Perform(CM_UPDATE_VCLSTYLE_SCROLLBARS,0,0);
+  end;
+  {$ifdef DEBUG_VTV}Logger.ExitMethod([lcScroll],'DoSetOffsetXY');{$endif}
+end;
 
 procedure TD2CustomTreeGrid.DoStartOperation(OperationKind: TD2TreeOperationKind);
 //Вызов прерывания OnStartOperation
@@ -3328,7 +3515,7 @@ begin
   //
   //AbsolutePos := Y;
   //if Relative then
-  //  Inc(AbsolutePos, -FOffsetY);
+  //  Inc(AbsolutePos, -VScrollBarValue);
   //
   //// CurrentPos tracks a running term of the current position to test for.
   //// It corresponds always to the top position of the currently considered node.
@@ -3358,7 +3545,7 @@ begin
   //begin
   //  NodeTop := CurrentPos;
   //  if Relative then
-  //    Inc(NodeTop, FOffsetY);
+  //    Inc(NodeTop, VScrollBarValue);
   //  //{$ifdef DEBUG_VTV}Logger.Send([lcPaintHeader],'GetNodeAt Result: ',Result^.Index);{$endif}
   //end;
 end;
@@ -3707,6 +3894,12 @@ procedure TD2CustomTreeGrid.InvalidateCache;
 // Marks the cache as invalid.
 begin
   DoStateChange([tsValidationNeeded], [tsUseCache]);
+end;
+
+procedure TD2CustomTreeGrid.MainColumnChanged;
+//Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
+begin
+  DoCancelEdit;
 end;
 
 procedure TD2CustomTreeGrid.MarkCutCopyNodes;
@@ -4462,8 +4655,8 @@ begin
       FLastVCLDragTarget := nil;
       FLastSearchNode := nil;
       DeleteChild(FRoot, True);
-      FOffsetX := 0;
-      FOffsetY := 0;
+      HScrollBar.Value := 0;
+      VScrollBar.Value := 0;
 
     finally
       EndUpdate;
@@ -4656,8 +4849,8 @@ begin
     Inc(FUpdateCount);
     try
       InterruptValidation;
-      LastLeft := -FEffectiveOffsetX;
-      LastTop := FOffsetY;
+      LastLeft := -HScrollBarValue;
+      LastTop := VScrollBarValue;
 
       // Make a local copy of the visibility state of this node to speed up
       // adjusting the visible nodes count.
@@ -4718,7 +4911,7 @@ begin
       Realign; //вместо UpdateScrollBars(True)
       // Invalidate entire tree if it scrolled e.g. to make the last node also the
       // bottom node in the treeview.
-      if (LastLeft <> FOffsetX) or (LastTop <> FOffsetY)
+      if (LastLeft <> HScrollBarValue) or (LastTop <> VScrollBarValue)
         then {Invalidate} Realign
         else InvalidateToBottom(Node);
     end;
@@ -4754,8 +4947,8 @@ begin
         StructureChange(LastParent, crChildDeleted);
     end;
 
-    LastLeft := -FEffectiveOffsetX;
-    LastTop := FOffsetY;
+    LastLeft := -HScrollBarValue;
+    LastTop := VScrollBarValue;
 
     if vsSelected in Node.States then
     begin
@@ -4796,7 +4989,7 @@ begin
         //UpdateScrollBars(True);
         // Invalidate entire tree if it scrolled e.g. to make the last node also the
         // bottom node in the treeview.
-        //if (LastLeft <> FOffsetX) or (LastTop <> FOffsetY) then
+        //if (LastLeft <> HScrollBarValue) or (LastTop <> VScrollBarValue) then
         //  //Invalidate;
           Realign; //вместо UpdateScrollBars(True) и Invalidate
       end;
@@ -5013,7 +5206,7 @@ var
   Indent,
   TextWidth: Single;
   MainColumnHit: Boolean;
-  CurrentBidiMode: TBidiMode;
+  //CurrentBidiMode: TBidiMode;
   CurrentAlignment: TAlignment;
   MaxUnclippedHeight: Single;
   TM: TTextMetric;
@@ -5085,15 +5278,13 @@ begin
   if Column > NoColumn then
   begin
     PColumn:= GetColumn(Column);
-    //FHeader.FColumns.GetColumnBounds(Column, Result.Left, Result.Right);
-    Result.Left:= PColumn.BoundsRect.Left;
-    Result.Right:= PColumn.BoundsRect.Right;
+    GetColumnBounds(Column, Result.Left, Result.Right);
     // Правая граница столбца не является частью этой ячейки. The right column border is not part of this cell.
-    //Dec(Result.Right);
-    Result.Right:=Result.Right - 1;
-    d2OffsetRect(Result, 0, FOffsetY);
+    d2DecFloat(Result.Right);
+    d2OffsetRect(Result, 0, VScrollBarValue);
   end
-  else d2OffsetRect(Result, -FEffectiveOffsetX, FOffsetY);
+  //else d2OffsetRect(Result, -FEffectiveOffsetX, FOffsetY);
+  else d2OffsetRect(Result, -HScrollBarValue, VScrollBarValue);
 
   // Ограничить границы слева и справа, если требуется только текстовая область.
   // Limit left and right bounds further if only the text area is required.
@@ -5106,12 +5297,12 @@ begin
     if Column <= NoColumn
        then begin
               Offset := FMargins.Left + Indent;
-              CurrentBidiMode := BidiMode;
+              //CurrentBidiMode := BidiMode;
               CurrentAlignment := Alignment;
             end
        else begin
               Offset := PColumn.FMargins.Left + Indent;
-              CurrentBidiMode := PColumn.BidiMode;
+              //CurrentBidiMode := PColumn.BidiMode;
               CurrentAlignment := PColumn.Alignment;
             end;
 
@@ -5128,17 +5319,20 @@ begin
     if Assigned(FImages) and HasImage(Node, ikNormal, Column) then
       d2IncFloat(Offset, GetNodeImageSize(Node).cx + 2);
 
+    // Offset теперь содержит расстояние от левой или правой границы прямоугольника (в зависимости от режима bidi).
+    // Теперь рассмотрим выравнивание и вычислим конечный результат.
     // Offset contains now the distance from the left or right border of the rectangle (depending on bidi mode).
     // Now consider the alignment too and calculate the final result.
     if CurrentBidiMode = bdLeftToRight then
     begin
       d2IncFloat(Result.Left, Offset);
+      // Чтение слева-направо не требует специальной регулировки выравнивания
       // Left-to-right reading does not need any special adjustment of the alignment.
     end
     else
     begin
       d2DecFloat(Result.Right, Offset);
-
+      // Рассмотрим режим bidi. В контексте RTL выравнивание влево фактически означает выравнивание вправо и наоборот.
       // Consider bidi mode here. In RTL context does left alignment actually mean right alignment and vice versa.
       ChangeBiDiModeAlignment(CurrentAlignment);
     end;
@@ -7083,6 +7277,21 @@ begin
   end;
 end;
 
+function TD2CustomTreeGrid.GetVisibleFixedWidth: Single;
+// Определяет горизонтальное пространство, которое занимают все видимые {(todo) и фиксированные} столбцы.
+// Determines the horizontal space all visible and fixed columns occupy.
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to ColumnCount - 1 do
+  begin
+    //if Columns[I].Options * [coVisible, coFixed] = [coVisible, coFixed]
+    if Columns[I].Visible
+      then d2IncFloat(Result, Columns[I].Width);
+  end;
+end;
+
 function TD2CustomTreeGrid.GetVisibleParent(Node: PD2TreeNode;
   IncludeFiltered: Boolean): PD2TreeNode;
 //Возвращает первого (ближайшего) видимого родителя для узла Node. Этот метод
@@ -7891,59 +8100,56 @@ begin
     FOnSaveTree(Self, Stream);
 end;
 
-function TD2CustomTreeGrid.ScrollIntoView(Column: Integer;
-  Center: Boolean): Boolean;
+function TD2CustomTreeGrid.ScrollIntoView(Column: Integer; Center: Boolean): Boolean;
 //Прокручивает дерево чтобы столбец Column был видимым. Возвращает True, если
 //столбцы были прокручены (например чтобы избежать дальнейших обновлений)
 //иначе возвращает False.
 // Scrolls the columns so that the given column is in the client area and returns True if the columns really have been
 // scrolled (e.g. to avoid further updates) else returns False.
-//var
-  //ColumnLeft,
-  //ColumnRight: Integer;
-  //NewOffset: Integer;
+var
+  ColumnLeft,
+  ColumnRight: Single;
+  NewOffset: Single;
 
 begin
-  //Result := False;
-  //
-  //if not FHeader.UseColumns then
-  //  Exit;
-  //if not FHeader.Columns.IsValidColumn(Column) then
-  //  Exit; // Just in case.
-  //
-  //ColumnLeft := Header.Columns.Items[Column].Left;
-  //ColumnRight := ColumnLeft + Header.Columns.Items[Column].Width;
-  //
-  //NewOffset := FEffectiveOffsetX;
-  //if Center then
-  //begin
-  //  NewOffset := FEffectiveOffsetX + ColumnLeft - (Header.Columns.GetVisibleFixedWidth div 2) - (ClientWidth div 2) + ((ColumnRight - ColumnLeft) div 2);
-  //  if NewOffset <> FEffectiveOffsetX then
-  //  begin
-  //    if UseRightToLeftAlignment then
-  //      SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
-  //    else
-  //      SetOffsetX(-NewOffset);
-  //  end;
-  //  Result := True;
-  //end
-  //else if not (coFixed in Header.Columns[Column].Options) then
-  //begin
-  //  if ColumnRight > ClientWidth then
-  //    NewOffset := FEffectiveOffsetX + (ColumnRight - ClientWidth)
-  //  else if (ColumnLeft < Header.Columns.GetVisibleFixedWidth) then
-  //    NewOffset := FEffectiveOffsetX - (Header.Columns.GetVisibleFixedWidth - ColumnLeft);
-  //  if NewOffset <> FEffectiveOffsetX then
-  //  begin
-  //    if UseRightToLeftAlignment then
-  //      SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
-  //    else
-  //      SetOffsetX(-NewOffset);
-  //  end;
-  //  Result := True;
-  //end
-  //else
-  //  Result := True;
+  Result := False;
+
+  if ColumnCount < 1 then Exit;
+  //if not FHeader.Columns.IsValidColumn(Column) then Exit; // Just in case.
+
+  ColumnLeft := Columns[Column].GetBoundsRect.Left;
+  ColumnRight := Columns[Column].GetBoundsRect.Right;
+
+  NewOffset := HScrollBarValue;
+  if Center then
+  begin
+    NewOffset := HScrollBarValue + ColumnLeft - (GetVisibleFixedWidth / 2) - ClientWidth / 2 + (ColumnRight - ColumnLeft) / 2;
+    if NewOffset <> HScrollBarValue then
+    begin
+      if UseRightToLeftAlignment then
+        SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
+      else
+        SetOffsetX(-NewOffset);
+    end;
+    Result := True;
+  end
+  else if not (Columns[Column].Locked) then
+  begin
+    if ColumnRight > ClientWidth then
+      NewOffset := HScrollBarValue + (ColumnRight - ClientWidth)
+    else if (ColumnLeft < GetVisibleFixedWidth) then
+      NewOffset := HScrollBarValue - (GetVisibleFixedWidth - ColumnLeft);
+    if NewOffset <> HScrollBarValue then
+    begin
+      if UseRightToLeftAlignment then
+        SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
+      else
+        SetOffsetX(-NewOffset);
+    end;
+    Result := True;
+  end
+  else
+    Result := True;
 end;
 
 function TD2CustomTreeGrid.ScrollIntoView(Node: PD2TreeNode;
@@ -7996,9 +8202,9 @@ begin
   //  if R.Top < 0 then
   //  begin
   //    if Center then
-  //      SetOffsetY(FOffsetY - R.Top + ClientHeight div 2)
+  //      SetOffsetY(VScrollBarValue - R.Top + ClientHeight div 2)
   //    else
-  //      SetOffsetY(FOffsetY - R.Top);
+  //      SetOffsetY(VScrollBarValue - R.Top);
   //    ScrolledVertically := True;
   //  end
   //  else
@@ -8007,14 +8213,14 @@ begin
   //      HScrollBarVisible := (ScrollBarOptions.ScrollBars in [ssBoth, ssHorizontal]) and
   //        (ScrollBarOptions.AlwaysVisible or (Integer(FRangeX) > ClientWidth));
   //      if Center then
-  //        SetOffsetY(FOffsetY - R.Bottom + ClientHeight div 2)
+  //        SetOffsetY(VScrollBarValue - R.Bottom + ClientHeight div 2)
   //      else
-  //        SetOffsetY(FOffsetY - R.Bottom + ClientHeight);
+  //        SetOffsetY(VScrollBarValue - R.Bottom + ClientHeight);
   //      // When scrolling up and the horizontal scroll appears because of the operation
   //      // then we have to move up the node the horizontal scrollbar's height too
   //      // in order to avoid that the scroll bar hides the node which we wanted to have in view.
   //      if not UseColumns and not HScrollBarVisible and (Integer(FRangeX) > ClientWidth) then
-  //        SetOffsetY(FOffsetY - GetSystemMetrics(SM_CYHSCROLL));
+  //        SetOffsetY(VScrollBarValue - GetSystemMetrics(SM_CYHSCROLL));
   //      ScrolledVertically := True;
   //    end;
   //
@@ -8535,7 +8741,7 @@ begin
               Mode2 := tamNoScroll;
               if toChildrenAbove in FOptions.FPaintOptions then
               begin
-                PosHoldable := (FOffsetY + (Integer(Node.TotalHeight) - Integer(NodeHeight[Node]))) <= 0;
+                PosHoldable := (VScrollBarValue + (Integer(Node.TotalHeight) - Integer(NodeHeight[Node]))) <= 0;
                 NodeInView := R1.Top < ClientHeight;
 
                 StepsR1 := 0;
@@ -8555,14 +8761,14 @@ begin
                     Mode1 := tamScrollUp;
                     R1.Top := Max(0, R1.Top + HeightDelta);
                     R1.Bottom := ClientHeight;
-                    StepsR1 := FOffsetY - HeightDelta;
+                    StepsR1 := VScrollBarValue - HeightDelta;
                   end;
                 end;
               end
               else
               begin
-                if (Integer(FRangeY) + FOffsetY - R1.Bottom + HeightDelta >= ClientHeight - R1.Bottom) or
-                   (Integer(FRangeY) <= ClientHeight) or (FOffsetY = 0) or not
+                if (Integer(FRangeY) + VScrollBarValue - R1.Bottom + HeightDelta >= ClientHeight - R1.Bottom) or
+                   (Integer(FRangeY) <= ClientHeight) or (VScrollBarValue = 0) or not
                    (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) then
                 begin
                   // Do a simple scroll up over the child nodes.
@@ -8574,10 +8780,10 @@ begin
                 end
                 else
                 begin
-                  // Scroll the node down to its future position. As FOffsetY will change we need to invalidate the
+                  // Scroll the node down to its future position. As VScrollBarValue will change we need to invalidate the
                   // whole tree.
                   Mode1 := tamScrollDown;
-                  StepsR1 := Min(-FOffsetY, ClientHeight - Integer(FRangeY) -FOffsetY - HeightDelta);
+                  StepsR1 := Min(-VScrollBarValue, ClientHeight - Integer(FRangeY) -VScrollBarValue - HeightDelta);
                   R1.Top := 0;
                   R1.Bottom := Min(ClientHeight, R1.Bottom + Steps);
                   NeedFullInvalidate := True;
@@ -8698,8 +8904,8 @@ begin
                       if not (toAutoScrollOnExpand in FOptions.FAutoOptions) then
                       begin
                         // If we shall not or cannot scroll to the desired extent we calculate the new position (with
-                        // max FOffsetY applied) and animate it that way.
-                        StepsR1 := -FOffsetY - Max(Integer(FRangeY) + HeightDelta - ClientHeight, 0) + HeightDelta;
+                        // max VScrollBarValue applied) and animate it that way.
+                        StepsR1 := -VScrollBarValue - Max(Integer(FRangeY) + HeightDelta - ClientHeight, 0) + HeightDelta;
                         if (Integer(FRangeY) + HeightDelta - ClientHeight) <= 0 then
                           Mode2 := tamNoScroll
                         else
@@ -8815,13 +9021,13 @@ begin
                   NeedFullInvalidate := True;
                   if (PosHoldable and ChildrenInView and NodeInView) or not
                      (toAutoScrollOnExpand in FOptions.FAutoOptions) then
-                    SetOffsetY(FOffsetY - Integer(HeightDelta))
+                    SetOffsetY(VScrollBarValue - Integer(HeightDelta))
                   else
                     if TotalFit and NodeInView then
                     begin
                       FirstVisible := GetFirstVisible(Node, True);
                       if Assigned(FirstVisible) then // otherwise there is no visible child at all
-                        SetOffsetY(FOffsetY - GetDisplayRect(FirstVisible, NoColumn, False).Top);
+                        SetOffsetY(VScrollBarValue - GetDisplayRect(FirstVisible, NoColumn, False).Top);
                     end
                     else
                       BottomNode := Node;
@@ -8843,7 +9049,7 @@ begin
                 // If we have collapsed the node or toAutoScrollOnExpand is not set, we try to keep the nodes
                 // visual position.
                 if toChildrenAbove in FOptions.FPaintOptions then
-                  SetOffsetY(FOffsetY - Integer(HeightDelta));
+                  SetOffsetY(VScrollBarValue - Integer(HeightDelta));
                 NeedFullInvalidate := True;
               end;
             end;

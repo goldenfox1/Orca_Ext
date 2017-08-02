@@ -12,14 +12,11 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    CheckBox1: TD2CheckBox;
     D2ImageList1: TD2ImageList;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
     Root1: TD2Background;
-    TextBox1: TD2TextBox;
-    TextBox2: TD2TextBox;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     VT: TD2TreeGrid;

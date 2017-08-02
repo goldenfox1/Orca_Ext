@@ -971,6 +971,27 @@ begin
   end;
 end;
 
+procedure TD2CustomGrid.GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);
+// Возвращает левую и правую границу столбца Column. Если Column = NoColumn, то возвращается вся ширина клиетской части грида.
+// Returns the left and right bound of the given column. If Column is NoColumn then the entire client width is returned.
+begin
+  if iColumn <= NoColumn
+     then begin
+            sLeft := 0;
+            sRight := ClientWidth;
+          end
+     else with GetColumn(iColumn).GetBoundsRect do
+          begin
+            sLeft:=Left;
+            sRight := Right;
+            //if UseRightToLeftAlignment then
+            //begin
+            //  Inc(Left, ComputeRTLOffset(True));
+            //  Inc(Right, ComputeRTLOffset(True));
+            //end;
+          end;
+end;
+
 function TD2CustomGrid.GetContentBounds:TD2Rect;
 var
   Col,R:TD2Rect;
