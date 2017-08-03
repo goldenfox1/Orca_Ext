@@ -35,6 +35,10 @@ uses
 
   {$ENDIF}
 
+  {$ifdef USE_DELPHICOMPAT}
+  DelphiCompat,
+  //LclExt,
+  {$endif}
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
   StdCtrls, DB, {DBCtrls,} DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList,
@@ -7807,14 +7811,14 @@ TD2NodeArray = array of PD2TreeNode;
 
 //Узел дерева
 TD2TreeNode = record
-  Index: Cardinal;             // Индекс узла относительно его родителя. index of node with regard to its parent
-  ChildCount: Cardinal;        // Кол-во дочерних узлов. number of child nodes
-  NodeHeight: Single;          // Высота строки в пикселях. height in pixels
+  Index: Cardinal;             // 4 Индекс узла относительно его родителя. index of node with regard to its parent
+  ChildCount: Cardinal;        // 4 Кол-во дочерних узлов. number of child nodes
+  NodeHeight: Single;          // 4 Высота строки в пикселях. height in pixels
   States: TD2TreeNodeStates;// Статус узла, описывающий его состояние (развернут, инициализирован и т.п.). states describing various properties of the node (expanded, initialized etc.)
-  Align: Single;               // Смещение кнопки сворачивания/разворачивания и отметки по вертикали. line/button alignment
+  Align: Single;               // 4 Смещение кнопки сворачивания/разворачивания и отметки по вертикали. line/button alignment
   CheckState: TD2CheckState;   // Статус отметки узла (например отмечен, нажат и т.п.) indicates the current check state (e.g. checked, pressed etc.)
   CheckType: TD2CheckType;     // Тип отметки узла indicates which check type shall be used for this node
-  //Dummy: Byte;                 // Фиктивныое поле для выравнивания  размера структуры узла до четырёх байтов (DWORD). dummy value to fill DWORD boundary
+  //Dummy: Byte;               // 1 Фиктивныое поле для выравнивания  размера структуры узла до четырёх байтов (DWORD). dummy value to fill DWORD boundary
   TotalCount: Cardinal;        // Общее кол-во узлов: сумма узла и всех его дочерних узлов и их дочерних узлов и т.д. sum of this node, all of its child nodes and their child nodes etc
   TotalHeight: Single;         // Высота узела в пикселях включая высоту всех его детей. height in pixels this node covers on screen including the height of all of its children
   //Внимание! Некоторые подпрограммы копирования требуют, чтобы все указатели (а также область данных) узла
@@ -8965,8 +8969,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure ValidateCache; virtual;
               //Определяет размер области данных узла дерева
     procedure ValidateNodeDataSize(var Size: Integer); virtual;
-              //Обновление границ редактора узла, если редактирование активно.
-    procedure UpdateEditBounds; virtual;
               //Обновить узел для последующего выбора после удаления теущего выбранного узела.
     procedure UpdateNextNodeToSelect(Node: PD2TreeNode); virtual;
               // Записывает основные элементы узла Node в поток Stream.

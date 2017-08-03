@@ -1412,12 +1412,12 @@ end;
 {$IMPLICITEXCEPTIONS OFF}
 
 function TD2CustomTreeGrid.PackArray(TheArray: TD2NodeArray; Count: Integer): Integer; assembler;
-//Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
-//Массив выбора должен быть отсортирован для работы этого алгоритма. У удаляемых
-//узлов установлен бит 0 (LSB). Этот маленький трюк работает, потому что выделение
-//памяти всегда выровнены на DWORD. Поскольку массив выбор должен быть отсортирован
-//при определении удаляемых узлов, гораздо более эффективно увеличить запись в запросе
-//вместо того, чтобы установить его в Nil (что нарушило бы упорядоченный внешний вид списка).
+// Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
+// Массив выбора должен быть отсортирован для работы этого алгоритма. У удаляемых узлов
+// установлен бит 0 (LSB). Этот маленький трюк работает, потому что выделение памяти всегда
+// выровнены на DWORD. Поскольку массив выбора должен быть отсортирован при определении
+// элементов, которые нужно удалить, гораздо эффективнее увеличивать рассматриваемую
+// запись, а не устанавливать ее на нуль (что нарушит упорядоченное появление списка).
 
 //На входе EAX содержит ссылку на себя, в EDX адрес массива TheArray и ECX содержит Count.
 //Возвращаемое значение количество оставшихся записей в массиве, так что абонент
@@ -1801,29 +1801,6 @@ begin
   end;
 end;
 
-//procedure TD2CustomTreeGrid.SetFocusedColumn(Value: Integer);
-////установить фокус в колонку с индексом Value
-//begin
-//  if (FFocusedColumn <> Value) and
-//     DoFocusChanging(FFocusedNode, FFocusedNode, FFocusedColumn, Value) then
-//  begin
-//    CancelEditNode;
-//    InvalidateColumn(FFocusedColumn);
-//    InvalidateColumn(Value);
-//    FFocusedColumn := Value;
-//    if Assigned(FFocusedNode) and not (toDisableAutoscrollOnFocus in FOptions.FAutoOptions) then
-//    begin
-//      if ScrollIntoView(FFocusedNode, toCenterScrollIntoView in FOptions.SelectionOptions, True) then
-//        InvalidateNode(FFocusedNode);
-//    end;
-//
-//    if Assigned(FDropTargetNode) then
-//      InvalidateNode(FDropTargetNode);
-//
-//    DoFocusChange(FFocusedNode, FFocusedColumn);
-//  end;
-//end;
-
 procedure TD2CustomTreeGrid.SetFocusedNode(Value: PD2TreeNode);
 //Передать фокус узлу Value
 var WasDifferent: Boolean;
@@ -1918,33 +1895,35 @@ end;
 
 procedure TD2CustomTreeGrid.SetNodeHeight(Node: PD2TreeNode; Value: Single);
 //Установить в Value высоту узла Node
-var Difference: Integer;
+var Difference: Single;
 begin
   if Assigned(Node) and (Node <> FRoot) and (Node.NodeHeight <> Value) and not (toReadOnly in FOptions.FMiscOptions) then
   begin
-    Difference := Integer(Value) - Integer(Node.NodeHeight);
+    Difference := Value - Node.NodeHeight;
     Node.NodeHeight := Value;
 
+    // Если узел эффективно отфильтрован, ничего делать не нужно, т.к. он все равно не виден.
     // If the node is effectively filtered out, nothing else has to be done, as it is not visible anyway.
     if not IsEffectivelyFiltered[Node] then
     begin
       AdjustTotalHeight(Node, Difference, True);
 
-      // If an edit operation is currently active then update the editors boundaries as well.
-      UpdateEditBounds;
-
-      InvalidateCache;
-      // Stay away from touching the node cache while it is being validated.
-      if not (tsValidating in FStates) and FullyVisible[Node] and not IsEffectivelyFiltered[Node] then
-      begin
-        if (FUpdateCount = 0) and ([tsPainting, tsSizing] * FStates = []) then
-        begin
-          ValidateCache;
-          InvalidateToBottom(Node);
-          //UpdateScrollBars(True);
-          Realign; //вместо UpdateScrollBars(True)
-        end;
-      end;
+      Realign; //всесто всего что ниже
+      //// Если в настоящий момент активна операция редактирования, обновите границы редакторов.
+      //// If an edit operation is currently active then update the editors boundaries as well.
+      //UpdateEditBounds;
+      //InvalidateCache;
+      //// Держитесь подальше от касания кеша узла во время проверки.
+      //// Stay away from touching the node cache while it is being validated.
+      //if not (tsValidating in FStates) and FullyVisible[Node] and not IsEffectivelyFiltered[Node] then
+      //begin
+      //  if (FUpdateCount = 0) and ([tsPainting, tsSizing] * FStates = []) then
+      //  begin
+      //    ValidateCache;
+      //    InvalidateToBottom(Node);
+      //    Realign; //вместо UpdateScrollBars(True)
+      //  end;
+      //end;
     end;
   end;
 end;
@@ -2055,7 +2034,7 @@ end;
 procedure TD2CustomTreeGrid.SetTopNode(Node: PD2TreeNode);
 //Установить узел Node верхним видимым
 var
-  R: TRect;
+  R: TD2Rect;
   Run: PD2TreeNode;
 begin
   if Assigned(Node) then
@@ -2068,10 +2047,9 @@ begin
         ToggleNode(Run);
       Run := Run.Parent;
     end;
-    //R := GetDisplayRect(Node, FHeader.MainColumn, True);
-    //lclheader
-    //if hoVisible in FHeader.Options then
-    //  Dec(R.Top, FHeader.Height);
+    R := GetDisplayRect(Node, MainColumn, True);
+    //header
+    if ShowHeader then d2DecFloat(R.Top, FHeader.Height);
     SetOffsetY(VScrollBarValue - R.Top);
   end;
 end;
@@ -2340,11 +2318,11 @@ begin
   if StructureChange
    then begin
           if tsStructureChangePending in FStates then
-            //  begin
-            //    if HandleAllocated
-            //      then KillTimer(Handle,StructureChangeTimer)//;
-            //  end
-            //else
+              begin
+                if HandleAllocated
+                  then KillTimer(Handle,StructureChangeTimer)//;
+              end
+            else
               DoStateChange([tsStructureChangePending]);
 
           FLastStructureChangeNode := Node;
@@ -2355,8 +2333,8 @@ begin
         end
    else begin
           if tsChangePending in FStates then
-          //  KillTimer(Handle, ChangeTimer)
-          //else
+            KillTimer(Handle, ChangeTimer)
+          else
             DoStateChange([tsChangePending]);
           FLastChangedNode := Node;
         end;
@@ -2393,9 +2371,9 @@ begin
 
   if FUpdateCount = 0 then
   begin
-    {if (FChangeDelay > 0) and not (tsSynchMode in FStates)
+    if (FChangeDelay > 0) and not (tsSynchMode in FStates)
       then SetTimer(Handle, ChangeTimer, FChangeDelay, nil)
-      else} DoChange(Node);
+      else DoChange(Node);
   end;
 end;
 
@@ -3558,6 +3536,8 @@ procedure TD2CustomTreeGrid.InternalRemoveFromSelection(Node: PD2TreeNode);
 
 var Index: Integer;
 begin
+  //Т.к. указатели всегда выровнены по DWORD, то мы можем просто увеличить все те,
+  //которые мы хотим удалить (см. также PackArray), и сохранить порядок в списке.
   // Because pointers are always DWORD aligned we can simply increment all those
   // which we want to have removed (see also PackArray) and still have the
   // order in the list preserved.
@@ -3567,6 +3547,34 @@ begin
     Inc(PAnsiChar(FSelectionNodes[Index]));
     DoRemoveFromSelection(Node);
     AdviseChangeEvent(False, Node, crIgnore);
+  end;
+end;
+
+procedure TD2CustomTreeGrid.RemoveFromSelection(Node: PD2TreeNode);
+//Удаляет узел Node из массива выбранных узлов
+var Index: Integer;
+begin
+  if not FSelectionLocked then
+  begin
+    Assert(Assigned(Node), 'Node must not be nil!');
+    if vsSelected in Node.States then
+    begin
+      Exclude(Node.States, vsSelected);
+      if FindNodeInSelection(Node, Index, -1, -1) and (Index < FSelectionCount - 1) then
+        Move(FSelectionNodes[Index + 1], FSelectionNodes[Index], (FSelectionCount - Index - 1) * SizeOf(Pointer));
+      if FSelectionCount > 0 then
+        Dec(FSelectionCount);
+      SetLength(FSelectionNodes, FSelectionCount);
+
+      if FSelectionCount = 0 then
+        ResetRangeAnchor;
+
+      if FSelectionCount <= 1 then
+        UpdateNextNodeToSelect(Node);
+
+      DoRemoveFromSelection(Node);
+      Change(Node);
+    end;
   end;
 end;
 
@@ -3864,7 +3872,7 @@ var Count: Integer;
 begin
   //Вполне возможно, что есть недействительные ссылки на узлы в массиве выбора
   //если обновление дерева заблокировано и были внесены изменения в структуре.
-  //Обработка этой потенциально опасной ситуации путем явной упаковки массива выбора.
+  //Обработаем эту потенциально опасную ситуацию путем явной упаковки массива выбора.
   // It is possible that there are invalid node references in the selection array
   // if the tree update is locked and changes in the structure were made.
   // Handle this potentially dangerous situation by packing the selection array explicitely.
@@ -4027,34 +4035,6 @@ begin
     end
     else
       ShowError(SCorruptStream1, hcTFCorruptStream1);
-  end;
-end;
-
-procedure TD2CustomTreeGrid.RemoveFromSelection(Node: PD2TreeNode);
-//Удаляет узел Node из массива выбранных узлов
-var Index: Integer;
-begin
-  if not FSelectionLocked then
-  begin
-    Assert(Assigned(Node), 'Node must not be nil!');
-    if vsSelected in Node.States then
-    begin
-      Exclude(Node.States, vsSelected);
-      if FindNodeInSelection(Node, Index, -1, -1) and (Index < FSelectionCount - 1) then
-        Move(FSelectionNodes[Index + 1], FSelectionNodes[Index], (FSelectionCount - Index - 1) * SizeOf(Pointer));
-      if FSelectionCount > 0 then
-        Dec(FSelectionCount);
-      SetLength(FSelectionNodes, FSelectionCount);
-
-      if FSelectionCount = 0 then
-        ResetRangeAnchor;
-
-      if FSelectionCount <= 1 then
-        UpdateNextNodeToSelect(Node);
-
-      DoRemoveFromSelection(Node);
-      Change(Node);
-    end;
   end;
 end;
 
@@ -4234,57 +4214,6 @@ begin
   Size := SizeOf(Pointer);
   if Assigned(FOnGetNodeDataSize) then
     FOnGetNodeDataSize(Self, Size);
-end;
-
-procedure TD2CustomTreeGrid.UpdateEditBounds;
-//Обновление границ редактора узла, если редактирование активно.
-// Used to update the bounds of the current node editor if editing is currently active.
-
-//var
-//  R: TRect;
-//  Dummy: Integer;
-//  CurrentAlignment: TAlignment;
-//  CurrentBidiMode: TBidiMode;
-
-begin
-  //if (tsEditing in FStates) and Assigned(FFocusedNode) and
-  //   (FEditColumn < FHeader.Columns.Count) then // prevent EArgumentOutOfRangeException
-  //begin
-  //  if (GetCurrentThreadId <> MainThreadID) then
-  //  begin
-  //    // UpdateEditBounds() will be called at the end of the thread
-  //    Exit;
-  //  end;
-  //  if vsMultiline in FFocusedNode.States then
-  //    R := GetDisplayRect(FFocusedNode, FEditColumn, True, False)
-  //  else
-  //    R := GetDisplayRect(FFocusedNode, FEditColumn, True, True);
-  //  if (toGridExtensions in FOptions.FMiscOptions) then
-  //  begin
-  //    // Adjust edit bounds depending on alignment and bidi mode.
-  //    if FEditColumn <= NoColumn then
-  //    begin
-  //      CurrentAlignment := Alignment;
-  //      CurrentBidiMode := BiDiMode;
-  //    end
-  //    else
-  //    begin
-  //      CurrentAlignment := FHeader.Columns[FEditColumn].FAlignment;
-  //      CurrentBidiMode := FHeader.Columns[FEditColumn].FBiDiMode;
-  //    end;
-  //    // Consider bidi mode here. In RTL context does left alignment actually mean right alignment and vice versa.
-  //    if CurrentBidiMode <> bdLeftToRight then
-  //      ChangeBiDiModeAlignment(CurrentAlignment);
-  //    if CurrentAlignment = taLeftJustify then
-  //      FHeader.Columns.GetColumnBounds(FEditColumn, Dummy, R.Right)
-  //    else
-  //      FHeader.Columns.GetColumnBounds(FEditColumn, R.Left, Dummy);
-  //  end;
-  //  if toShowHorzGridLines in TreeOptions.PaintOptions then
-  //    Dec(R.Bottom);
-  //  R.Bottom := R.Top + Max(R.Bottom - R.Top, FEditLink.GetBounds.Bottom - FEditLink.GetBounds.Top); // Ensure to never decrease the size of the currently active edit control. Helps to prevent issue #159
-  //  FEditLink.SetBounds(R);
-  //end;
 end;
 
 procedure TD2CustomTreeGrid.UpdateNextNodeToSelect(Node: PD2TreeNode);
@@ -4686,8 +4615,9 @@ var
 begin
   if not FSelectionLocked and (FSelectionCount > 0) and not (csDestroying in ComponentState) then
   begin
-    if (FUpdateCount = 0) and {HandleAllocated and} (FVisibleCount > 0) then
+    if (FUpdateCount = 0) {and HandleAllocated} and (FVisibleCount > 0) then
     begin
+      // Итерация всех видимыех в настоящее время узлов в клиентской области, и их аннулирование.
       // Iterate through nodes currently visible in the client area and invalidate them.
       Node := TopNode;
       if Assigned(Node) then
@@ -4696,15 +4626,14 @@ begin
 
       while Assigned(Node) do
       begin
-        R.Bottom := R.Top + Integer(NodeHeight[Node]);
+        R.Bottom := R.Top + NodeHeight[Node];
         if vsSelected in Node.States then
         begin
           //InvalidateRect(Handle, @R, False);
           InvalidateRect(R);
           Dec(Counter);
           // Only try as many nodes as are selected.
-          if Counter = 0 then
-            Break;
+          if Counter = 0 then Break;
         end;
         R.Top := R.Bottom;
         if R.Top > ClientHeight then
@@ -4954,6 +4883,7 @@ begin
     begin
       if FUpdateCount = 0 then
       begin
+        // Временный переход в режим синхронизации, чтобы избежать события с задержкой изменения для узла при отмене выбора.
         // Go temporarily into sync mode to avoid a delayed change event for the node
         // when unselecting.
         WasInSynchMode := tsSynchMode in FStates;
@@ -9117,4 +9047,5 @@ end;
 //  UpdateVerticalScrollBar(DoRepaint);
 //  UpdateHorizontalScrollBar(DoRepaint);
 //end;
+
 
