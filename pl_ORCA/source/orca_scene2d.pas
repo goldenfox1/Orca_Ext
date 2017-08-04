@@ -8867,6 +8867,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
               //Вызывает прерывание при освобождении узла
     procedure DoFreeNode(Node: PD2TreeNode); virtual;
+             // Возвращает ширину узла. Виртуальный метод переопределяемый в потомках
+    function DoGetNodeWidth(Node: PD2TreeNode; Column: Integer; Canvas: TD2Canvas = nil): Single; virtual;
               //Вызывает OnInitChildren и возвращает истину, если обработчик события определен;
     function DoInitChildren(Node: PD2TreeNode; var ChildCount: Cardinal): Boolean; virtual;
               //Вызов прерывания инициализации узла
@@ -9246,7 +9248,7 @@ public
               //Инициирует перерисовку видимой области колоннки Column.
     procedure InvalidateColumn(Column: Integer);
              //Инициирует перерисовку данного узла. Возвращает аннулированый прямоугольник.
-    function InvalidateNode(Node: PD2TreeNode): TRect; virtual;
+    function InvalidateNode(Node: PD2TreeNode): TD2Rect; virtual;
               //Инициирует перерисовку клиентской области, начиная с узла Node.
     procedure InvalidateToBottom(Node: PD2TreeNode);
               //Инвертировать текущий выбор (узлы, которые выбраны становятся невыделенными и наоборот).
@@ -9258,6 +9260,8 @@ public
     function IsMouseSelecting: Boolean;
              //true - дерево пустое
     function IsEmpty: Boolean;
+             // Определяет, является ли столбец Column действительным, то есть является ли он одним из текущих столбцов.
+    function IsValidColumn(Column: Integer): Boolean;
              //Перебирает всех детей и внуков и т.д. узла Node (все дерево при Node = nil) и
              //вызывает для каждого узла метод Callback.
     function IterateSubtree(Node: PD2TreeNode; Callback: TD2TreeGetNodeProc; Data: Pointer;

@@ -433,9 +433,8 @@ begin
     FAutoOptions := Value;
     if Assigned(FOwner) then
       with FOwner do
-    //  if (toAutoSpanColumns in ChangedOptions) and not (csLoading in ComponentState) and HandleAllocated then
-    //    Invalidate;
-        if (toAutoSpanColumns in ChangedOptions) and not (csLoading in ComponentState) then Realign;
+        if (toAutoSpanColumns in ChangedOptions) and not (csLoading in ComponentState) {and HandleAllocated then}
+          then Realign;     //    Invalidate;
   end;
 end;
 
@@ -458,9 +457,9 @@ begin
       with FOwner do
         if not (csLoading in ComponentState) {and HandleAllocated} then
         begin
-          if toCheckSupport in ToBeSet + ToBeCleared then
-            //Invalidate;
-            Realign;
+          if toCheckSupport in ToBeSet + ToBeCleared
+            then Realign; //Invalidate;
+
 
           if not (csDesigning in ComponentState) then
           begin
@@ -575,34 +574,33 @@ begin
 end;
 
 procedure TD2CustomTreeOptions.SetSelectionOptions(const Value: TD2TreeSelectionOptions);
-//var
-  //ToBeSet,
-  //ToBeCleared: TD2VTSelectionOptions;
+var
+  ToBeSet,
+  ToBeCleared: TD2TreeSelectionOptions;
 
 begin
-  //if FSelectionOptions <> Value then
-  //begin
-  //  ToBeSet := Value - FSelectionOptions;
-  //  ToBeCleared := FSelectionOptions - Value;
-  //  FSelectionOptions := Value;
-  //
-  //  with FOwner do
-  //  begin
-  //    if (toMultiSelect in (ToBeCleared + ToBeSet)) or
-  //      ([toLevelSelectConstraint, toSiblingSelectConstraint] * ToBeSet <> []) then
-  //      ClearSelection;
-  //
-  //    if (toExtendedFocus in ToBeCleared) and (FFocusedColumn > 0) and HandleAllocated then
-  //    begin
-  //      FFocusedColumn := FHeader.MainColumn;
-  //      //Invalidate;
-  //      Realign;
-  //    end;
-  //
-  //    if not (toExtendedFocus in FSelectionOptions) then
-  //      FFocusedColumn := FHeader.MainColumn;
-  //  end;
-  //end;
+  if FSelectionOptions <> Value then
+  begin
+    ToBeSet := Value - FSelectionOptions;
+    ToBeCleared := FSelectionOptions - Value;
+    FSelectionOptions := Value;
+
+    with FOwner do
+    begin
+      if (toMultiSelect in (ToBeCleared + ToBeSet)) or
+        ([toLevelSelectConstraint, toSiblingSelectConstraint] * ToBeSet <> []) then
+        ClearSelection;
+
+      if (toExtendedFocus in ToBeCleared) and (FFocusedColumn > 0) {and HandleAllocated }
+         then begin
+                FFocusedColumn := FMainColumn;
+                Realign; //Invalidate;
+              end;
+
+      if not (toExtendedFocus in FSelectionOptions) then
+        FFocusedColumn := FMainColumn;
+    end;
+  end;
 end;
 
 procedure TD2CustomTreeOptions.AssignTo(Dest: TPersistent);
@@ -2319,8 +2317,8 @@ begin
    then begin
           if tsStructureChangePending in FStates then
               begin
-                if HandleAllocated
-                  then KillTimer(Handle,StructureChangeTimer)//;
+                {if HandleAllocated
+                  then KillTimer(Handle,StructureChangeTimer)//;}
               end
             else
               DoStateChange([tsStructureChangePending]);
@@ -2333,7 +2331,7 @@ begin
         end
    else begin
           if tsChangePending in FStates then
-            KillTimer(Handle, ChangeTimer)
+            //KillTimer(Handle, ChangeTimer)
           else
             DoStateChange([tsChangePending]);
           FLastChangedNode := Node;
@@ -2371,9 +2369,9 @@ begin
 
   if FUpdateCount = 0 then
   begin
-    if (FChangeDelay > 0) and not (tsSynchMode in FStates)
+    {if (FChangeDelay > 0) and not (tsSynchMode in FStates)
       then SetTimer(Handle, ChangeTimer, FChangeDelay, nil)
-      else DoChange(Node);
+      else} DoChange(Node);
   end;
 end;
 
@@ -2857,6 +2855,15 @@ begin
     then FOnFreeNode(Self, Node);
   FreeMem(Node);
   if Self.UpdateCount = 0 then EnsureNodeSelected();
+end;
+
+function TD2CustomTreeGrid.DoGetNodeWidth(Node: PD2TreeNode; Column: Integer;
+           Canvas: TD2Canvas = nil): Single;
+// Возвращает ширину узла. Виртуальный метод переопределяемый в потомках
+// Returns the pixel width of a node.
+
+begin
+  Result := 0;
 end;
 
 function TD2CustomTreeGrid.DoInitChildren(Node: PD2TreeNode;
@@ -5228,53 +5235,56 @@ begin
        then begin
               Offset := FMargins.Left + Indent;
               //CurrentBidiMode := BidiMode;
-              CurrentAlignment := Alignment;
+              //CurrentAlignment := Alignment;
             end
        else begin
               Offset := PColumn.FMargins.Left + Indent;
               //CurrentBidiMode := PColumn.BidiMode;
-              CurrentAlignment := PColumn.Alignment;
+              //CurrentAlignment := PColumn.Alignment;
             end;
 
-    if MainColumnHit then
-    begin
-      if toShowRoot in FOptions.FPaintOptions
-         then d2IncFloat(Offset, FIndent);
-      if (toCheckSupport in FOptions.FMiscOptions) {and Assigned(FCheckImages)} and (Node.CheckType <> ctNone)
-         then d2IncFloat(Offset, FCheckImages.Width + 2);
-    end;
-    // Consider associated images.
-    if Assigned(FStateImages) and HasImage(Node, ikState, Column) then
-      d2IncFloat(Offset, FStateImages.Width + 2);
-    if Assigned(FImages) and HasImage(Node, ikNormal, Column) then
-      d2IncFloat(Offset, GetNodeImageSize(Node).cx + 2);
+    //if MainColumnHit then
+    //begin
+    //  if toShowRoot in FOptions.FPaintOptions
+    //     then d2IncFloat(Offset, FIndent);
+    //  if (toCheckSupport in FOptions.FMiscOptions) {and Assigned(FCheckImages)} and (Node.CheckType <> ctNone)
+    //     then d2IncFloat(Offset, FCheckImages.Width + 2);
+    //end;
+
+    //// Consider associated images.
+    //if Assigned(FStateImages) and HasImage(Node, ikState, Column) then
+    //  d2IncFloat(Offset, FStateImages.Width + 2);
+    //if Assigned(FImages) and HasImage(Node, ikNormal, Column) then
+    //  d2IncFloat(Offset, GetNodeImageSize(Node).cx + 2);
 
     // Offset теперь содержит расстояние от левой или правой границы прямоугольника (в зависимости от режима bidi).
     // Теперь рассмотрим выравнивание и вычислим конечный результат.
     // Offset contains now the distance from the left or right border of the rectangle (depending on bidi mode).
     // Now consider the alignment too and calculate the final result.
-    if CurrentBidiMode = bdLeftToRight then
-    begin
+    {if CurrentBidiMode = bdLeftToRight then
+    begin}
       d2IncFloat(Result.Left, Offset);
       // Чтение слева-направо не требует специальной регулировки выравнивания
       // Left-to-right reading does not need any special adjustment of the alignment.
-    end
+    {end
     else
     begin
       d2DecFloat(Result.Right, Offset);
       // Рассмотрим режим bidi. В контексте RTL выравнивание влево фактически означает выравнивание вправо и наоборот.
       // Consider bidi mode here. In RTL context does left alignment actually mean right alignment and vice versa.
       ChangeBiDiModeAlignment(CurrentAlignment);
-    end;
+    end;}
 
     TextWidth := DoGetNodeWidth(Node, Column);
 
+    //Сохраним высоту ячейки перед тем, как применять квоту содержимого ячейки, чтобы увеличить
+    //высоту ячейки, если текст не подходит и Unclipped = true (см. Ниже).
     // Keep cell height before applying cell content margin in order to increase cell height if text does not fit
     // and Unclipped it true (see below).
     MaxUnclippedHeight := Result.Bottom - Result.Top;
 
-    if ApplyCellContentMargin then
-      DoBeforeCellPaint(Self.Canvas, Node, Column, cpmGetContentMargin, Result, Result);
+    //if ApplyCellContentMargin then
+    //  DoBeforeCellPaint(Self.Canvas, Node, Column, cpmGetContentMargin, Result, Result);
 
     if Unclipped then
     begin
@@ -5282,11 +5292,13 @@ begin
       // there be enough space, regardless of column bounds etc.
       // The layout still depends on the available space too, because this determines the position
       // of the unclipped text rectangle.
+      {
       if Result.Right - Result.Left < TextWidth - 1 then
         if CurrentBidiMode = bdLeftToRight then
           CurrentAlignment := taLeftJustify
         else
           CurrentAlignment := taRightJustify;
+       }
 
       // Increase cell height (up to MaxUnclippedHeight determined above) if text does not fit.
       GetTextMetrics(Self.Canvas.Handle, TM);
@@ -7380,23 +7392,26 @@ procedure TD2CustomTreeGrid.InvalidateColumn(Column: Integer);
 // Invalidates the client area part of a column.
 //var R: TD2Rect;
 begin
-  //if (FUpdateCount = 0) and HandleAllocated and FHeader.FColumns.IsValidColumn(Column) then
-  //begin
-  //  R := ClientRect;
-  //  //lclheader
-  //  if hoVisible in FHeader.FOptions then
-  //    OffsetRect(R, 0, FHeader.Height);
-  //  FHeader.Columns.GetColumnBounds(Column, R.Left, R.Right);
-  //  //InvalidateRect(Handle, @R, False);
-  //  InvalidateRect(R);
-  //end;
+  if (FUpdateCount = 0) {and HandleAllocated} and IsValidColumn(Column) then
+  begin
+    //R := ClientRect;
+    //lclheader
+    //if hoVisible in FHeader.FOptions then
+    //  OffsetRect(R, 0, FHeader.Height);
+    //FHeader.Columns.GetColumnBounds(Column, R.Left, R.Right);
+    ////InvalidateRect(Handle, @R, False);
+    //InvalidateRect(R);
+    with Columns[Column] do
+      if Visible then Realign;
+  end;
 end;
 
-function TD2CustomTreeGrid.InvalidateNode(Node: PD2TreeNode): TRect;
+function TD2CustomTreeGrid.InvalidateNode(Node: PD2TreeNode): TD2Rect;
 //Инициирует перерисовку данного узла. Возвращает аннулированый прямоугольник.
 // Initiates repaint of the given node and returns the just invalidated rectangle.
 
 begin
+  Realign;
   //if (FUpdateCount = 0) and HandleAllocated then
   //begin
   //  Result := GetDisplayRect(Node, NoColumn, False);
@@ -7414,27 +7429,26 @@ procedure TD2CustomTreeGrid.InvalidateToBottom(Node: PD2TreeNode);
   //R: TD2Rect;
 
 begin
-//  if (FUpdateCount = 0) and HandleAllocated then
-//  begin
-//    if (Node = nil) or (Node = FRoot) then
-//      Invalidate
-//    else
-//      if (vsInitialized in Node.States) and IsEffectivelyVisible[Node] then
-//      begin
-//        R := GetDisplayRect(Node, -1, False);
-//        if R.Top < ClientHeight then
-//        begin
-//          if (toChildrenAbove in FOptions.FPaintOptions) and (vsExpanded in Node.States) then
-//            Dec(R.Top, Node.TotalHeight + NodeHeight[Node]);
-//          R.Bottom := ClientHeight;
-//          //lclheader
-//          if hoVisible in FHeader.FOptions then
-//            Inc(R.Bottom, FHeader.Height);
-//          InvalidateRect(Handle, @R, False);
-//        end;
-//      end;
-// end;
-  Realign;
+  if (FUpdateCount = 0) {and HandleAllocated }then
+  begin
+    Realign;
+    //if (Node = nil) or (Node = FRoot)
+    //   then Invalidate
+    //   else if (vsInitialized in Node.States) and IsEffectivelyVisible[Node]
+    //           then begin
+    //                  R := GetDisplayRect(Node, -1, False);
+    //                  if R.Top < ClientHeight then
+    //                  begin
+    //                    if (toChildrenAbove in FOptions.FPaintOptions) and (vsExpanded in Node.States) then
+    //                      Dec(R.Top, Node.TotalHeight + NodeHeight[Node]);
+    //                    R.Bottom := ClientHeight;
+    //                    //lclheader
+    //                    if hoVisible in FHeader.FOptions then
+    //                      Inc(R.Bottom, FHeader.Height);
+    //                    InvalidateRect(Handle, @R, False);
+    //                  end;
+    //                end;
+ end;
 end;
 
 procedure TD2CustomTreeGrid.InvertSelection(VisibleOnly: Boolean);
@@ -7505,6 +7519,13 @@ function TD2CustomTreeGrid.IsEmpty: Boolean;
 //true - дерево пустое
 begin
   Result := (Self.ChildCount[nil] = 0);
+end;
+
+function TD2CustomTreeGrid.IsValidColumn(Column: Integer): Boolean;
+// Определяет, является ли столбец Column действительным, то есть является ли он одним из текущих столбцов.
+// Determines whether the given column is valid or not, that is, whether it is one of the current columns.
+begin
+  Result := (Column > NoColumn) and (Column < ColumnCount);
 end;
 
 function TD2CustomTreeGrid.IterateSubtree(Node: PD2TreeNode;
@@ -8056,9 +8077,9 @@ begin
     NewOffset := HScrollBarValue + ColumnLeft - (GetVisibleFixedWidth / 2) - ClientWidth / 2 + (ColumnRight - ColumnLeft) / 2;
     if NewOffset <> HScrollBarValue then
     begin
-      if UseRightToLeftAlignment then
+      {if UseRightToLeftAlignment then
         SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
-      else
+      else}
         SetOffsetX(-NewOffset);
     end;
     Result := True;
@@ -8071,9 +8092,9 @@ begin
       NewOffset := HScrollBarValue - (GetVisibleFixedWidth - ColumnLeft);
     if NewOffset <> HScrollBarValue then
     begin
-      if UseRightToLeftAlignment then
+      {if UseRightToLeftAlignment then
         SetOffsetX(-Integer(FRangeX) + ClientWidth + NewOffset)
-      else
+      else }
         SetOffsetX(-NewOffset);
     end;
     Result := True;
@@ -8939,7 +8960,6 @@ begin
           if Node.ChildCount > 0 then
           begin
             UpdateRanges;
-            //UpdateScrollBars(True);
             Realign; //вместо UpdateScrollBars(True)
             if [tsPainting, tsExpanding] * FStates = [] then
             begin

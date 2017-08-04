@@ -12,7 +12,6 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    D2ImageList1: TD2ImageList;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
@@ -68,8 +67,7 @@ implementation
 
 { TForm1 }
 
-
-procedure TForm1.FormCreate(Sender: TObject);
+       procedure TForm1.FormCreate(Sender: TObject);
 var
   i: Integer;
   NewNode, Node: PD2TreeNode;
