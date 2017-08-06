@@ -8532,6 +8532,10 @@ end;
 //Базовый класс дерева описывающий все поля и свойства
 TD2CustomTreeGrid = class(TD2CustomGrid)
   private
+    const
+         CacheThreshold = 2000;        // Number of nodes a tree must at least have to start caching and at the same
+                                // time the maximum number of nodes between two cache entries.
+    var
     FCheckPropagationCount: Cardinal;            //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
     FBottomSpace: Single;                        //Дополнительное место ниже последнего узла. Extra space below the last node.
     FDefaultNodeHeight: Single;                  //Высота узла по умолчанию
@@ -8558,8 +8562,29 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     //FOffsetX: Single;                            //Определяет смещение прокрутки слева. Determines left scroll offset.
     //FOffsetY: Single;                            //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
 
+    FOperationCanceled: Boolean;       //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
+    FOperationCount: Cardinal;         //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
+    FOptions: TD2CustomTreeOptions;    //Текущие опции поведения дерева
+    FPositionCache: TD2Cache;            //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
+    FRangeAnchor: PD2TreeNode;         //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
+    FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
+    FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
+    FRoot: PD2TreeNode;                //Корневой узел дерева.
+    FSelectionNodes: TD2NodeArray;     //Массив выделенных узлов. list of currently selected nodes
+    FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelectionNodes). number of currently selected nodes (size of FSelectionNodes might differ)
+    FSelectionLocked: Boolean;         //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
+    FShowCheckboxes: boolean;          //True - Показывать чек-боксы ???
+    FSingletonNodeArray: TD2NodeArray; //Содержит только один элемент для быстрого добавления отдельных узлов. Contains only one element for quick addition of single nodes
+    FStartIndex: Cardinal;             //Индекс для начала проверки кэша. index to start validating cache from
+    FStates: TD2TreeStates;            //Различные активные или ожидающие обработки состояния дерева. various active/pending states the tree needs to consider
+    FTempNodeCache: TD2NodeArray;      //Массив временных узлов. Используется в различных местах. used at various places to hold temporarily a bunch of node refs.
+    FTempNodeCount: Cardinal;          //Кол-во узлов в массиве временных узлов. number of nodes in FTempNodeCache
+    FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
+                                         Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
+    FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
+    FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
 
-    //------Ссылки на обработчики прерываний
+     //------Ссылки на обработчики прерываний
 
     FOnAddToSelection: TD2VTAddToSelectionEvent;   //Вызывается когда узел добавляется к выборанным. called when a node is added to the selection
     FOnChange: TD2VTChangeEvent;                   //Вызывается при изменении выбранных узлов. selection change
@@ -8613,34 +8638,13 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
 
     // -----------
 
-    FOperationCanceled: Boolean;       //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
-    FOperationCount: Cardinal;         //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
-    FOptions: TD2CustomTreeOptions;    //Текущие опции поведения дерева
-    FPositionCache: TD2Cache;            //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
-    FRangeAnchor: PD2TreeNode;         //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
-    FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
-    FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
-    FRoot: PD2TreeNode;                //Корневой узел дерева.
-    FSelectionNodes: TD2NodeArray;     //Массив выделенных узлов. list of currently selected nodes
-    FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelectionNodes). number of currently selected nodes (size of FSelectionNodes might differ)
-    FSelectionLocked: Boolean;         //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
-    FShowCheckboxes: boolean;          //True - Показывать чек-боксы ???
-    FSingletonNodeArray: TD2NodeArray; //Содержит только один элемент для быстрого добавления отдельных узлов. Contains only one element for quick addition of single nodes
-    FStartIndex: Cardinal;             //Индекс для начала проверки кэша. index to start validating cache from
-    FStates: TD2TreeStates;            //Различные активные или ожидающие обработки состояния дерева. various active/pending states the tree needs to consider
-    FTempNodeCache: TD2NodeArray;      //Массив временных узлов. Используется в различных местах. used at various places to hold temporarily a bunch of node refs.
-    FTempNodeCount: Cardinal;          //Кол-во узлов в массиве временных узлов. number of nodes in FTempNodeCache
-    FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
-                                         Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
-    FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
-    FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
-
-
               //Изменяет общее кол-во узлов (TotalCount) узла Node и всех его родителей в соответствии со значеним Value.
               //При Relative = true - Value = величина изменения, иначе Value = абсолютное значение
     procedure AdjustTotalCount(Node: PD2TreeNode; Value: Integer; Relative: Boolean = False);
               //Устанавливает общую высоту узла и изменяет общую высоту всех его родителей.
     procedure AdjustTotalHeight(Node: PD2TreeNode; Value: Single; Relative: Boolean = False);
+
+    function CalculateCacheEntryCount: Integer;
              //Устанавливает состояние проверки узла в соответствии с заданным значением и типом проверки узла.
              //Если состояние проверки должно распространяться на родительские узлы, и один из них отказывается
              //изменяться, то ничего не происходит и возвращается False, иначе True.
@@ -8899,6 +8903,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoStateChange(Enter: TD2TreeStates; Leave: TD2TreeStates = []); virtual;
               //Вызов прерывания OnStructureChange при изменении структуры дерева
     procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
+
+    function DoValidateCache: Boolean; virtual;
               //Вызывается для индикации завершения длительной операции.
     procedure EndOperation(OperationKind: TD2TreeOperationKind);
              //Поиск узла P в массиве выбора. LowBound и HighBound нижняя и верхняя границы диапазона поиска.
@@ -8994,6 +9000,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property NodeAlignment: TD2TreeNodeAlignment read FNodeAlignment write SetNodeAlignment default naProportional;
              //true - длительная операция должна быть завершена
     property OperationCanceled: Boolean read GetOperationCanceled;
+             // Текущая виртуальная ширина дерева (не ClientWidth). Если есть столбцы, возвращает их общую ширину. В противном случае он возвращает максимум ширины данных всей строки.
+    property RangeX: Single read GetRangeX; // Returns the width of the virtual tree in pixels, (not ClientWidth). If there are columns it returns the total width of all of them; otherwise it returns the maximum of the all the line's data widths.
+             // Текущая виртуальная высота дерева
+    property RangeY: Single read FRangeY;
              //Кол-во детей у узла Root
     property RootNodeCount: Cardinal read GetRootNodeCount write SetRootNodeCount default 0;
              //Опции поведения дерева
@@ -9308,8 +9318,6 @@ public
     procedure QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
              //Изменение развернутого/свернутого состояния узла на противоположное.
     procedure ToggleNode(Node: PD2TreeNode);
-             // Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
-    function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
               //Обновить общую витруальную ширину дерева
     procedure UpdateHorizontalRange;
               //Обновить общие витруальные высоту и ширину дерева
@@ -9685,6 +9693,10 @@ function  ShowColorDialog(const Color: string): string;
 procedure ShowDsgnImageList(ImgList: TD2ImageList);
 procedure ShowDsgnLang(Lang: TD2Lang);
 
+// Trees
+// Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
+function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
+
 //=============================================================================
 //=============== GLobal Variables ============================================
 //=============================================================================
@@ -9772,6 +9784,22 @@ var
 
 //==============================================================
 //==============================================================
+
+function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
+// Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
+// Returns the tree the node currently belongs to or nil if the node is not attached to a tree.
+
+begin
+  Assert(Assigned(Node), 'Node must not be nil.');
+
+  // The root node is marked by having its NextSibling (and PrevSibling) pointing to itself.
+  while Assigned(Node) and (Node.NextSibling <> Node) do
+    Node := Node.Parent;
+  if Assigned(Node) then
+    Result := TD2CustomTreeGrid(Node.Parent)
+  else
+    Result := nil;
+end;
 
 procedure CloseAllPopups;
   var

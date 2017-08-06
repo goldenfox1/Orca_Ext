@@ -253,6 +253,9 @@ end;
 
 constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
 begin
+  //if not Initialized then
+  //  InitializeGlobalStructures;
+
   inherited;
   FResource:='gridstyle';
 
@@ -268,12 +271,12 @@ begin
   //FDragOperations := [doCopy, doMove];
   //FHotCursor := crDefault;
   //FScrollBarOptions := TScrollBarOptions.Create(Self);
-  //FFocusedColumn := NoColumn;
+  FFocusedColumn := NoColumn;
   //FDragImageKind := diComplete;
   FLastSelectionLevel := -1;
   //FSelectionBlendFactor := 128;
 
-  //FIndent := 18;
+  FIndent := 18;
 
   //FPlusBM := TBitmap.Create;
   //FHotPlusBM := TBitmap.Create;
@@ -329,7 +332,7 @@ begin
   //FAnimationDuration := 200;
   //FSearchTimeout := 1000;
   //FSearchStart := ssFocusedNode;
-  //FNodeAlignment := naProportional;
+  FNodeAlignment := naProportional;
   //FLineStyle := lsDotted;
   //FIncrementalSearch := isNone;
   //FClipboardFormats := TClipboardFormats.Create(Self);
@@ -461,116 +464,113 @@ begin
             then Realign; //Invalidate;
 
 
-          if not (csDesigning in ComponentState) then
-          begin
-            {!!! проверить необходимость данной опции. Вероятно не нужна
-            if toFullRepaintOnResize in (ToBeSet + ToBeCleared) then
-              //todo_lcl_check
-              RecreateWnd(FOwner);
-              }
-            {!!! не понятно как получить Handle дерева. Есть только Handle сцены
-            if toAcceptOLEDrop in ToBeSet then
-              RegisterDragDrop(Handle, DragManager as IDropTarget);
-            if toAcceptOLEDrop in ToBeCleared then
-              RevokeDragDrop(Handle);
-            }
-          end;
+          //if not (csDesigning in ComponentState) then
+          //begin
+          //  {!!! проверить необходимость данной опции. Вероятно не нужна
+          //  if toFullRepaintOnResize in (ToBeSet + ToBeCleared) then
+          //    //todo_lcl_check
+          //    RecreateWnd(FOwner);
+          //    }
+          //  {!!! не понятно как получить Handle дерева. Есть только Handle сцены
+          //  if toAcceptOLEDrop in ToBeSet then
+          //    RegisterDragDrop(Handle, DragManager as IDropTarget);
+          //  if toAcceptOLEDrop in ToBeCleared then
+          //    RevokeDragDrop(Handle);
+          //  }
+          //end;
         end;
   end;
 end;
 
 procedure TD2CustomTreeOptions.SetPaintOptions(const Value: TD2TreePaintOptions);
-//var
-  //ToBeSet,
-  //ToBeCleared: TD2VTPaintOptions;
-  //Run: PD2TreeNode;
+var
+  ToBeSet,
+  ToBeCleared: TD2TreePaintOptions;
+  Run: PD2TreeNode;
   //HandleWasAllocated: Boolean;
 begin
-  //if FPaintOptions <> Value then
-  //begin
-  //  ToBeSet := Value - FPaintOptions;
-  //  ToBeCleared := FPaintOptions - Value;
-  //  FPaintOptions := Value;
-  //  if (toFixedIndent in ToBeSet) then
-  //  begin
-  //    // Fixes issue #388
-  //    Include(FPaintOptions, toShowRoot);
-  //    Include(ToBeSet, toShowRoot);
-  //  end;//if
-  //  if Assigned(FOwner) then
-  //    with FOwner do
-  //    begin
-  //      if not (csLoading in ComponentState) and (toShowFilteredNodes in ToBeSet + ToBeCleared) then
-  //      begin
-  //        Repaint;
-  //        InterruptValidation;
-  //        Run := GetFirstNoInit;
-  //        while Assigned(Run) do
-  //        begin
-  //          if (vsFiltered in Run.States) then
-  //          begin
-  //            if FullyVisible[Run] then
-  //            begin
-  //              if toShowFilteredNodes in ToBeSet then
-  //                Inc(FVisibleCount)
-  //              else
-  //                Dec(FVisibleCount);
-  //            end;
-  //            if toShowFilteredNodes in ToBeSet then
-  //              AdjustTotalHeight(Run, Run.NodeHeight, True)
-  //            else
-  //              AdjustTotalHeight(Run, -Run.NodeHeight, True);
-  //          end;
-  //          Run := GetNextNoInit(Run);
-  //        end;
-  //        if HandleWasAllocated then
-  //          EndUpdate;
-  //      end;
-  //      {!!! не актурально
-  //      if IsWinVistaOrAbove and ((tsUseThemes in FStates) or
-  //         ((toThemeAware in ToBeSet) and StyleServices.Enabled)) and
-  //         (toUseExplorerTheme in (ToBeSet + ToBeCleared)) and not VclStyleEnabled then
-  //        if (toUseExplorerTheme in ToBeSet) then
-  //        begin
-  //          SetWindowTheme('explorer');
-  //          DoStateChange([tsUseExplorerTheme]);
-  //        end
-  //        else
-  //          if toUseExplorerTheme in ToBeCleared then
-  //          begin
-  //            SetWindowTheme('');
-  //            DoStateChange([], [tsUseExplorerTheme]);
-  //          end;
-  //
-  //      if not (csLoading in ComponentState) then
-  //      begin
-  //        if ((toThemeAware in ToBeSet + ToBeCleared) or (toUseExplorerTheme in ToBeSet + ToBeCleared) or VclStyleEnabled) then
-  //        begin
-  //          if ((toThemeAware in ToBeSet) and StyleServices.Enabled) or VclStyleEnabled then
-  //            DoStateChange([tsUseThemes])
-  //          else
-  //            if (toThemeAware in ToBeCleared) then
-  //              DoStateChange([], [tsUseThemes]);
-  //
-  //          PrepareBitmaps(True, False);
-  //          RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_VALIDATE or RDW_FRAME);
-  //        end;
-  //           }
-  //        if toChildrenAbove in ToBeSet + ToBeCleared then
-  //        begin
-  //          InvalidateCache;
-  //          if FUpdateCount = 0 then
-  //          begin
-  //            ValidateCache;
-  //            //Invalidate;
-  //            Realign;
-  //          end;
-  //        end;
-  //
-  //        //Invalidate;
-  //        Realign;
-  //      end;
-  //    end;
+  if FPaintOptions <> Value then
+  begin
+    ToBeSet := Value - FPaintOptions;
+    ToBeCleared := FPaintOptions - Value;
+    FPaintOptions := Value;
+    if (toFixedIndent in ToBeSet) then
+    begin
+      // Fixes issue #388
+      Include(FPaintOptions, toShowRoot);
+      Include(ToBeSet, toShowRoot);
+    end;//if
+    if Assigned(FOwner) then
+      with FOwner do
+      begin
+        if not (csLoading in ComponentState) and (toShowFilteredNodes in ToBeSet + ToBeCleared) then
+        begin
+          //Repaint;
+          InterruptValidation;
+          Run := GetFirstNoInit;
+          while Assigned(Run) do
+          begin
+            if (vsFiltered in Run.States) then
+            begin
+              if FullyVisible[Run] then
+              begin
+                if toShowFilteredNodes in ToBeSet then
+                  Inc(FVisibleCount)
+                else
+                  Dec(FVisibleCount);
+              end;
+              if toShowFilteredNodes in ToBeSet then
+                AdjustTotalHeight(Run, Run.NodeHeight, True)
+              else
+                AdjustTotalHeight(Run, -Run.NodeHeight, True);
+            end;
+            Run := GetNextNoInit(Run);
+          end;
+          //if HandleWasAllocated then
+            //EndUpdate;
+        end;
+        {!!! не актурально
+        if IsWinVistaOrAbove and ((tsUseThemes in FStates) or
+           ((toThemeAware in ToBeSet) and StyleServices.Enabled)) and
+           (toUseExplorerTheme in (ToBeSet + ToBeCleared)) and not VclStyleEnabled then
+          if (toUseExplorerTheme in ToBeSet) then
+          begin
+            SetWindowTheme('explorer');
+            DoStateChange([tsUseExplorerTheme]);
+          end
+          else
+            if toUseExplorerTheme in ToBeCleared then
+            begin
+              SetWindowTheme('');
+              DoStateChange([], [tsUseExplorerTheme]);
+            end;
+
+        if not (csLoading in ComponentState) then
+        begin
+          if ((toThemeAware in ToBeSet + ToBeCleared) or (toUseExplorerTheme in ToBeSet + ToBeCleared) or VclStyleEnabled) then
+          begin
+            if ((toThemeAware in ToBeSet) and StyleServices.Enabled) or VclStyleEnabled then
+              DoStateChange([tsUseThemes])
+            else
+              if (toThemeAware in ToBeCleared) then
+                DoStateChange([], [tsUseThemes]);
+
+            PrepareBitmaps(True, False);
+            RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_VALIDATE or RDW_FRAME);
+          end;
+             }
+          if toChildrenAbove in ToBeSet + ToBeCleared then
+          begin
+            InvalidateCache;
+            if FUpdateCount = 0 then
+            begin
+              ValidateCache;
+              Realign; //Invalidate;
+            end;
+          end;
+          Realign; //Invalidate;
+        end;
+      end;
 end;
 
 procedure TD2CustomTreeOptions.SetSelectionOptions(const Value: TD2TreeSelectionOptions);
@@ -675,6 +675,15 @@ begin
     until False;         //перейти в начало цикла
   end;
   UpdateVerticalRange;
+end;
+
+function TD2CustomTreeGrid.CalculateCacheEntryCount: Integer;
+// Вычисляет размер кэша позиции.
+// Calculates the size of the position cache.
+begin
+  if FVisibleCount > 1
+     then Result := Ceil(FVisibleCount / CacheThreshold)
+     else Result := 0;
 end;
 
 function TD2CustomTreeGrid.ChangeCheckState(Node: PD2TreeNode;
@@ -1176,6 +1185,7 @@ end;
 
 function TD2CustomTreeGrid.GetRangeX: Single;
 begin
+  //UpdateHorizontalRange;
   Result := Max(0, FRangeX);
 end;
 
@@ -3167,6 +3177,117 @@ begin
   FLastStructureChangeReason := crIgnore;
 end;
 
+function TD2CustomTreeGrid.DoValidateCache: Boolean;
+//Этот метод заполняет кеш, который используется для ускорения поиска узлов.
+//Стратегия проста: взять текущее количество видимых узлов и равномерно
+//распределить количество меток (которые хранятся в FPositionCache), так чтобы
+//итерация через дерево не занимала слишком много времени.
+//Если в дереве меньше узлов чем значение CacheThreshold, то кеш остается пустым.
+//Результат True, если кеш был заполнен без перерыва, иначе False.
+//Примечание. Вы можете настроить максимальное количество узлов между двумя
+//            элементами кэша, изменив CacheThreshold.
+
+// This method fills the cache, which is used to speed up searching for nodes.
+// The strategy is simple: Take the current number of visible nodes and distribute evenly a number of marks
+// (which are stored in FPositionCache) so that iterating through the tree doesn't cost too much time.
+// If there are less than 'CacheThreshold' nodes in the tree then the cache remains empty.
+// Result is True if the cache was filled without interruption, otherwise False.
+// Note: You can adjust the maximum number of nodes between two cache entries by changing CacheThreshold.
+
+var
+  CurrentTop: Single;
+  EntryCount,
+  Index: Cardinal;
+  CurrentNode,
+  Temp: PD2TreeNode;
+
+begin
+  EntryCount := 0;
+  if not (tsStopValidation in FStates) then
+  begin
+    if FStartIndex = 0 then
+      FPositionCache := nil;
+
+    EntryCount := CalculateCacheEntryCount;
+    SetLength(FPositionCache, EntryCount);
+    if FStartIndex > EntryCount then
+      FStartIndex := EntryCount;
+
+    // Optimize validation by starting with FStartIndex if set.
+    if (FStartIndex > 0) and Assigned(FPositionCache[FStartIndex - 1].Node) then
+    begin
+      // Index is the current entry in FPositionCache.
+      Index := FStartIndex - 1;
+      // Running term for absolute top value.
+      CurrentTop := FPositionCache[Index].AbsoluteTop;
+      // Running node pointer.
+      CurrentNode := FPositionCache[Index].Node;
+    end
+    else
+    begin
+      // Index is the current entry in FPositionCache.
+      Index := 0;
+      // Running term for absolute top value.
+      CurrentTop := 0;
+      // Running node pointer.
+      CurrentNode := GetFirstVisibleNoInit(nil, True);
+    end;
+
+    // EntryCount serves as counter for processed nodes here. This value can always start at 0 as
+    // the validation either starts also at index 0 or an index which is always a multiple of CacheThreshold
+    // and EntryCount is only used with modulo CacheThreshold.
+    EntryCount := 0;
+    if Assigned(CurrentNode) then
+    begin
+      while not (tsStopValidation in FStates) do
+      begin
+        // If the cache is full then stop the loop.
+        if (Integer(Index) > Length(FPositionCache)) then    // ADDED: 17.09.2013 - Veit Zimmermann
+          Break;                                             // ADDED: 17.09.2013 - Veit Zimmermann
+        if (EntryCount mod CacheThreshold) = 0 then
+        begin
+          // New cache entry to set up.
+          with FPositionCache[Index] do
+          begin
+            Node := CurrentNode;
+            AbsoluteTop := CurrentTop;
+          end;
+          Inc(Index);
+        end;
+
+        d2IncFloat(CurrentTop, NodeHeight[CurrentNode]);
+        // Advance to next visible node.
+        Temp := GetNextVisibleNoInit(CurrentNode, True);
+        // If there is no further node then stop the loop.
+        if (Temp = nil) then       // CHANGED: 17.09.2013 - Veit Zimmermann
+          Break;                   // CHANGED: 17.09.2013 - Veit Zimmermann
+
+        CurrentNode := Temp;
+        Inc(EntryCount);
+      end;
+    end;
+    // Finalize the position cache so no nil entry remains there.
+    if not (tsStopValidation in FStates) and (Integer(Index) <= High(FPositionCache)) then
+    begin
+      SetLength(FPositionCache, Index + 1);
+      with FPositionCache[Index] do
+      begin
+        Node := CurrentNode;
+        AbsoluteTop := CurrentTop;
+      end;
+    end;
+  end;
+
+  Result := (EntryCount > 0) and not (tsStopValidation in FStates);
+
+  // In variable node height mode it might have happend that some or all of the nodes have been adjusted in their
+  // height. During validation updates of the scrollbars is disabled so let's do this here.
+  if Result and (toVariableNodeHeight in FOptions.FMiscOptions) then
+  begin
+    Realign; //UpdateScrollBars(True);
+  end;
+end;
+
 procedure TD2CustomTreeGrid.EndOperation(OperationKind: TD2TreeOperationKind);
 //Вызывается для индикации завершения длительной операции.
 // Called to indicate that a long-running operation has finished.
@@ -4591,8 +4712,10 @@ begin
       FLastVCLDragTarget := nil;
       FLastSearchNode := nil;
       DeleteChild(FRoot, True);
-      HScrollBar.Value := 0;
-      VScrollBar.Value := 0;
+      if FHScrollBar<> nil
+         then HScrollBar.Value := 0;
+      if FVScrollBar<> nil
+         then VScrollBar.Value := 0;
 
     finally
       EndUpdate;
@@ -8518,16 +8641,6 @@ begin
   until I >= R;
 end;
 
-procedure TD2CustomTreeGrid.UpdateVerticalRange;
-//Обновить общую витруальную высоту дерева
-begin
-  //Общая высота узла включает в себя высоту невидимого корневого узла.
-  // Total node height includes the height of the invisible root node.
-  if FRoot.TotalHeight < FDefaultNodeHeight then
-    FRoot.TotalHeight := FDefaultNodeHeight;
-  FRangeY := FRoot.TotalHeight - FRoot.NodeHeight + FBottomSpace;
-end;
-
 //procedure TD2CustomTreeGrid.UpdateVerticalScrollBar(DoRepaint: Boolean);
 ////Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
 //begin
@@ -9027,45 +9140,30 @@ begin
   end;
 end;
 
-function TD2CustomTreeGrid.TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
-// Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
-// Returns the tree the node currently belongs to or nil if the node is not attached to a tree.
-
-begin
-  Assert(Assigned(Node), 'Node must not be nil.');
-
-  // The root node is marked by having its NextSibling (and PrevSibling) pointing to itself.
-  while Assigned(Node) and (Node.NextSibling <> Node) do
-    Node := Node.Parent;
-  if Assigned(Node) then
-    Result := TD2CustomTreeGrid(Node.Parent)
-  else
-    Result := nil;
-end;
-
 procedure TD2CustomTreeGrid.UpdateHorizontalRange;
 //Обновить общую витруальную ширину дерева
+var i: integer;
 begin
-
+  FRangeX := 0;
+  if ColumnCount > 0 then
+    for i:=0 to ColumnCount - 1 do
+      FRangeX := FRangeX + Columns[i].Width;
 end;
 
-//procedure TD2CustomTreeGrid.UpdateHorizontalScrollBar(DoRepaint: Boolean);
-//begin
-//
-//end;
-
 procedure TD2CustomTreeGrid.UpdateRanges;
+//Обновить общие витруальные высоту и ширину дерева
 begin
   UpdateVerticalRange;
   UpdateHorizontalRange;
 end;
 
-//procedure TD2CustomTreeGrid.UpdateScrollBars(DoRepaint: Boolean);
-////Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
-//// adjusts scrollbars to reflect current size and paint offset of the tree
-//begin
-//  UpdateVerticalScrollBar(DoRepaint);
-//  UpdateHorizontalScrollBar(DoRepaint);
-//end;
-
+procedure TD2CustomTreeGrid.UpdateVerticalRange;
+//Обновить общую витруальную высоту дерева
+begin
+  //Общая высота узла включает в себя высоту невидимого корневого узла.
+  // Total node height includes the height of the invisible root node.
+  if FRoot.TotalHeight < FDefaultNodeHeight then
+    FRoot.TotalHeight := FDefaultNodeHeight;
+  FRangeY := FRoot.TotalHeight - FRoot.NodeHeight + FBottomSpace;
+end;
 

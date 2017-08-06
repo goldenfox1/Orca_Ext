@@ -13,7 +13,9 @@ type
 
   TForm1 = class(TForm)
     D2Scene1: TD2Scene;
+    DBGrid1: TD2DBGrid;
     DBStringTree1: TDBStringTree;
+    DBTextColumn1: TD2DBTextColumn;
     Grid1: TD2Grid;
     Root1: TD2Background;
     TextColumn1: TD2TextColumn;
@@ -74,6 +76,7 @@ var
   NewPhone: PPhoneNode;
 begin
   VT.NodeDataSize := SizeOf(TPhoneNode);
+  VT.BeginUpdate;
   for i := 0 to Length(Names) - 1 do
   begin
     NewNode := VT.AddChild(VT.RootNode);
@@ -101,6 +104,7 @@ begin
     end;
     Node:=VT.GetNextSibling(Node)
   end;
+  VT.EndUpdate;
 end;
 
 end.

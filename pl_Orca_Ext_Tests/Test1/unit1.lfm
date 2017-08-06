@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 318
+  Left = 253
   Height = 560
   Top = 120
-  Width = 953
+  Width = 912
   Caption = 'Form1'
   ClientHeight = 560
-  ClientWidth = 953
+  ClientWidth = 912
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
@@ -114,7 +114,7 @@ object Form1: TForm1
         end
       end
       object Grid1: TD2Grid
-        Position.Point = '(321,33)'
+        Position.Point = '(316,21)'
         RotateAngle = 0
         Width = 315
         Height = 245
@@ -140,12 +140,29 @@ object Form1: TForm1
           Header = 'Тест'
         end
       end
+      object DBGrid1: TD2DBGrid
+        Position.Point = '(271,297)'
+        RotateAngle = 0
+        Width = 249
+        Height = 203
+        Resource = 'gridstyle'
+        TabOrder = 4
+        RowHeight = 21
+        ScrollDuration = 0.300000011920929
+        object DBTextColumn1: TD2DBTextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 178
+          HitTest = False
+          TabOrder = 0
+        end
+      end
     end
   end
   object DBStringTree1: TDBStringTree
-    Left = 731
+    Left = 696
     Height = 100
-    Top = 32
+    Top = 16
     Width = 197
     DefaultText = 'Node'
     Header.AutoSizeIndex = 0
