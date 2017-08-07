@@ -744,7 +744,7 @@ begin
   UpdateSelection;
 end;
 
-procedure TD2CustomGrid.UpdateSelection;
+procedure TD2CustomGrid.UpdateSelection;   //обновить маркеры выбора строк
 var
   i:integer;
   l,b: single;
@@ -816,7 +816,8 @@ begin
       if (FFocus <> nil) then
       begin
         if FShowSelectedCell and               // если разрешено выделять ячейку
-           IsOneRowSelected then               // и выделена только 1 строка
+           IsOneRowSelected and                // и выделена только 1 строка
+           (FocusedColumn > NoColumn) then       // и есть выделенная колонка
           begin
 	    FFocus.Visible:=true;
 	    FFocus.BringToFront;

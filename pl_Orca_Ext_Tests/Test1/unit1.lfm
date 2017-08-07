@@ -1,16 +1,16 @@
 object Form1: TForm1
-  Left = 253
-  Height = 560
+  Left = 309
+  Height = 541
   Top = 120
-  Width = 912
+  Width = 860
   Caption = 'Form1'
-  ClientHeight = 560
-  ClientWidth = 912
+  ClientHeight = 541
+  ClientWidth = 860
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 560
+    Height = 541
     Top = 0
     Width = 676
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 676
-      Height = 560
+      Height = 541
       object VT: TD2TreeGrid
         Position.Point = '(30,19)'
         RotateAngle = 0
@@ -146,7 +146,7 @@ object Form1: TForm1
         Width = 249
         Height = 203
         Resource = 'gridstyle'
-        TabOrder = 4
+        TabOrder = 3
         RowHeight = 21
         ScrollDuration = 0.300000011920929
         object DBTextColumn1: TD2DBTextColumn
