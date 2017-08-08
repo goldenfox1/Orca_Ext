@@ -17,11 +17,10 @@ type
     DBStringTree1: TDBStringTree;
     DBTextColumn1: TD2DBTextColumn;
     Grid1: TD2Grid;
+    Label1: TD2Label;
     Root1: TD2Background;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
-    VT: TD2TreeGrid;
-    TreeTextColumn1: TD2TreeTextColumn;
     TreeView1: TD2TreeView;
     TreeViewItem1: TD2TreeViewItem;
     TreeViewItem2: TD2TreeViewItem;
@@ -29,7 +28,10 @@ type
     TreeViewItem4: TD2TreeViewItem;
     TreeViewItem5: TD2TreeViewItem;
     TreeViewItem6: TD2TreeViewItem;
+    VT: TD2TreeGrid;
     procedure FormCreate(Sender: TObject);
+    procedure Grid1MouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TD2Point; var Handled: Boolean);
 
   private
     { private declarations }
@@ -105,6 +107,12 @@ begin
     Node:=VT.GetNextSibling(Node)
   end;
   VT.EndUpdate;
+end;
+
+procedure TForm1.Grid1MouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TD2Point; var Handled: Boolean);
+begin
+  Label1.Text:=FloatToStr(Grid1.VScrollBar.Value);
 end;
 
 end.

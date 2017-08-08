@@ -171,6 +171,13 @@ begin
   Result:=true;
 end;
 
+function TD2TreeColumn.GetIsMain: boolean;
+begin
+  if (FGrid <> nil) and (FIndex = TD2TreeGrid(FGrid).FMainColumn)
+     then Result:= true
+     else Result:= false;
+end;
+
 function TD2TreeColumn.CreateCellControl: TD2Control;
 begin
   Result:=TD2TreeCell.Create(Self);
@@ -3591,16 +3598,22 @@ begin
 end;
 
 function TD2CustomTreeGrid.InternalGetNodeAt(X, Y: Single): PD2TreeNode;
-//Получить ссылку на узел по координатам
-var Dummy: Integer;
+//Получить узел по координатам (внутренняя версия функции GetNodeAt).
+//X и Y задаются в координатах клиентской области
+var Dummy: Single;
 begin
   Result := InternalGetNodeAt(X, Y, True, Dummy);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TD2CustomTreeGrid.InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Integer): PD2TreeNode;
-//Получить ссылку на узел по координатам
+function TD2CustomTreeGrid.InternalGetNodeAt(X, Y: Single; Relative: Boolean;
+  var NodeTop: Single): PD2TreeNode;
+//Получить узел по координатам (внутренняя версия функции GetNodeAt).
+//При Relative = True  X и Y задаются в координатах клиентской области ,
+//иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+//NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+
 //lclheader this is the original version of GetNodeAt used internally since expects coordinates
 //  relative to the image tree. In LCL the image tree and control coordinates are different
 //  when header is visible
@@ -3613,47 +3626,51 @@ function TD2CustomTreeGrid.InternalGetNodeAt(X, Y: Single; Relative: Boolean; va
 
 var
   AbsolutePos,
-  CurrentPos: Cardinal;
+  CurrentPos: Single;
 
 begin
-  //if Y < 0 then
-  //  Y := 0;
-  //
-  //AbsolutePos := Y;
-  //if Relative then
-  //  Inc(AbsolutePos, -VScrollBarValue);
-  //
-  //// CurrentPos tracks a running term of the current position to test for.
-  //// It corresponds always to the top position of the currently considered node.
-  //CurrentPos := 0;
-  //
-  //// If the cache is available then use it.
-  //if tsUseCache in FStates then
-  //  Result := FindInPositionCache(AbsolutePos, CurrentPos)
-  //else
-  //  Result := GetFirstVisibleNoInit(nil, True);
-  //
-  //// Determine node, of which position and height corresponds to the scroll position most closely.
-  //while Assigned(Result) and (Result <> FRoot) do
-  //begin
-  //  if AbsolutePos < (CurrentPos + NodeHeight[Result]) then
-  //    Break;
-  //  Inc(CurrentPos, NodeHeight[Result]);
-  //  Result := GetNextVisibleNoInit(Result, True);
-  //end;
-  //
-  //if Result = FRoot then
-  //  Result := nil;
-  //
-  //// Since the given vertical position is likely not the same as the top position
-  //// of the found node this top position is returned.
-  //if Assigned(Result) then
-  //begin
-  //  NodeTop := CurrentPos;
-  //  if Relative then
-  //    Inc(NodeTop, VScrollBarValue);
-  //  //{$ifdef DEBUG_VTV}Logger.Send([lcPaintHeader],'GetNodeAt Result: ',Result^.Index);{$endif}
-  //end;
+  AbsolutePos := Y;
+  if (not Relative) and (AbsolutePos < 0)
+     then AbsolutePos := 0;
+
+  if Relative
+     then d2IncFloat(AbsolutePos, VScrollBarValue); //было then d2IncFloat(AbsolutePos, -VScrollBarValue);
+
+  // CurrentPos отслеживает текущую позиции для проверки.
+  // Он всегда соответствует верхней позиции текущего рассматриваемого узла
+  // CurrentPos tracks a running term of the current position to test for.
+  // It corresponds always to the top position of the currently considered node.
+  CurrentPos := 0;
+
+  // Использовать кеш, если доступен.
+  // If the cache is available then use it.
+  if tsUseCache in FStates
+     then Result := FindInPositionCache(AbsolutePos, CurrentPos)
+     else Result := GetFirstVisibleNoInit(nil, True);
+
+  // Определим узел, положение и высота которого наиболее точно соответствуют позиции прокрутки.
+  // Determine node, of which position and height corresponds to the scroll position most closely.
+  while Assigned(Result) and (Result <> FRoot) do
+  begin
+    if AbsolutePos < (CurrentPos + NodeHeight[Result])
+       then Break;
+    d2IncFloat(CurrentPos, NodeHeight[Result]);
+    Result := GetNextVisibleNoInit(Result, True);
+  end;
+
+  if Result = FRoot
+     then Result := nil;
+
+  //Возвращаем коородинату Y найденного узла, т.к. она вероятно не совпадает с заданной Y
+  // Since the given vertical position is likely not the same as the top position
+  // of the found node this top position is returned.
+  if Assigned(Result) then
+  begin
+    NodeTop := CurrentPos;
+    if Relative then
+      d2DecFloat(NodeTop, VScrollBarValue); //было d2IncFloat(NodeTop, VScrollBarValue);
+    //{$ifdef DEBUG_VTV}Logger.Send([lcPaintHeader],'GetNodeAt Result: ',Result^.Index);{$endif}
+  end;
 end;
 
 procedure TD2CustomTreeGrid.InternalRemoveFromSelection(Node: PD2TreeNode);
@@ -6576,6 +6593,32 @@ begin
         (IncludeFiltered or not IsEffectivelyFiltered[Result]));
 end;
 
+function TD2CustomTreeGrid.GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single): PD2TreeNode;
+//Получить узел по координатам X и Y.
+//При Relative = True  X и Y задаются в координатах клиентской области ,
+//иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+//NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+
+//var
+//  OffsetByHeader: Boolean;
+begin
+  ////lclheader
+  //OffsetByHeader := Relative and FHeader.Visible;
+  //if OffsetByHeader then
+  //  d2DecFloat(Y, FHeader.Height);
+  Result := InternalGetNodeAt(X, Y, Relative, NodeTop);
+  //lclheader
+  //if OffsetByHeader then
+  //  d2IncFloat(NodeTop, FHeader.Height);
+end;
+
+function TD2CustomTreeGrid.GetNodeAt(const P: TD2Point): PD2TreeNode;
+//Получить узел по координатам P.X и P.Y (Перегруженный вариант  функции GetNodeAt).
+//P.X и P.Y задаются в координатах клиентской области
+begin
+  Result := GetNodeAt(P.X, P.Y);
+end;
+
 function TD2CustomTreeGrid.GetNextVisibleSiblingNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
 // Возвращает следующий видимый братский узел для Node без инициализацией
 // Returns the next visible sibling after Node.
@@ -6588,6 +6631,19 @@ begin
     Result := Result.NextSibling;
   until not Assigned(Result) or ((vsVisible in Result.States) and
        (IncludeFiltered or not IsEffectivelyFiltered[Result]));
+end;
+
+function TD2CustomTreeGrid.GetNodeAt(X, Y: Single): PD2TreeNode;
+//Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
+//X и Y задаются в координатах клиентской области
+
+// Overloaded variant of GetNodeAt to easy life of application developers which do not need to have the exact
+// top position returned and always use client coordinates.
+
+var
+  Dummy: Single;
+begin
+  Result := GetNodeAt(X, Y, True, Dummy);
 end;
 
 function TD2CustomTreeGrid.GetNodeData(Node: PD2TreeNode): Pointer;
