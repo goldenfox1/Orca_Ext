@@ -11,29 +11,35 @@ object Form1: TForm1
     Left = 0
     Height = 388
     Top = 0
-    Width = 400
-    Align = alLeft
+    Width = 584
+    Align = alClient
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 400
+      Width = 584
       Height = 388
       object TreeGrid1: TD2TreeGrid
-        Position.Point = '(44,53)'
+        Position.Point = '(21,10)'
         RotateAngle = 0
-        Width = 247
-        Height = 229
+        Width = 395
+        Height = 354
         Resource = 'gridstyle'
         TabOrder = 1
-        object TreeTextColumn1: TD2TreeTextColumn
-          RotateAngle = 0
-          Width = 100
-          Height = 204
-          HitTest = False
-          TabOrder = 0
-        end
+        MainColumn = -1
+      end
+      object Button1: TD2Button
+        Position.Point = '(459,10)'
+        RotateAngle = 0
+        Width = 112
+        Height = 22
+        OnClick = Button1Click
+        TabOrder = 2
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Добавить колонку'
       end
     end
   end

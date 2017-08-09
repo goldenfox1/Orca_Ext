@@ -28,22 +28,19 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="5">
+    <RequiredPackages Count="4">
       <Item1>
-        <PackageName Value="DBTreeView"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item1>
       <Item2>
-        <PackageName Value="pl_Win_DirectX11"/>
+        <PackageName Value="DBTreeView"/>
       </Item2>
       <Item3>
-        <PackageName Value="pl_Win_GDI"/>
+        <PackageName Value="pl_orca"/>
       </Item3>
       <Item4>
-        <PackageName Value="pl_orca"/>
-      </Item4>
-      <Item5>
         <PackageName Value="LCL"/>
-      </Item5>
+      </Item4>
     </RequiredPackages>
     <Units Count="2">
       <Unit0>

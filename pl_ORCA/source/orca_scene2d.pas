@@ -7155,7 +7155,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
               //установить высоту строки
     procedure SetRowHeight(const Value:single);
              //получить кол-во видимых строк
-    function GetVisibleRows:integer;
+    function GetVisibleRows:integer; virtual;
               //установить режим разных фонов для четных и нечетных строк
     procedure SetAlternatingRowBackground(const Value:boolean);
               //установить режим отрисовки горизонтальных линий

@@ -5,49 +5,8 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DBStringTree, orca_scene2d, Forms, Controls,
-  Graphics, Dialogs, StdCtrls;
-
-type
-  { TForm1 }
-
-  TForm1 = class(TForm)
-    D2Scene1: TD2Scene;
-    DBGrid1: TD2DBGrid;
-    DBStringTree1: TDBStringTree;
-    DBTextColumn1: TD2DBTextColumn;
-    Grid1: TD2Grid;
-    Label1: TD2Label;
-    Root1: TD2Background;
-    TextColumn1: TD2TextColumn;
-    TextColumn2: TD2TextColumn;
-    TreeView1: TD2TreeView;
-    TreeViewItem1: TD2TreeViewItem;
-    TreeViewItem2: TD2TreeViewItem;
-    TreeViewItem3: TD2TreeViewItem;
-    TreeViewItem4: TD2TreeViewItem;
-    TreeViewItem5: TD2TreeViewItem;
-    TreeViewItem6: TD2TreeViewItem;
-    VT: TD2TreeGrid;
-    procedure FormCreate(Sender: TObject);
-    procedure Grid1MouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TD2Point; var Handled: Boolean);
-
-  private
-    { private declarations }
-  public
-    { public declarations }
-  end;
-
-
-  PPhoneNode = ^TPhoneNode;
-  TPhoneNode = record
-    Name,              // Имя контакта
-    Phone: WideString; // Телефон
-  end;
-
-var
-  Form1: TForm1;
+  Classes, SysUtils, FileUtil, DBStringTree, VirtualTrees, orca_scene2d, Forms,
+  Controls, Graphics, Dialogs;
 
 const
   Names: array[0..4] of WideString = (
@@ -65,13 +24,40 @@ Phones: array[0..4] of WideString = (
   '02'
 );
 
+type
+  PPhoneNode = ^TPhoneNode;
+  TPhoneNode = record
+    Name, // Имя контакта
+    Phone: WideString; // Телефон
+  end;
+
+  { TForm1 }
+
+  TForm1 = class(TForm)
+    D2Scene1: TD2Scene;
+    Grid1: TD2Grid;
+    Root1: TD2Background;
+    TextColumn1: TD2TextColumn;
+    TextColumn2: TD2TextColumn;
+    TreeTextColumn1: TD2TreeTextColumn;
+    VirtualStringTree1: TVirtualStringTree;
+    VT: TD2TreeGrid;
+    procedure FormCreate(Sender: TObject);
+  private
+    { private declarations }
+  public
+    { public declarations }
+  end;
+
+
+var
+  Form1: TForm1;
+
 implementation
 
 {$R *.lfm}
 
-{ TForm1 }
-
-       procedure TForm1.FormCreate(Sender: TObject);
+procedure TForm1.FormCreate(Sender: TObject);
 var
   i: Integer;
   NewNode, Node: PD2TreeNode;
@@ -109,11 +95,6 @@ begin
   VT.EndUpdate;
 end;
 
-procedure TForm1.Grid1MouseWheel(Sender: TObject; Shift: TShiftState;
-  WheelDelta: Integer; MousePos: TD2Point; var Handled: Boolean);
-begin
-  Label1.Text:=FloatToStr(Grid1.VScrollBar.Value);
-end;
-
 end.
+
 
