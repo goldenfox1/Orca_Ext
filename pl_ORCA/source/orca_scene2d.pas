@@ -7155,7 +7155,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
               //установить высоту строки
     procedure SetRowHeight(const Value:single);
              //получить кол-во видимых строк
-    function GetVisibleRows:integer;
+    function GetVisibleRows:integer; virtual;
               //установить режим разных фонов для четных и нечетных строк
     procedure SetAlternatingRowBackground(const Value:boolean);
               //установить режим отрисовки горизонтальных линий
@@ -8262,13 +8262,18 @@ TD2TreeColumn = class(TD2Column)
     function DoGetHaveChildren(Sender: TObject): boolean;
               //обработчик потери фокуса ячейкой
     //procedure DoKillFocus(Sender: TObject);  override;
-             //создание ячейки
+
+                //True - колонка является главной (содержит дерево)
+    function GetIsMain: boolean;
+                //создание ячейки
     function CreateCellControl: TD2Control;  override;
              //инициализация ячейки
     procedure InitCellControl(ACellControl: TD2Control); override;
 
   public
+    property IsMain: boolean read GetIsMain; //True - колонка является главной (содержит дерево)
   published
+
 end;
 
 
@@ -8939,10 +8944,14 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure InternalClearSelection; virtual;
               // Отключает узел Node от его родителя и братьев и сестер. Если KeepFocus = True, то узел сохраняет фокус.
     procedure InternalDisconnectNode(Node: PD2TreeNode; KeepFocus: Boolean; Reindex: Boolean = True); virtual;
-             //Получить ссылку на узел по координатам
+             //Получить узел по координатам (внутренняя версия функции GetNodeAt).
+             //X и Y задаются в координатах клиентской области
     function InternalGetNodeAt(X, Y: Single): PD2TreeNode; overload;
-             //Получить ссылку на узел по координатам
-    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Integer): PD2TreeNode; overload;
+             //Получить узел по координатам (внутренняя версия функции GetNodeAt).
+             //При Relative = True  X и Y задаются в координатах клиентской области ,
+             //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+             //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single): PD2TreeNode; overload;
               //Внутренняя версия метода RemoveFromSelection для удаления узла Node из массива выбранных.
     procedure InternalRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Пометить кэш недействительным.
@@ -9202,6 +9211,17 @@ public
     function GetNextVisibleSibling(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
              // Возвращает следующий видимый братский узел для Node без инициализацией
     function GetNextVisibleSiblingNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             //Получить узел по координатам X и Y.
+             //При Relative = True  X и Y задаются в координатах клиентской области ,
+             //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+             //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+    function GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single): PD2TreeNode; overload;
+             //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
+             //X и Y задаются в координатах клиентской области
+    function GetNodeAt(X, Y: Single): PD2TreeNode; overload;
+             //Получить узел по координатам P.X и P.Y (Перегруженный вариант  функции GetNodeAt).
+             //P.X и P.Y задаются в координатах клиентской области
+    function GetNodeAt(const P: TD2Point): PD2TreeNode; overload; inline;
              // Возвращает адрес определяемой пользователем области данных для узла Node
     function GetNodeData(Node: PD2TreeNode): Pointer;
              // Возвращает уровень узла Node
@@ -9441,6 +9461,7 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
 
 published
   property TreeOptions;
+  property MainColumn;
 end;
 
 
