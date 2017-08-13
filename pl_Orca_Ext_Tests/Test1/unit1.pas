@@ -20,8 +20,6 @@ type
     Root1: TD2Background;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
-    VT: TD2TreeGrid;
-    TreeTextColumn1: TD2TreeTextColumn;
     TreeView1: TD2TreeView;
     TreeViewItem1: TD2TreeViewItem;
     TreeViewItem2: TD2TreeViewItem;

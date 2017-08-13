@@ -2458,6 +2458,37 @@ var
   Obj:TD2Object;
   OldSel:TD2VisualObject;
   InsertPos:TD2Point;
+
+  //установка координат добавляемого объекта внутри клиентской области
+  procedure SetObjPos(var Pos: TD2Point);
+  var CR: TRect;
+  begin
+    CR:= GetClientRect;
+    if TD2VisualObject(Obj).Width > CR.Width
+       then begin
+              TD2VisualObject(Obj).Width := CR.Width;
+              Pos.X:= 0;
+            end
+       else begin
+              if Pos.X < 0 then Pos.X := 0;
+              if Pos.X + TD2VisualObject(Obj).Width > CR.Right
+                 then Pos.X := CR.Right - TD2VisualObject(Obj).Width;
+            end;
+    if TD2VisualObject(Obj).Height > CR.Height
+       then begin
+              TD2VisualObject(Obj).Height := CR.Height;
+              Pos.Y:= 0;
+            end
+       else begin
+              if Pos.Y < 0 then Pos.Y := 0;
+              if Pos.Y + TD2VisualObject(Obj).Height > CR.Bottom
+                 then Pos.Y := CR.Bottom - TD2VisualObject(Obj).Height;
+            end;
+
+    TD2VisualObject(Obj).Position.X:=Pos.X;
+    TD2VisualObject(Obj).Position.Y:=Pos.Y;
+  end;
+
 begin
   if GetClass(ClassName) <> nil then
   begin
@@ -2491,16 +2522,15 @@ begin
             if GetPropInfo(Obj.ClassInfo,'Text',[tkString,tkLString,tkWString]) <> nil then
               SetStrProp(Obj,'Text',Copy(Obj.ClassName,4,Length(Obj.ClassName)));
 
-            if (Owner is TWinControl) and (FPopupPos.X > 0) then
+            if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
             begin
               if Pos('Item',Obj.ClassName)=0 then
               begin
                 P:=ScreenToClient(FPopupPos);
                 InsertPos:=OldSel.AbsoluteToLocal(d2Point(P.X,P.Y));
-
-                TD2VisualObject(Obj).Position.X:=InsertPos.X;
-                TD2VisualObject(Obj).Position.Y:=InsertPos.Y;
-
+                //TD2VisualObject(Obj).Position.X:=InsertPos.X;
+                //TD2VisualObject(Obj).Position.Y:=InsertPos.Y;
+                SetObjPos(InsertPos);
               end;
             end;
             FPopupPos:=Point(-1,-1);
@@ -2531,12 +2561,14 @@ begin
             end;
             if Obj.IsVisual then
             begin
-              if (Owner is TWinControl) and (FPopupPos.X > 0) then
+              if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
               begin
                 P:=TWinControl(Owner).ScreenToClient(FPopupPos);
                 InsertPos:=d2Point(P.X,P.Y);
-                TD2VisualObject(Obj).Position.X:=P.X;
-                TD2VisualObject(Obj).Position.Y:=P.Y;
+                //TD2VisualObject(Obj).Position.X:=P.X;
+                //TD2VisualObject(Obj).Position.Y:=P.Y;
+                SetObjPos(InsertPos);
+
               end;
               FPopupPos:=Point(-1,-1);
               FSelected:=TD2VisualObject(Obj);

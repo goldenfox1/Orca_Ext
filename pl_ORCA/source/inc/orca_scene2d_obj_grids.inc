@@ -425,31 +425,33 @@ end;
 
 procedure TD2Column.UpdateColumn;
 var
-  i,C:integer;
+  i,C,m:integer;
   V:Variant;
 begin
   if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
+    m:= Min(Grid.RowCount,Grid.VisibleRows);
     { Create controls }
-    if Length(FCellControls) < Min(Grid.RowCount,Grid.VisibleRows) then
-    begin
-      C:=High(FCellControls);
-      SetLength(FCellControls,Min(Grid.RowCount,Grid.VisibleRows));
-      for i:=C + 1 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
-      begin
-        FCellControls[i]:=CreateCellControl;
-        InitCellControl(FCellControls[i]);
-      end;
-    end;
+    if Length(FCellControls) < m
+       then begin
+              C:=High(FCellControls);
+              SetLength(FCellControls,m);
+              for i:=C + 1 to m - 1 do
+              begin
+                FCellControls[i]:=CreateCellControl;
+                InitCellControl(FCellControls[i]);
+              end;
+            end
+    else
     { Hide if need }
-    if Length(FCellControls) > Min(Grid.RowCount,Grid.VisibleRows) then
-    begin
-      for i:=Min(Grid.RowCount,Grid.VisibleRows) to High(FCellControls) do
+    {if Length(FCellControls) > m then
+    begin}
+      for i:=m to High(FCellControls) do
         FCellControls[i].Visible:=false;
-    end;
+    //end;
     { Update Data }
-    for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
+    for i:=0 to m - 1 do
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
       FCellControls[i].Visible:=true;
@@ -654,7 +656,7 @@ begin
   FRowCount:=100;
   CanFocused:=true;
   AutoCapture:=true;
-  Width:=100;
+  Width:=200;
   Height:=100;
   //FItemHeight:=0;
   SetLength(FSelectedRows, 128);
@@ -816,7 +818,8 @@ begin
       if (FFocus <> nil) then
       begin
         if FShowSelectedCell and               // если разрешено выделять ячейку
-           IsOneRowSelected then               // и выделена только 1 строка
+           IsOneRowSelected and                // и выделена только 1 строка
+           (FocusedColumn > NoColumn) then       // и есть выбранная колонка
           begin
 	    FFocus.Visible:=true;
 	    FFocus.BringToFront;

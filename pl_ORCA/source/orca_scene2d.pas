@@ -7301,7 +7301,9 @@ TD2Grid = class(TD2CustomGrid)
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
 end;
 
-TD2StringColumn = class(TD2Column)
+{ TD2StringColumn }
+
+TD2StringColumn = class(TD2TextColumn)
   private
     FCells: array of WideString;
   published
