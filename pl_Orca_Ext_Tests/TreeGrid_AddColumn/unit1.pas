@@ -5,8 +5,8 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, orca_scene2d, Forms, Controls, Graphics, Dialogs,
-  StdCtrls;
+  Classes, SysUtils, FileUtil, VirtualTrees, orca_scene2d, Forms, Controls,
+  Graphics, Dialogs, StdCtrls;
 
 type
 
@@ -17,6 +17,7 @@ type
     D2Scene1: TD2Scene;
     Root1: TD2Background;
     TreeGrid1: TD2TreeGrid;
+    VirtualDrawTree1: TVirtualDrawTree;
     procedure Button1Click(Sender: TObject);
   private
     { private declarations }

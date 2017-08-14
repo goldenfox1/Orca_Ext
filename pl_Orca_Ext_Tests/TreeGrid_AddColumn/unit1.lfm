@@ -1,25 +1,25 @@
 object Form1: TForm1
   Left = 321
-  Height = 388
+  Height = 385
   Top = 123
-  Width = 584
+  Width = 966
   Caption = 'Form1'
-  ClientHeight = 388
-  ClientWidth = 584
+  ClientHeight = 385
+  ClientWidth = 966
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 388
+    Height = 385
     Top = 0
     Width = 584
-    Align = alClient
+    Align = alLeft
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
       Width = 584
-      Height = 388
+      Height = 385
       object TreeGrid1: TD2TreeGrid
         Position.Point = '(21,10)'
         RotateAngle = 0
@@ -35,12 +35,22 @@ object Form1: TForm1
         Width = 112
         Height = 22
         OnClick = Button1Click
-        TabOrder = 2
+        TabOrder = 0
         StaysPressed = False
         IsPressed = False
         TextAlign = d2TextAlignCenter
         Text = 'Добавить колонку'
       end
     end
+  end
+  object VirtualDrawTree1: TVirtualDrawTree
+    Left = 664
+    Height = 100
+    Top = 63
+    Width = 200
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    TabOrder = 1
   end
 end

@@ -8303,6 +8303,12 @@ TD2TreeColumn = class(TD2Column)
     procedure UpdateColumn; override;
 
     procedure PaintColumn; virtual;
+              //Нарисовать прямоугольник целевого узла перетаскивания
+    procedure PaintDropMark(const Cell: TD2TreeCell);
+              //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
+    procedure PaintTreeLines(const Cell: TD2TreeCell; LineArray: TD2TreeLineArray);
+
+
   public
     property IsMain: boolean read GetIsMain; //True - колонка является главной (содержит дерево)
   published
