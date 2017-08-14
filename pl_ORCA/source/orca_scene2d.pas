@@ -7966,7 +7966,7 @@ TD2TreePaintOption = (
     toChildrenAbove,         //Показать дочерние узлы выше родителя. Display child nodes above their parent.
     toFixedIndent,           //Отображать дерево с фиксированным отступом. Draw the tree with a fixed indent.
     toUseExplorerTheme,      //Использовать тему проводника под Windows Vista (или выше). Use the explorer theme if run under Windows Vista (or above).
-    toHideTreeLinesIfThemed, //Не показывать линии дерева, если используется тема. Do not show tree lines if theming is used.
+    //toHideTreeLinesIfThemed, //Не показывать линии дерева, если используется тема. Do not show tree lines if theming is used.
     toShowFilteredNodes      //Отображать узлы, даже если они будут отфильтрованы. Draw nodes even if they are filtered out.
   );
 TD2TreePaintOptions = set of TD2TreePaintOption;
@@ -8019,7 +8019,7 @@ TD2TreeSelectionOptions = set of TD2TreeSelectionOption;  //Набор опци�
 //Options which do not fit into any of the other groups:
 TD2TreeMiscOption = (
     toAcceptOLEDrop,            // Зарегестрировать дерево, как возможную цель для OLE drag&drop. Register tree as OLE accepting drop target
-    toCheckSupport,             // Показывать отметоки для узлов. Show checkboxes/radio buttons.
+    toCheckSupport,             // Показывать отметки для узлов. Show checkboxes/radio buttons.
     toEditable,                 // Включить режим редактирования для узлов. Node captions can be edited.
     toFullRepaintOnResize,      // Перерисовывать дерево при любом изменении его размеров. Fully invalidate the tree when its window is resized (CS_HREDRAW/CS_VREDRAW).
     toGridExtensions,           // Включить поддержку некоторых расширений для симуляции элемента управления сетки (а-ля TDBGrid). Use some special enhancements to simulate and support grid behavior.
@@ -8199,6 +8199,36 @@ TOnChangeCheck = procedure(Sender: TObject) of object;
 TOnChangeExpander = procedure(Sender: TObject) of object;
 TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
 
+// Определяет внешний вид линий дерева. Determines the look of a tree's lines.
+  TD2TreeLineStyle = (
+    lsCustomStyle,           // Приложение предоставляет шаблон строки. application provides a line pattern
+    lsDotted,                // Обычные пунктирные линии (по умолчанию). usual dotted lines (default)
+    lsSolid                  // Простые сплошные линии. simple solid lines
+  );
+
+  // Типы линий, используемых при рисовании дерева. TD2TreeLineType is used during painting a tree
+  TD2TreeLineType = (
+    ltNone,          // Нет линии вообще. no line at all
+    ltBottomRight,   // Линия снизу до центра и вправо. a line from bottom to the center and from there to the right
+    ltTopDown,       // Вертикальная линия. a line from top to bottom
+    ltTopDownRight,  // Вертикальная линия и от центра вправо. a line from top to bottom and from center to the right
+    ltRight,         // Линия от центра вправо. a line from center to the right
+    ltTopRight,      // Линия сверху до центра и вправо. a line from bottom to center and from there to the right
+    // Специальные стили линий для альтернативных деревьев. special styles for alternative drawings of tree lines
+
+    ltLeft,          // Вертикальная линия и от центра влево. a line from top to bottom at the left
+    ltLeftBottom     // Вертикальная линия и от центра влево и горизонтальная линия внизу. a combination of ltLeft and a line at the bottom from left to right
+  );
+
+  // Определяет, как рисовать линии дерева. Determines how to draw tree lines.
+  TD2TreeLineMode = (
+    lmNormal,        // Обычные линии дерева (как в TTreeview). usual tree lines (as in TTreeview)
+    lmBands          // Линии дерева как диаграмма Насси-Шнейдермана. looks similar to a Nassi-Schneidermann diagram
+  );
+
+  // Массив идентификаторов типа линии, которая используется при рисовании узла. A collection of line type IDs which is used while painting a node.
+  TD2TreeLineArray = array of TD2TreeLineType;
+
 { TD2TreeCell }
 
 TD2TreeCell = class(TD2Control)
@@ -8270,6 +8300,9 @@ TD2TreeColumn = class(TD2Column)
              //инициализация ячейки
     procedure InitCellControl(ACellControl: TD2Control); override;
 
+    procedure UpdateColumn; override;
+
+    procedure PaintColumn; virtual;
   public
     property IsMain: boolean read GetIsMain; //True - колонка является главной (содержит дерево)
   published
@@ -8342,8 +8375,7 @@ end;
   TD2VTStateChangeEvent = procedure(Sender: TD2CustomTreeGrid; Enter, Leave: TD2TreeStates) of object;
 
 // paint events
-TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; TargetCanvas: TD2Canvas;
-    Node: PD2TreeNode; var NodeHeight: Single) of object;
+TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var NodeHeight: Single) of object;
 
 // Поиск, сортировка. search, sort
 
@@ -8650,8 +8682,11 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure AdjustTotalCount(Node: PD2TreeNode; Value: Integer; Relative: Boolean = False);
               //Устанавливает общую высоту узла и изменяет общую высоту всех его родителей.
     procedure AdjustTotalHeight(Node: PD2TreeNode; Value: Single; Relative: Boolean = False);
-
+             // Вычисляет размер кэша позиции.
     function CalculateCacheEntryCount: Integer;
+              //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
+              //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
+    procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; Node: PD2TreeNode; out VAlign, VButtonAlign: Single);
              //Устанавливает состояние проверки узла в соответствии с заданным значением и типом проверки узла.
              //Если состояние проверки должно распространяться на родительские узлы, и один из них отказывается
              //изменяться, то ничего не происходит и возвращается False, иначе True.
@@ -8837,6 +8872,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DetermineHiddenChildrenFlag(Node: PD2TreeNode); virtual;
               // Обновление флага vsAllChildrenHidden (все дети скрыты) у всех неинициализированных узлов.
     procedure DetermineHiddenChildrenFlagAllNodes; virtual;
+             //Функция используется во время циклов рисования и инициализирует массив LineArray идентификаторов типа линии.
+             //Эти идентификаторы используются для рисования древовидных линий перед узлом Node
+             //Возвращает уровень вложенности узла, используемый для рисования.
+    function DetermineLineArrayAndSelectLevel(Node: PD2TreeNode; var LineArray: TD2TreeLineArray): Integer; virtual;
              //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
               //Отменяет текущие действие редактирования или отложенного редактирования.
@@ -8887,7 +8926,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //Вызов прерывания после загрузки узла из потока (FOnLoadNode) для загрузки из потока Stream данных узла Node
     procedure DoLoadUserData(Node: PD2TreeNode; Stream: TStream); virtual;
               //Вызов прерывания OnMeasureItem (определение высоты узла)
-    procedure DoMeasureItem(TargetCanvas: TD2Canvas; Node: PD2TreeNode; var NodeHeight: Single); virtual;
+    procedure DoMeasureItem(Node: PD2TreeNode; var NodeHeight: Single); virtual;
               //Вызов прерывания OnNodeCopied (вызывается после копирования узла)
     procedure DoNodeCopied(Node: PD2TreeNode); virtual;
              //Вызов прерывания OnNodeCopying (вызывается, перед копированием узла на другой родительский узел)
@@ -9304,7 +9343,7 @@ public
               // Очищает текущее содержимое дерева и загружает новую структуру из потока Stream.
     procedure LoadFromStream(Stream: TStream); virtual;
               //Опредяет высоту узла Node если это до сих пор не сделайте.
-    procedure MeasureItemHeight(const Canvas: TD2Canvas; Node: PD2TreeNode); virtual;
+    procedure MeasureItemHeight(Node: PD2TreeNode); virtual;
               //Упрощенный метод перемещения узла к корню другого дерева.
     procedure MoveTo(Node: PD2TreeNode; Tree: TD2CustomTreeGrid; Mode: TD2TreeNodeAttachMode;
                      ChildrenOnly: Boolean); overload;

@@ -12,6 +12,11 @@ const
   Z=2;
   W=3;
 
+function d2MulDiv(A1, A2, A3:single):single;
+begin
+  Result:=A1 * A2 / A3;
+end;
+
 procedure d2IncFloat(var A1:single; A2:single = 1.0);
 begin
   A1:= A1 + A2;
