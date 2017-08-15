@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 321
+  Left = 379
   Height = 385
-  Top = 123
+  Top = 207
   Width = 966
   Caption = 'Form1'
   ClientHeight = 385
@@ -11,14 +11,14 @@ object Form1: TForm1
     Left = 0
     Height = 385
     Top = 0
-    Width = 584
+    Width = 700
     Align = alLeft
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 584
+      Width = 700
       Height = 385
       object TreeGrid1: TD2TreeGrid
         Position.Point = '(21,10)'
@@ -44,9 +44,9 @@ object Form1: TForm1
     end
   end
   object VirtualDrawTree1: TVirtualDrawTree
-    Left = 664
+    Left = 712
     Height = 100
-    Top = 63
+    Top = 40
     Width = 200
     Header.AutoSizeIndex = 0
     Header.Columns = <>

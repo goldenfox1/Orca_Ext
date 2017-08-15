@@ -237,17 +237,18 @@ const
 var
   Node: PD2TreeNode;
   BaseOffset: Single;         // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
-  R: TD2Rect;                           // Область всего узла в локальной координатах. the area of an entire node in its local coordinate
-  ShowCheckImages: Boolean;
+
   LineArray: TD2TreeLineArray;
-  CurrentNodeHeight: Single;
   Cell: TD2TreeCell;
   IndentSize: integer;
 
-  UseBackground,
+  MaximumBottom: Single;      // Максимальное вертикальное целевое положение. maximum vertical target position
+
+  //UseBackground,
   //ShowImages,
   //ShowStateImages,
-  UseColumns,
+  //ShowCheckImages: Boolean;
+
   IsMainColumn: Boolean;
 
 
@@ -259,29 +260,8 @@ var
   ButtonX,
   ButtonY: Single;
 
-  //TargetRect,                  // Область узла (части) в целевом холсте. the area of a node (part) in the target canvas
-  SelectionRect,               // Упорядоченный прямоугольник, используемый для рисования выделения фокуса rect. ordered rectangle used for drawing the selection focus rect
-  ClipRect: TRect;             // Область, в которой холст будет обрезаться при покраске содержимого узла. area to which the canvas will be clipped when painting a node's content
-  NextColumn: integer;
-
-  NodeBitmap: TBitmap;         // Небольшой буфер для рисования без мерцания. small buffer to draw flicker free
-  MaximumRight,                // Максимальное горизонтальное целевое положение. maximum horizontal target position
-  MaximumBottom: Integer;      // Максимальное вертикальное целевое положение. maximum vertical target position
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
-  FirstColumn: integer;   // Индекс первого столбца, который хотя бы частично отображается в данном окне. index of first column which is at least partially visible in the given window
 
-  MaxRight,
-  ColLeft,
-  ColRight: Integer;
-
-  SavedTargetDC: Integer;
-  PaintWidth: Integer;
-
-  lUseSelectedBkColor: Boolean; // Определяет, нужно ли окрашивать пунктирные линии сетки цветом выбора цвета фона. determines if the dotted grid lines need to be painted in selection color of background color
-
-  CellIsTouchingClientRight: Boolean;
-  CellIsInLastColumn: Boolean;
-  ColumnIsFixed: Boolean;
 
 
 
@@ -295,31 +275,16 @@ begin
     begin
       DoStateChange([tsPainting]);
       try
-
-        try
-          // R представляет весь узел (все столбцы), но немного нечетко, когда дело доходит до
-          // деревья без определенного столбца, поскольку FRangeX представляет только максимальную ширину всех
-          // узлы в клиентской области (не все определенные узлы). Однако там могут быть более узкие узлы. Без полного
-          // validation Я не могу лучше определить ширину. Используя, по крайней мере, ширину управления, обеспечивается
-          // что дерево полностью отображается на экране.
-
-          // R represents an entire node (all columns), but is a bit unprecise when it comes to
-          // trees without any column defined, because FRangeX only represents the maximum width of all
-          // nodes in the client area (not all defined nodes). There might be, however, wider nodes somewhere. Without full
-          // validation I cannot better determine the width, though. By using at least the control's width it is ensured
-          // that the tree is fully displayed on screen.
-          R := d2Rect(0, 0, Max(FRangeX, ClientWidth), 0);
-
-          // Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
-          UseBackground := (toShowBackground in FOptions.FPaintOptions) {and
-                           (FBackground.Graphic is TBitmap) and (poBackground in PaintOptions)};
+          //Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
+          //UseBackground := (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) ;
           //ShowImages := Assigned(FImages);
           //ShowStateImages := Assigned(FStateImages);
-          ShowCheckImages := {Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
+          //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
 
-          // Определим начальный узел для рисования. Determine node to start drawing with.
+
           BaseOffset := 0;
-
+          MaximumBottom:= GetContentBounds.Bottom + VScrollBarValue;
+          // Определим начальный узел для рисования. Determine node to start drawing with.
           Node := GetTopNode;
           if Assigned(Node) then
           begin
@@ -327,8 +292,7 @@ begin
             while Assigned(Node) do
             begin
 
-              //Определить LineArray, SelectionLevel и IndentSize
-              // Determine LineArray, SelectionLevel and IndentSize
+              //Определить LineArray, SelectionLevel и IndentSize. Determine LineArray, SelectionLevel and IndentSize
               SelectLevel := DetermineLineArrayAndSelectLevel(Node, LineArray);
               IndentSize := Length(LineArray);
               if not (toFixedIndent in FOptions.FPaintOptions) then
@@ -344,14 +308,11 @@ begin
 
               d2IncFloat(BaseOffset, Node.NodeHeight);
 
-              //Если poSelectedOnly активен, выполните следующие действия только для выбранных узлов
-              //или узлов которые являются дочерними узлами выбранных узлов.
+              //Выполнить следующие действия только для выбранных узлов или узлов которые являются дочерними узлами выбранных узлов.
               // If poSelectedOnly is active then do the following stuff only for selected nodes or nodes
               // which are children of selected nodes.
-              if (SelectLevel > 0) {or not (poSelectedOnly in PaintOptions) } then
+              if (SelectLevel > 0) then
               begin
-                CurrentNodeHeight := Node.NodeHeight;
-                R.Bottom := CurrentNodeHeight;
                 CalculateVerticalAlignments({ShowImages, ShowStateImages,}false,false, Node, VAlign, ButtonY);
 
                 //if ShowCheckImages and IsMainColumn then
@@ -382,14 +343,11 @@ begin
                 //else
                 //  ImageInfo[iiNormal].Index := -1;
 
-                // Некоторые части отображаются только для основного столбца.
-                // Some parts are only drawn for the main column.
+                // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
                 if IsMainColumn then
                 begin
                   //рисуем линии дерева
-                  if (toShowTreeLines in FOptions.FPaintOptions) {and
-                     (not (toHideTreeLinesIfThemed in FOptions.FPaintOptions) or
-                      not (tsUseThemes in FStates))} then
+                  if (toShowTreeLines in FOptions.FPaintOptions) then
                     PaintTreeLines(Cell, LineArray);
 
                   //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
@@ -399,234 +357,44 @@ begin
                   if (toShowButtons in TreeOptions.FPaintOptions) and
                      (vsHasChildren in Node.States) and
                       not ((vsAllChildrenHidden in Node.States) and
-                           (toAutoHideButtons in TreeOptions.FAutoOptions)) then
-                    Cell.FExpander.Visible:=true;
+                           (toAutoHideButtons in TreeOptions.FAutoOptions))
+                      then Cell.FExpander.Visible:= true
+                      else Cell.FExpander.Visible:= false;
 
                   //if ImageInfo[iiCheck].Index > -1 then
                   //  PaintCheckImage(Canvas, PaintInfo.ImageInfo[iiCheck], vsSelected in PaintInfo.Node.States);
                 end;
 
-                // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания.
-                // Final touch for this node: mark it if it is the current drop target node.
+                // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
                 if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
                    then PaintDropMark(Cell);
               end;
 
-              Inc(TargetRect.Top, Node.NodeHeight);
-              {$ifdef DEBUG_VTV}Logger.SendIf([lcPaintHeader,lcDrag],'Last Node to be painted: '+ IntToStr(PaintInfo.Node^.Index)
-                +' (TargetRect.Top >= MaximumBottom)',TargetRect.Top >= MaximumBottom);{$endif}
-              if TargetRect.Top >= MaximumBottom then
-              begin
-                {$ifdef DEBUG_VTV}Logger.ExitMethod([lcPaintDetails],'PaintNode');{$endif}
-                Break;
-              end;
-
-              // Keep selection rectangle coordinates in sync.
-              if DrawSelectionRect then
-                OffsetRect(SelectionRect, 0, -PaintInfo.Node.NodeHeight);
-
-              // Advance to next visible node.
-              Node := GetNextVisible(PaintInfo.Node, True);
-              {$ifdef DEBUG_VTV}Logger.ExitMethod([lcPaintDetails],'PaintNode');{$endif}
+              if BaseOffset >= MaximumBottom then Break;
+              // Переход к следующему видимому узлу. Advance to next visible node.
+              Node := GetNextVisible(Node, True);
             end;
             //-------------- конец основного цикла
           end;
 
-          // Erase rest of window not covered by a node.
-          if TargetRect.Top < MaximumBottom then
-          begin
-            {$ifdef DEBUG_VTV}Logger.Watch([lcPaintDetails],'UseBackground',UseBackground);{$endif}
-            {$ifdef DEBUG_VTV}Logger.Watch([lcPaintDetails],'UseColumns',UseColumns);{$endif}
-            // Keep the horizontal target position to determine the selection rectangle offset later (if necessary).
-            BaseOffset := Target.X;
-            Target := TargetRect.TopLeft;
-            R := Rect(TargetRect.Left, 0, TargetRect.Left, MaximumBottom - Target.Y);
-            TargetRect := Rect(0, 0, MaximumRight - Target.X, MaximumBottom - Target.Y);
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'NodeBitmap.Handle',NodeBitmap.Handle);{$endif}
+          // Стереть остальную часть окна, не охватываемую узлом.
 
-            if not (poUnbuffered in PaintOptions) then
-            begin
-              // Avoid unnecessary copying of bitmap content. This will destroy the DC handle too.
-              NodeBitmap.Height := 0;
-              NodeBitmap.PixelFormat := pf32Bit;
-              NodeBitmap.Width := TargetRect.Right - TargetRect.Left;
-              NodeBitmap.Height := TargetRect.Bottom - TargetRect.Top;
-            end;
+        //if (ChildCount[nil] = 0) and (FEmptyListMessage <> '') then
+        //begin
+        //  // выводить сообщение, если нет элементов для отображения
+        //  // output a message if no items are to display
+        //  Canvas.Font := Self.Font;
+        //  SetBkMode(TargetCanvas.Handle, TRANSPARENT);
+        //  R.Left := OffSetX + 2;
+        //  R.Top := 2;
+        //  R.Right := R.Left + Width - 2;
+        //  R.Bottom := Height -2;
+        //  TargetCanvas.Font.Color := clGrayText;
+        //  //lcl: LCL has no support for tfNoClip, tfLeft
+        //  //TargetCanvas.TextRect(R, FEmptyListMessage, [tfNoClip, tfLeft]);
+        //  TextOut(TargetCanvas.Handle, 2 - Window.Left, 2 - Window.Top, PAnsiChar(FEmptyListMessage), Length(FEmptyListMessage));
+        //end;
 
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'NodeBitmap.Handle after changing height to background',NodeBitmap.Handle);{$endif}
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'TargetRect',TargetRect);{$endif}
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'NodeBitmap Width: %d Height: %d',[NodeBitmap.Width,NodeBitmap.Height]);{$endif}
-            // Call back application/descendants whether they want to erase this area.
-            if not DoPaintBackground(PaintInfo.Canvas, TargetRect) then
-            begin
-              if UseBackground then
-              begin
-                {$ifdef UseSetCanvasOrigin}
-                SetCanvasOrigin(PaintInfo.Canvas, 0, 0);
-                {$else}
-                SetWindowOrgEx(PaintInfo.Canvas.Handle, 0, 0, nil);
-                {$endif}
-                if toStaticBackground in TreeOptions.PaintOptions then
-                  StaticBackground(FBackground.Bitmap, PaintInfo.Canvas, Target, TargetRect)
-                else
-                  TileBackground(FBackground.Bitmap, PaintInfo.Canvas, Target, TargetRect);
-              end
-              else
-              begin
-                // Consider here also colors of the columns.
-               {$ifdef UseSetCanvasOrigin}
-               SetCanvasOrigin(PaintInfo.Canvas, Target.X, 0); // This line caused issue #313 when it was placed above the if-statement
-               {$else}
-               SetWindowOrgEx(PaintInfo.Canvas.Handle, Target.X, 0, nil);
-               {$endif}
-                if UseColumns then
-                begin
-                  with FHeader.FColumns do
-                  begin
-                    // If there is no content in the tree then the first column has not yet been determined.
-                    if FirstColumn = InvalidColumn then
-                    begin
-                      FirstColumn := GetFirstVisibleColumn;
-                      repeat
-                        if FirstColumn <> InvalidColumn then
-                        begin
-                          R.Left := Items[FirstColumn].Left;
-                          R.Right := R.Left +  Items[FirstColumn].FWidth;
-                          if R.Right > TargetRect.Left then
-                            Break;
-                          FirstColumn := GetNextVisibleColumn(FirstColumn);
-                        end;
-                      until FirstColumn = InvalidColumn;
-                    end
-                    else
-                    begin
-                      R.Left := Items[FirstColumn].Left;
-                      R.Right := R.Left +  Items[FirstColumn].FWidth;
-                    end;
-
-                    // Initialize MaxRight.
-                    MaxRight := Target.X - 1;
-
-                    PaintInfo.Canvas.Font.Color := FColors.GridLineColor;
-                    while (FirstColumn <> InvalidColumn) and (MaxRight < TargetRect.Right + Target.X) do
-                    begin
-                      // Determine left and right coordinate of the current column
-                      ColLeft := Items[FirstColumn].Left;
-                      ColRight := (ColLeft + Items[FirstColumn].FWidth);
-
-                      // Check wether this column needs to be painted at all.
-                      if (ColRight >= MaxRight) then
-                      begin
-                        R.Left := MaxRight;     // Continue where we left off
-                        R.Right := ColRight;    // Paint to the right of the column
-                        MaxRight := ColRight;   // And record were to start the next column.
-
-                        if (poGridLines in PaintOptions) and
-                           (toFullVertGridLines in FOptions.FPaintOptions) and
-                           (toShowVertGridLines in FOptions.FPaintOptions) and
-                           (not (hoAutoResize in FHeader.FOptions) or (Cardinal(FirstColumn) < TColumnPosition(Count - 1))) then
-                        begin
-                          DrawDottedVLine(PaintInfo, R.Top, R.Bottom, R.Right - 1);
-                          Dec(R.Right);
-                        end;
-
-                        if not (coParentColor in Items[FirstColumn].FOptions) then
-                          PaintInfo.Canvas.Brush.Color := Items[FirstColumn].FColor
-                        else
-                          PaintInfo.Canvas.Brush.Color := FColors.BackGroundColor;
-                        PaintInfo.Canvas.FillRect(R);
-                      end;
-                      FirstColumn := GetNextVisibleColumn(FirstColumn);
-                    end;
-
-                    // Erase also the part of the tree not covert by a column.
-                    if R.Right < TargetRect.Right + Target.X then
-                    begin
-                      R.Left := R.Right;
-                      R.Right := TargetRect.Right + Target.X;
-                      // Prevent erasing the last vertical grid line.
-                      if (poGridLines in PaintOptions) and
-                         (toFullVertGridLines in FOptions.FPaintOptions) and (toShowVertGridLines in FOptions.FPaintOptions) and
-                         (not (hoAutoResize in FHeader.FOptions)) then
-                        Inc(R.Left);
-                      PaintInfo.Canvas.Brush.Color := FColors.BackGroundColor;
-                      PaintInfo.Canvas.FillRect(R);
-                    end;
-                  end;
-                  {$ifdef UseSetCanvasOrigin}
-                  SetCanvasOrigin(PaintInfo.Canvas, 0, 0);
-                  {$else}
-                  SetWindowOrgEx(PaintInfo.Canvas.Handle, 0, 0, nil);
-                  {$endif}
-                end
-                else
-                begin
-                  {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'ErasingBackGround');{$endif}
-                  {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'TargetRect',TargetRect);{$endif}
-                  // No columns nor bitmap background. Simply erase it with the tree color.
-                  {$ifdef UseSetCanvasOrigin}
-                  SetCanvasOrigin(PaintInfo.Canvas, 0, 0);
-                  {$else}
-                  SetWindowOrgEx(PaintInfo.Canvas.Handle, 0, 0, nil);
-                  {$endif}
-                  PaintInfo.Canvas.Brush.Color := FColors.BackGroundColor;
-                  PaintInfo.Canvas.FillRect(TargetRect);
-                end;
-              end;
-            end;
-            {$ifdef UseSetCanvasOrigin}
-            SetCanvasOrigin(PaintInfo.Canvas, 0, 0);
-            {$else}
-            SetWindowOrgEx(PaintInfo.Canvas.Handle, 0, 0, nil);
-            {$endif}
-            {$ifdef DEBUG_VTV}Logger.Watch([lcPaintDetails],'DrawSelectionRect',DrawSelectionRect);{$endif}
-            if DrawSelectionRect then
-            begin
-              R := OrderRect(FNewSelRect);
-              //lclheader
-              if hoVisible in FHeader.Options then
-                OffsetRect(R, 0, FHeader.Height);
-              // Remap the selection rectangle to the current window of the tree.
-              // Since Target has been used for other tasks BaseOffset got the left extent of the target position here.
-              OffsetRect(R, -Target.X + BaseOffset - Window.Left, -Target.Y + FOffsetY);
-              //todo: see if is necessary
-              {$ifndef INCOMPLETE_WINAPI}
-              SetBrushOrigin(PaintInfo.Canvas, 0, Target.X and 1);
-              {$endif}
-              PaintSelectionRectangle(PaintInfo.Canvas, 0, R, TargetRect);
-            end;
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'NodeBitmap.Canvas.Height',NodeBitmap.Canvas.Height);{$endif}
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'NodeBitmap.Canvas.ClipRect',NodeBitmap.Canvas.ClipRect);{$endif}
-            {$ifdef DEBUG_VTV}Logger.Send([lcPaintDetails],'Target',Target);{$endif}
-            {$ifdef DEBUG_VTV}Logger.SendBitmap([lcPaintBitmap],'BackGroundBitmap',NodeBitmap);{$endif}
-            if not (poUnBuffered in PaintOptions) then
-              with Target, NodeBitmap do
-                BitBlt(TargetCanvas.Handle, X, Y, Width, Height, Canvas.Handle, 0, 0, SRCCOPY);
-          end;
-        finally
-          PaintInfo.Canvas.Unlock;
-          if poUnbuffered in PaintOptions then
-            RestoreDC(TargetCanvas.Handle, SavedTargetDC)
-          else
-            NodeBitmap.Free;
-        end;
-
-        if (ChildCount[nil] = 0) and (FEmptyListMessage <> '') then
-        begin
-          // output a message if no items are to display
-          Canvas.Font := Self.Font;
-          SetBkMode(TargetCanvas.Handle, TRANSPARENT);
-          R.Left := OffSetX + 2;
-          R.Top := 2;
-          R.Right := R.Left + Width - 2;
-          R.Bottom := Height -2;
-          TargetCanvas.Font.Color := clGrayText;
-          //lcl: LCL has no support for tfNoClip, tfLeft
-          //TargetCanvas.TextRect(R, FEmptyListMessage, [tfNoClip, tfLeft]);
-          TextOut(TargetCanvas.Handle, 2 - Window.Left, 2 - Window.Top, PAnsiChar(FEmptyListMessage), Length(FEmptyListMessage));
-        end;
-
-        DoAfterPaint(TargetCanvas);
       finally
         DoStateChange([], [tsPainting]);
       end;
@@ -1245,7 +1013,7 @@ begin
     //end
     //else
       if toShowButtons in FOptions.FPaintOptions then
-        VAlign := MulDiv(NodeHeight[Node] {- FPlusBM.Height}, Node.Align, 100) {+ FPlusBM.Height / 2}
+        VAlign := d2MulDiv(NodeHeight[Node] {- FPlusBM.Height}, Node.Align, 100) {+ FPlusBM.Height / 2}
       else
         VAlign := d2MulDiv(Node.NodeHeight, Node.Align, 100);
   end;
@@ -1729,7 +1497,7 @@ begin
                 then InitNode(Node);
 
               // Ensure the node's height is determined.
-              MeasureItemHeight(Self.Canvas, Node);
+              MeasureItemHeight(Node);
             end;
             Result := Node.NodeHeight;
           end
@@ -2216,7 +1984,7 @@ begin
             if (toVariableNodeHeight in FOptions.FMiscOptions) then
             begin
               lNodeHeight := Child.NodeHeight;
-              DoMeasureItem(Canvas, Child, lNodeHeight);
+              DoMeasureItem(Child, lNodeHeight);
               Child.NodeHeight := lNodeHeight;
               Child.TotalHeight := lNodeHeight;
             end;
@@ -3226,7 +2994,7 @@ begin
       // Подготовить корневой уровень. Выполнять пункты на этом этапе до узла верхнего уровня.
       // Prepare root level. Run points at this stage to a top level node.
       if (toShowRoot in FOptions.FPaintOptions) and ((toShowTreeLines in FOptions.FPaintOptions) {and
-         (not (toHideTreeLinesIfThemed in FOptions.FPaintOptions) or not (tsUseThemes in FStates)))} then
+         (not (toHideTreeLinesIfThemed in FOptions.FPaintOptions) or not (tsUseThemes in FStates))}) then
       begin
         //
         // Верхний узел Root? Is the top node a root node?
@@ -9661,7 +9429,7 @@ begin
               if vsVisible in Child.States then
               begin
                 // Ensure the item height is measured
-                MeasureItemHeight(Canvas, Child);
+                MeasureItemHeight(Child);
 
                 //Inc(HeightDelta, Child.TotalHeight);
                 HeightDelta := HeightDelta + Child.TotalHeight;
