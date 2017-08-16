@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 379
+  Left = 280
   Height = 385
-  Top = 207
+  Top = 125
   Width = 966
   Caption = 'Form1'
   ClientHeight = 385
@@ -28,6 +28,13 @@ object Form1: TForm1
         Resource = 'gridstyle'
         TabOrder = 1
         MainColumn = -1
+        object TreeTextColumn1: TD2TreeTextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 329
+          HitTest = False
+          TabOrder = 0
+        end
       end
       object Button1: TD2Button
         Position.Point = '(459,10)'
