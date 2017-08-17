@@ -7012,7 +7012,8 @@ TD2Column = class(TD2Control)
     procedure SetHeader(const Value:String);
     function GetGrid: TD2CustomGrid;
   protected
-    FCellControls: array of TD2Control;
+    //FCellControls: array of TD2Control;
+    FCellControls: TList;
     FUpdateColumn:boolean;
     FHeader: String;
     FSaveData: Variant;
@@ -7032,6 +7033,7 @@ TD2Column = class(TD2Control)
     procedure SetWidth(const Value:single);  override;
   public
     constructor Create(AOwner: TComponent);  override;
+    destructor Destroy; override;
     function CellControlByPoint(X, Y:single): TD2Control;
     function CellControlByRow(Row: integer): TD2Control;
     property Grid: TD2CustomGrid read FGrid;
@@ -8283,6 +8285,8 @@ end;
 { TD2TreeColumn }
 
 TD2TreeColumn = class(TD2Column)
+  private
+    FGrid: TD2CustomTreeGrid;
   protected
               //обработчик изменения состояния отметки ячейки
     procedure DoChangeCheck(Sender: TObject);

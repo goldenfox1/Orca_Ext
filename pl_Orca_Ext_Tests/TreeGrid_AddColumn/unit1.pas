@@ -16,7 +16,7 @@ type
     Button1: TD2Button;
     D2Scene1: TD2Scene;
     Root1: TD2Background;
-    TreeGrid1: TD2TreeGrid;
+    StringGrid1: TD2StringGrid;
     VirtualDrawTree1: TVirtualDrawTree;
     procedure Button1Click(Sender: TObject);
   private
@@ -36,7 +36,7 @@ implementation
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-   TreeGrid1.AddObject(TD2TreeTextColumn.Create(nil));
+   StringGrid1.AddObject(TD2StringColumn.Create(nil));
 end;
 
 end.

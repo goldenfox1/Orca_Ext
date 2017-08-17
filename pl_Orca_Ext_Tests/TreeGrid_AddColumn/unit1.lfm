@@ -20,22 +20,6 @@ object Form1: TForm1
       RotateAngle = 0
       Width = 700
       Height = 385
-      object TreeGrid1: TD2TreeGrid
-        Position.Point = '(21,10)'
-        RotateAngle = 0
-        Width = 395
-        Height = 354
-        Resource = 'gridstyle'
-        TabOrder = 1
-        MainColumn = -1
-        object TreeTextColumn1: TD2TreeTextColumn
-          RotateAngle = 0
-          Width = 100
-          Height = 329
-          HitTest = False
-          TabOrder = 0
-        end
-      end
       object Button1: TD2Button
         Position.Point = '(459,10)'
         RotateAngle = 0
@@ -47,6 +31,22 @@ object Form1: TForm1
         IsPressed = False
         TextAlign = d2TextAlignCenter
         Text = 'Добавить колонку'
+      end
+      object StringGrid1: TD2StringGrid
+        Position.Point = '(35,28)'
+        RotateAngle = 0
+        Width = 385
+        Height = 309
+        Resource = 'gridstyle'
+        TabOrder = 2
+        RowCount = 100
+        object StringColumn1: TD2StringColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 284
+          HitTest = False
+          TabOrder = 0
+        end
       end
     end
   end

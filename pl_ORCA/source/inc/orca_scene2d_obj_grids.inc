@@ -274,6 +274,20 @@ begin
   HitTest:=false;
   CanFocused:=false;
   FGrid:= GetGrid;
+  FCellControls:= TList.Create;
+end;
+
+destructor TD2Column.Destroy;
+var i: integer;
+begin
+  if FCellControls <> nil then
+  begin
+    for i:=0 to FCellControls.Count-1 do
+      TD2Control(FCellControls.Items[i]).Free;
+    FCellControls.Free;
+  end;
+
+  inherited Destroy;
 end;
 
 function TD2Column.CreateCellControl:TD2Control;
@@ -380,9 +394,9 @@ procedure TD2Column.ClearColumn;
 var
   i:integer;
 begin
-  for i:=0 to High(FCellControls) do
-    FCellControls[i].Free;
-  SetLength(FCellControls,0);
+  for i:=0 to FCellControls.Count - 1 do
+    TD2Control(FCellControls.Items[i]).Free;
+  FCellControls.Clear;
 end;
 
 function TD2Column.CellControlByPoint(X,Y:single):TD2Control;
@@ -394,12 +408,13 @@ begin
   if Grid=nil then Exit;
 
   P:=Grid.LocalToAbsolute(d2Point(X,Y));
-  for i:=0 to High(FCellControls) do
-    if FCellControls[i].Visible and (FCellControls[i].pointInObject(P.X,P.Y)) then
-    begin
-      Result:=FCellControls[i];
-      Exit;
-    end;
+  for i:=0 to FCellControls.Count - 1 do
+    with TD2Control(FCellControls.Items[i]) do
+      if Visible and (pointInObject(P.X,P.Y)) then
+      begin
+        Result:=TD2Control(FCellControls.Items[i]);
+        Exit;
+      end;
 end;
 
 function TD2Column.CellControlByRow(Row:integer):TD2Control;
@@ -408,13 +423,13 @@ var
 begin
   Result:=nil;
   if Grid=nil then Exit;
-
-  for i:=0 to High(FCellControls) do
-    if (FCellControls[i].Visible) and (trunc(d2StringToPoint(FCellControls[i].TagString).Y)=Row) then
-    begin
-      Result:=FCellControls[i];
-      Exit;
-    end;
+  for i:=0 to FCellControls.Count - 1 do
+    with TD2Control(FCellControls.Items[i]) do
+      if Visible and (trunc(d2StringToPoint(TagString).Y)=Row) then
+      begin
+        Result:=TD2Control(FCellControls.Items[i]);
+        Exit;
+      end;
 end;
 
 procedure TD2Column.Realign;
@@ -427,39 +442,40 @@ procedure TD2Column.UpdateColumn;
 var
   i,C,m:integer;
   V:Variant;
+  cc: TD2Control;
 begin
   if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
     m:= Min(Grid.RowCount,Grid.VisibleRows);
+    C:= FCellControls.Count;
     { Create controls }
-    if Length(FCellControls) < m
+    if C < m
        then begin
-              C:=High(FCellControls);
-              SetLength(FCellControls,m);
-              for i:=C + 1 to m - 1 do
+              for i:= C to m - 1 do
               begin
-                FCellControls[i]:=CreateCellControl;
-                InitCellControl(FCellControls[i]);
+                cc:=CreateCellControl;
+                InitCellControl(cc);
+                FCellControls.Add(cc);
               end;
             end
     else
     { Hide if need }
     {if Length(FCellControls) > m then
     begin}
-      for i:=m to High(FCellControls) do
-        FCellControls[i].Visible:=false;
+      for i:=m to FCellControls.Count-1 do
+        TD2Control(FCellControls.Items[i]).Visible:=false;
     //end;
     { Update Data }
     for i:=0 to m - 1 do
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
-      FCellControls[i].Visible:=true;
-      FCellControls[i].SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
-      FCellControls[i].TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
+      TD2Control(FCellControls.Items[i]).Visible:=true;
+      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
 
       V:=Grid.GetValue(Index,Grid.TopRow + i);
-      FCellControls[i].Data:=V;
+      TD2Control(FCellControls.Items[i]).Data:=V;
 
     end;
     UpdateSelected;
@@ -475,13 +491,14 @@ begin
   if Grid=nil then Exit;
   if Grid.ReadOnly then Exit;
   if ReadOnly then Exit;
-  if Assigned(FCellControls) and  (Length(FCellControls) > 0) then
+  if Assigned(FCellControls) and  (FCellControls.Count > 0) then
     for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
-      begin
-        FCellControls[i].HitTest:=false;
-        if FCellControls[i].IsFocused
-          then Grid.SetFocus;
-      end;
+      with TD2Control(FCellControls.Items[i]) do
+        begin
+          HitTest:=false;
+          if IsFocused
+            then Grid.SetFocus;
+        end;
 end;
 
 procedure TD2Column.SetHeader(const Value:String);

@@ -209,40 +209,40 @@ procedure TD2TreeColumn.UpdateColumn;
 var
   i,C,m:integer;
   V:Variant;
+  cc: TD2Control;
 begin
-   //inherited UpdateColumn;
   if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
-    m:= Min(Grid.RowCount,Grid.VisibleRows);
+    m:= Min(TD2CustomTreeGrid(Grid).FVisibleCount,Grid.VisibleRows);
+    C:= FCellControls.Count;
     { Create controls }
-    if Length(FCellControls) < m
+    if C < m
        then begin
-              C:=High(FCellControls);
-              SetLength(FCellControls,m);
-              for i:=C + 1 to m - 1 do
+              for i:= C to m - 1 do
               begin
-                FCellControls[i]:=CreateCellControl;
-                InitCellControl(FCellControls[i]);
+                cc:=CreateCellControl;
+                InitCellControl(cc);
+                FCellControls.Add(cc);
               end;
             end
     else
     { Hide if need }
     {if Length(FCellControls) > m then
     begin}
-      for i:=m to High(FCellControls) do
-        FCellControls[i].Visible:=false;
+      for i:=m to FCellControls.Count-1 do
+        TD2Control(FCellControls.Items[i]).Visible:=false;
     //end;
     { Update Data }
     for i:=0 to m - 1 do
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
-      FCellControls[i].Visible:=true;
-      FCellControls[i].SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
-      FCellControls[i].TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
+      TD2Control(FCellControls.Items[i]).Visible:=true;
+      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
 
       V:=Grid.GetValue(Index,Grid.TopRow + i);
-      FCellControls[i].Data:=V;
+      TD2Control(FCellControls.Items[i]).Data:=V;
 
     end;
     UpdateSelected;
@@ -272,8 +272,6 @@ procedure TD2TreeColumn.PaintColumn;
 // PaintOptions determines what of the tree to draw. For different tasks usually different parts need to be drawn, with
 // a full image in the window, selected only nodes for a drag image etc.
 
-const
-  ImageKind: array[Boolean] of TD2TreeImageKind = (ikNormal, ikSelected);
 
 var
   Node: PD2TreeNode;
@@ -298,7 +296,6 @@ var
   {$endif}
   VAlign,
 
-  ButtonX,
   ButtonY: Single;
 
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
