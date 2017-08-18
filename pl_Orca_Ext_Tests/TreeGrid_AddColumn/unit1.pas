@@ -36,7 +36,7 @@ implementation
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-   StringGrid1.AddObject(TD2StringColumn.Create(nil));
+   //StringGrid1.AddObject(TD2StringColumn.Create(nil));
 end;
 
 end.

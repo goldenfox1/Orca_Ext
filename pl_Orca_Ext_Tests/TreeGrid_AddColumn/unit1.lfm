@@ -20,6 +20,7 @@ object Form1: TForm1
       RotateAngle = 0
       Width = 700
       Height = 385
+      Resource = 'Root1Style1'
       object Button1: TD2Button
         Position.Point = '(459,10)'
         RotateAngle = 0
@@ -33,17 +34,17 @@ object Form1: TForm1
         Text = 'Добавить колонку'
       end
       object StringGrid1: TD2StringGrid
-        Position.Point = '(35,28)'
+        Position.Point = '(54,60)'
         RotateAngle = 0
-        Width = 385
-        Height = 309
+        Width = 369
+        Height = 271
         Resource = 'gridstyle'
         TabOrder = 2
         RowCount = 100
         object StringColumn1: TD2StringColumn
           RotateAngle = 0
           Width = 100
-          Height = 284
+          Height = 246
           HitTest = False
           TabOrder = 0
         end
