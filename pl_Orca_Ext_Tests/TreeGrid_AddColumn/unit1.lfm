@@ -1,25 +1,26 @@
 object Form1: TForm1
   Left = 280
-  Height = 385
-  Top = 125
-  Width = 966
+  Height = 513
+  Top = 119
+  Width = 897
   Caption = 'Form1'
-  ClientHeight = 385
-  ClientWidth = 966
+  ClientHeight = 513
+  ClientWidth = 897
+  OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 385
+    Height = 513
     Top = 0
-    Width = 700
+    Width = 650
     Align = alLeft
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 700
-      Height = 385
+      Width = 650
+      Height = 513
       Resource = 'Root1Style1'
       object Button1: TD2Button
         Position.Point = '(459,10)'
@@ -33,18 +34,17 @@ object Form1: TForm1
         TextAlign = d2TextAlignCenter
         Text = 'Добавить колонку'
       end
-      object StringGrid1: TD2StringGrid
-        Position.Point = '(54,60)'
+      object TreeGrid1: TD2TreeGrid
+        Position.Point = '(53,35)'
         RotateAngle = 0
-        Width = 369
-        Height = 271
+        Width = 345
+        Height = 373
         Resource = 'gridstyle'
         TabOrder = 2
-        RowCount = 100
-        object StringColumn1: TD2StringColumn
+        object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 100
-          Height = 246
+          Height = 348
           HitTest = False
           TabOrder = 0
         end
@@ -52,9 +52,9 @@ object Form1: TForm1
     end
   end
   object VirtualDrawTree1: TVirtualDrawTree
-    Left = 712
+    Left = 664
     Height = 100
-    Top = 40
+    Top = 24
     Width = 200
     Header.AutoSizeIndex = 0
     Header.Columns = <>

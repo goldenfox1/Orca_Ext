@@ -122,6 +122,14 @@ begin
         FControl.Visible:=true;
       end;
   end;
+  if FControl<>nil then
+  begin
+    B:=FindResource('splitter');
+    if (B <> nil) and (B is TD2SplitLayout) then
+    begin
+      FSplitter:=TD2SplitLayout(B);
+    end;
+  end;
   StartTriggerAnimation(Self,'IsSelected');
 end;
 
@@ -593,19 +601,14 @@ begin
 
   inherited;
   FResource:='gridstyle';
-
+  RowCount:=0;
   //ControlStyle := ControlStyle - [csSetCaption] + [csCaptureMouse, csOpaque, csReplicatable, csDisplayDragImage,
   //  csReflector];
   FTotalInternalDataSize := 0;
   FNodeDataSize := -1;
   Width := 200;
   Height := 100;
-  //TabStop := True;
-  //ParentColor := False;
   FDefaultNodeHeight := 18;
-  //FDragOperations := [doCopy, doMove];
-  //FHotCursor := crDefault;
-  //FScrollBarOptions := TScrollBarOptions.Create(Self);
   FFocusedColumn := NoColumn;
   //FDragImageKind := diComplete;
   FLastSelectionLevel := -1;
@@ -613,19 +616,9 @@ begin
 
   FIndent := 18;
 
-  //FPlusBM := TBitmap.Create;
-  //FHotPlusBM := TBitmap.Create;
-  //FMinusBM := TBitmap.Create;
-  //FHotMinusBM := TBitmap.Create;
-
   //BorderStyle := bsSingle;
   //FButtonStyle := bsRectangle;
   //FButtonFillMode := fmTreeColor;
-
-  //FHeader := GetHeaderClass.Create(Self);
-
-  // we have an own double buffer handling
-  //inherited DoubleBuffered := False;
 
   //FCheckImageKind := ckSystemDefault;
   //FCheckImages := SystemCheckImages;

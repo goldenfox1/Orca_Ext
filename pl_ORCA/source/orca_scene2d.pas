@@ -8243,6 +8243,7 @@ TD2TreeCell = class(TD2Control)
     FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
     FIsChecked: boolean;          //true - чекбокс отмечен
     FIsExpanded: boolean;         //true - узел развернут
+    FSplitter: TD2SplitLayout;   //указатель на сплиттер
 
     FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
     FOnChangeExpander: TOnChangeExpander;    //указатель на обработчик прерывания разворачивания/сворачивания узла
