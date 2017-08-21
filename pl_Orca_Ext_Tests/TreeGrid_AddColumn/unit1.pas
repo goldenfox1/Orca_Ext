@@ -14,6 +14,7 @@ type
 
   TForm1 = class(TForm)
     Button1: TD2Button;
+    CheckBox1: TD2CheckBox;
     D2Scene1: TD2Scene;
     Root1: TD2Background;
     TreeGrid1: TD2TreeGrid;
@@ -71,6 +72,7 @@ var
   i,t: integer;
 begin
   TreeGrid1.NodeDataSize:= SizeOf(TPhoneNode);
+  TreeGrid1.BeginUpdate;
   for i:=0 to High(Names) do
   begin
     NewNode := TreeGrid1.AddChild(nil);
@@ -93,6 +95,7 @@ begin
         end;
     end;
   end;
+  TreeGrid1.EndUpdate;
 end;
 
 end.

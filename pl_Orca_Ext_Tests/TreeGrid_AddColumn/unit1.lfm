@@ -1,16 +1,16 @@
 object Form1: TForm1
-  Left = 280
+  Left = 312
   Height = 513
-  Top = 119
+  Top = 121
   Width = 897
   Caption = 'Form1'
-  ClientHeight = 513
-  ClientWidth = 897
+  ClientHeight = 0
+  ClientWidth = 0
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 513
+    Height = 0
     Top = 0
     Width = 650
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 650
-      Height = 513
+      Height = 0
       Resource = 'Root1Style1'
       object Button1: TD2Button
         Position.Point = '(459,10)'
@@ -39,8 +39,9 @@ object Form1: TForm1
         RotateAngle = 0
         Width = 345
         Height = 373
-        Resource = 'gridstyle'
-        TabOrder = 2
+        Resource = 'TreeGrid1Style1'
+        TabOrder = 1
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 100
@@ -48,6 +49,17 @@ object Form1: TForm1
           HitTest = False
           TabOrder = 0
         end
+      end
+      object CheckBox1: TD2CheckBox
+        Position.Point = '(439,177)'
+        RotateAngle = 0
+        Width = 120
+        Height = 19
+        TabOrder = 2
+        IsChecked = False
+        IsGrayed = False
+        AllowGrayed = True
+        TextAlign = d2TextAlignNear
       end
     end
   end

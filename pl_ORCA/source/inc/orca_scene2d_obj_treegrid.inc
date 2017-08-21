@@ -179,7 +179,7 @@ begin
   Result:=true;
 end;
 
-function TD2TreeColumn.GetIsMain: boolean;
+function TD2TreeColumn.GetIsMainColumn: boolean;
 begin
   if (FGrid <> nil) and (FIndex = TD2TreeGrid(FGrid).FMainColumn)
      then Result:= true
@@ -213,81 +213,59 @@ begin
     end;
 end;
 
+//procedure TD2TreeColumn.UpdateColumn;
+//var
+//  i,C,m:integer;
+//  V:Variant;
+//  cc: TD2Control;
+//begin
+//  if Grid=nil then Exit;
+//  FUpdateColumn:=true;
+//  try
+//    m:= Min(TD2CustomTreeGrid(Grid).FVisibleCount,Grid.VisibleRows);
+//    C:= FCellControls.Count;
+//    { Create controls }
+//    if C < m
+//       then begin
+//              for i:= C to m - 1 do
+//              begin
+//                cc:=CreateCellControl;
+//                InitCellControl(cc);
+//                FCellControls.Add(cc);
+//              end;
+//            end
+//    else
+//    { Hide if need }
+//      for i:=m to FCellControls.Count-1 do
+//        TD2Control(FCellControls.Items[i]).Visible:=false;
+//    { Update Data }
+//    for i:=0 to m - 1 do
+//    begin
+//      if Grid.TopRow + i >= Grid.RowCount then Break;
+//      TD2Control(FCellControls.Items[i]).Visible:=true;
+//      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+//      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
+//
+//      V:=Grid.GetValue(Index,Grid.TopRow + i);
+//      TD2Control(FCellControls.Items[i]).Data:=V;
+//
+//    end;
+//    UpdateSelected;
+//  finally
+//    FUpdateColumn:=false;
+//  end;
+//end;
+
 procedure TD2TreeColumn.UpdateColumn;
-var
-  i,C,m:integer;
-  V:Variant;
-  cc: TD2Control;
-begin
-  if Grid=nil then Exit;
-  FUpdateColumn:=true;
-  try
-    m:= Min(TD2CustomTreeGrid(Grid).FVisibleCount,Grid.VisibleRows);
-    C:= FCellControls.Count;
-    { Create controls }
-    if C < m
-       then begin
-              for i:= C to m - 1 do
-              begin
-                cc:=CreateCellControl;
-                InitCellControl(cc);
-                FCellControls.Add(cc);
-              end;
-            end
-    else
-    { Hide if need }
-    {if Length(FCellControls) > m then
-    begin}
-      for i:=m to FCellControls.Count-1 do
-        TD2Control(FCellControls.Items[i]).Visible:=false;
-    //end;
-    { Update Data }
-    for i:=0 to m - 1 do
-    begin
-      if Grid.TopRow + i >= Grid.RowCount then Break;
-      TD2Control(FCellControls.Items[i]).Visible:=true;
-      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
-      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
-
-      V:=Grid.GetValue(Index,Grid.TopRow + i);
-      TD2Control(FCellControls.Items[i]).Data:=V;
-
-    end;
-    UpdateSelected;
-  finally
-    FUpdateColumn:=false;
-  end;
-end;
-
-procedure TD2TreeColumn.PaintColumn;
-// Это основная процедура рисования дерева. Она отвечает за поддержание циклов краски на узел, а также
-// как координационный чертеж различных частей дерева.
-// TargetCanvas - это холст для рисования древовидного изображения. Обычно это окно дерева, но вполне может
-// быть растровым или печатным холстом.
-// Окно определяет, какую часть всего изображения дерева нужно рисовать. Определяется полный размер виртуального изображения
-// через GetTreeRect.
-// Target - это позиция в TargetCanvas, где нужно нарисовать часть дерева, указанную в окне.
-// PaintOptions определяет, что из дерева рисовать. Для разных задач обычно нужно нарисовать разные части,
-// полное изображение в окне, выбрано только узлы для изображения перетаскивания и т. Д.
-
-// This is the core paint routine of the tree. It is responsible for maintaining the paint cycles per node as well
-// as coordinating drawing of the various parts of the tree image.
-// TargetCanvas is the canvas to which to draw the tree image. This is usually the tree window itself but could well
-// be a bitmap or printer canvas.
-// Window determines which part of the entire tree image to draw. The full size of the virtual image is determined
-// by GetTreeRect.
-// Target is the position in TargetCanvas where to draw the tree part specified by Window.
-// PaintOptions determines what of the tree to draw. For different tasks usually different parts need to be drawn, with
-// a full image in the window, selected only nodes for a drag image etc.
-
+//Обновление колонки
 
 var
   Node: PD2TreeNode;
-  BaseOffset: Single;         // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
+  BaseOffset: Single;          // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
 
-  LineArray: TD2TreeLineArray;
-  Cell: TD2TreeCell;
-  IndentSize: integer;
+  LineArray: TD2TreeLineArray; //массив линий дерева
+  Cell: TD2TreeCell;           //текущий контрол ячейки
+  i, IndentSize: integer;         //отступ
 
   MaximumBottom: Single;      // Максимальное вертикальное целевое положение. maximum vertical target position
 
@@ -295,25 +273,12 @@ var
   //ShowImages,
   //ShowStateImages,
   //ShowCheckImages: Boolean;
-
-  IsMainColumn: Boolean;
-
-
-  {$ifdef ManualClipNeeded}
-  YCorrect,
-  {$endif}
   VAlign,
-
   ButtonY: Single;
-
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
-
-
-
-
 begin
-
   if FGrid = nil then exit; //нет грида - выходим
+  FUpdateColumn:=true;      //начать обновление колонки (для совместимости с CustomGrid)
 
   with TD2TreeGrid(FGrid) do
   begin
@@ -321,131 +286,188 @@ begin
     begin
       DoStateChange([tsPainting]);
       try
-          //Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
-          //UseBackground := (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) ;
-          //ShowImages := Assigned(FImages);
-          //ShowStateImages := Assigned(FStateImages);
-          //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
+        //Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
+        //UseBackground := (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) ;
+        //ShowImages := Assigned(FImages);
+        //ShowStateImages := Assigned(FStateImages);
+        //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
+        MaximumBottom:= ContentLayout.LocalRect.Bottom + VScrollBarValue;  //координата нижней границы видимой области в абсолютных координатах дерева.
+        Node := InternalGetNodeAt(0, VScrollBarValue, True, BaseOffset);  // Определим начальный узел для рисования. Determine node to start drawing with.
+        i:= 0;  //индекс текущей видимой ячейки
+        while Assigned(Node) do  // ----------- основной цикл. Пока есть узел main node paint loop
+        begin
+          if not (vsInitialized in Node.States) then InitNode(Node); // Инициализировать узел, если еще не выполнено. Initialize node if not already done.
+          MeasureItemHeight(Node); // Убедиться, что высота узла определена.  Ensure the node's height is determined.
+          SelectLevel := DetermineLineArrayAndSelectLevel(Node, LineArray);  //определяем уровень вложенности и создаем массив линий дерева
+          if (vsSelected in Node.States) and not (toChildrenAbove in FOptions.FPaintOptions)
+             then Inc(SelectLevel);
+          IndentSize := Length(LineArray);       //кол-во отступов
+          if i >= FCellControls.Count            //если текущий индекс больше чем кол-во созданных ячеек
+             then begin                          //то
+                    Cell:=TD2TreeCell(CreateCellControl);       //создадим ячеку
+                    InitCellControl(Cell);         //настроим ячеку
+                    FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
+                  end
+             else Cell:= FCellControls.Items[i]; //иначе возьмем текущую ячейку
+          Cell.FColumnIndex:= Index;
+          Cell.FNode:=Node;
+          Cell.SetBounds(0, BaseOffset, Width, Node.NodeHeight); //задаем границы ячейки
+          if  Cell.FExpander <> nil then //если есть експндер
+             if not (toFixedIndent in FOptions.FPaintOptions) and (FIndent > 0) //если не установлен фиксированный отступ, то сдвигаем экспандер узла
+                then Cell.FExpander.Padding.Left := IndentSize * FIndent - Cell.FExpander.Width / 2 + Cell.FExpander.Padding.Right
+                else Cell.FExpander.Padding.Left := 3;
+          if IsMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
+             then begin
+                    //рисуем линии дерева
+                    if (toShowTreeLines in FOptions.FPaintOptions) then
+                      PaintTreeLines(Cell, LineArray);
+                    //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
+                    //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
+                    // Show node button if allowed, if there child nodes and at least one of the child
+                    // nodes is visible or auto button hiding is disabled.
+                    if (toCheckSupport in FOptions.FMiscOptions) then
+                      case Node.CheckType of
+                        ctNone,             // Узел без отметки.
+                        ctButton:           // Узел с кнопкой слева от надписи.
+                          begin
+                            if Cell.FCheck <> nil
+                               then Cell.FCheck.Visible := false;
+                            if Cell.FRadio <> nil
+                               then Cell.FRadio.Visible := false;
+                          end;
+                        ctTriStateCheckBox: // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
+                          begin
+                            if Cell.FCheck <> nil
+                               then begin
+                                      Cell.FCheck.Visible := false;
+                                      Cell.FCheck.AllowGrayed:=true;
+                                      Case Node.CheckState of
+                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+                                          begin
+                                            Cell.FCheck.IsChecked := false;
+                                            Cell.FCheck.IsGrayed := false;
+                                          end;
+                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+                                        csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+                                          Cell.FCheck.IsChecked := true;
+                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+                                          Cell.FCheck.IsGrayed := true;
+                                      end;
+                                    end;
+                            if Cell.FRadio <> nil
+                               then Cell.FRadio.Visible := false;
+                          end;
+                        ctCheckBox:         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
+                          begin
+                            if Cell.FCheck <> nil
+                               then begin
+                                      Cell.FCheck.Visible := false;
+                                      Cell.FCheck.AllowGrayed:=false;
+                                      Case Node.CheckState of
+                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+                                          begin
+                                            Cell.FCheck.IsChecked := false;
+                                            Cell.FCheck.IsGrayed := false;
+                                          end;
+                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+                                        csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+                                          Cell.FCheck.IsChecked := true;
+                                      end;
+                                    end;
+                            if Cell.FRadio <> nil
+                               then Cell.FRadio.Visible := false;
+                          end;
+                        ctRadioButton:      // Узел с отметкой типа TRadioButton.
+                          begin
+                            if Cell.FCheck <> nil
+                               then Cell.FCheck.Visible := false;
+                            if Cell.FRadio <> nil
+                               then begin
+                                      Cell.FRadio.Visible := true;
+                                      Case Node.CheckState of
+                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+                                            Cell.FRadio.IsChecked := false;
+                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+                                        csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+                                          Cell.FRadio.IsChecked := true;
+                                      end;
+                                     end;
+                          end;
 
-
-          BaseOffset := 0;
-          MaximumBottom:= GetContentBounds.Bottom + VScrollBarValue;
-          // Определим начальный узел для рисования. Determine node to start drawing with.
-          Node := GetTopNode;
-          if Assigned(Node) then
-          begin
-            // ----------- основной цикл  main node paint loop
-            while Assigned(Node) do
-            begin
-
-              //Определить LineArray, SelectionLevel и IndentSize. Determine LineArray, SelectionLevel and IndentSize
-              SelectLevel := DetermineLineArrayAndSelectLevel(Node, LineArray);
-              IndentSize := Length(LineArray);
-              if not (toFixedIndent in FOptions.FPaintOptions) then
-                 Cell.FExpander.Padding.Left := IndentSize * FIndent - Cell.FExpander.Width / 2 + Cell.FExpander.Padding.Right;
-
-              // Инициализировать узел, если еще не выполнено. Initialize node if not already done.
-              if not (vsInitialized in Node.States) then InitNode(Node);
-              if (vsSelected in Node.States) and not (toChildrenAbove in FOptions.FPaintOptions)
-                 then Inc(SelectLevel);
-
-              // Убедиться, что высота узла определена.  Ensure the node's height is determined.
-              MeasureItemHeight(Node);
-
-              d2IncFloat(BaseOffset, Node.NodeHeight);
-
-              //Выполнить следующие действия только для выбранных узлов или узлов которые являются дочерними узлами выбранных узлов.
-              // If poSelectedOnly is active then do the following stuff only for selected nodes or nodes
-              // which are children of selected nodes.
-              if (SelectLevel > 0) then
-              begin
-                CalculateVerticalAlignments({ShowImages, ShowStateImages,}false,false, Node, VAlign, ButtonY);
-
-                //if ShowCheckImages and IsMainColumn then
-                //begin
-                //  ImageInfo[iiCheck].Index := GetCheckImage(Node);
-                //  if ImageInfo[iiCheck].Index > -1 then
-                //  begin
-                //    AdjustImageBorder(FCheckImages, BidiMode, VAlign, ContentRect, ImageInfo[iiCheck]);
-                //    ImageInfo[iiCheck].Ghosted := False;
-                //  end;
-                //end
-                //else
-                //  ImageInfo[iiCheck].Index := -1;
-                //if ShowStateImages then
-                //begin
-                //  GetImageIndex(PaintInfo, ikState, iiState, FStateImages);
-                //  if ImageInfo[iiState].Index > -1 then
-                //    AdjustImageBorder(FStateImages.Width, FStateImages.Height, BidiMode, VAlign, ContentRect, ImageInfo[iiState]);
-                //end
-                //else
-                //  ImageInfo[iiState].Index := -1;
-                //if ShowImages then
-                //begin
-                //  GetImageIndex(PaintInfo, ImageKind[vsSelected in Node.States], iiNormal, FImages);
-                //  if ImageInfo[iiNormal].Index > -1 then
-                //    AdjustImageBorder(ImageInfo[iiNormal].Images, BidiMode, VAlign, ContentRect, ImageInfo[iiNormal]);
-                //end
-                //else
-                //  ImageInfo[iiNormal].Index := -1;
-
-                // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
-                if IsMainColumn then
-                begin
-                  //рисуем линии дерева
-                  if (toShowTreeLines in FOptions.FPaintOptions) then
-                    PaintTreeLines(Cell, LineArray);
-
-                  //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
-                  //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
-                  // Show node button if allowed, if there child nodes and at least one of the child
-                  // nodes is visible or auto button hiding is disabled.
-                  if (toShowButtons in TreeOptions.FPaintOptions) and
-                     (vsHasChildren in Node.States) and
-                      not ((vsAllChildrenHidden in Node.States) and
-                           (toAutoHideButtons in TreeOptions.FAutoOptions))
+                       end;
+                    if (toShowButtons in TreeOptions.FPaintOptions) and
+                       (vsHasChildren in Node.States) and
+                        not ((vsAllChildrenHidden in Node.States) and
+                             (toAutoHideButtons in TreeOptions.FAutoOptions)) and
+                        (Cell.FExpander <> nil)
                       then Cell.FExpander.Visible:= true
                       else Cell.FExpander.Visible:= false;
 
-                  //if ImageInfo[iiCheck].Index > -1 then
-                  //  PaintCheckImage(Canvas, PaintInfo.ImageInfo[iiCheck], vsSelected in PaintInfo.Node.States);
-                end;
+                    //if ImageInfo[iiCheck].Index > -1 then
+                    //  PaintCheckImage(Canvas, PaintInfo.ImageInfo[iiCheck], vsSelected in PaintInfo.Node.States);
+                  end
+             else begin
+                    if Cell.FExpander <> nil
+                       then Cell.FExpander.Visible := false;
+                    if Cell.FCheck <> nil
+                       then Cell.FCheck.Visible := false;
+                    if Cell.FRadio <> nil
+                       then Cell.FRadio.Visible := false;
+                  end;
 
-                // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
-                if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
-                   then PaintDropMark(Cell);
-              end;
+          //CalculateVerticalAlignments({ShowImages, ShowStateImages,}false,false, Node, VAlign, ButtonY);
+          //if ShowCheckImages and IsMainColumn
+          //   then begin
+          //          ImageInfo[iiCheck].Index := GetCheckImage(Node);
+          //          if ImageInfo[iiCheck].Index > -1
+          //             then begin
+          //                    AdjustImageBorder(FCheckImages, BidiMode, VAlign, ContentRect, ImageInfo[iiCheck]);
+          //                    ImageInfo[iiCheck].Ghosted := False;
+          //                  end;
+          //        end
+          //   else ImageInfo[iiCheck].Index := -1;
+          //if ShowStateImages
+          //   then begin
+          //          GetImageIndex(PaintInfo, ikState, iiState, FStateImages);
+          //          if ImageInfo[iiState].Index > -1 then
+          //            AdjustImageBorder(FStateImages.Width, FStateImages.Height, BidiMode, VAlign, ContentRect, ImageInfo[iiState]);
+          //        end
+          //   else ImageInfo[iiState].Index := -1;
+          //if ShowImages
+          //   then begin
+          //          GetImageIndex(PaintInfo, ImageKind[vsSelected in Node.States], iiNormal, FImages);
+          //          if ImageInfo[iiNormal].Index > -1 then
+          //            AdjustImageBorder(ImageInfo[iiNormal].Images, BidiMode, VAlign, ContentRect, ImageInfo[iiNormal]);
+          //        end
+          //   else ImageInfo[iiNormal].Index := -1;
 
-              if BaseOffset >= MaximumBottom then Break;
-              // Переход к следующему видимому узлу. Advance to next visible node.
-              Node := GetNextVisible(Node, True);
-            end;
-            //-------------- конец основного цикла
-          end;
+          Cell.Data:= GetValue(Node, Index);
+          Cell.Visible:=true;
 
-          // Стереть остальную часть окна, не охватываемую узлом.
-
-        //if (ChildCount[nil] = 0) and (FEmptyListMessage <> '') then
-        //begin
-        //  // выводить сообщение, если нет элементов для отображения
-        //  // output a message if no items are to display
-        //  Canvas.Font := Self.Font;
-        //  SetBkMode(TargetCanvas.Handle, TRANSPARENT);
-        //  R.Left := OffSetX + 2;
-        //  R.Top := 2;
-        //  R.Right := R.Left + Width - 2;
-        //  R.Bottom := Height -2;
-        //  TargetCanvas.Font.Color := clGrayText;
-        //  //lcl: LCL has no support for tfNoClip, tfLeft
-        //  //TargetCanvas.TextRect(R, FEmptyListMessage, [tfNoClip, tfLeft]);
-        //  TextOut(TargetCanvas.Handle, 2 - Window.Left, 2 - Window.Top, PAnsiChar(FEmptyListMessage), Length(FEmptyListMessage));
-        //end;
-
+          // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
+          if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
+             then PaintDropMark(Cell);
+          inc(i);
+          d2IncFloat(BaseOffset, Node.NodeHeight);
+          if BaseOffset >= MaximumBottom then Break; //если верхняя координата следующего узла нижи чем нижний край видимого окна, то выходим из цикла
+          Node := GetNextVisible(Node, True); // Переход к следующему видимому узлу. Advance to next visible node.
+        end;    //-------------- конец основного цикла
+        for i:=i to FCellControls.Count - 1 do  //Cкрыть остальные ячейки, если есть,
+          TD2Control(FCellControls.Items[i]).Visible:=false;
+        UpdateSelected;
       finally
         DoStateChange([], [tsPainting]);
+        FUpdateColumn:=false;  //обновление колонки закончено (для совместимости с CustomGrid)
       end;
     end;
-    {$ifdef DEBUG_VTV}Logger.ExitMethod([lcPaint],'PaintTree');{$endif}
   end;
 end;
 
@@ -3865,6 +3887,20 @@ function TD2CustomTreeGrid.GetOperationCanceled: Boolean;
 //Получить состояния флага необходимости завершения длительной операции: true - операция должна быть завершена
 begin
   Result := FOperationCanceled and (FOperationCount > 0);
+end;
+
+function TD2CustomTreeGrid.GetValue(Node: PD2TreeNode; Col: integer): Variant;
+begin
+  Result:=NULL;
+  if Assigned(FOnGetValue) then
+    FOnGetValue(Self, Node, Col, Result);
+end;
+
+procedure TD2CustomTreeGrid.SetValue(Node: PD2TreeNode; Col: integer;
+  const Value: Variant);
+begin
+    if Assigned(FOnSetValue) then
+    FOnSetValue(Self, Node, Col, Value);
 end;
 
 procedure TD2CustomTreeGrid.InitChildren(Node: PD2TreeNode);
