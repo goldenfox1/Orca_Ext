@@ -8237,6 +8237,7 @@ TD2TreeCell = class(TD2Control)
   private
 
     FCheck: TD2CheckBox;          //указатель на чекбокс
+    FIndent: TD2Layout;           //указатель на отступ
     FRadio: TD2RadioButton;       //указатель на радиокнопку
     FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
     FContent: TD2Layout;          //указатель на клиентскую область
@@ -8386,9 +8387,9 @@ end;
   TD2VTGetNodeDataSizeEvent = procedure(Sender: TD2CustomTreeGrid; var NodeDataSize: Integer) of object;
   TD2VTStateChangeEvent = procedure(Sender: TD2CustomTreeGrid; Enter, Leave: TD2TreeStates) of object;
 
-  TD2VTGetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Col: integer; var Value:Variant) of object;
-  TD2VTSetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Col:integer; const Value:Variant) of object;
-  TD2VTEdititingDone = procedure (Sender: TObject; Node:PD2TreeNode; const Col: integer) of object;
+  TD2VTGetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer; var Value:Variant) of object;
+  TD2VTSetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column:integer; const Value:Variant) of object;
+  TD2VTEdititingDone = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer) of object;
 
 // paint events
 TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var NodeHeight: Single) of object;
@@ -9066,7 +9067,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //Индекс колонки в которой идет редактирование данных
     property EditColumn: integer read FEditColumn write FEditColumn;
              //отступ границы вложенного узла от границы родителя
-    property Indent: Single read FIndent write SetIndent default 18;
+    property Indent: Single read FIndent write SetIndent default 20;
              //Следующий узел дерева, который должен быть выбран, если текущий будет удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted
     property NextNodeToSelect: PD2TreeNode read FNextNodeToSelect;
              //Тип выравнивания для узлов
@@ -9483,6 +9484,7 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
 published
   property TreeOptions;
   property MainColumn;
+  property OnGetValue;
 end;
 
 

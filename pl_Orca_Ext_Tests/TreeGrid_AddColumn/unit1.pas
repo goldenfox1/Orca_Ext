@@ -13,15 +13,16 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    TreeGrid1: TD2TreeGrid;
     Button1: TD2Button;
     CheckBox1: TD2CheckBox;
     D2Scene1: TD2Scene;
     Root1: TD2Background;
-    TreeGrid1: TD2TreeGrid;
-    TreeTextColumn1: TD2TreeTextColumn;
     VirtualDrawTree1: TVirtualDrawTree;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
+      const Column: integer; var Value: Variant);
   private
     { private declarations }
   public
@@ -29,14 +30,14 @@ type
   end;
 
 const
-  Names: array[0..4] of WideString = (
+  Names: array[0..4] of String = (
   'Вася',
   'Петя',
   'Маша',
   'Костя',
   'Дима'
 );
-Phones: array[0..4] of WideString = (
+Phones: array[0..4] of String = (
   '433-56-49',
   '545-67-79',
   '777-50-50',
@@ -48,7 +49,7 @@ type
   PPhoneNode = ^TPhoneNode;
   TPhoneNode = record
     Name, // Имя контакта
-    Phone: WideString; // Телефон
+    Phone: String; // Телефон
   end;
 
 var
@@ -71,6 +72,8 @@ var
   NewPhone: PPhoneNode;
   i,t: integer;
 begin
+  TreeGrid1.Columns[0].Header:='Имя';
+  TreeGrid1.Columns[1].Header:='Телефон';
   TreeGrid1.NodeDataSize:= SizeOf(TPhoneNode);
   TreeGrid1.BeginUpdate;
   for i:=0 to High(Names) do
@@ -94,9 +97,23 @@ begin
           Phone := Phones[t];
         end;
     end;
+    NewNode^.States:= NewNode^.States + [vsExpanded];
   end;
   TreeGrid1.EndUpdate;
 end;
+
+procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
+  const Column: integer; var Value: Variant);
+var Phone: PPhoneNode;
+begin
+
+  Phone:= TD2TreeGrid(Sender).GetNodeData(Node);
+  case Column of
+    0: Value := Phone^.Name; // Текст для колонки имени
+    1: Value := Phone^.Phone; // Текст для колонки телефонного номера
+  end;
+end;
+
 
 end.
 

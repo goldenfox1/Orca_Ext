@@ -85,6 +85,9 @@ var
   B:TD2Object;
 begin
   inherited;
+  B:=FindResource('indent');
+  if (B <> nil) and (B is TD2Layout) then
+    FIndent:= TD2Layout(B);
   B:=FindResource('expander');
   if (B <> nil) and (B is TD2CustomButton) then
   begin
@@ -278,6 +281,7 @@ var
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
 begin
   if FGrid = nil then exit; //нет грида - выходим
+  if FUpdateColumn then exit;
   FUpdateColumn:=true;      //начать обновление колонки (для совместимости с CustomGrid)
 
   with TD2TreeGrid(FGrid) do
@@ -298,10 +302,6 @@ begin
         begin
           if not (vsInitialized in Node.States) then InitNode(Node); // Инициализировать узел, если еще не выполнено. Initialize node if not already done.
           MeasureItemHeight(Node); // Убедиться, что высота узла определена.  Ensure the node's height is determined.
-          SelectLevel := DetermineLineArrayAndSelectLevel(Node, LineArray);  //определяем уровень вложенности и создаем массив линий дерева
-          if (vsSelected in Node.States) and not (toChildrenAbove in FOptions.FPaintOptions)
-             then Inc(SelectLevel);
-          IndentSize := Length(LineArray);       //кол-во отступов
           if i >= FCellControls.Count            //если текущий индекс больше чем кол-во созданных ячеек
              then begin                          //то
                     Cell:=TD2TreeCell(CreateCellControl);       //создадим ячеку
@@ -309,18 +309,25 @@ begin
                     FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
                   end
              else Cell:= FCellControls.Items[i]; //иначе возьмем текущую ячейку
-          Cell.FColumnIndex:= Index;
+          Cell.FColumnIndex:= Self.Index;
           Cell.FNode:=Node;
-          Cell.SetBounds(0, BaseOffset, Width, Node.NodeHeight); //задаем границы ячейки
-          if  Cell.FExpander <> nil then //если есть експндер
-             if not (toFixedIndent in FOptions.FPaintOptions) and (FIndent > 0) //если не установлен фиксированный отступ, то сдвигаем экспандер узла
-                then Cell.FExpander.Padding.Left := IndentSize * FIndent - Cell.FExpander.Width / 2 + Cell.FExpander.Padding.Right
-                else Cell.FExpander.Padding.Left := 3;
+          Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
+
           if IsMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
              then begin
+                    SelectLevel := DetermineLineArrayAndSelectLevel(Node, LineArray);  //определяем уровень вложенности и создаем массив линий дерева
+                    //if (vsSelected in Node.States) and not (toChildrenAbove in FOptions.FPaintOptions)
+                    //   then Inc(SelectLevel);
+                    IndentSize := Length(LineArray);       //кол-во отступов
+
+                    if Cell.FIndent <> nil then
+                      if not (toFixedIndent in FOptions.FPaintOptions) and (FIndent > 0) //если не установлен фиксированный отступ, то сдвигаем экспандер узла
+                        then Cell.FIndent.Width := IndentSize * FIndent {- Cell.FExpander.Width / 2}
+                        else Cell.FIndent.Width := 0;
                     //рисуем линии дерева
                     if (toShowTreeLines in FOptions.FPaintOptions) then
                       PaintTreeLines(Cell, LineArray);
+
                     //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
                     //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
                     // Show node button if allowed, if there child nodes and at least one of the child
@@ -402,19 +409,28 @@ begin
                                      end;
                           end;
 
-                       end;
-                    if (toShowButtons in TreeOptions.FPaintOptions) and
-                       (vsHasChildren in Node.States) and
-                        not ((vsAllChildrenHidden in Node.States) and
-                             (toAutoHideButtons in TreeOptions.FAutoOptions)) and
-                        (Cell.FExpander <> nil)
-                      then Cell.FExpander.Visible:= true
-                      else Cell.FExpander.Visible:= false;
-
+                       end
+                    else  begin
+                            if Cell.FCheck <> nil
+                               then Cell.FCheck.Visible := false;
+                            if Cell.FRadio <> nil
+                               then Cell.FRadio.Visible := false;
+                          end;
+                    if Cell.FExpander <> nil then
+                    begin
+                      if (toShowButtons in TreeOptions.FPaintOptions) and
+                         (vsHasChildren in Node.States) and
+                          not ((vsAllChildrenHidden in Node.States) and
+                               (toAutoHideButtons in TreeOptions.FAutoOptions))
+                        then Cell.FExpander.Visible:= true
+                        else Cell.FExpander.Visible:= false;
+                    end;
                     //if ImageInfo[iiCheck].Index > -1 then
                     //  PaintCheckImage(Canvas, PaintInfo.ImageInfo[iiCheck], vsSelected in PaintInfo.Node.States);
                   end
              else begin
+                    if Cell.FIndent <> nil
+                       then Cell.FIndent.Visible := false;
                     if Cell.FExpander <> nil
                        then Cell.FExpander.Visible := false;
                     if Cell.FCheck <> nil
@@ -449,7 +465,7 @@ begin
           //        end
           //   else ImageInfo[iiNormal].Index := -1;
 
-          Cell.Data:= GetValue(Node, Index);
+          Cell.Data:= GetValue(Node, Self.Index);
           Cell.Visible:=true;
 
           // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
