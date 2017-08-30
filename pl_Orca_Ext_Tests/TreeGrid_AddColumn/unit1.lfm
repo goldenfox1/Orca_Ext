@@ -52,6 +52,7 @@ object Form1: TForm1
         Height = 310
         Resource = 'gridstyle'
         TabOrder = 2
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
         OnGetValue = TreeGrid1GetValue
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
@@ -77,8 +78,13 @@ object Form1: TForm1
     Top = 24
     Width = 200
     Header.AutoSizeIndex = 0
-    Header.Columns = <>
-    Header.MainColumn = -1
+    Header.Columns = <    
+      item
+        Position = 0
+      end    
+      item
+        Position = 1
+      end>
     TabOrder = 1
   end
 end

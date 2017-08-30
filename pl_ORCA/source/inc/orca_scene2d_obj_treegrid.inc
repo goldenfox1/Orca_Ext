@@ -184,7 +184,7 @@ end;
 
 function TD2TreeColumn.GetIsMainColumn: boolean;
 begin
-  if (FGrid <> nil) and (FIndex = TD2TreeGrid(FGrid).FMainColumn)
+  if (FGrid <> nil) and (Index = 0)
      then Result:= true
      else Result:= false;
 end;
@@ -321,9 +321,11 @@ begin
                     IndentSize := Length(LineArray);       //кол-во отступов
 
                     if Cell.FIndent <> nil then
+                    begin
                       if not (toFixedIndent in FOptions.FPaintOptions) and (FIndent > 0) //если не установлен фиксированный отступ, то сдвигаем экспандер узла
                         then Cell.FIndent.Width := IndentSize * FIndent {- Cell.FExpander.Width / 2}
                         else Cell.FIndent.Width := 0;
+                    end;
                     //рисуем линии дерева
                     if (toShowTreeLines in FOptions.FPaintOptions) then
                       PaintTreeLines(Cell, LineArray);
@@ -652,7 +654,7 @@ begin
   FLastSelectionLevel := -1;
   //FSelectionBlendFactor := 128;
 
-  FIndent := 18;
+  FIndent := 20;
 
   //BorderStyle := bsSingle;
   //FButtonStyle := bsRectangle;
