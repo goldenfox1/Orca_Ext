@@ -213,6 +213,7 @@ begin
       TD2TreeCell(ACellControl).OnChangeCheck:=DoChangeCheck;
       TD2TreeCell(ACellControl).OnChangeExpander:=DoChangeExpander;
       TD2TreeCell(ACellControl).OnGetHaveChildren:=DoGetHaveChildren;
+      TD2TreeCell(ACellControl).ApplyResource;
     end;
 end;
 

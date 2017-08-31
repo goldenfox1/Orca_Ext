@@ -13,11 +13,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    StringGrid1: TD2StringGrid;
     TreeGrid1: TD2TreeGrid;
     Button1: TD2Button;
     CheckBox1: TD2CheckBox;
     D2Scene1: TD2Scene;
     Root1: TD2Background;
+    TreeTextColumn1: TD2TreeTextColumn;
+    TreeTextColumn2: TD2TreeTextColumn;
     VirtualDrawTree1: TVirtualDrawTree;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -30,19 +33,19 @@ type
   end;
 
 const
-  Names: array[0..4] of String = (
+  Names: array[0..1{4}] of String = (
   'Вася',
-  'Петя',
+  'Петя'{,
   'Маша',
   'Костя',
-  'Дима'
+  'Дима' }
 );
-Phones: array[0..4] of String = (
+Phones: array[0..1{4}] of String = (
   '433-56-49',
-  '545-67-79',
+  '545-67-79'{,
   '777-50-50',
   '911-03-05',
-  '02'
+  '02'        }
 );
 
 type
@@ -97,7 +100,7 @@ begin
           Phone := Phones[t];
         end;
     end;
-    NewNode^.States:= NewNode^.States + [vsExpanded];
+    //NewNode^.States:= NewNode^.States + [vsExpanded];
   end;
   TreeGrid1.EndUpdate;
 end;

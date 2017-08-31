@@ -758,9 +758,9 @@ begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
   Realign;
-  UpdateColumns;
-  UpdateHeader;
-  UpdateSelection;
+  //UpdateColumns;
+  //UpdateHeader;
+  //UpdateSelection;
 end;
 
 procedure TD2CustomGrid.UpdateSelection;   //обновить маркеры выбора строк
@@ -1024,13 +1024,13 @@ begin
   if ColumnCount > 0 then
   begin
     R.Right:=R.Left;
-    R.Top:=R.Top;
+    //R.Top:=R.Top;
     for i:=0 to ColumnCount - 1 do
     begin
       Col:=d2Rect(R.Right,R.Top,R.Right + Columns[i].Width,R.Bottom);
       R.Right:=R.Right + Columns[i].Width;
-      Columns[i].SetBounds(Col.Left,(TopRow * FRowHeight),Columns[i].Width,ClientHeight);
-      Columns[i].UpdateColumn;
+      Columns[i].SetBounds(Col.Left,(TopRow * FRowHeight),Columns[i].Width, ClientHeight);
+      //Columns[i].UpdateColumn;
     end;
     R.Bottom:=R.Top + (FRowCount * FRowHeight);
   end;
@@ -1039,9 +1039,9 @@ begin
   if d2RectHeight(R) < ContentLayout.Height then
     R.Bottom:=R.Top + ContentLayout.Height;
   Result:=R;
-  UpdateColumns;
-  UpdateHeader;
-  UpdateSelection;
+  //UpdateColumns;
+  //UpdateHeader;
+  //UpdateSelection;
 end;
 
 procedure TD2CustomGrid.HScrollChange(Sender:TObject);
@@ -1122,6 +1122,14 @@ begin
         end
       end;
   Result:=nil;
+end;
+
+procedure TD2CustomGrid.Realign;
+begin
+  inherited;
+  UpdateColumns;
+  UpdateHeader;
+  UpdateSelection;
 end;
 
 function TD2CustomGrid.CanEditModify: Boolean;

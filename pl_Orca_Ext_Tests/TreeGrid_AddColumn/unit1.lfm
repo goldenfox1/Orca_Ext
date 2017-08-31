@@ -1,16 +1,16 @@
 object Form1: TForm1
   Left = 312
-  Height = 513
-  Top = 121
+  Height = 517
+  Top = 117
   Width = 897
   Caption = 'Form1'
-  ClientHeight = 513
+  ClientHeight = 517
   ClientWidth = 897
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 513
+    Height = 517
     Top = 0
     Width = 650
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 650
-      Height = 513
+      Height = 517
       Resource = 'Root1Style1'
       object Button1: TD2Button
         Position.Point = '(459,10)'
@@ -49,7 +49,7 @@ object Form1: TForm1
         Position.Point = '(29,22)'
         RotateAngle = 0
         Width = 398
-        Height = 310
+        Height = 186
         Resource = 'gridstyle'
         TabOrder = 2
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
@@ -57,7 +57,7 @@ object Form1: TForm1
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 174
-          Height = 285
+          Height = 161
           HitTest = False
           TabOrder = 0
         end
@@ -65,7 +65,31 @@ object Form1: TForm1
           Position.Point = '(174,0)'
           RotateAngle = 0
           Width = 128
-          Height = 285
+          Height = 161
+          HitTest = False
+          TabOrder = 1
+        end
+      end
+      object StringGrid1: TD2StringGrid
+        Position.Point = '(42,237)'
+        RotateAngle = 0
+        Width = 390
+        Height = 227
+        Resource = 'gridstyle'
+        TabOrder = 3
+        RowCount = 100
+        object StringColumn1: TD2StringColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 202
+          HitTest = False
+          TabOrder = 0
+        end
+        object StringColumn2: TD2StringColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 202
           HitTest = False
           TabOrder = 1
         end

@@ -7244,6 +7244,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function ColumnByIndex(const Idx: integer): TD2Column;
              //получить указатель на колонку по координатам
     function ColumnByPoint(const X, Y:single): TD2Column;
+             //перестроить грид
+    procedure Realign;  override;
              //получить № стоки по координатам
     function RowByPoint(const X, Y:single):integer;
              //добавить дочерний объект
