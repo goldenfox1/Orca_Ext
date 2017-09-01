@@ -5,23 +5,25 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, VirtualTrees, orca_scene2d, Forms, Controls,
-  Graphics, Dialogs, StdCtrls;
+  Classes, SysUtils, FileUtil, DBStringTree, orca_scene2d, Forms, Controls,
+  Graphics, Dialogs;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TD2Button;
+    D2Scene1: TD2Scene;
+    DBVT: TDBStringTree;
+    Root1: TD2Background;
     StringGrid1: TD2StringGrid;
     TreeGrid1: TD2TreeGrid;
-    Button1: TD2Button;
-    CheckBox1: TD2CheckBox;
-    D2Scene1: TD2Scene;
-    Root1: TD2Background;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
-    VirtualDrawTree1: TVirtualDrawTree;
+    TreeView1: TD2TreeView;
+    TreeViewItem1: TD2TreeViewItem;
+    TreeViewItem2: TD2TreeViewItem;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
@@ -33,19 +35,19 @@ type
   end;
 
 const
-  Names: array[0..1{4}] of String = (
+  Names: array[0..4] of String = (
   'Вася',
-  'Петя'{,
+  'Петя',
   'Маша',
   'Костя',
-  'Дима' }
+  'Дима'
 );
-Phones: array[0..1{4}] of String = (
+Phones: array[0..4] of String = (
   '433-56-49',
-  '545-67-79'{,
+  '545-67-79',
   '777-50-50',
   '911-03-05',
-  '02'        }
+  '02'
 );
 
 type
@@ -66,7 +68,7 @@ implementation
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-   TreeGrid1.AddObject(TD2TreeTextColumn.Create(nil));
+  TreeGrid1.AddObject(TD2TreeTextColumn.Create(nil));
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -76,7 +78,9 @@ var
   i,t: integer;
 begin
   TreeGrid1.Columns[0].Header:='Имя';
+  TreeGrid1.Columns[0].Tag:= 0;
   TreeGrid1.Columns[1].Header:='Телефон';
+  TreeGrid1.Columns[0].Tag:= 1;
   TreeGrid1.NodeDataSize:= SizeOf(TPhoneNode);
   TreeGrid1.BeginUpdate;
   for i:=0 to High(Names) do
@@ -100,23 +104,25 @@ begin
           Phone := Phones[t];
         end;
     end;
-    //NewNode^.States:= NewNode^.States + [vsExpanded];
+    if i=0 then NewNode^.States:= NewNode^.States + [vsExpanded];
   end;
   TreeGrid1.EndUpdate;
 end;
 
 procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
   const Column: integer; var Value: Variant);
-var Phone: PPhoneNode;
+var
+  Phone: PPhoneNode;
 begin
-
-  Phone:= TD2TreeGrid(Sender).GetNodeData(Node);
-  case Column of
-    0: Value := Phone^.Name; // Текст для колонки имени
-    1: Value := Phone^.Phone; // Текст для колонки телефонного номера
+  with TD2TreeGrid(Sender) do
+  begin
+    Phone:= GetNodeData(Node);
+    case Columns[Column].Tag of
+      0: Value := Phone^.Name; // Текст для колонки имени
+      1: Value := Phone^.Phone; // Текст для колонки телефонного номера
+    end;
   end;
 end;
-
 
 end.
 

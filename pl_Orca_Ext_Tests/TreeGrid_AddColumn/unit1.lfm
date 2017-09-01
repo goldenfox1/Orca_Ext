@@ -1,87 +1,103 @@
 object Form1: TForm1
-  Left = 312
-  Height = 517
+  Left = 310
+  Height = 498
   Top = 117
-  Width = 897
+  Width = 995
   Caption = 'Form1'
-  ClientHeight = 517
-  ClientWidth = 897
+  ClientHeight = 498
+  ClientWidth = 995
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 517
+    Height = 498
     Top = 0
-    Width = 650
+    Width = 715
     Align = alLeft
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 650
-      Height = 517
-      Resource = 'Root1Style1'
-      object Button1: TD2Button
-        Position.Point = '(459,10)'
+      Width = 715
+      Height = 498
+      object TreeGrid1: TD2TreeGrid
+        Position.Point = '(42,35)'
         RotateAngle = 0
-        Width = 112
+        Width = 392
+        Height = 168
+        Resource = 'gridstyle'
+        TabOrder = 1
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
+        OnGetValue = TreeGrid1GetValue
+        object TreeTextColumn1: TD2TreeTextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 143
+          HitTest = False
+          TabOrder = 0
+        end
+        object TreeTextColumn2: TD2TreeTextColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 143
+          HitTest = False
+          TabOrder = 1
+        end
+      end
+      object Button1: TD2Button
+        Position.Point = '(569,35)'
+        RotateAngle = 0
+        Width = 80
         Height = 22
         OnClick = Button1Click
         TabOrder = 0
         StaysPressed = False
         IsPressed = False
         TextAlign = d2TextAlignCenter
-        Text = 'Добавить колонку'
       end
-      object CheckBox1: TD2CheckBox
-        Position.Point = '(439,177)'
+      object TreeView1: TD2TreeView
+        Position.Point = '(511,234)'
         RotateAngle = 0
-        Width = 120
-        Height = 19
-        TabOrder = 1
-        IsChecked = False
-        IsGrayed = False
-        AllowGrayed = True
-        TextAlign = d2TextAlignNear
-      end
-      object TreeGrid1: TD2TreeGrid
-        Position.Point = '(29,22)'
-        RotateAngle = 0
-        Width = 398
-        Height = 186
-        Resource = 'gridstyle'
+        Width = 146
+        Height = 100
         TabOrder = 2
-        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
-        OnGetValue = TreeGrid1GetValue
-        object TreeTextColumn1: TD2TreeTextColumn
+        ItemHeight = 0
+        object TreeViewItem1: TD2TreeViewItem
           RotateAngle = 0
-          Width = 174
-          Height = 161
+          Width = 142
+          Height = 19
           HitTest = False
           TabOrder = 0
-        end
-        object TreeTextColumn2: TD2TreeTextColumn
-          Position.Point = '(174,0)'
-          RotateAngle = 0
-          Width = 128
-          Height = 161
-          HitTest = False
-          TabOrder = 1
+          IsChecked = False
+          IsExpanded = True
+          IsSelected = False
+          object TreeViewItem2: TD2TreeViewItem
+            Position.Point = '(19,19)'
+            RotateAngle = 0
+            Width = 123
+            Height = 19
+            HitTest = False
+            TabOrder = 0
+            IsChecked = False
+            IsExpanded = False
+            IsSelected = False
+          end
         end
       end
       object StringGrid1: TD2StringGrid
-        Position.Point = '(42,237)'
+        Position.Point = '(42,246)'
         RotateAngle = 0
-        Width = 390
-        Height = 227
+        Width = 392
+        Height = 188
         Resource = 'gridstyle'
-        TabOrder = 3
+        TabOrder = 4
         RowCount = 100
         object StringColumn1: TD2StringColumn
           RotateAngle = 0
           Width = 100
-          Height = 202
+          Height = 163
           HitTest = False
           TabOrder = 0
         end
@@ -89,26 +105,23 @@ object Form1: TForm1
           Position.Point = '(100,0)'
           RotateAngle = 0
           Width = 100
-          Height = 202
+          Height = 163
           HitTest = False
           TabOrder = 1
         end
       end
     end
   end
-  object VirtualDrawTree1: TVirtualDrawTree
-    Left = 664
+  object DBVT: TDBStringTree
+    Left = 760
     Height = 100
-    Top = 24
+    Top = 32
     Width = 200
+    DefaultText = 'Node'
     Header.AutoSizeIndex = 0
-    Header.Columns = <    
-      item
-        Position = 0
-      end    
-      item
-        Position = 1
-      end>
+    Header.Columns = <>
+    Header.MainColumn = -1
+    NodeDataSize = 4
     TabOrder = 1
   end
 end

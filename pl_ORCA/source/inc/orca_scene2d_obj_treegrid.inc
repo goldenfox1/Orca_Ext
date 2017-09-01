@@ -12,7 +12,8 @@ procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
 begin
   IsExpanded:=not IsExpanded;
   if Assigned(FOnChangeExpander) then
-    FOnChangeExpander(Sender);
+    //FOnChangeExpander(Sender);
+    FOnChangeExpander(Self);
 end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
@@ -24,13 +25,13 @@ begin
   if Assigned(FOnChangeCheck) then
     FOnChangeCheck(Sender);
 end;
-
-function TD2TreeCell.GetHaveChildren: boolean;
-begin
-  if Assigned(FOnGetHaveChildren)
-    then Result:=FOnGetHaveChildren(Self)
-    else Result:=false;
-end;
+//
+//function TD2TreeCell.GetHaveChildren: boolean;
+//begin
+//  if Assigned(FOnGetHaveChildren)
+//    then Result:=FOnGetHaveChildren(Self)
+//    else Result:=false;
+//end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
 begin
@@ -51,7 +52,7 @@ begin
     FIsExpanded:=Value;
     if (FExpander <> nil) and not (csLoading in ComponentState) then
     begin
-      FExpander.Visible:=GetHaveChildren;
+      //FExpander.Visible:=GetHaveChildren;
       if FExpander.Visible then
       begin
         FExpander.StartTriggerAnimation(Self,'IsExpanded');
@@ -93,7 +94,7 @@ begin
   begin
     FExpander:=TD2CustomButton(B);
     FExpander.OnClick:=DoExpanderClick;
-    FExpander.Visible:=GetHaveChildren;
+    //FExpander.Visible:=GetHaveChildren;
     if FExpander.Visible then
     begin
       FExpander.ApplyResource;
@@ -174,19 +175,27 @@ end;
 
 procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
 begin
-
+  with TD2TreeCell(Sender) do
+    if (FNode <> nil) then
+    begin
+      if IsExpanded
+        then FNode.States:= FNode.States + [vsExpanded]
+        else FNode.States:= FNode.States - [vsExpanded];
+      if (Self.FGrid <> nil)
+        then Self.FGrid.Realign;
+    end;
 end;
 
-function TD2TreeColumn.DoGetHaveChildren(Sender: TObject): boolean;
-begin
-  Result:=true;
-end;
+//function TD2TreeColumn.DoGetHaveChildren(Sender: TObject): boolean;
+//begin
+//  Result:=true;
+//end;
 
 function TD2TreeColumn.GetIsMainColumn: boolean;
 begin
-  if (FGrid <> nil) and (Index = 0)
-     then Result:= true
-     else Result:= false;
+  if (FGrid <> nil) and (Index = TD2TreeGrid(FGrid).FMainColumn)
+    then  Result:= true
+    else  Result:= false;
 end;
 
 function TD2TreeColumn.CreateCellControl: TD2Control;
@@ -212,7 +221,7 @@ begin
       TD2TreeCell(ACellControl).FControl.OnKeyDown:=DoKeyDown;
       TD2TreeCell(ACellControl).OnChangeCheck:=DoChangeCheck;
       TD2TreeCell(ACellControl).OnChangeExpander:=DoChangeExpander;
-      TD2TreeCell(ACellControl).OnGetHaveChildren:=DoGetHaveChildren;
+      //TD2TreeCell(ACellControl).OnGetHaveChildren:=DoGetHaveChildren;
       TD2TreeCell(ACellControl).ApplyResource;
     end;
 end;
@@ -282,11 +291,12 @@ var
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
 begin
   if FGrid = nil then exit; //нет грида - выходим
-  if FUpdateColumn then exit;
+  if FGrid.ContentLayout=nil then exit; //нет окна для вывода колонок - выходим
   FUpdateColumn:=true;      //начать обновление колонки (для совместимости с CustomGrid)
 
   with TD2TreeGrid(FGrid) do
   begin
+
     if not (tsPainting in FStates) then
     begin
       DoStateChange([tsPainting]);
@@ -296,7 +306,8 @@ begin
         //ShowImages := Assigned(FImages);
         //ShowStateImages := Assigned(FStateImages);
         //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
-        MaximumBottom:= ContentLayout.LocalRect.Bottom + VScrollBarValue;  //координата нижней границы видимой области в абсолютных координатах дерева.
+        //MaximumBottom:= ContentLayout.LocalRect.Bottom + VScrollBarValue;  //координата нижней границы видимой области в абсолютных координатах дерева.
+        MaximumBottom:= GetContentBounds.Bottom; //координата нижней границы видимой области в абсолютных координатах дерева.
         Node := InternalGetNodeAt(0, VScrollBarValue, True, BaseOffset);  // Определим начальный узел для рисования. Determine node to start drawing with.
         i:= 0;  //индекс текущей видимой ячейки
         while Assigned(Node) do  // ----------- основной цикл. Пока есть узел main node paint loop
@@ -321,15 +332,35 @@ begin
                     //   then Inc(SelectLevel);
                     IndentSize := Length(LineArray);       //кол-во отступов
 
+                    //отступ
                     if Cell.FIndent <> nil then
                     begin
                       if not (toFixedIndent in FOptions.FPaintOptions) and (FIndent > 0) //если не установлен фиксированный отступ, то сдвигаем экспандер узла
                         then Cell.FIndent.Width := IndentSize * FIndent {- Cell.FExpander.Width / 2}
                         else Cell.FIndent.Width := 0;
                     end;
-                    //рисуем линии дерева
+
+                    //линии дерева
                     if (toShowTreeLines in FOptions.FPaintOptions) then
                       PaintTreeLines(Cell, LineArray);
+
+                    //экспандер
+                    if Cell.FExpander <> nil then
+                    begin
+                      if (toShowButtons in TreeOptions.FPaintOptions) and
+                         (vsHasChildren in Node.States) and
+                          not ((vsAllChildrenHidden in Node.States) and
+                               (toAutoHideButtons in TreeOptions.FAutoOptions))
+                        then  begin
+                                Cell.FExpander.Visible:= true;
+                                if vsExpanded in Node.States //если узел раскрыт
+                                  then Cell.IsExpanded:=true    //установим флаг раскрытия
+                                  else Cell.IsExpanded:=false;  //иначе снимем флаг раскрытия
+                              end
+                        else Cell.FExpander.Visible:= false;
+                    end;
+
+
 
                     //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
                     //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
@@ -419,21 +450,25 @@ begin
                             if Cell.FRadio <> nil
                                then Cell.FRadio.Visible := false;
                           end;
-                    if Cell.FExpander <> nil then
-                    begin
-                      if (toShowButtons in TreeOptions.FPaintOptions) and
-                         (vsHasChildren in Node.States) and
-                          not ((vsAllChildrenHidden in Node.States) and
-                               (toAutoHideButtons in TreeOptions.FAutoOptions))
-                        then Cell.FExpander.Visible:= true
-                        else Cell.FExpander.Visible:= false;
-                    end;
-                    //if ImageInfo[iiCheck].Index > -1 then
-                    //  PaintCheckImage(Canvas, PaintInfo.ImageInfo[iiCheck], vsSelected in PaintInfo.Node.States);
+
+                    //if ShowStateImages
+                    //   then begin
+                    //          GetImageIndex(PaintInfo, ikState, iiState, FStateImages);
+                    //          if ImageInfo[iiState].Index > -1 then
+                    //            AdjustImageBorder(FStateImages.Width, FStateImages.Height, BidiMode, VAlign, ContentRect, ImageInfo[iiState]);
+                    //        end
+                    //   else ImageInfo[iiState].Index := -1;
+                    //if ShowImages
+                    //   then begin
+                    //          GetImageIndex(PaintInfo, ImageKind[vsSelected in Node.States], iiNormal, FImages);
+                    //          if ImageInfo[iiNormal].Index > -1 then
+                    //            AdjustImageBorder(ImageInfo[iiNormal].Images, BidiMode, VAlign, ContentRect, ImageInfo[iiNormal]);
+                    //        end
+                    //   else ImageInfo[iiNormal].Index := -1;
                   end
-             else begin
+             else begin  //это не главная колонка
                     if Cell.FIndent <> nil
-                       then Cell.FIndent.Visible := false;
+                       then Cell.FIndent.Width := 0;
                     if Cell.FExpander <> nil
                        then Cell.FExpander.Visible := false;
                     if Cell.FCheck <> nil
@@ -442,31 +477,6 @@ begin
                        then Cell.FRadio.Visible := false;
                   end;
 
-          //CalculateVerticalAlignments({ShowImages, ShowStateImages,}false,false, Node, VAlign, ButtonY);
-          //if ShowCheckImages and IsMainColumn
-          //   then begin
-          //          ImageInfo[iiCheck].Index := GetCheckImage(Node);
-          //          if ImageInfo[iiCheck].Index > -1
-          //             then begin
-          //                    AdjustImageBorder(FCheckImages, BidiMode, VAlign, ContentRect, ImageInfo[iiCheck]);
-          //                    ImageInfo[iiCheck].Ghosted := False;
-          //                  end;
-          //        end
-          //   else ImageInfo[iiCheck].Index := -1;
-          //if ShowStateImages
-          //   then begin
-          //          GetImageIndex(PaintInfo, ikState, iiState, FStateImages);
-          //          if ImageInfo[iiState].Index > -1 then
-          //            AdjustImageBorder(FStateImages.Width, FStateImages.Height, BidiMode, VAlign, ContentRect, ImageInfo[iiState]);
-          //        end
-          //   else ImageInfo[iiState].Index := -1;
-          //if ShowImages
-          //   then begin
-          //          GetImageIndex(PaintInfo, ImageKind[vsSelected in Node.States], iiNormal, FImages);
-          //          if ImageInfo[iiNormal].Index > -1 then
-          //            AdjustImageBorder(ImageInfo[iiNormal].Images, BidiMode, VAlign, ContentRect, ImageInfo[iiNormal]);
-          //        end
-          //   else ImageInfo[iiNormal].Index := -1;
 
           Cell.Data:= GetValue(Node, Self.Index);
           Cell.Visible:=true;

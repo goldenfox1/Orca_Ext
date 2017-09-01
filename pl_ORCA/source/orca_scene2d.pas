@@ -8250,14 +8250,15 @@ TD2TreeCell = class(TD2Control)
 
     FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
     FOnChangeExpander: TOnChangeExpander;    //указатель на обработчик прерывания разворачивания/сворачивания узла
-    FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
+    //FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
     FColumnIndex: integer;
     FNode: PD2TreeNode;
 
     procedure DoExpanderClick(Sender: TObject);
     procedure DoCheckClick(Sender: TObject);
              //получить кол-во дочерних узлов
-    function GetHaveChildren: boolean;
+    //function GetHaveChildren: boolean;
+
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsExpanded(const Value:boolean);
     procedure SetTagString(const Value:string); override;
@@ -8281,11 +8282,11 @@ TD2TreeCell = class(TD2Control)
              //обработчик прерывания разворачивания/сворачивания узла
     property OnChangeExpander: TOnChangeExpander read FOnChangeExpander write FOnChangeExpander;
              // обработчик прерывания получения флага наличия детей
-    property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;
+    //property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;
   published
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
     property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
-    property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
+    //property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
 end;
 
 { TD2TreeColumn }
@@ -8298,7 +8299,8 @@ TD2TreeColumn = class(TD2Column)
               //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
               //обработчик запроса ячейки наличия дочерних узлов: true - есть дочерние узлы;
-    function DoGetHaveChildren(Sender: TObject): boolean;
+    //function DoGetHaveChildren(Sender: TObject): boolean;
+
               //обработчик потери фокуса ячейкой
     //procedure DoKillFocus(Sender: TObject);  override;
 

@@ -124,6 +124,7 @@ end;
 procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
 var
   H: TD2Header;
+  i: integer;
 begin
   inherited;
   Index:=FNewIndex;
@@ -220,11 +221,6 @@ begin
          end
     else inherited;
 end;
-
-//procedure TD2Header.Paint;
-//begin
-//  inherited Paint;
-//end;
 
 procedure TD2Header.Realign;
 var
@@ -799,9 +795,9 @@ begin
       if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
         P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
       if FContent.Width < ClientWidth then
-        R:=d2Rect(P.X,P.Y,P.X + ClientWidth,P.Y + FRowHeight*(FSelectedRows[i+1]-FSelectedRows[i]+1) )
+        R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
       else
-        R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1]-FSelectedRows[i]+1));
+        R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
       SetLength(SelRects,Length(SelRects) + 1);
       SelRects[High(SelRects)]:=R;
     end;
@@ -926,12 +922,23 @@ end;
 
 procedure TD2CustomGrid.UpdateColumns;
 var
-  i:integer;
+  R:TD2Rect;
+  i: integer;
 begin
-  for i:=0 to ColumnCount - 1 do
+  //for i:=0 to ColumnCount - 1 do
+  //begin
+  //  Columns[i].Position.Y:=(TopRow * FRowHeight);
+  //  Columns[i].UpdateColumn;
+  //end;
+  if (ContentLayout <> nil) then
   begin
-    Columns[i].Position.Y:=(TopRow * FRowHeight);
-    Columns[i].UpdateColumn;
+    R:=ContentLayout.LocalRect;
+    for i:=0 to ColumnCount - 1 do
+    begin
+      Columns[i].SetBounds(R.Left,(TopRow * FRowHeight),Columns[i].Width, d2RectHeight(R));
+      Columns[i].UpdateColumn;
+      R.Left:=R.Left + Columns[i].Width;
+    end;
   end;
 end;
 
@@ -1014,8 +1021,8 @@ end;
 
 function TD2CustomGrid.GetContentBounds:TD2Rect;
 var
-  Col,R:TD2Rect;
-  i{,Idx}:integer;
+  R:TD2Rect;
+  i: integer;
 begin
   Result:=LocalRect;
   if FUpdating > 0 then Exit;
@@ -1024,24 +1031,15 @@ begin
   if ColumnCount > 0 then
   begin
     R.Right:=R.Left;
-    //R.Top:=R.Top;
     for i:=0 to ColumnCount - 1 do
-    begin
-      Col:=d2Rect(R.Right,R.Top,R.Right + Columns[i].Width,R.Bottom);
       R.Right:=R.Right + Columns[i].Width;
-      Columns[i].SetBounds(Col.Left,(TopRow * FRowHeight),Columns[i].Width, ClientHeight);
-      //Columns[i].UpdateColumn;
-    end;
     R.Bottom:=R.Top + (FRowCount * FRowHeight);
   end;
-  if d2RectWidth(R) < ContentLayout.Width then
-    R.Right:=R.Left + ContentLayout.Width;
-  if d2RectHeight(R) < ContentLayout.Height then
-    R.Bottom:=R.Top + ContentLayout.Height;
+  if d2RectWidth(R) < ContentLayout.Width
+    then R.Right:=R.Left + ContentLayout.Width;
+  if d2RectHeight(R) < ContentLayout.Height
+    then R.Bottom:=R.Top + ContentLayout.Height;
   Result:=R;
-  //UpdateColumns;
-  //UpdateHeader;
-  //UpdateSelection;
 end;
 
 procedure TD2CustomGrid.HScrollChange(Sender:TObject);
