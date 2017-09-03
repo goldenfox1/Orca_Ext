@@ -32,3 +32,10 @@
 //  {$define EnableThreadSupport}
 //{$endif}
 
+{$define DEBUG_Orca}             //включить отладочную информацию
+{$if defined(DEBUG_Orca)}
+  {$define DEBUG_TreeGrid}   //отладка дерева
+{$endif}
+
+
+

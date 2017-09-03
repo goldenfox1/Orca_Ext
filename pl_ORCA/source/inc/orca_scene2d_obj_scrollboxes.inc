@@ -231,8 +231,8 @@ procedure TD2CustomScrollBox.Realign;
  var
    R:TD2Rect;
  begin
-    R:=GetContentBounds;
-    if d2RectWidth(R) * d2RectHeight(R)=0 then Exit;
+    R:=GetContentBounds;                               //получить размеры области контента
+    if d2RectWidth(R) * d2RectHeight(R)=0 then Exit;   //если площадь 0 то выходим
     d2OffsetRect(R,ContentLayout.Position.X,ContentLayout.Position.Y);
     if (HScrollBar <> nil) and (HScrollBar.Enabled) then
       d2OffsetRect(R,-FScrollDesign.X,0);
@@ -245,36 +245,34 @@ procedure TD2CustomScrollBox.Realign;
     if (VScrollBar <> nil) then
     begin
       VScrollBar.Enabled:=d2RectHeight(R) > ContentLayout.Height;
-      if FAutoHide then
-        VScrollBar.Visible:=VScrollBar.Enabled;
-      if not FShowScrollBars then
-      begin
-        VScrollBar.Opacity:=0;
-        VScrollBar.Align:=vaNone;
-      end
-      else
-      begin
-        VScrollBar.Opacity:=1;
-        VScrollBar.Align:=TD2Align(VScrollBar.Tag);
-      end;
+      if FAutoHide
+        then VScrollBar.Visible:=VScrollBar.Enabled;
+      if not FShowScrollBars
+        then  begin
+                VScrollBar.Opacity:=0;
+                VScrollBar.Align:=vaNone;
+              end
+        else  begin
+                VScrollBar.Opacity:=1;
+                VScrollBar.Align:=TD2Align(VScrollBar.Tag);
+              end;
     end;
     if (HScrollBar <> nil) then
     begin
       HScrollBar.Enabled:=d2RectWidth(R) > ContentLayout.Width;
-      if FAutoHide then
-        HScrollBar.Visible:=HScrollBar.Enabled;
-      if not FShowScrollBars then
-      begin
-        HScrollBar.Opacity:=0;
-        HScrollBar.Align:=vaNone;
-      end
-      else
-      begin
-        HScrollBar.Opacity:=1;
-        HScrollBar.Align:=TD2Align(HScrollBar.Tag);
-        if (VScrollBar <> nil) and (VScrollBar.Enabled) then
-          HScrollBar.Padding.right:=VScrollBar.Width;
-      end;
+      if FAutoHide
+        then HScrollBar.Visible:=HScrollBar.Enabled;
+      if not FShowScrollBars
+        then  begin
+                HScrollBar.Opacity:=0;
+                HScrollBar.Align:=vaNone;
+              end
+        else  begin
+                HScrollBar.Opacity:=1;
+                HScrollBar.Align:=TD2Align(HScrollBar.Tag);
+                if (VScrollBar <> nil) and (VScrollBar.Enabled)
+                  then HScrollBar.Padding.right:=VScrollBar.Width;
+              end;
     end;
     if ContentLayout.Parent <> nil then
     begin
@@ -285,62 +283,56 @@ procedure TD2CustomScrollBox.Realign;
     if (VScrollBar <> nil) then
     begin
       VScrollBar.Enabled:=d2RectHeight(R) > ContentLayout.Height;
-      if FAutoHide then
-        VScrollBar.Visible:=VScrollBar.Enabled;
-      if not FShowScrollBars then
-      begin
-        VScrollBar.Opacity:=0;
-        VScrollBar.Align:=vaNone;
-        VScrollBar.Position.Y:=Width + 100;
-      end
-      else
-      begin
-        VScrollBar.Opacity:=1;
-        VScrollBar.HitTest:=true;
-        VScrollBar.Align:=TD2Align(VScrollBar.Tag);
-      end;
+      if FAutoHide
+        then VScrollBar.Visible:=VScrollBar.Enabled;
+      if not FShowScrollBars
+        then  begin
+                VScrollBar.Opacity:=0;
+                VScrollBar.Align:=vaNone;
+                VScrollBar.Position.Y:=Width + 100;
+              end
+        else  begin
+                VScrollBar.Opacity:=1;
+                VScrollBar.HitTest:=true;
+                VScrollBar.Align:=TD2Align(VScrollBar.Tag);
+              end;
       VScrollBar.BringToFront;
-      if VScrollBar.Visible and (ContentLayout <> nil) then
-      begin
-        VScrollBar.Max:=d2RectHeight(R);
-        VScrollBar.ViewportSize:=ContentLayout.Height;
-        VScrollBar.SmallChange:=VScrollBar.ViewportSize / 5;
-        VScrollBar.Value:=FScrollDesign.Y;
-      end
-      else
-      begin
-        VScrollBar.Value:=0;
-      end;
+      if VScrollBar.Visible and (ContentLayout <> nil)
+        then  begin
+                VScrollBar.Max:=d2RectHeight(R);
+                VScrollBar.ViewportSize:=ContentLayout.Height;
+                VScrollBar.SmallChange:=VScrollBar.ViewportSize / 5;
+                VScrollBar.Value:=FScrollDesign.Y;
+              end
+        else VScrollBar.Value:=0;
     end;
     if (HScrollBar <> nil) then
     begin
       HScrollBar.Enabled:=d2RectWidth(R) > ContentLayout.Width;
       HScrollBar.Padding.right:=0;
-      if FAutoHide then
-        HScrollBar.Visible:=HScrollBar.Enabled;
-      if not FShowScrollBars then
-      begin
-        HScrollBar.Opacity:=0;
-        HScrollBar.Align:=vaNone;
-        HScrollBar.Position.Y:=Height + 100;
-      end
-      else
-      begin
-        HScrollBar.Opacity:=1;
-        HScrollBar.Align:=TD2Align(HScrollBar.Tag);
-        if (VScrollBar <> nil) and (VScrollBar.Enabled) then
-          HScrollBar.Padding.right:=VScrollBar.Width;
-      end;
+      if FAutoHide
+        then HScrollBar.Visible:=HScrollBar.Enabled;
+      if not FShowScrollBars
+        then  begin
+                HScrollBar.Opacity:=0;
+                HScrollBar.Align:=vaNone;
+                HScrollBar.Position.Y:=Height + 100;
+              end
+        else  begin
+                HScrollBar.Opacity:=1;
+                HScrollBar.Align:=TD2Align(HScrollBar.Tag);
+                if (VScrollBar <> nil) and (VScrollBar.Enabled)
+                  then HScrollBar.Padding.right:=VScrollBar.Width;
+              end;
       HScrollBar.BringToFront;
-      if HScrollBar.Visible and (ContentLayout <> nil)  then
-      begin
-        HScrollBar.Max:=d2RectWidth(R);
-        HScrollBar.ViewportSize:=ContentLayout.Width;
-        HScrollBar.SmallChange:=HScrollBar.ViewportSize / 5;
-        HScrollBar.Value:=ContentLayout.Position.X - FContent.Position.X;
-      end
-      else
-        HScrollBar.Value:=0;
+      if HScrollBar.Visible and (ContentLayout <> nil)
+        then  begin
+                HScrollBar.Max:=d2RectWidth(R);
+                HScrollBar.ViewportSize:=ContentLayout.Width;
+                HScrollBar.SmallChange:=HScrollBar.ViewportSize / 5;
+                HScrollBar.Value:=ContentLayout.Position.X - FContent.Position.X;
+              end
+        else HScrollBar.Value:=0;
     end;
  end;
 
@@ -358,10 +350,9 @@ begin
     R:=ContentLayout.LocalRect;
     IntAlign;
     NewR:=ContentLayout.LocalRect;
-    if (d2RectWidth(NewR) <> d2RectWidth(R)) or (d2RectHeight(NewR) <> d2RectHeight(R)) then
-    begin
-      IntAlign;
-    end;
+    if (d2RectWidth(NewR) <> d2RectWidth(R)) or
+       (d2RectHeight(NewR) <> d2RectHeight(R))
+      then IntAlign;
   finally
     FDisableAlign:=false;
   end;

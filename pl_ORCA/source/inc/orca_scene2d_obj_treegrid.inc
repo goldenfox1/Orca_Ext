@@ -175,15 +175,14 @@ end;
 
 procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
 begin
-  with TD2TreeCell(Sender) do
-    if (FNode <> nil) then
-    begin
-      if IsExpanded
-        then FNode.States:= FNode.States + [vsExpanded]
-        else FNode.States:= FNode.States - [vsExpanded];
-      if (Self.FGrid <> nil)
-        then Self.FGrid.Realign;
-    end;
+  if (FGrid <> nil) then
+    with TD2TreeCell(Sender) do
+      if (FNode <> nil) then
+        if IsExpanded <> (vsExpanded in FNode.States) then
+        begin
+          TD2TreeGrid(Self.FGrid).ToggleNode(FNode);
+          Self.FGrid.Realign;
+        end;
 end;
 
 //function TD2TreeColumn.DoGetHaveChildren(Sender: TObject): boolean;
@@ -235,7 +234,7 @@ end;
 //  if Grid=nil then Exit;
 //  FUpdateColumn:=true;
 //  try
-//    m:= Min(TD2CustomTreeGrid(Grid).FVisibleCount,Grid.VisibleRows);
+//    m:= Min(Grid.RowCount,Grid.VisibleRows);
 //    C:= FCellControls.Count;
 //    { Create controls }
 //    if C < m
@@ -249,14 +248,17 @@ end;
 //            end
 //    else
 //    { Hide if need }
+//    {if Length(FCellControls) > m then
+//    begin}
 //      for i:=m to FCellControls.Count-1 do
 //        TD2Control(FCellControls.Items[i]).Visible:=false;
+//    //end;
 //    { Update Data }
 //    for i:=0 to m - 1 do
 //    begin
 //      if Grid.TopRow + i >= Grid.RowCount then Break;
 //      TD2Control(FCellControls.Items[i]).Visible:=true;
-//      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+//      TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
 //      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
 //
 //      V:=Grid.GetValue(Index,Grid.TopRow + i);
@@ -306,9 +308,19 @@ begin
         //ShowImages := Assigned(FImages);
         //ShowStateImages := Assigned(FStateImages);
         //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
-        //MaximumBottom:= ContentLayout.LocalRect.Bottom + VScrollBarValue;  //координата нижней границы видимой области в абсолютных координатах дерева.
-        MaximumBottom:= GetContentBounds.Bottom; //координата нижней границы видимой области в абсолютных координатах дерева.
-        Node := InternalGetNodeAt(0, VScrollBarValue, True, BaseOffset);  // Определим начальный узел для рисования. Determine node to start drawing with.
+        //MaximumBottom:= GetContentBounds.Bottom; //координата нижней границы видимой области в абсолютных координатах дерева.
+        MaximumBottom:= ContentLayout.LocalRect.Bottom + 2 * FRowHeight;  //координата нижней границы видимой области в абсолютных координатах дерева.
+        {$ifdef DEBUG_TREEGRID}
+          if Self.Index = 0
+            then  DebugLn('Min/Mav/Vieport/Value: ' +
+                          FloatToStr(VScrollBar.Min) + ' / ' +
+                          FloatToStr(VScrollBar.Max) + ' / ' +
+                          FloatToStr(VScrollBar.ViewportSize) + ' / ' +
+                          FloatToStr(VScrollBarValue));
+        {$endif}
+
+        Node := TopNode;  // Определим начальный узел для рисования. Determine node to start drawing with.
+        BaseOffset:= 0;
         i:= 0;  //индекс текущей видимой ячейки
         while Assigned(Node) do  // ----------- основной цикл. Пока есть узел main node paint loop
         begin
@@ -321,9 +333,15 @@ begin
                     FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
                   end
              else Cell:= FCellControls.Items[i]; //иначе возьмем текущую ячейку
+          Cell.Visible:=true;
+          Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
           Cell.FColumnIndex:= Self.Index;
           Cell.FNode:=Node;
-          Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
+          Cell.Data:= GetValue(Node, Self.Index);
+          {$ifdef DEBUG_TREEGRID}
+            if Self.Index = 0
+              then DebugLn('Col/Row/Y: ' + IntToStr(Cell.FColumnIndex) + ' / ' + IntToStr(i) + ' / ' + FloatToStr(BaseOffset));
+          {$endif}
 
           if IsMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
              then begin
@@ -467,19 +485,16 @@ begin
                     //   else ImageInfo[iiNormal].Index := -1;
                   end
              else begin  //это не главная колонка
-                    if Cell.FIndent <> nil
+                    if Cell.FIndent <> nil                    //уберем отступ если есть
                        then Cell.FIndent.Width := 0;
-                    if Cell.FExpander <> nil
+                    if Cell.FExpander <> nil                  //скроем эеспандер если есть
                        then Cell.FExpander.Visible := false;
-                    if Cell.FCheck <> nil
+                    if Cell.FCheck <> nil                     //скроем чекбокс если есть
                        then Cell.FCheck.Visible := false;
-                    if Cell.FRadio <> nil
+                    if Cell.FRadio <> nil                     //скроем радиокнопку если есть
                        then Cell.FRadio.Visible := false;
                   end;
 
-
-          Cell.Data:= GetValue(Node, Self.Index);
-          Cell.Visible:=true;
 
           // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
           if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
@@ -659,7 +674,7 @@ begin
   FNodeDataSize := -1;
   Width := 200;
   Height := 100;
-  FDefaultNodeHeight := 18;
+  FDefaultNodeHeight := 21;
   FFocusedColumn := NoColumn;
   //FDragImageKind := diComplete;
   FLastSelectionLevel := -1;
@@ -1458,7 +1473,7 @@ end;
 function TD2CustomTreeGrid.GetBottomNode: PD2TreeNode;
 //получить ссылку на нижний видимый узел
 begin
-  Result := InternalGetNodeAt(0, ClientHeight - 0.01);
+  Result := InternalGetNodeAt(0, ClientHeight);
 end;
 
 function TD2CustomTreeGrid.GetCheckedCount: Cardinal;
@@ -2474,7 +2489,7 @@ begin
     end;
     R := GetDisplayRect(Node, MainColumn, True);
     //header
-    if ShowHeader then d2DecFloat(R.Top, FHeader.Height);
+    //if ShowHeader then d2DecFloat(R.Top, FHeader.Height);
     SetOffsetY(VScrollBarValue - R.Top);
   end;
 end;
@@ -3906,6 +3921,12 @@ begin
   Stream.Position := EndPos; // ... и переместься к последнему конечному положению. and seek to the last endposition
 end;
 
+function TD2CustomTreeGrid.GetContentHeight: Single;
+begin
+  //UpdateVerticalRange;
+  Result:=FRangeY;
+end;
+
 function TD2CustomTreeGrid.GetOptionsClass: TD2TreeOptionsClass;
 //Получить класс опций дерева. Может быть переопределено у потомков
 begin
@@ -3916,6 +3937,12 @@ function TD2CustomTreeGrid.GetOperationCanceled: Boolean;
 //Получить состояния флага необходимости завершения длительной операции: true - операция должна быть завершена
 begin
   Result := FOperationCanceled and (FOperationCount > 0);
+end;
+
+function TD2CustomTreeGrid.GetTopRowY: single;
+begin
+  if InternalGetNodeAt(0, VScrollBarValue, false, Result) = nil
+    then Result:= 0;
 end;
 
 function TD2CustomTreeGrid.GetValue(Node: PD2TreeNode; Col: integer): Variant;
@@ -5817,9 +5844,8 @@ begin
   end;
 end;
 
-function TD2CustomTreeGrid.GetDisplayRect(Node: PD2TreeNode;
-  Column: Integer; TextOnly: Boolean; Unclipped: Boolean;
-  ApplyCellContentMargin: Boolean): TD2Rect;
+function TD2CustomTreeGrid.GetDisplayRect(Node: PD2TreeNode; Column: Integer; TextOnly: Boolean; Unclipped: Boolean;
+                                          ApplyCellContentMargin: Boolean): TD2Rect;
 // Определяет координаты клиентской области, которые занимает узел Node, в зависимости от положения скроллеров, развернутости узла и т.д.
 // Если узел не может быть найден (потому что один из его родителей свернут или он невидим),
 // то возвращается пустой прямоугольник.
@@ -5846,13 +5872,13 @@ function TD2CustomTreeGrid.GetDisplayRect(Node: PD2TreeNode;
 
 var
   Temp: PD2TreeNode;
-  //Offset: Cardinal;
   CacheIsAvailable: Boolean;
   Offset,
   Indent,
   TextWidth: Single;
   MainColumnHit: Boolean;
   //CurrentBidiMode: TBidiMode;
+
   CurrentAlignment: TAlignment;
   MaxUnclippedHeight: Single;
   TM: TTextMetric;
@@ -5879,8 +5905,8 @@ begin
   begin
     while Temp <> FRoot do
     begin
-      if not (vsVisible in Temp.States) or
-         not (vsExpanded in Temp.Parent.States) then Exit;
+      if not (vsVisible in Temp.States) or                  //если узел не видим
+         not (vsExpanded in Temp.Parent.States) then Exit;  //или если родитель свернут то выходим
       Temp := Temp.Parent;
       if MainColumnHit and (Temp <> FRoot)
         then d2IncFloat(Indent, FIndent);
@@ -5907,6 +5933,7 @@ begin
   end;
   if not CacheIsAvailable then
   begin
+    // Если кеш недоступен, проходим через все узлы до корня и суммируем их высоты.
     // If the cache is not available then go straight through all nodes up to the root and sum up their heights.
     Temp := Node;
     repeat
@@ -5925,8 +5952,8 @@ begin
   begin
     PColumn:= GetColumn(Column);
     GetColumnBounds(Column, Result.Left, Result.Right);
-    // Правая граница столбца не является частью этой ячейки. The right column border is not part of this cell.
-    d2DecFloat(Result.Right);
+    //// Правая граница столбца не является частью этой ячейки. The right column border is not part of this cell.
+    //d2DecFloat(Result.Right);
     d2OffsetRect(Result, 0, VScrollBarValue);
   end
   //else d2OffsetRect(Result, -FEffectiveOffsetX, FOffsetY);
@@ -5952,13 +5979,13 @@ begin
               //CurrentAlignment := PColumn.Alignment;
             end;
 
-    //if MainColumnHit then
-    //begin
-    //  if toShowRoot in FOptions.FPaintOptions
-    //     then d2IncFloat(Offset, FIndent);
-    //  if (toCheckSupport in FOptions.FMiscOptions) {and Assigned(FCheckImages)} and (Node.CheckType <> ctNone)
-    //     then d2IncFloat(Offset, FCheckImages.Width + 2);
-    //end;
+    if MainColumnHit then
+    begin
+      if toShowRoot in FOptions.FPaintOptions
+         then d2IncFloat(Offset, FIndent);
+      //if (toCheckSupport in FOptions.FMiscOptions) {and Assigned(FCheckImages)} and (Node.CheckType <> ctNone)
+      //   then d2IncFloat(Offset, FCheckImages.Width + 2);
+    end;
 
     //// Consider associated images.
     //if Assigned(FStateImages) and HasImage(Node, ikState, Column) then
@@ -6045,7 +6072,7 @@ begin
   //lclheader
   //todo: add a parameter to decide if the result must be returned as
   //a tree offset or a control offset
-  if ShowHeader then d2OffsetRect(Result, 0, FHeader.Height);
+  //if ShowHeader then d2OffsetRect(Result, 0, FHeader.Height);
 
 end;
 
@@ -8462,29 +8489,28 @@ begin
      //{$if CompilerVersion < 20}
      //and (MainThreadId = GetCurrentThreadId)
      //{$ifend}
-  then
-  begin
-    Include(Node.States, vsHeightMeasured);
-    if (toVariableNodeHeight in FOptions.FMiscOptions) then
-    begin
-      NewNodeHeight := Node.NodeHeight;
-      //{$if CompilerVersion >= 20} // Anonymous methods help to make this thread safe easily. In Delphi 2007 and lower developers must take care themselves about thread synchronization when consuming the OnMeasureItemHeight event
-      //if (MainThreadId <> GetCurrentThreadId) then
-      //  TThread.Synchronize(nil,
-      //    procedure
-      //    begin
-      //      DoMeasureItem(Canvas, Node, NewNodeHeight);
-      //      SetNodeHeight(Node, NewNodeHeight);
-      //    end
-      //  )
-      //else
-      //{$ifend}
-      begin
-        DoMeasureItem(Node, NewNodeHeight);
-        SetNodeHeight(Node, NewNodeHeight);
-      end;
-    end;
-  end;
+  then  begin
+          Include(Node.States, vsHeightMeasured);
+          if (toVariableNodeHeight in FOptions.FMiscOptions) then
+          begin
+            NewNodeHeight := Node.NodeHeight;
+            //{$if CompilerVersion >= 20} // Anonymous methods help to make this thread safe easily. In Delphi 2007 and lower developers must take care themselves about thread synchronization when consuming the OnMeasureItemHeight event
+            //if (MainThreadId <> GetCurrentThreadId) then
+            //  TThread.Synchronize(nil,
+            //    procedure
+            //    begin
+            //      DoMeasureItem(Canvas, Node, NewNodeHeight);
+            //      SetNodeHeight(Node, NewNodeHeight);
+            //    end
+            //  )
+            //else
+            //{$ifend}
+            begin
+              DoMeasureItem(Node, NewNodeHeight);
+              SetNodeHeight(Node, NewNodeHeight);
+            end;
+          end;
+        end;
 end;
 
 procedure TD2CustomTreeGrid.MoveTo(Node: PD2TreeNode; Tree: TD2CustomTreeGrid;
@@ -9319,7 +9345,7 @@ procedure TD2CustomTreeGrid.ToggleNode(Node: PD2TreeNode);
 var
   Child,
   FirstVisible: PD2TreeNode;
-  HeightDelta,
+  HeightDelta,      //дельта изменения общей высоты
   StepsR1: Single;
   StepsR2: Single;
   Steps: Single;
@@ -9329,66 +9355,66 @@ var
   NeedUpdate,
   NodeInView,
   PosHoldable,
-  TotalFit: Boolean;
+  TotalFit: Boolean;   //флаг полного помещения развернутого узела (с детьми) в видимую область грида
   ToggleData: TD2ToggleAnimationData;
 
   //--------------- local function --------------------------------------------
 
-  procedure PrepareAnimation;
-
-  // Prepares ToggleData.
-
-  var
-    R: TD2Rect;
-    S: Single;
-    M: TD2ToggleAnimationMode;
-
-  begin
-    with ToggleData do
-    begin
-      //Window := Handle;       //закоментировано GoldenFox
-      //DC := GetDC(Handle);    //закоментировано GoldenFox
-
-      //lcl: setting Color to Brush seems not necessary
-      //Self.Brush.Color := FColors.BackGroundColor;;
-
-      //Brush := Self.Brush.Reference.Handle; //закоментировано GoldenFox
-
-      if (Mode1 <> tamNoScroll) and (Mode2 <> tamNoScroll) then
-      begin
-        if StepsR1 < StepsR2 then
-        begin
-          // As the primary rectangle is always R1 we will get a much smoother
-          // animation if R1 is the one that will be scrolled more.
-          R := R2;
-          R2 := R1;
-          R1 := R;
-
-          M := Mode2;
-          Mode2 := Mode1;
-          Mode1 := M;
-
-          S := StepsR2;
-          StepsR2 := StepsR1;
-          StepsR1 := S;
-        end;
-        ScaleFactor := StepsR2 / StepsR1;
-        MissedSteps := 0;
-      end;
-
-      if Mode1 <> tamNoScroll then
-        Steps := StepsR1
-      else
-        Steps := StepsR2;
-    end;
-  end;
+  //procedure PrepareAnimation;
+  //
+  //// Prepares ToggleData.
+  //
+  //var
+  //  R: TD2Rect;
+  //  S: Single;
+  //  M: TD2ToggleAnimationMode;
+  //
+  //begin
+  //  with ToggleData do
+  //  begin
+  //    //Window := Handle;       //закоментировано GoldenFox
+  //    //DC := GetDC(Handle);    //закоментировано GoldenFox
+  //
+  //    //lcl: setting Color to Brush seems not necessary
+  //    //Self.Brush.Color := FColors.BackGroundColor;;
+  //
+  //    //Brush := Self.Brush.Reference.Handle; //закоментировано GoldenFox
+  //
+  //    if (Mode1 <> tamNoScroll) and (Mode2 <> tamNoScroll) then
+  //    begin
+  //      if StepsR1 < StepsR2 then
+  //      begin
+  //        // As the primary rectangle is always R1 we will get a much smoother
+  //        // animation if R1 is the one that will be scrolled more.
+  //        R := R2;
+  //        R2 := R1;
+  //        R1 := R;
+  //
+  //        M := Mode2;
+  //        Mode2 := Mode1;
+  //        Mode1 := M;
+  //
+  //        S := StepsR2;
+  //        StepsR2 := StepsR1;
+  //        StepsR1 := S;
+  //      end;
+  //      ScaleFactor := StepsR2 / StepsR1;
+  //      MissedSteps := 0;
+  //    end;
+  //
+  //    if Mode1 <> tamNoScroll then
+  //      Steps := StepsR1
+  //    else
+  //      Steps := StepsR2;
+  //  end;
+  //end;
 
   //--------------- end local function ----------------------------------------
 
 begin
   Assert(Assigned(Node), 'Node must not be nil.');
 
-  TogglingTree := tsToggling in FStates;
+  TogglingTree := tsToggling in FStates;   //сохраним состояние флага сворачивания/разворачивания узлов у грида
   ChildrenInView := False;
   HeightDelta := 0;
   NeedFullInvalidate := False;
@@ -9396,143 +9422,151 @@ begin
   NodeInView := False;
   PosHoldable := False;
   TotalFit := False;
-
+  // Нам не нужно переключать состояние развертывания, если узел удаляется, иначе
+  // некоторые обновления (например, количество видимых узлов) делаются дважды с рискованными результатами.
   // We don't need to switch the expand state if the node is being deleted otherwise some
-  // updates (e.g. visible node count) are done twice with disasterous results).
-  if [vsDeleting, vsToggling] * Node.States = [] then
+  // updates (e.g. visible node count) are done twice with disasterous results.
+
+  if [vsDeleting, vsToggling] * Node.States = [] then  //если узел не удаляется или еще не изменяет состояние развертывания
   begin
     try
-      DoStateChange([tsToggling]);
-      Include(Node.States, vsToggling);
+      DoStateChange([tsToggling]);      //установим флаг изменения состояния развертывания узлов для грида
+      Include(Node.States, vsToggling); //установим флаг изменения состояния развертывания для узлоа
 
-      if vsExpanded in Node.States then
+      if vsExpanded in Node.States then  //если узел развернут
       begin
-        if DoCollapsing(Node) then
+        if DoCollapsing(Node) then       //если приложение разрешает свернуть узел
         begin
-          NeedUpdate := True;
+          NeedUpdate := True;               //установим флаг необходимости обновления града (узел свернулся)
 
+          // Рассчитаем дельту изменения общей высоты, т.к. это нужно для toChildrenAbove.
           // Calculate the height delta right now as we need it for toChildrenAbove anyway.
-          HeightDelta := -Integer(Node.TotalHeight) + Integer(NodeHeight[Node]);
-          if (FUpdateCount = 0) and (toAnimatedToggle in FOptions.FAnimationOptions) and not
-             (tsCollapsing in FStates) then
-          begin
-            if tsHint in Self.FStates then
-              Application.CancelHint;
-            Realign; //вместо UpdateWindow(Handle);
+          HeightDelta := -Node.TotalHeight + NodeHeight[Node];
 
-            // animated collapsing
-            with ToggleData do
-            begin
-              // Determine the animation behaviour and rectangle. If toChildrenAbove is set, the behaviour is depending
-              // on the position of the node to be collapsed.
-              R1 := GetDisplayRect(Node, NoColumn, False);
-              Mode2 := tamNoScroll;
-              if toChildrenAbove in FOptions.FPaintOptions then
-              begin
-                PosHoldable := (VScrollBarValue + (Integer(Node.TotalHeight) - Integer(NodeHeight[Node]))) <= 0;
-                NodeInView := R1.Top < ClientHeight;
+          //if (FUpdateCount = 0) and
+          //   (toAnimatedToggle in FOptions.FAnimationOptions) and
+          //   not (tsCollapsing in FStates) then
+          //begin
+          //  if tsHint in Self.FStates then
+          //    Application.CancelHint;
+          //  Repaint; //вместо UpdateWindow(Handle);
+          //
+          //  //анимация сворачивания узла
+          //  // animated collapsing
+          //  with ToggleData do
+          //  begin
+          //    // Determine the animation behaviour and rectangle. If toChildrenAbove is set, the behaviour is depending
+          //    // on the position of the node to be collapsed.
+          //    R1 := GetDisplayRect(Node, NoColumn, False);
+          //    Mode2 := tamNoScroll;
+          //    if toChildrenAbove in FOptions.FPaintOptions then
+          //    begin
+          //      PosHoldable := (VScrollBarValue + (Node.TotalHeight - NodeHeight[Node])) <= 0;
+          //      NodeInView := R1.Top < ClientHeight;
+          //
+          //      StepsR1 := 0;
+          //      if NodeInView then
+          //      begin
+          //        if PosHoldable or not (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) then
+          //        begin
+          //          // Scroll the child nodes down.
+          //          Mode1 := tamScrollDown;
+          //          R1.Bottom := R1.Top;
+          //          R1.Top := 0;
+          //          StepsR1 := Min(R1.Bottom - R1.Top + 1, Node.TotalHeight - NodeHeight[Node]);
+          //        end
+          //        else
+          //        begin
+          //          // The position cannot be kept. So scroll the node up to its future position.
+          //          Mode1 := tamScrollUp;
+          //          R1.Top := Max(0, R1.Top + HeightDelta);
+          //          R1.Bottom := ClientHeight;
+          //          StepsR1 := VScrollBarValue - HeightDelta;
+          //        end;
+          //      end;
+          //    end
+          //    else
+          //    begin
+          //      if (FRangeY + VScrollBarValue - R1.Bottom + HeightDelta >= ClientHeight - R1.Bottom) or
+          //         (FRangeY <= ClientHeight) or (VScrollBarValue = 0) or not
+          //         (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) then
+          //      begin
+          //        // Do a simple scroll up over the child nodes.
+          //        Mode1 := tamScrollUp;
+          //        //Inc(R1.Top, NodeHeight[Node]);
+          //        R1.Top := R1.Top + NodeHeight[Node];
+          //        R1.Bottom := ClientHeight;
+          //        StepsR1 := Min(R1.Bottom - R1.Top + 1, -HeightDelta);
+          //      end
+          //      else
+          //      begin
+          //        // Scroll the node down to its future position. As VScrollBarValue will change we need to invalidate the
+          //        // whole tree.
+          //        Mode1 := tamScrollDown;
+          //        StepsR1 := Min(-VScrollBarValue, ClientHeight - FRangeY -VScrollBarValue - HeightDelta);
+          //        R1.Top := 0;
+          //        R1.Bottom := Min(ClientHeight, R1.Bottom + Steps);
+          //        NeedFullInvalidate := True;
+          //      end;
+          //    end;
+          //
+          //    // No animation necessary if the node is below the current client height.
+          //    if R1.Top < ClientHeight then
+          //    begin
+          //      PrepareAnimation;
+          //      try
+          //        //Animate(Steps, FAnimationDuration, ToggleCallback, @ToggleData);
+          //      finally
+          //        ReleaseDC(Window, DC);
+          //      end;
+          //    end;
+          //  end;
+          //end;
 
-                StepsR1 := 0;
-                if NodeInView then
-                begin
-                  if PosHoldable or not (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) then
-                  begin
-                    // Scroll the child nodes down.
-                    Mode1 := tamScrollDown;
-                    R1.Bottom := R1.Top;
-                    R1.Top := 0;
-                    StepsR1 := Min(R1.Bottom - R1.Top + 1, Integer(Node.TotalHeight) - Integer(NodeHeight[Node]));
-                  end
-                  else
-                  begin
-                    // The position cannot be kept. So scroll the node up to its future position.
-                    Mode1 := tamScrollUp;
-                    R1.Top := Max(0, R1.Top + HeightDelta);
-                    R1.Bottom := ClientHeight;
-                    StepsR1 := VScrollBarValue - HeightDelta;
-                  end;
-                end;
-              end
-              else
-              begin
-                if (Integer(FRangeY) + VScrollBarValue - R1.Bottom + HeightDelta >= ClientHeight - R1.Bottom) or
-                   (Integer(FRangeY) <= ClientHeight) or (VScrollBarValue = 0) or not
-                   (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) then
-                begin
-                  // Do a simple scroll up over the child nodes.
-                  Mode1 := tamScrollUp;
-                  //Inc(R1.Top, NodeHeight[Node]);
-                  R1.Top := R1.Top + NodeHeight[Node];
-                  R1.Bottom := ClientHeight;
-                  StepsR1 := Min(R1.Bottom - R1.Top + 1, -HeightDelta);
-                end
-                else
-                begin
-                  // Scroll the node down to its future position. As VScrollBarValue will change we need to invalidate the
-                  // whole tree.
-                  Mode1 := tamScrollDown;
-                  StepsR1 := Min(-VScrollBarValue, ClientHeight - Integer(FRangeY) -VScrollBarValue - HeightDelta);
-                  R1.Top := 0;
-                  R1.Bottom := Min(ClientHeight, R1.Bottom + Steps);
-                  NeedFullInvalidate := True;
-                end;
-              end;
 
-              // No animation necessary if the node is below the current client height.
-              if R1.Top < ClientHeight then
-              begin
-                PrepareAnimation;
-                try
-                  //Animate(Steps, FAnimationDuration, ToggleCallback, @ToggleData);
-                finally
-                  ReleaseDC(Window, DC);
-                end;
-              end;
-            end;
-          end;
+          // сворачиваем узел collapse the node
+          AdjustTotalHeight(Node, IfThen(IsEffectivelyFiltered[Node], 0, NodeHeight[Node]));  //устанавливаем общую высоту узла и всех его родителей
+          if FullyVisible[Node] then                         //если узел видим и все его родители развернуты
+            Dec(FVisibleCount, CountVisibleChildren(Node));  //уменьшаем общее кол-во видимых узлов грида на кол-во видимых детей узла
+          Exclude(Node.States, vsExpanded);                  //удаляем флаг развернутости у узла
+          DoCollapsed(Node);                                 //прерывание после сворачивания и выбор другого узла если был выбран свернуты
 
-          // collapse the node
-          AdjustTotalHeight(Node, IfThen(IsEffectivelyFiltered[Node], 0, NodeHeight[Node]));
-          if FullyVisible[Node] then
-            Dec(FVisibleCount, CountVisibleChildren(Node));
-          Exclude(Node.States, vsExpanded);
-          DoCollapsed(Node);
-
-          // Remove child nodes now, if enabled.
+          // Удаляем детей и освобождаем память, если опция toAutoFreeOnCollapse включена. Remove child nodes now, if enabled.
           if (toAutoFreeOnCollapse in FOptions.FAutoOptions) and (Node.ChildCount > 0) then
           begin
-            DeleteChild(Node);
-            Include(Node.States, vsHasChildren);
+            DeleteChild(Node);                   //удаляем всех детей
+            Include(Node.States, vsHasChildren); //устанавливаем флаг наличия детей у узла
           end;
         end;
       end
-      else
-        if DoExpanding(Node) then
+      else      //иначе узел свернут
+        if DoExpanding(Node) then //если приложение разрешает развернуть узел
         begin
-          NeedUpdate := True;
-          // expand the node, need to adjust the height
-          if not (vsInitialized in Node.States) then
-            InitNode(Node);
-          if (vsHasChildren in Node.States) and (Node.ChildCount = 0) then
-            InitChildren(Node);
+          NeedUpdate := True;          //установим флаг необходимости обновления града (узел свернулся)
 
-          // Avoid setting the vsExpanded style if there are no child nodes.
-          if Node.ChildCount > 0 then
+          //разворачиваем узел, нужно отрегулировать высоту
+          // expand the node, need to adjust the height
+          if not (vsInitialized in Node.States)    //инициализируем узел если требуется
+            then InitNode(Node);
+          if (vsHasChildren in Node.States) and (Node.ChildCount = 0) //если у узла есть флаг наличия детей, но самих детей нет
+            then InitChildren(Node);                                    //то инициализируем детей у узла
+
+          // Если есть дети (не нужно устанавливать флаг vsExpanded, если нет детей). Avoid setting the vsExpanded style if there are no child nodes.
+          if Node.ChildCount > 0 then  //если есть дети
           begin
+            // Итерация дочерних узлов без их инициализации. Определяем всю высоту.
             // Iterate through the child nodes without initializing them. We have to determine the entire height.
-            Child := Node.FirstChild;
+            Child := Node.FirstChild;  //найдем первого ребенка
             repeat
               if vsVisible in Child.States then
               begin
-                // Ensure the item height is measured
-                MeasureItemHeight(Child);
-
-                //Inc(HeightDelta, Child.TotalHeight);
-                HeightDelta := HeightDelta + Child.TotalHeight;
+                MeasureItemHeight(Child); // Определить и установить высоту ребенка.Ensure the item height is measured
+                d2IncFloat(HeightDelta, Child.TotalHeight);  //прибавляем общую высоту ребенка к дельте высоты
               end;
-              Child := Child.NextSibling;
-            until Child = nil;
+              Child := Child.NextSibling; //найдем следующего ребенка
+            until Child = nil;            //повторять пока не будут учтены все потомки узла Node
 
+            // Определяем прямоугольник отображения уже здесь, т.к. это необходимо для toChildrenAbove в любом случае.
             // Getting the display rectangle is already done here as it is needed for toChildrenAbove in any case.
             if (toChildrenAbove in FOptions.FPaintOptions) or (FUpdateCount = 0) then
             begin
@@ -9540,238 +9574,233 @@ begin
               begin
                 R1 := GetDisplayRect(Node, NoColumn, False);
                 Mode2 := tamNoScroll;
-                TotalFit := HeightDelta + Integer(NodeHeight[Node]) <= ClientHeight;
+                TotalFit := HeightDelta + NodeHeight[Node] <= ClientHeight; //если развернутый узел (с детьми) полностью помещается в видимую область грида, то установим флаг
 
-                if toChildrenAbove in FOptions.FPaintOptions then
-                begin
-                  // The main goal with toChildrenAbove being set is to keep the nodes visual position so the user does
-                  // not get confused. Therefore we need to scroll the view when the expanding is done.
-                  PosHoldable := TotalFit and (Integer(FRangeY) - ClientHeight >= 0) ;
-                  ChildrenInView := (R1.Top - HeightDelta) >= 0;
-                  NodeInView := R1.Bottom <= ClientHeight;
-                end
-                else
-                begin
-                  PosHoldable := TotalFit;
-                  ChildrenInView := R1.Bottom + HeightDelta <= ClientHeight;
-                end;
+                if toChildrenAbove in FOptions.FPaintOptions //если детей нужно показать выше родителя
+                  then  begin
+                          //Основная цель с установленным toChildrenAbove - сохранить визуальную позицию узлов,
+                          //чтобы пользователь не запутался. Поэтому нужно прокрутить представление, когда выполняется расширение.
+                          // The main goal with toChildrenAbove being set is to keep the nodes visual position so the user does
+                          // not get confused. Therefore we need to scroll the view when the expanding is done.
+                          PosHoldable := TotalFit and (FRangeY - ClientHeight >= 0) ;
+                          ChildrenInView := (R1.Top - HeightDelta) >= 0;
+                          NodeInView := R1.Bottom <= ClientHeight;
+                        end
+                  else  begin //иначе детей показываем ниже родителя
+                          PosHoldable := TotalFit;
+                          ChildrenInView := R1.Bottom + HeightDelta <= ClientHeight;
+                        end;
 
                 R1.Bottom := ClientHeight;
               end;
             end;
 
-            if FUpdateCount = 0 then
-            begin
-              // Do animated expanding if enabled.
-              if (ToggleData.R1.Top < ClientHeight) and ([tsPainting, tsExpanding] * FStates = []) and
-                (toAnimatedToggle in FOptions.FAnimationOptions)then
-              begin
-                if tsHint in Self.FStates then
-                  Application.CancelHint;
-                Realign; //вместо UpdateWindow(Handle);
-                // animated expanding
-                with ToggleData do
-                begin
-                  if toChildrenAbove in FOptions.FPaintOptions then
-                  begin
-                    // At first check if we hold the position, which is the most common case.
-                    if not (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) or
-                       (PosHoldable and ( (NodeInView and ChildrenInView) or not
-                                          (toAutoScrollOnExpand in FOptions.FAutoOptions) )) then
-                    begin
-                      Mode1 := tamScrollUp;
-                      R1 := d2Rect(R1.Left, 0, R1.Right, R1.Top);
-                      StepsR1 := Min(HeightDelta, R1.Bottom);
-                    end
-                    else
-                    begin
-                      // If we will not hold the node's visual position we mostly scroll in both directions.
-                      Mode1 := tamScrollDown;
-                      Mode2 := tamScrollUp;
-                      R2 := d2Rect(R1.Left, 0, R1.Right, R1.Top);
-                      if not (toAutoScrollOnExpand in FOptions.FAutoOptions) then
-                      begin
-                        // If we shall not or cannot scroll to the desired extent we calculate the new position (with
-                        // max VScrollBarValue applied) and animate it that way.
-                        StepsR1 := -VScrollBarValue - Max(Integer(FRangeY) + HeightDelta - ClientHeight, 0) + HeightDelta;
-                        if (Integer(FRangeY) + HeightDelta - ClientHeight) <= 0 then
-                          Mode2 := tamNoScroll
-                        else
-                          StepsR2 := Min(Integer(FRangeY) + HeightDelta - ClientHeight, R2.Bottom);
-                      end
-                      else
-                      begin
-                        if TotalFit and NodeInView and (Integer(FRangeY) + HeightDelta > ClientHeight) then
-                        begin
-                          // If the whole subtree will fit into the client area and the node is currently fully visible,
-                          // the first child will be made the top node if possible.
-                          if HeightDelta >= R1.Top then
-                            StepsR1 := Abs(R1.Top - HeightDelta)
-                          else
-                            StepsR1 := ClientHeight - Integer(FRangeY);
-                        end
-                        else
-                          if Integer(FRangeY) + HeightDelta <= ClientHeight then
-                          begin
-                            // We cannot make the first child the top node as we cannot scroll to that extent,
-                            // so we do a simple scroll down.
-                            Mode2 := tamNoScroll;
-                            StepsR1 := HeightDelta;
-                          end
-                          else
-                            // If the subtree does not fit into the client area at once, the expanded node will
-                            // be made the bottom node.
-                            StepsR1 := ClientHeight - R1.Top - Integer(NodeHeight[Node]);
+            //if FUpdateCount = 0 then
+            //begin
+            //  //анимация разворачивания узла tckb hfphtityj
+            //  // Do animated expanding if enabled.
+            //  if (ToggleData.R1.Top < ClientHeight) and ([tsPainting, tsExpanding] * FStates = []) and
+            //    (toAnimatedToggle in FOptions.FAnimationOptions)then
+            //  begin
+            //    if tsHint in Self.FStates then
+            //      Application.CancelHint;
+            //    Repaint; //вместо UpdateWindow(Handle);
+            //    // animated expanding
+            //    with ToggleData do
+            //    begin
+            //      if toChildrenAbove in FOptions.FPaintOptions then
+            //      begin
+            //        // At first check if we hold the position, which is the most common case.
+            //        if not (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) or
+            //           (PosHoldable and ( (NodeInView and ChildrenInView) or not
+            //                              (toAutoScrollOnExpand in FOptions.FAutoOptions) )) then
+            //        begin
+            //          Mode1 := tamScrollUp;
+            //          R1 := d2Rect(R1.Left, 0, R1.Right, R1.Top);
+            //          StepsR1 := Min(HeightDelta, R1.Bottom);
+            //        end
+            //        else
+            //        begin
+            //          // If we will not hold the node's visual position we mostly scroll in both directions.
+            //          Mode1 := tamScrollDown;
+            //          Mode2 := tamScrollUp;
+            //          R2 := d2Rect(R1.Left, 0, R1.Right, R1.Top);
+            //          if not (toAutoScrollOnExpand in FOptions.FAutoOptions) then
+            //          begin
+            //            // If we shall not or cannot scroll to the desired extent we calculate the new position (with
+            //            // max VScrollBarValue applied) and animate it that way.
+            //            StepsR1 := -VScrollBarValue - Max(FRangeY + HeightDelta - ClientHeight, 0) + HeightDelta;
+            //            if (FRangeY + HeightDelta - ClientHeight) <= 0 then
+            //              Mode2 := tamNoScroll
+            //            else
+            //              StepsR2 := Min(FRangeY + HeightDelta - ClientHeight, R2.Bottom);
+            //          end
+            //          else
+            //          begin
+            //            if TotalFit and NodeInView and (FRangeY + HeightDelta > ClientHeight) then
+            //            begin
+            //              // If the whole subtree will fit into the client area and the node is currently fully visible,
+            //              // the first child will be made the top node if possible.
+            //              if HeightDelta >= R1.Top then
+            //                StepsR1 := Abs(R1.Top - HeightDelta)
+            //              else
+            //                StepsR1 := ClientHeight - FRangeY;
+            //            end
+            //            else
+            //              if FRangeY + HeightDelta <= ClientHeight then
+            //              begin
+            //                // We cannot make the first child the top node as we cannot scroll to that extent,
+            //                // so we do a simple scroll down.
+            //                Mode2 := tamNoScroll;
+            //                StepsR1 := HeightDelta;
+            //              end
+            //              else
+            //                // If the subtree does not fit into the client area at once, the expanded node will
+            //                // be made the bottom node.
+            //                StepsR1 := ClientHeight - R1.Top - NodeHeight[Node];
+            //
+            //            if Mode2 <> tamNoScroll then
+            //            begin
+            //              if StepsR1 > 0 then
+            //                StepsR2 := Min(R1.Top, HeightDelta - StepsR1)
+            //              else
+            //              begin
+            //                // If the node is already at the bottom scrolling is needed.
+            //                Mode1 := tamNoScroll;
+            //                StepsR2 := Min(HeightDelta, R1.Bottom);
+            //              end;
+            //            end;
+            //          end;
+            //        end;
+            //      end
+            //      else
+            //      begin
+            //        // toChildrenAbove is not set.
+            //        if (PosHoldable and ChildrenInView) or not (toAutoScrollOnExpand in FOptions.FAutoOptions) or not
+            //           (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) or (R1.Top <= 0) then
+            //        begin
+            //          // If the node will stay at its visual position, do a simple down-scroll.
+            //          Mode1 := tamScrollDown;
+            //          //Inc(R1.Top, NodeHeight[Node]);
+            //          R1.Top := R1.Top + NodeHeight[Node];
+            //          StepsR1 := Min(R1.Bottom - R1.Top, HeightDelta);
+            //        end
+            //        else
+            //        begin
+            //          // We will not hold the nodes visual position so perform a double scroll.
+            //          Mode1 := tamScrollUp;
+            //          Mode2 := tamScrollDown;
+            //
+            //          R1.Bottom := R1.Top + NodeHeight[Node] + 1;
+            //          R1.Top := 0;
+            //          R2 := d2Rect(R1.Left, R1.Bottom, R1.Right, ClientHeight);
+            //
+            //          StepsR1 := Min(HeightDelta - (ClientHeight - R2.Top), R1.Bottom - NodeHeight[Node]);
+            //          StepsR2 := ClientHeight - R2.Top;
+            //        end;
+            //      end;
+            //
+            //      if ClientHeight >= R1.Top then
+            //      begin
+            //        PrepareAnimation;
+            //        try
+            //          //Animate(Steps, FAnimationDuration, ToggleCallback, @ToggleData);
+            //        finally
+            //          ReleaseDC(Window, DC);
+            //        end;
+            //      end;
+            //    end;
+            //  end;
+            //  //if toAutoSort in FOptions.FAutoOptions then
+            //  //  Sort(Node, FHeader.FSortColumn, FHeader.FSortDirection, False);
+            //end;// if UpdateCount = 0
 
-                        if Mode2 <> tamNoScroll then
-                        begin
-                          if StepsR1 > 0 then
-                            StepsR2 := Min(R1.Top, HeightDelta - StepsR1)
-                          else
-                          begin
-                            // If the node is already at the bottom scrolling is needed.
-                            Mode1 := tamNoScroll;
-                            StepsR2 := Min(HeightDelta, R1.Bottom);
-                          end;
-                        end;
-                      end;
-                    end;
-                  end
-                  else
-                  begin
-                    // toChildrenAbove is not set.
-                    if (PosHoldable and ChildrenInView) or not (toAutoScrollOnExpand in FOptions.FAutoOptions) or not
-                       (toAdvancedAnimatedToggle in FOptions.FAnimationOptions) or (R1.Top <= 0) then
-                    begin
-                      // If the node will stay at its visual position, do a simple down-scroll.
-                      Mode1 := tamScrollDown;
-                      //Inc(R1.Top, NodeHeight[Node]);
-                      R1.Top := R1.Top + NodeHeight[Node];
-                      StepsR1 := Min(R1.Bottom - R1.Top, HeightDelta);
-                    end
-                    else
-                    begin
-                      // We will not hold the nodes visual position so perform a double scroll.
-                      Mode1 := tamScrollUp;
-                      Mode2 := tamScrollDown;
-
-                      R1.Bottom := R1.Top + Integer(NodeHeight[Node]) + 1;
-                      R1.Top := 0;
-                      R2 := d2Rect(R1.Left, R1.Bottom, R1.Right, ClientHeight);
-
-                      StepsR1 := Min(HeightDelta - (ClientHeight - R2.Top), R1.Bottom - Integer(NodeHeight[Node]));
-                      StepsR2 := ClientHeight - R2.Top;
-                    end;
-                  end;
-
-                  if ClientHeight >= R1.Top then
-                  begin
-                    PrepareAnimation;
-                    try
-                      //Animate(Steps, FAnimationDuration, ToggleCallback, @ToggleData);
-                    finally
-                      ReleaseDC(Window, DC);
-                    end;
-                  end;
-                end;
-              end;
-              //if toAutoSort in FOptions.FAutoOptions then
-              //  Sort(Node, FHeader.FSortColumn, FHeader.FSortDirection, False);
-            end;// if UpdateCount = 0
-
-            Include(Node.States, vsExpanded);
-            AdjustTotalHeight(Node, HeightDelta, True);
-            if FullyVisible[Node] then
-              Inc(FVisibleCount, CountVisibleChildren(Node));
-
-            DoExpanded(Node);
+            Include(Node.States, vsExpanded);                 //устанавливаем флаг развернутости у узл
+            AdjustTotalHeight(Node, HeightDelta, True);       //изменяем общую высоту узла и всех его родителей на величину дельты
+            if FullyVisible[Node] then                        //если узел видим и все его родители развернуты
+              Inc(FVisibleCount, CountVisibleChildren(Node));   //увеличиваем общее кол-во видимых узлов грида на кол-во видимых детей узла
+            DoExpanded(Node);                                 //прерывание после разворачивания
           end;
         end;
 
-      if NeedUpdate then
+      if NeedUpdate then   //если произошло изменение кол-ва видимых узлов
       begin
-        InvalidateCache;
-        if FUpdateCount = 0 then
+        InvalidateCache;   //пометить кэш как недействительный
+        if FUpdateCount = 0 then   //если можно перерисовываться
         begin
-          ValidateCache;
-          if Node.ChildCount > 0 then
-          begin
-            UpdateRanges;
-            Realign; //вместо UpdateScrollBars(True)
-            if [tsPainting, tsExpanding] * FStates = [] then
-            begin
-              if (vsExpanded in Node.States) and ((toAutoScrollOnExpand in FOptions.FAutoOptions) or
-                 (toChildrenAbove in FOptions.FPaintOptions)) then
-              begin
-                if toChildrenAbove in FOptions.FPaintOptions then
-                begin
-                  NeedFullInvalidate := True;
-                  if (PosHoldable and ChildrenInView and NodeInView) or not
-                     (toAutoScrollOnExpand in FOptions.FAutoOptions) then
-                    SetOffsetY(VScrollBarValue - Integer(HeightDelta))
-                  else
-                    if TotalFit and NodeInView then
-                    begin
-                      FirstVisible := GetFirstVisible(Node, True);
-                      if Assigned(FirstVisible) then // otherwise there is no visible child at all
-                        SetOffsetY(VScrollBarValue - GetDisplayRect(FirstVisible, NoColumn, False).Top);
-                    end
-                    else
-                      BottomNode := Node;
-                end
-                else
-                begin
-                  // Scroll as much child nodes into view as possible if the node has been expanded.
-                  if PosHoldable then
-                    NeedFullInvalidate := ScrollIntoView(GetLastVisible(Node, True), False)
-                  else
-                  begin
-                    TopNode := Node;
-                    NeedFullInvalidate := True;
-                  end;
-                end;
-              end
-              else
-              begin
-                // If we have collapsed the node or toAutoScrollOnExpand is not set, we try to keep the nodes
-                // visual position.
-                if toChildrenAbove in FOptions.FPaintOptions then
-                  SetOffsetY(VScrollBarValue - Integer(HeightDelta));
-                NeedFullInvalidate := True;
-              end;
-            end;
+          ValidateCache;             //пересчитаем кэш
 
-            //UpdateScrollBars(True); Moved up
-
-            // Check for automatically scrolled tree.
-            if NeedFullInvalidate then
-              Realign  //вместо UpdateScrollBars(True) и Invalidate
-            else
-              InvalidateToBottom(Node);
-          end
-          else
-            InvalidateNode(Node);
-        end
-        else
+          //изменение положения скроллера
+          //if Node.ChildCount > 0     //если у узла есть дети
+          //  then  begin
+          //          UpdateRanges;    //обновим витруальные размеры клиетнской области грида
+          //          //Realign; //вместо UpdateScrollBars(True)
+          //          if [tsPainting, tsExpanding] * FStates = [] then
+          //          begin
+          //            if (vsExpanded in Node.States) and                      //если узел развернут и
+          //               ((toAutoScrollOnExpand in FOptions.FAutoOptions) or  //       установлен режим прокрутка дерева после раскрытия или
+          //                (toChildrenAbove in FOptions.FPaintOptions))        //       установлен режим показа детей выше родителя
+          //              then  begin
+          //                      if toChildrenAbove in FOptions.FPaintOptions    //если установлен режим показа детей выше родителя
+          //                        then  begin
+          //                                NeedFullInvalidate := True;              //установим флаг полного обновления грида
+          //                                if (PosHoldable and ChildrenInView and NodeInView) or not
+          //                                   (toAutoScrollOnExpand in FOptions.FAutoOptions)
+          //                                  then  ScrollTo(HeightDelta); //SetOffsetY(VScrollBarValue - HeightDelta)
+          //                                  else  if TotalFit and NodeInView
+          //                                          then  begin
+          //                                                  FirstVisible := GetFirstVisible(Node, True);
+          //                                                  if Assigned(FirstVisible)  // иначе нет видимого ребенка otherwise there is no visible child at all
+          //                                                    then SetOffsetY(VScrollBarValue - GetDisplayRect(FirstVisible, NoColumn, False).Top);
+          //                                                end
+          //                                          else BottomNode := Node;
+          //                              end
+          //                        else  begin  //иначе детей показываем ниже родителей
+          //                                // Прокручиваем как можно больше дочерних узлов, если узел был развернут.
+          //                                // Scroll as much child nodes into view as possible if the node has been expanded.
+          //                                if PosHoldable
+          //                                  then NeedFullInvalidate := ScrollIntoView(GetLastVisible(Node, True), False)
+          //                                  else  begin
+          //                                          TopNode := Node;
+          //                                          NeedFullInvalidate := True;
+          //                                        end;
+          //                              end;
+          //                    end
+          //              else  begin
+          //                      // If we have collapsed the node or toAutoScrollOnExpand is not set, we try to keep the nodes
+          //                      // visual position.
+          //                      if toChildrenAbove in FOptions.FPaintOptions then
+          //                        SetOffsetY(VScrollBarValue - Integer(HeightDelta));
+          //                      NeedFullInvalidate := True;
+          //                    end;
+          //          end;
+          //
+          //          //UpdateScrollBars(True); Moved up
+          //
+          //          // Check for automatically scrolled tree.
+          //          if NeedFullInvalidate
+          //            then Realign  //вместо UpdateScrollBars(True) и Invalidate
+          //            else InvalidateToBottom(Node);
+          //        end
+          //  else InvalidateNode(Node);
           UpdateRanges;
+          Realign;  //перерисуем грид
+        end
+        else UpdateRanges;  //если перерисовывать нельзя, то обновим только витруальные размеры клиетнской области грида
       end;
 
     finally
-      Exclude(Node.States, vsToggling);
-      if not TogglingTree then
-        DoStateChange([], [tsToggling]);
+      Exclude(Node.States, vsToggling);    //снимем флаг изменения состояния развертывания для узлоа
+      if not TogglingTree then             //если флага изменения состояния развертывания у грида до начала операции не было
+        DoStateChange([], [tsToggling]);     //то снимем флаг
     end;
   end;
 end;
 
 procedure TD2CustomTreeGrid.UpdateHorizontalRange;
 //Обновить общую витруальную ширину дерева
-var i: integer;
 begin
-  FRangeX := 0;
-  if ColumnCount > 0 then
-    for i:=0 to ColumnCount - 1 do
-      FRangeX := FRangeX + Columns[i].Width;
+  FRangeX:= GetContentWidth;
 end;
 
 procedure TD2CustomTreeGrid.UpdateRanges;

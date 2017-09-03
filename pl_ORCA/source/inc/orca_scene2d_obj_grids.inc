@@ -434,6 +434,18 @@ begin
   if FGrid<>nil then FGrid.Realign;
 end;
 
+function TD2CustomGrid.GetTopRow:integer;
+begin
+  if FVScrollBar = nil
+    then Result:=0
+    else Result:=trunc(FVScrollBar.Value / FRowHeight);
+end;
+
+function TD2CustomGrid.GetTopRowY: single;
+begin
+  Result:= TopRow * FRowHeight;
+end;
+
 procedure TD2Column.UpdateColumn;
 var
   i,C,m:integer;
@@ -462,13 +474,26 @@ begin
       for i:=m to FCellControls.Count-1 do
         TD2Control(FCellControls.Items[i]).Visible:=false;
     //end;
+    {$ifdef DEBUG_TREEGRID}
+        if Self.Index = 0
+          then  DebugLn('Min/Mav/Vieport/Value: ' +
+                        FloatToStr(FGrid.VScrollBar.Min) + ' / ' +
+                        FloatToStr(FGrid.VScrollBar.Max) + ' / ' +
+                        FloatToStr(FGrid.VScrollBar.ViewportSize) + ' / ' +
+                        FloatToStr(FGrid.VScrollBarValue));
+      {$endif}
     { Update Data }
     for i:=0 to m - 1 do
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
       TD2Control(FCellControls.Items[i]).Visible:=true;
-      TD2Control(FCellControls.Items[i]).SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
+      TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
       TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
+
+      {$ifdef DEBUG_TREEGRID}
+            if Self.Index = 0
+              then DebugLn('Col/Row/Y: ' + IntToStr(Index) + ' / ' + IntToStr(i) + ' / ' + FloatToStr(i * Grid.RowHeight));
+          {$endif}
 
       V:=Grid.GetValue(Index,Grid.TopRow + i);
       TD2Control(FCellControls.Items[i]).Data:=V;
@@ -924,18 +949,15 @@ procedure TD2CustomGrid.UpdateColumns;
 var
   R:TD2Rect;
   i: integer;
+  Y: single;
 begin
-  //for i:=0 to ColumnCount - 1 do
-  //begin
-  //  Columns[i].Position.Y:=(TopRow * FRowHeight);
-  //  Columns[i].UpdateColumn;
-  //end;
   if (ContentLayout <> nil) then
   begin
     R:=ContentLayout.LocalRect;
+    Y:= GetTopRowY;
     for i:=0 to ColumnCount - 1 do
     begin
-      Columns[i].SetBounds(R.Left,(TopRow * FRowHeight),Columns[i].Width, d2RectHeight(R));
+      Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R));
       Columns[i].UpdateColumn;
       R.Left:=R.Left + Columns[i].Width;
     end;
@@ -1020,26 +1042,27 @@ begin
 end;
 
 function TD2CustomGrid.GetContentBounds:TD2Rect;
-var
-  R:TD2Rect;
-  i: integer;
 begin
-  Result:=LocalRect;
+  Result:= LocalRect;
   if FUpdating > 0 then Exit;
   if ContentLayout=nil then Exit;
-  R:=ContentLayout.LocalRect;
+  Result:= ContentLayout.LocalRect;
+  Result.Right:= Result.Left + Max(GetContentWidth, ContentLayout.Width);
+  Result.Bottom:= Result.Top + Max(GetContentHeight, ContentLayout.Height);
+end;
+
+function TD2CustomGrid.GetContentHeight: Single;
+begin
+  Result:= Max(0, FRowCount * FRowHeight);
+end;
+
+function TD2CustomGrid.GetContentWidth: Single;
+var i: integer;
+begin
+  Result:=0;
   if ColumnCount > 0 then
-  begin
-    R.Right:=R.Left;
     for i:=0 to ColumnCount - 1 do
-      R.Right:=R.Right + Columns[i].Width;
-    R.Bottom:=R.Top + (FRowCount * FRowHeight);
-  end;
-  if d2RectWidth(R) < ContentLayout.Width
-    then R.Right:=R.Left + ContentLayout.Width;
-  if d2RectHeight(R) < ContentLayout.Height
-    then R.Bottom:=R.Top + ContentLayout.Height;
-  Result:=R;
+      Result:= Result + Columns[i].Width;
 end;
 
 procedure TD2CustomGrid.HScrollChange(Sender:TObject);
@@ -1124,6 +1147,11 @@ end;
 
 procedure TD2CustomGrid.Realign;
 begin
+  if csDestroying in ComponentState then Exit;
+  if csLoading in ComponentState then Exit;
+  if ContentLayout=nil then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
   inherited;
   UpdateColumns;
   UpdateHeader;
@@ -1514,13 +1542,6 @@ begin
     if FRowHeight < 5 then FRowHeight:=5;
     Realign;
   end;
-end;
-
-function TD2CustomGrid.GetTopRow:integer;
-begin
-  if FVScrollBar = nil
-    then Result:=0
-    else Result:=trunc(FVScrollBar.Value / FRowHeight);
 end;
 
 function TD2CustomGrid.GetVisibleRows:integer;
