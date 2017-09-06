@@ -3266,6 +3266,18 @@ begin
     FOnCompareNodes(Self, Node1, Node2, Column, Result);
 end;
 
+procedure TD2CustomTreeGrid.DoContentPaint(Sender: TObject;
+  const Canvas: TD2Canvas; const ARect: TD2Rect);
+begin
+  Inherited;
+end;
+
+procedure TD2CustomTreeGrid.DoContentPaint2(Sender: TObject;
+  const Canvas: TD2Canvas; const ARect: TD2Rect);
+begin
+  Inherited;
+end;
+
 //function TD2CustomTreeGrid.DoCreateEditor(Node: PD2TreeNode;
 //  Column: Integer): ID2VTEditLink;
 //begin

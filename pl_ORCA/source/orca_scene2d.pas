@@ -7187,9 +7187,9 @@ TD2CustomGrid = class(TD2CustomScrollBox)
               //двойной клик ЛКМ
     procedure DblClick;  override;
               //отрисовка альтернативного фона нечетных строк
-    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
               //отрисовка горизонтальных и вертикальных линий
-    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
               //изменить позицию колонки
     procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
               //изменить ширину колонки
@@ -8929,6 +8929,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function DoCollapsing(Node: PD2TreeNode): Boolean; virtual;
              //Вызывает прерывание сравнения узлов (OnCompareNodes)
     function DoCompare(Node1, Node2: PD2TreeNode; Column: Integer): Integer; virtual;
+              //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
+              //отрисовка горизонтальных и вертикальных линий
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
               //Начать редактирование узла,имеющего фокус
     procedure DoEdit; virtual;
              //Закончить редактирование и вызвать предывание OnEdited
@@ -8981,6 +8985,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoStateChange(Enter: TD2TreeStates; Leave: TD2TreeStates = []); virtual;
               //Вызов прерывания OnStructureChange при изменении структуры дерева
     procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
+
 
     function DoValidateCache: Boolean; virtual;
               //Вызывается для индикации завершения длительной операции.
