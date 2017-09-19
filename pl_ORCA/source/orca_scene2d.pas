@@ -9026,6 +9026,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //Вызов прерывания OnStructureChange при изменении структуры дерева
     procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
 
+
     function DoValidateCache: Boolean; virtual;
               //Вызывается для индикации завершения длительной операции.
     procedure EndOperation(OperationKind: TD2TreeOperationKind);
