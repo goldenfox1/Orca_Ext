@@ -25,11 +25,11 @@ begin
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);
-begin
+{begin
   OneStep;
 end;
 
-procedure TD2AniThread.OneStep;
+procedure TD2AniThread.OneStep;}
 var
   i:integer;
   NewTime:single;
@@ -38,30 +38,32 @@ begin
   if NewTime <= FTime then Exit;
   FDeltaTime:=NewTime - FTime;
   FTime:=NewTime;
-  if FAniList.Count > 0 then
+  //if FAniList.Count > 0 then
+  //begin
+  //  i:=FAniList.Count - 1;
+  //  while i >= 0 do
+  i := 0;
+  while i < FAniList.Count do
   begin
-    i:=FAniList.Count - 1;
-    while i >= 0 do
+    if TD2Animation(FAniList[i]).FRunning then
     begin
-      if TD2Animation(FAniList[i]).FRunning then
-      begin
-        if (TD2Animation(FAniList[i]).BindingName <> '') and
-           (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0) then
-        begin
-          TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
-          if TD2Animation(FAniList[i]).Tag mod 3=0 then
-          begin
-            TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
-          end;
-        end
-        else
-          TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
-      end;
-      Dec(i);
-      if i >= FAniList.Count then
-        i:=FAniList.Count - 1;
+      if (TD2Animation(FAniList[i]).BindingName <> '') and
+         (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0)
+        then  begin
+                TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
+                if TD2Animation(FAniList[i]).Tag mod 3=0 then
+                begin
+                  TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
+                end;
+              end
+        else TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
     end;
+    //Dec(i);
+    //if i >= FAniList.Count then
+    //  i:=FAniList.Count - 1;
+    Inc(i);
   end;
+  //end;
 end;
 
 //================== TD2Animation ==================================

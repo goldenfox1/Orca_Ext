@@ -7,43 +7,42 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DBStringTree, VirtualTrees, orca_scene2d, Forms,
-  Controls, Graphics, Dialogs;
+  Classes, SysUtils, FileUtil, DBStringTree, RTTICtrls, SynEdit,
+  SynHighlighterPas, SynCompletion, SynMacroRecorder, SynPluginSyncroEdit,
+  VirtualTrees, VTHeaderPopup, orca_scene2d, Forms, Controls, Graphics, Dialogs;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TD2Button;
     D2Scene1: TD2Scene;
+    DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
-    Label1: TD2Label;
-    Label2: TD2Label;
-    Label3: TD2Label;
-    Label4: TD2Label;
+    Line1: TD2Line;
+    Path1: TD2Path;
     Root1: TD2Background;
+    SpinBox1: TD2SpinBox;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
     StringGrid1: TD2StringGrid;
-    TextBox1: TD2TextBox;
-    TextBox3: TD2TextBox;
-    TextBox4: TD2TextBox;
-    TextBox5: TD2TextBox;
     TreeGrid1: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
-    procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure SpinBox1Change(Sender: TObject);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
     procedure CreateVT;
     procedure TreeGrid1Paint(Sender: TObject; const ACanvas: TD2Canvas;
       const ARect: TD2Rect);
+    procedure TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single
+      );
     procedure VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
+    procedure VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
   private
     { private declarations }
   public
@@ -59,11 +58,11 @@ const
   'Дима'
 );
 Phones: array[0..4] of String = (
-  '111',
-  '222',
-  '333',
-  '444',
-  '555'
+  '1',
+  '2',
+  '3',
+  '4',
+  '5'
 );
 
 type
@@ -82,15 +81,15 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  TreeGrid1.AddObject(TD2TreeTextColumn.Create(nil));
-end;
-
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   CreateTreeGreed;
   CreateVT;
+end;
+
+procedure TForm1.SpinBox1Change(Sender: TObject);
+begin
+  TreeGrid1.VScrollBar.Value:=SpinBox1.Value;
 end;
 
 procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
@@ -110,9 +109,9 @@ end;
 
 procedure TForm1.CreateTreeGreed;
 var
-  NewNode,NewNode1: PD2TreeNode;
+  NewNode,NewNode1,NewNode2: PD2TreeNode;
   NewPhone: PPhoneNode;
-  i,t: integer;
+  i,t,k: integer;
 begin
   TreeGrid1.Columns[0].Header:='Имя';
   TreeGrid1.Columns[0].Tag:= 0;
@@ -128,7 +127,7 @@ begin
       with NewPhone^ do
       begin
         Name := Names[i];
-        Phone := IntToStr(i+1) + Phones[i];
+        Phone := IntToStr(i+1) + IntToStr(i+1) + Phones[i];
       end;
     for t:=0 to High(Names) do
     begin
@@ -138,8 +137,21 @@ begin
         with NewPhone^ do
         begin
           Name := Names[t];
-          Phone := Phones[t];
+          Phone := IntToStr(t+1) + Phones[t];
         end;
+      if t<=1 then
+        for k:=0 to High(Names) do
+        begin
+          NewNode2 := TreeGrid1.AddChild(NewNode1);
+          NewPhone := TreeGrid1.GetNodeData(NewNode2);
+          if Assigned(NewPhone) then
+            with NewPhone^ do
+            begin
+              Name := Names[k];
+              Phone := Phones[k];
+            end;
+        end;
+
     end;
     if i=0 then TreeGrid1.ToggleNode(NewNode);
   end;
@@ -148,9 +160,9 @@ end;
 
 procedure TForm1.CreateVT;
 var
-  NewNode,NewNode1: PVirtualNode;
+  NewNode,NewNode1, NewNode2: PVirtualNode;
   NewPhone: PPhoneNode;
-  i,t: integer;
+  i,t,k: integer;
 begin
   //VT.Header.Columns.Items[0].CaptionText:='Имя';
   //VT.Header.Columns.Items[0].Tag:= 0;
@@ -166,18 +178,32 @@ begin
       with NewPhone^ do
       begin
         Name := Names[i];
-        Phone := Phones[i];
+        Phone := IntToStr(i+1) + IntToStr(i+1) + Phones[i];
       end;
     for t:=0 to High(Names) do
     begin
       NewNode1 := VT.AddChild(NewNode);
+      NewNode1^.CheckType:=VirtualTrees.ctRadioButton;
       NewPhone := VT.GetNodeData(NewNode1);
       if Assigned(NewPhone) then
         with NewPhone^ do
         begin
           Name := Names[t];
-          Phone := Phones[t];
+          Phone := IntToStr(t+1) + Phones[t];
         end;
+      if t<=1 then
+        for k:=0 to High(Names) do
+        begin
+          NewNode2 := VT.AddChild(NewNode1);
+          NewNode2^.CheckType:=VirtualTrees.ctTriStateCheckBox;
+          NewPhone := VT.GetNodeData(NewNode2);
+          if Assigned(NewPhone) then
+            with NewPhone^ do
+            begin
+              Name := Names[k];
+              Phone := Phones[k];
+            end;
+        end
     end;
     if i=0 then VT.ToggleNode(NewNode);
   end;
@@ -187,10 +213,13 @@ end;
 procedure TForm1.TreeGrid1Paint(Sender: TObject; const ACanvas: TD2Canvas;
   const ARect: TD2Rect);
 begin
-   TextBox3.Text:=FloatToStr(TreeGrid1.VScrollBar.Value);
-   TextBox5.Text:=FloatToStr(TreeGrid1.VScrollBar.Min);
-   TextBox1.Text:=FloatToStr(TreeGrid1.VScrollBar.Max);
-   TextBox4.Text:=FloatToStr(TreeGrid1.VScrollBar.ViewportSize);
+
+end;
+
+procedure TForm1.TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX,
+  DeltaY: single);
+begin
+  SpinBox1.Value:=TreeGrid1.VScrollBar.Value;
 end;
 
 procedure TForm1.VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
@@ -206,6 +235,11 @@ begin
       1: CellText := Phone^.Phone; // Текст для колонки телефонного номера
     end;
   end;
+end;
+
+procedure TForm1.VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
+begin
+
 end;
 
 end.

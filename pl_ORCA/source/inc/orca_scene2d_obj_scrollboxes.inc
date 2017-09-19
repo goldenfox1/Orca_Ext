@@ -383,23 +383,29 @@ begin
 end;
 
 procedure TD2CustomScrollBox.HScrollChange(Sender:TObject);
+var Sav: single;
 begin
   if ContentLayout=nil then Exit;
+  Sav:=FContent.Position.X;
   if HScrollBar.Visible then
     FContent.Position.X:=ContentLayout.Position.X - HScrollBar.Value
   else
     FContent.Position.X:=ContentLayout.Position.X;
   FScrollDesign.X:=HScrollBar.Value;
+  DoScroll(Sav-FContent.Position.X, 0);
 end;
 
 procedure TD2CustomScrollBox.VScrollChange(Sender:TObject);
+var Sav: single;
 begin
   if ContentLayout=nil then Exit;
+  Sav:=FContent.Position.Y;
   if VScrollBar.Visible then
     FContent.Position.Y:=ContentLayout.Position.Y - VScrollBar.Value
   else
     FContent.Position.Y:=ContentLayout.Position.Y;
   FScrollDesign.Y:=VScrollBar.Value;
+  DoScroll(0, Sav-FContent.Position.Y);
 end;
 
 procedure TD2CustomScrollBox.CreateHScrollAni;
@@ -591,6 +597,12 @@ procedure TD2CustomScrollBox.DefineProperties(Filer:TFiler);
 begin
   inherited;
   // Filer.DefineProperty('ScrollDesign',ReadScrollDesign,WriteScrollDesign,(FScrollDesign.X <> 0) and (FScrollDesign.Y <> 0));
+end;
+
+procedure TD2CustomScrollBox.DoScroll(DeltaX, DeltaY: single);
+begin
+  if Assigned(FOnScroll) then
+    FOnScroll(Self, DeltaX, DeltaY);
 end;
 
 procedure TD2CustomScrollBox.ReadScrollDesign(Reader:TReader);

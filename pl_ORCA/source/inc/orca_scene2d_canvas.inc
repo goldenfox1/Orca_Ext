@@ -180,6 +180,13 @@ begin
           FDash[0]:=1;
           FDash[1]:=1;
         end;
+      d2DashDotDash:
+        begin
+          FDashOffset:=0;
+          SetLength(FDash,2);
+          FDash[0]:=1;
+          FDash[1]:=1 * 3;
+        end;
       d2DashDashDot:
         begin
           FDashOffset:=0;

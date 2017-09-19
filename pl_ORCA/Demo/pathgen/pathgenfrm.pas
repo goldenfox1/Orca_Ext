@@ -16,6 +16,9 @@ uses
   orca_scene2d;
 
 type
+
+  { TForm16 }
+
   TForm16 = class(TForm)
     d2Scene1: TD2Scene;
     Root1: TD2Background;
@@ -30,6 +33,7 @@ type
     procedure charMapChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure HudButton2Click(Sender: TObject);
+    procedure HudButton3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -100,6 +104,11 @@ procedure TForm16.HudButton2Click(Sender: TObject);
 begin
   PathData.SelectAll;
   PathData.CopyToClipboard;
+end;
+
+procedure TForm16.HudButton3Click(Sender: TObject);
+begin
+  samplePath.Data.Data:= PathData.Text;
 end;
 
 end.

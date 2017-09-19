@@ -476,7 +476,7 @@ type
   TD2PathPointKind = (d2PathPointMoveTo, d2PathPointLineTo, d2PathPointCurveTo, d2PathPointClose);
   TD2StrokeCap = (d2CapFlat, d2CapRound);
   TD2StrokeJoin = (d2JoinMiter, d2JoinRound, d2JoinBevel);
-  TD2StrokeDash = (d2DashSolid, d2DashDash, d2DashDot, d2DashDashDot, d2DashDashDotDot, d2DashCustom);
+  TD2StrokeDash = (d2DashSolid, d2DashDash, d2DashDot, d2DashDotDash, d2DashDashDot, d2DashDashDotDot, d2DashCustom);
   TD2AnimationType = (d2AnimationIn, d2AnimationOut, d2AnimationInOut);
 
   TD2InterpolationType = (d2InterpolationLinear, d2InterpolationQuadratic, d2InterpolationCubic, d2InterpolationQuartic,
@@ -648,7 +648,7 @@ TD2AniThread = class(TD2Timer)
     FStartTime:single;
     FTime     :single;
     FDeltaTime:single;
-    procedure OneStep;
+    //procedure OneStep;
     procedure DoSyncTimer(Sender: TObject);
   protected
   public
@@ -4400,6 +4400,11 @@ TD2ScrollContent = class(TD2Content)
     procedure RemoveObject(AObject: TD2Object);  override;
   end;
 
+TD2CustomScrollBox = class;
+TD2ScrollEvent = procedure(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single) of object;
+
+{ TD2CustomScrollBox }
+
 TD2CustomScrollBox = class(TD2Control)
   private
     FScrollDuration: single;
@@ -4413,6 +4418,7 @@ TD2CustomScrollBox = class(TD2Control)
     FShowSizeGrip:boolean;
     FMouseTracking:boolean;
     FUseSmallScrollBars:boolean;
+    FOnScroll: TD2ScrollEvent;                   // Called when one or both paint offsets changed.
     procedure SetShowScrollBars(const Value:boolean);
     procedure SetShowSizeGrip(const Value:boolean);
     procedure SetUseSmallScrollBars(const Value:boolean);
@@ -4425,6 +4431,7 @@ TD2CustomScrollBox = class(TD2Control)
     FDownPos, FLastDelta, FCurrentPos: TD2Point;
     procedure Loaded;  override;
     procedure DefineProperties(Filer: TFiler);  override;
+    procedure DoScroll(DeltaX, DeltaY: single); virtual;
     procedure ReadScrollDesign(Reader:TReader);
     procedure WriteScrollDesign(Writer:TWriter);
     procedure ContentAddObject(AObject: TD2Object);  virtual;
@@ -4467,6 +4474,7 @@ TD2CustomScrollBox = class(TD2Control)
     property ShowScrollBars: boolean read FShowScrollBars write SetShowScrollBars  default true;
     property ShowSizeGrip: boolean read FShowSizeGrip write SetShowSizeGrip  default false;
     property UseSmallScrollBars: boolean read FUseSmallScrollBars write SetUseSmallScrollBars  default false;
+    property OnScroll: TD2ScrollEvent read FOnScroll write FOnScroll;
   end;
 
 TD2ScrollBox = class(TD2CustomScrollBox)
@@ -4479,6 +4487,7 @@ TD2ScrollBox = class(TD2CustomScrollBox)
     property ShowScrollBars;
     property ShowSizeGrip;
     property UseSmallScrollBars;
+    property OnScroll;
 end;
 
 TD2VertScrollBox = class(TD2ScrollBox)
@@ -7019,7 +7028,7 @@ TD2Column = class(TD2Control)
     FSaveData: Variant;
     FDisableChange:boolean;
     procedure UpdateColumn;  virtual;
-    procedure UpdateSelected;
+    procedure UpdateSelected; virtual;
     procedure ClearColumn;
               //создать специфическую ячейку столбца
     function CreateCellControl: TD2Control;  virtual;
@@ -7042,6 +7051,7 @@ TD2Column = class(TD2Control)
     property Resource;
     property Header: String read FHeader write SetHeader;
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+    property ClipChildren default true;
   end;
 
 { TD2TextColumn }
@@ -7187,9 +7197,9 @@ TD2CustomGrid = class(TD2CustomScrollBox)
               //двойной клик ЛКМ
     procedure DblClick;  override;
               //отрисовка альтернативного фона нечетных строк
-    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
               //отрисовка горизонтальных и вертикальных линий
-    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
               //изменить позицию колонки
     procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
               //изменить ширину колонки
@@ -7311,6 +7321,7 @@ TD2Grid = class(TD2CustomGrid)
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnScroll;
 end;
 
 { TD2StringColumn }
@@ -7336,6 +7347,7 @@ private
     property Cells[ACol, ARow: Integer]: WideString read GetCells write SetCells;
   published
     property RowCount;
+    property OnScroll;
   end;
 
 type
@@ -7736,6 +7748,7 @@ TD2DBGrid = class(TD2CustomDBGrid)       //заказной класс сетк�
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnScroll;
 end;
 
 { --------------------- TD2TreeNode ---------------------- }
@@ -7966,9 +7979,9 @@ TD2TreePaintOption = (
     toShowRoot,              //Показать служебный корневой узел Root (корневой узел является служебным и требуется для работы дерева). Show lines also at top level (does not show the hidden/internal root node).
     toShowTreeLines,         //Отображать соединительные линии для узлов. Display tree lines to show hierarchy of nodes.
     toShowVertGridLines,     //Отображать вертикальные линии сетки.  Display vertical lines (depending on columns) to simulate a grid.
-    toThemeAware,            //Отображать все элементы управления дерева (кнопоки, отметоки и т.д.) в соответствии с текущей темой оформления Windows XP.
-                             //(только для Windows XP) Приложение должно поддерживать визуальные темы оформления.
-                             //Draw UI elements (header, tree buttons etc.) according to the current theme if enabled (Windows XP+ only, application must be themed).
+    {toThemeAware,           {Отображать все элементы управления дерева (кнопоки, отметоки и т.д.) в соответствии с текущей темой оформления Windows XP.
+                              (только для Windows XP) Приложение должно поддерживать визуальные темы оформления.
+                              Draw UI elements (header, tree buttons etc.) according to the current theme if enabled (Windows XP+ only, application must be themed).}
     toUseBlendedImages,      //Включить прозрачность для ghosted-узлов и для узлов, участвующих на данный момент в копировании/вырезании. Enable alpha blending for ghosted nodes or those which are being cut/copied.
     toGhostedIfUnfocused,    //Картинки будут отображаться прозрачными до тех пор, пока узел не будет выделен. Ghosted images are still shown as ghosted if unfocused (otherwise the become non-ghosted images).
     toFullVertGridLines,     //Отображать вертикальные линии сетки до конца дерева (при включенном toShowVertGridLines). Если отключено, то линии закончатся на последнем видимом узле. Display vertical lines over the full client area, not only the space occupied by nodes. This option only has an effect if toShowVertGridLines is enabled too.
@@ -7977,9 +7990,10 @@ TD2TreePaintOption = (
     toStaticBackground,      //Отображать статическую картинку вместо одной плитки. Show simple static background instead of a tiled one.
     toChildrenAbove,         //Показать дочерние узлы выше родителя. Display child nodes above their parent.
     toFixedIndent,           //Отображать дерево с фиксированным отступом. Draw the tree with a fixed indent.
-    toUseExplorerTheme,      //Использовать тему проводника под Windows Vista (или выше). Use the explorer theme if run under Windows Vista (or above).
+    //toUseExplorerTheme,      //Использовать тему проводника под Windows Vista (или выше). Use the explorer theme if run under Windows Vista (or above).
     //toHideTreeLinesIfThemed, //Не показывать линии дерева, если используется тема. Do not show tree lines if theming is used.
-    toShowFilteredNodes      //Отображать узлы, даже если они будут отфильтрованы. Draw nodes even if they are filtered out.
+    toShowFilteredNodes,     //Отображать узлы, даже если они будут отфильтрованы. Draw nodes even if they are filtered out.
+    toOtherBackgroundOddRow  //Отображать альтернативный фон для нечетных строк
   );
 TD2TreePaintOptions = set of TD2TreePaintOption;
 
@@ -8182,8 +8196,7 @@ NodeChunk = 1;     //Блок узла дерева
   InvalidColumn = -2; //Недействительная колонка
 
   // Опции настройки внешнего вида дерева по умолчанию
-  DefaultTreePaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowRoot,
-                         toThemeAware, toUseBlendedImages];
+  DefaultTreePaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowRoot, {toThemeAware,} toUseBlendedImages];
   //Опиции анимации по умолчанию
   DefaultTreeAnimationOptions = [];
   //Опиции автоматической обработки определенных ситуаций по умолчанию
@@ -8226,10 +8239,11 @@ TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
     ltTopDownRight,  // Вертикальная линия и от центра вправо. a line from top to bottom and from center to the right
     ltRight,         // Линия от центра вправо. a line from center to the right
     ltTopRight,      // Линия сверху до центра и вправо. a line from bottom to center and from there to the right
+
     // Специальные стили линий для альтернативных деревьев. special styles for alternative drawings of tree lines
 
-    ltLeft,          // Вертикальная линия и от центра влево. a line from top to bottom at the left
-    ltLeftBottom     // Вертикальная линия и от центра влево и горизонтальная линия внизу. a combination of ltLeft and a line at the bottom from left to right
+    ltLeft,          // Вертикальная линия cлева. a line from top to bottom at the left
+    ltLeftBottom     // Вертикальная линия слева и горизонтальная снизу. a combination of ltLeft and a line at the bottom from left to right
   );
 
   // Определяет, как рисовать линии дерева. Determines how to draw tree lines.
@@ -8245,22 +8259,35 @@ TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
 
 TD2TreeCell = class(TD2Control)
   private
-
     FCheck: TD2CheckBox;          //указатель на чекбокс
-    FIndent: TD2Layout;           //указатель на отступ
-    FRadio: TD2RadioButton;       //указатель на радиокнопку
+    FGrid: TD2CustomTreeGrid;     //указатель на грид
+    FColumnIndex: integer;        //индекс связанной колонки
     FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
     FContent: TD2Layout;          //указатель на клиентскую область
     FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
+    FIndent: TD2Path;             //указатель на отступ
     FIsChecked: boolean;          //true - чекбокс отмечен
     FIsExpanded: boolean;         //true - узел развернут
-    FSplitter: TD2SplitLayout;   //указатель на сплиттер
+    FLineArray: TD2TreeLineArray; //массив линий дерева
+    FMinus: TD2Path;            //указатель на кнопку "-" экспандера
+    FNode: PD2TreeNode;           //указатель на связанный узел дерева
+    FPlus: TD2Path;             //указатель на кнопку "+" экспандера
+    FRadio: TD2RadioButton;       //указатель на радиокнопку
+    FSplitter: TD2SplitLayout;    //указатель на сплиттер
+    FVAlign: single;              //сдвиг горизонтальной линии дерева
+    FTreeLineStrokeColor: TD2Color;     //цвет линий дерева из стиля
+    FTreeLineStrokeDash: TD2StrokeDash; //тип пунктира линий дерева
 
     FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
     FOnChangeExpander: TOnChangeExpander;    //указатель на обработчик прерывания разворачивания/сворачивания узла
     //FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
-    FColumnIndex: integer;
-    FNode: PD2TreeNode;
+
+              //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
+              //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
+    procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
+              //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
+    procedure PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
+
 
     procedure DoExpanderClick(Sender: TObject);
     procedure DoCheckClick(Sender: TObject);
@@ -8272,6 +8299,8 @@ TD2TreeCell = class(TD2Control)
     procedure SetTagString(const Value:string); override;
 
   protected
+    procedure CalculateIndent;
+    procedure DrawTreeLine(X: Single; Style: TD2TreeLineType; Reverse: Boolean);
     function  GetData: Variant;  override;
     procedure SetData(const Value:Variant);  override;
               //применить стиль
@@ -8285,6 +8314,8 @@ TD2TreeCell = class(TD2Control)
     constructor Create(AOwner: TComponent);  override;
               //уничтожить экземпляр объекта
     destructor Destroy;  override;
+
+    procedure Realign; override;
                //обработчик прерывания изменения состояния отметки
     property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck;
              //обработчик прерывания разворачивания/сворачивания узла
@@ -8306,8 +8337,6 @@ TD2TreeColumn = class(TD2Column)
     procedure DoChangeCheck(Sender: TObject);
               //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
-              //обработчик запроса ячейки наличия дочерних узлов: true - есть дочерние узлы;
-    //function DoGetHaveChildren(Sender: TObject): boolean;
 
               //обработчик потери фокуса ячейкой
     //procedure DoKillFocus(Sender: TObject);  override;
@@ -8324,9 +8353,6 @@ TD2TreeColumn = class(TD2Column)
     //procedure PaintColumn; virtual;
               //Нарисовать прямоугольник целевого узла перетаскивания
     procedure PaintDropMark(const Cell: TD2TreeCell);
-              //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
-    procedure PaintTreeLines(const Cell: TD2TreeCell; LineArray: TD2TreeLineArray);
-
 
   public
     property IsMainColumn: boolean read GetIsMainColumn; //True - колонка является главной (содержит дерево)
@@ -8402,6 +8428,8 @@ end;
   TD2VTGetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer; var Value:Variant) of object;
   TD2VTSetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column:integer; const Value:Variant) of object;
   TD2VTEdititingDone = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer) of object;
+
+  TD2VTBeforeDrawTreeLineEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Level: integer; var PosX: single) of object;
 
 // paint events
 TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var NodeHeight: Single) of object;
@@ -8610,7 +8638,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
     FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
-    FIndent: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
+    FIndentWidth: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
     FLastSelected: PD2TreeNode;                  //Ссылка на узел, который был выбран последним???
@@ -8618,6 +8646,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FLastSelectionLevel: Integer;                //Содержит уровень последнего выбранного узла для ограниченного мультивыбора. keeps the last node level for constrained multiselection
     FLastStructureChangeNode: PD2TreeNode;       //Ссылка на узел, в котором быле последнее изменение структуры??? dito?
     FLastStructureChangeReason: TD2ChangeReason; //Используется для задержки события изменения структуры. Used for delayed structure change event.
+    FLineMode: TD2TreeLineMode;                  //Тип линий деревьева: дерево или полосы и т.д. tree lines or bands etc.
     FMainColumn: Integer;                        //Колонка, отображающая структуру дерева  the column which holds the tree
     FNextNodeToSelect: PD2TreeNode;              //Следующий узел, который должен быть выбрать, если текущий выбранный узел удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted or looses selection for other reasons.
     FNodeAlignment: TD2TreeNodeAlignment;        //Определяет, как интерпретировать выравние элементов узла. determines how to interpret the align member of a node
@@ -8646,14 +8675,19 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FStates: TD2TreeStates;            //Различные активные или ожидающие обработки состояния дерева. various active/pending states the tree needs to consider
     FTempNodeCache: TD2NodeArray;      //Массив временных узлов. Используется в различных местах. used at various places to hold temporarily a bunch of node refs.
     FTempNodeCount: Cardinal;          //Кол-во узлов в массиве временных узлов. number of nodes in FTempNodeCache
+    FTopRow: integer;                  //№ по порядку верхней видимой строки
+    FTopRowY: single;                  //Координата Y верхнего видимого в окне узла в абсолютных координатах
     FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
                                          Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
     FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
     FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
+    FVisibleRowsList: TList;   //Массив видимых в окне узлов.
 
      //------Ссылки на обработчики прерываний
 
     FOnAddToSelection: TD2VTAddToSelectionEvent;   //Вызывается когда узел добавляется к выборанным. called when a node is added to the selection
+    FOnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent; //Вызывается для изменения сдвига линий дерева. Called to allow adjusting the indention of treelines.
+
     FOnChange: TD2VTChangeEvent;                   //Вызывается при изменении выбранных узлов. selection change
     FOnChangeCheck:TNotifyEvent;                   //Вызывается при изменения состояния отметки узла???
     FOnChecked: TD2VTChangeEvent;                  //Вызывается после изменения состояния отметки узла. called after a node's check state has been changed
@@ -8716,9 +8750,11 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure AdjustTotalHeight(Node: PD2TreeNode; Value: Single; Relative: Boolean = False);
              // Вычисляет размер кэша позиции.
     function CalculateCacheEntryCount: Integer;
-              //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
-              //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
-    procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; Node: PD2TreeNode; out VAlign, VButtonAlign: Single);
+
+               //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
+               //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
+    //procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; Node: PD2TreeNode; out VAlign, VButtonAlign: Single);
+
              //Устанавливает состояние проверки узла в соответствии с заданным значением и типом проверки узла.
              //Если состояние проверки должно распространяться на родительские узлы, и один из них отказывается
              //изменяться, то ничего не происходит и возвращается False, иначе True.
@@ -8840,7 +8876,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //Установить флаг vsHasChildren (наличие детей) в Value у узла Node
     procedure SetHasChildren(Node: PD2TreeNode; Value: Boolean);
               //установить отступ границы вложенного узла от границы родителя
-    procedure SetIndent(Value: Single);
+    procedure SetIndentWidth(Value: Single);
+              //Установить тип линий деревьева: дерево или полосы и т.д.
+    procedure SetLineMode(const Value: TD2TreeLineMode);
               //Установить тип выравнивария для узлов
     procedure SetNodeAlignment(const Value: TD2TreeNodeAlignment);
               //Установить в Value кол-во байт для распределения с каждым узлом. Если -1 то делать обратный вызов
@@ -8910,6 +8948,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function DetermineLineArrayAndSelectLevel(Node: PD2TreeNode; var LineArray: TD2TreeLineArray): Integer; virtual;
              //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
+
+    procedure DoBeforeDrawTreeLine(Node: PD2TreeNode; Level: integer; var XPos: single); virtual;
               //Отменяет текущие действие редактирования или отложенного редактирования.
     function DoCancelEdit: Boolean; virtual;
               //Вызывает прерывание  OnEditing
@@ -8929,6 +8969,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function DoCollapsing(Node: PD2TreeNode): Boolean; virtual;
              //Вызывает прерывание сравнения узлов (OnCompareNodes)
     function DoCompare(Node1, Node2: PD2TreeNode; Column: Integer): Integer; virtual;
+              //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
+              //отрисовка горизонтальных и вертикальных линий
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
               //Начать редактирование узла,имеющего фокус
     procedure DoEdit; virtual;
              //Закончить редактирование и вызвать предывание OnEdited
@@ -8997,6 +9041,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function GetOptionsClass: TD2TreeOptionsClass; virtual;
               //Получить состояния флага необходимости завершения длительной операции: true - операция должна быть завершена
     function GetOperationCanceled: Boolean;
+             //получить № вехней видимой строки
+    function GetTopRow: integer; override;
               //получить координату Y вехней видимой строки
     function GetTopRowY: single; override;
               //получить значение ячейки в колонке Col для узла Node
@@ -9030,7 +9076,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //При Relative = True  X и Y задаются в координатах клиентской области ,
              //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
              //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
-    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single): PD2TreeNode; overload;
+    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single; var NodeNum: integer): PD2TreeNode; overload;
               //Внутренняя версия метода RemoveFromSelection для удаления узла Node из массива выбранных.
     procedure InternalRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Пометить кэш недействительным.
@@ -9073,6 +9119,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure WriteChunks(Stream: TStream; Node: PD2TreeNode); virtual;
               //Записывает основной элемент "обертку" узла Node в поток Stream и инициирует запись дочерних узлов и элементов.
     procedure WriteNode(Stream: TStream; Node: PD2TreeNode); virtual;
+              //Обновить колонки
+    procedure UpdateColumns; override;
 
     //------- свойства
 
@@ -9083,7 +9131,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //Индекс колонки в которой идет редактирование данных
     property EditColumn: integer read FEditColumn write FEditColumn;
              //отступ границы вложенного узла от границы родителя
-    property Indent: Single read FIndent write SetIndent default 20;
+    property IndentWidth: Single read FIndentWidth write SetIndentWidth default 20;
              //Следующий узел дерева, который должен быть выбран, если текущий будет удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted
     property NextNodeToSelect: PD2TreeNode read FNextNodeToSelect;
              //Тип выравнивания для узлов
@@ -9096,6 +9144,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property RangeY: Single read FRangeY;
              //Кол-во детей у узла Root
     property RootNodeCount: Cardinal read GetRootNodeCount write SetRootNodeCount default 0;
+             //Тип линий деревьева: дерево или полосы и т.д. tree lines or bands etc.
+    property LineMode: TD2TreeLineMode read FLineMode write SetLineMode default lmNormal;
              //Опции поведения дерева
     property TreeOptions: TD2CustomTreeOptions read FOptions write SetOptions;
 
@@ -9294,7 +9344,7 @@ public
              //При Relative = True  X и Y задаются в координатах клиентской области ,
              //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
              //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
-    function GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single): PD2TreeNode; overload;
+    function GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single; var NodeNum: integer): PD2TreeNode; overload;
              //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
              //X и Y задаются в координатах клиентской области
     function GetNodeAt(X, Y: Single): PD2TreeNode; overload;
@@ -9474,6 +9524,7 @@ public
     //------ прерывания----------
 
     property OnAddToSelection: TD2VTAddToSelectionEvent read FOnAddToSelection write FOnAddToSelection; //Прерывание при добавлении узла к выбранным
+    property OnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent read FOnBeforeDrawTreeLine write FOnBeforeDrawTreeLine;
     property OnChangeCheck:TNotifyEvent read FOnChangeCheck write FOnChangeCheck; //Прерывание при изменении состояния отметки узла
     property OnEdititingDone: TD2VTEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize; //Прерывание при NodeDataSize = -1
@@ -9496,11 +9547,14 @@ end;
 
 //Класс дерева
 TD2TreeGrid = class(TD2CustomTreeGrid)
+  published
+    property LineMode;
+    property MainColumn;
+    property TreeOptions;
 
-published
-  property TreeOptions;
-  property MainColumn;
-  property OnGetValue;
+    property OnBeforeDrawTreeLine;
+    property OnGetValue;
+    property OnScroll;
 end;
 
 

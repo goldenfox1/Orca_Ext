@@ -124,7 +124,6 @@ end;
 procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
 var
   H: TD2Header;
-  i: integer;
 begin
   inherited;
   Index:=FNewIndex;
@@ -271,6 +270,7 @@ begin
   CanFocused:=false;
   FGrid:= GetGrid;
   FCellControls:= TList.Create;
+  FClipChildren:= true;
 end;
 
 destructor TD2Column.Destroy;
@@ -469,19 +469,9 @@ begin
             end
     else
     { Hide if need }
-    {if Length(FCellControls) > m then
-    begin}
-      for i:=m to FCellControls.Count-1 do
-        TD2Control(FCellControls.Items[i]).Visible:=false;
-    //end;
-    {$ifdef DEBUG_TREEGRID}
-        if Self.Index = 0
-          then  DebugLn('Min/Mav/Vieport/Value: ' +
-                        FloatToStr(FGrid.VScrollBar.Min) + ' / ' +
-                        FloatToStr(FGrid.VScrollBar.Max) + ' / ' +
-                        FloatToStr(FGrid.VScrollBar.ViewportSize) + ' / ' +
-                        FloatToStr(FGrid.VScrollBarValue));
-      {$endif}
+    for i:=m to FCellControls.Count-1 do
+      TD2Control(FCellControls.Items[i]).Visible:=false;
+
     { Update Data }
     for i:=0 to m - 1 do
     begin
@@ -489,15 +479,8 @@ begin
       TD2Control(FCellControls.Items[i]).Visible:=true;
       TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
       TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
-
-      {$ifdef DEBUG_TREEGRID}
-            if Self.Index = 0
-              then DebugLn('Col/Row/Y: ' + IntToStr(Index) + ' / ' + IntToStr(i) + ' / ' + FloatToStr(i * Grid.RowHeight));
-          {$endif}
-
       V:=Grid.GetValue(Index,Grid.TopRow + i);
       TD2Control(FCellControls.Items[i]).Data:=V;
-
     end;
     UpdateSelected;
   finally
@@ -779,9 +762,6 @@ begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
   Realign;
-  //UpdateColumns;
-  //UpdateHeader;
-  //UpdateSelection;
 end;
 
 procedure TD2CustomGrid.UpdateSelection;   //обновить маркеры выбора строк
@@ -957,7 +937,7 @@ begin
     Y:= GetTopRowY;
     for i:=0 to ColumnCount - 1 do
     begin
-      Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R));
+      Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R) + FVScrollBar.Value - Y);
       Columns[i].UpdateColumn;
       R.Left:=R.Left + Columns[i].Width;
     end;
