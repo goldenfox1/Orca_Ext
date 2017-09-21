@@ -67,13 +67,14 @@ object Form1: TForm1
         end
       end
       object TreeGrid1: TD2TreeGrid
-        Position.Point = '(15,20)'
+        Position.Point = '(16,22)'
         RotateAngle = 0
         Width = 286
         Height = 254
         Resource = 'gridstyle'
         TabOrder = 2
-        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toNodeHeightResize, toEditOnClick]
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowVertGridLines, toUseBlendedImages]
         OnGetValue = TreeGrid1GetValue
         OnScroll = TreeGrid1Scroll
         object TreeTextColumn1: TD2TreeTextColumn
@@ -93,24 +94,64 @@ object Form1: TForm1
         end
       end
       object Path1: TD2Path
-        Position.Point = '(434,411)'
+        Position.Point = '(70,373)'
         RotateAngle = 0
-        Width = 50
-        Height = 50
-        Stroke.Color = '#FF303030'
-        StrokeDash = d2DashDotDash
-        WrapMode = d2PathOriginal
+        Width = 84
+        Height = 98
+        Fill.Style = d2BrushNone
+        StrokeThickness = 3
+        Data.Path = {
+          06000000000000000000000000000000010000000000803F0000000001000000
+          0000803F0000803F01000000000000000000803F010000000000000000000000
+          030000000000000000000000
+        }
         object Line1: TD2Line
-          Position.Point = '(18,-23)'
+          Position.Point = '(122,-14)'
           RotateAngle = 0
           Width = 63
           Height = 102
+          ClipParent = True
           Stroke.Color = '#FF101010'
           LineType = d2LineVertical
         end
+        object Path2: TD2Path
+          Position.Point = '(76,351)'
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Fill.Style = d2BrushNone
+          StrokeThickness = 3
+          Data.Path = {
+            06000000000000000000000000000000010000000000803F0000000001000000
+            0000803F0000803F01000000000000000000803F010000000000000000000000
+            030000000000000000000000
+          }
+          object Line2: TD2Line
+            Position.Point = '(104,-7)'
+            RotateAngle = 0
+            Width = 63
+            Height = 102
+            ClipParent = True
+            Stroke.Color = '#FF101010'
+            LineType = d2LineVertical
+          end
+        end
+        object Path3: TD2Path
+          Align = vaCenter
+          Position.Point = '(16,29)'
+          RotateAngle = 0
+          Width = 52
+          Height = 39
+          StrokeThickness = 3
+          Data.Path = {
+            06000000000000000000000000000000010000000000803F0000000001000000
+            0000803F0000803F01000000000000000000803F010000000000000000000000
+            030000000000000000000000
+          }
+        end
       end
       object SpinBox1: TD2SpinBox
-        Position.Point = '(111,293)'
+        Position.Point = '(350,449)'
         RotateAngle = 0
         Width = 89
         Height = 22
@@ -142,7 +183,7 @@ object Form1: TForm1
         Width = 100
       end>
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
-    LineMode = lmBands
+    ParentBiDiMode = False
     TabOrder = 1
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]

@@ -20,12 +20,16 @@ type
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
     Line1: TD2Line;
+    Line2: TD2Line;
     Path1: TD2Path;
+    Path2: TD2Path;
+    Path3: TD2Path;
     Root1: TD2Background;
     SpinBox1: TD2SpinBox;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
     StringGrid1: TD2StringGrid;
+    TextColumn1: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;

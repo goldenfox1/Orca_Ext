@@ -8291,16 +8291,17 @@ TD2TreeCell = class(TD2Control)
 
     procedure DoExpanderClick(Sender: TObject);
     procedure DoCheckClick(Sender: TObject);
-             //получить кол-во дочерних узлов
-    //function GetHaveChildren: boolean;
+             //получить альтернативный массив линий дерева для режима LineMode=lmBands
+    function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
 
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsExpanded(const Value:boolean);
     procedure SetTagString(const Value:string); override;
 
+
   protected
     procedure CalculateIndent;
-    procedure DrawTreeLine(X: Single; Style: TD2TreeLineType; Reverse: Boolean);
+    procedure DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
     function  GetData: Variant;  override;
     procedure SetData(const Value:Variant);  override;
               //применить стиль
@@ -8314,7 +8315,9 @@ TD2TreeCell = class(TD2Control)
     constructor Create(AOwner: TComponent);  override;
               //уничтожить экземпляр объекта
     destructor Destroy;  override;
-
+              //изменение размеров ячейки
+    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
+              //перестроить объект
     procedure Realign; override;
                //обработчик прерывания изменения состояния отметки
     property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck;
@@ -9128,7 +9131,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //Дополнительное место ниже последнего узла
     property BottomSpace: Single read FBottomSpace write SetBottomSpace default 0;
              //Высота узла по умолчанию
-    property DefaultNodeHeight: Single read FDefaultNodeHeight write SetDefaultNodeHeight default 18;
+    property DefaultNodeHeight: Single read FDefaultNodeHeight write SetDefaultNodeHeight default 21;
              //Индекс колонки в которой идет редактирование данных
     property EditColumn: integer read FEditColumn write FEditColumn;
              //отступ границы вложенного узла от границы родителя

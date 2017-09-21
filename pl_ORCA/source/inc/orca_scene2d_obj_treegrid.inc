@@ -8,6 +8,17 @@
 
 { TD2TreeCell }
 
+procedure TD2TreeCell.Realign;
+begin
+  if csDestroying in ComponentState then Exit;
+  if FDisableDefaultAlign then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
+  if csLoading in ComponentState then Exit;
+  inherited;
+  //CalculateIndent;
+end;
+
 procedure TD2TreeCell.CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
 //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
 //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
@@ -47,17 +58,6 @@ begin
     else VButtonAlign := FVAlign;
 end;
 
-procedure TD2TreeCell.Realign;
-begin
-  if csDestroying in ComponentState then Exit;
-  if FDisableDefaultAlign then Exit;
-  if FDisableAlign then Exit;
-  if FUpdating > 0 then Exit;
-  if csLoading in ComponentState then Exit;
-  inherited;
-  //CalculateIndent;
-end;
-
 procedure TD2TreeCell.CalculateIndent;
 var
   ButtonY: single;
@@ -69,16 +69,20 @@ begin
   if (toFixedIndent in FGrid.FOptions.FPaintOptions)  //если установлен фиксированный отступ,
     then FIndent.Width := FGrid.FIndentWidth                  //то сдвиг только под экспандер
     else FIndent.Width := IndentSize * FGrid.FIndentWidth;    //иначе  делаем полный сдвиг
+  //сдвиг экспандера
+  CalculateVerticalAlignments({ShowImages, ShowStateImages,} false, false, ButtonY);
+  //if (FExpander.Visible) then
+  //begin
+    //if (FPlus <> nil)
+    //  then FPlus.Position.Y:=ButtonY;
+    //if (FMinus <> nil)
+    //  then FMinus.Position.Y:=ButtonY;
+  //end;
   //линии дерева
   if (toShowTreeLines in FGrid.FOptions.FPaintOptions)
     then PaintTreeLines(IfThen(toFixedIndent in FGrid.FOptions.FPaintOptions, 1, IndentSize), FLineArray)
     else FIndent.Data.Data:='';
-  CalculateVerticalAlignments({ShowImages, ShowStateImages,} false, false, ButtonY);
-  if (FExpander.Visible) then
-  begin
-    if (FPlus <> nil) then FPlus.Position.Y:=ButtonY;
-    if (FMinus <> nil) then FMinus.Position.Y:=ButtonY;
-  end;
+
 end;
 
 procedure TD2TreeCell.PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
@@ -94,9 +98,8 @@ begin
   if not FIndent.Visible then exit;
 
   FIndent.Data.Data:='';
-  NewStyles := nil;
+  //NewStyles := nil;
 
-  //with PaintInfo do
   //with FGrid do
   //begin
     {if BidiMode = bdLeftToRight then
@@ -115,37 +118,7 @@ begin
       lmBands:
         //if poGridLines in PaintInfo.PaintOptions then
         begin
-          // // Преобразование линейных изображений в правильные полосы. Convert the line images in correct bands.
-          SetLength(NewStyles, Length(LineArray));
-          for i := IndentSize - 1 downto 0 do
-          begin
-            if (vsExpanded in FNode.States) and not (vsAllChildrenHidden in FNode.States) then
-              NewStyles[i] := ltLeft
-            else
-              case LineArray[i] of
-                ltRight,
-                ltBottomRight,
-                ltTopDownRight,
-                ltTopRight:
-                  NewStyles[i] := ltLeftBottom;
-                ltNone:
-                  // Должно взять изображение справа от него. Ни одна строка не может появляться как
-                  // последняя запись, поэтому мне не нужна проверка конца здесь.
-                  // Have to take over the image to the right of this one. A no line entry can never appear as
-                  // last entry so i don't need an end check here.
-                  if LineArray[i + 1] in [ltNone, ltTopRight]
-                    then NewStyles[i] := NewStyles[i + 1]
-                    else NewStyles[i] := ltLeft;
-                ltTopDown:
-                  // Необходимо проверить изображение справа от него. Верхняя нижняя строка никогда не может появляться
-                  // последняя запись, поэтому мне не нужна проверка конца здесь.
-                  // Have to check the image to the right of this one. A top down line can never appear as
-                  // last entry so i don't need an end check here.
-                  if LineArray[i + 1] in [ltNone, ltTopRight]
-                    then NewStyles[i] := NewStyles[i + 1]
-                    else NewStyles[i] := ltLeft;
-              end;
-          end;
+          NewStyles:= GetBandsLineArray(IndentSize, LineArray);
 
           FIndent.Stroke.SolidColor:=FGrid.FLineFill.SolidColor;
           FIndent.StrokeDash:=d2DashSolid;
@@ -154,7 +127,7 @@ begin
           for i := 0 to IndentSize - 1 do
           begin
             FGrid.DoBeforeDrawTreeLine(FNode, i + Ord(not (toShowRoot in FGrid.TreeOptions.PaintOptions)), XPos);
-            DrawTreeLine(XPos, NewStyles[i], false {BidiMode <> bdLeftToRight});
+            DrawTreeLine(XPos, NewStyles[i], false, false {BidiMode <> bdLeftToRight});
             d2IncFloat(XPos, Offset);
           end;
         end;
@@ -165,14 +138,17 @@ begin
         for i := 0 to IndentSize - 1 do
         begin
           FGrid.DoBeforeDrawTreeLine(FNode, i + Ord(not (toShowRoot in FGrid.TreeOptions.PaintOptions)), XPos);
-          DrawTreeLine(XPos, LineArray[i], false {BidiMode <> bdLeftToRight});
+          DrawTreeLine(XPos, LineArray[i], ((FExpander.Visible) and (i=IndentSize - 1)), false {BidiMode <> bdLeftToRight});
           d2IncFloat(XPos, Offset);
         end;
   end;
+  {$ifdef DEBUG_TreeGrid}
+     DebugLn('Y: ' + d2FloatToStr(Position.Y) + ' Column: ' + inttostr(FColumnIndex) + ' Path: ' + FIndent.Data.Data);
+  {$endif}
 end;
 
           //procedure DrawTreeLine(const VObject: TD2VisualObject; X, Y, H, VAlign: Single; Style: TD2TreeLineType; Reverse: Boolean);
-procedure TD2TreeCell.DrawTreeLine(X: Single; Style: TD2TreeLineType; Reverse: Boolean);
+procedure TD2TreeCell.DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
 // Рисует (в зависимости от стиля) один из 5 типов линий дерева.
 // Если Reverse = True, то столбец рисуется справа налево, и горизонтальные линии должны быть зеркалированы.
 // X и Y описывают левый верхний угол прямоугольника изображения линии, а H обозначает его высоту (и ширину).
@@ -194,8 +170,8 @@ procedure DrawHLine(Left, Right, Top: single);
 // Рисует горизонтальную линию.
 begin
   FIndent.Data.Data:= FIndent.Data.Data +
-                      ' M ' + d2FloatToStr(Left)  + ',' + d2FloatToStr(Top) +
-                      ' L ' + d2FloatToStr(Right) + ',' + d2FloatToStr(Top) + ' Z';
+                      ' M ' + d2FloatToStr(Left)  + ',' + d2FloatToStr(Top-0.5) +
+                      ' L ' + d2FloatToStr(Right) + ',' + d2FloatToStr(Top-0.5) + ' Z';
   //R := d2Rect(Min(Left, Right), Top, Max(Left, Right), Top);
 end;
 
@@ -212,45 +188,112 @@ begin
 
   case Style of
     ltBottomRight:
-          begin
-            DrawVLine(FVAlign, FNode.NodeHeight, X + HalfWidth);
-            DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
-          end;
+          if ClipExpander and (FPlus<> nil)
+            then begin
+                   DrawVLine(FVAlign + FPlus.Height /2, FNode.NodeHeight, X + HalfWidth);
+                   DrawHLine(X + HalfWidth + FPlus.Width / 2, X + TargetX, FVAlign);
+                 end
+            else begin
+                   DrawVLine(FVAlign, FNode.NodeHeight, X + HalfWidth);
+                   DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
+                 end;
 
     ltTopDown:
-          DrawVLine(0, FNode.NodeHeight, X + HalfWidth);
+          if ClipExpander and (FPlus<> nil)
+            then begin
+                   DrawVLine(0, FVAlign - FPlus.Height /2, X + HalfWidth);
+                   DrawVLine(FVAlign + FPlus.Height /2, FNode.NodeHeight, X + HalfWidth);
+                 end
+            else DrawVLine(0, FNode.NodeHeight, X + HalfWidth);
 
     ltTopDownRight:
           begin
-            DrawVLine(0, FNode.NodeHeight, X + HalfWidth);
-            DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
+            if ClipExpander and (FPlus<> nil)
+              then begin
+                     DrawVLine(0, FVAlign - FPlus.Height /2, X + HalfWidth);
+                     DrawVLine(FVAlign + FPlus.Height /2, FNode.NodeHeight, X + HalfWidth);
+                     DrawHLine(X + HalfWidth + FPlus.Width / 2, X + TargetX, FVAlign);
+                   end
+              else begin
+                     DrawVLine(0, FNode.NodeHeight, X + HalfWidth);
+                     DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
+                   end;
           end;
 
     ltRight:
-          DrawHLine(X + HalfWidth, X + TargetX, 0 + FVAlign);
+          if ClipExpander and (FPlus<> nil)
+            then DrawHLine(X + HalfWidth + FPlus.Width / 2, X + TargetX, 0 + FVAlign)
+            else DrawHLine(X + HalfWidth, X + TargetX, 0 + FVAlign);
 
     ltTopRight:
-          begin
-            DrawVLine(0, FVAlign, X + HalfWidth);
-            DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
-          end;
+          if ClipExpander and (FPlus<> nil)
+            then begin
+                   DrawVLine(0, FVAlign - FPlus.Height / 2, X + HalfWidth);
+                   DrawHLine(X + HalfWidth + FPlus.Width / 2, X + TargetX, FVAlign);
+                 end
+            else begin
+                   DrawVLine(0, FVAlign, X + HalfWidth);
+                   DrawHLine(X + HalfWidth, X + TargetX, FVAlign);
+                 end;
 
     ltLeft: // left can also mean right for RTL context
           if Reverse
-            then DrawVLine(0, FNode.NodeHeight, X + FGrid.FIndentWidth)
-            else DrawVLine(0, FNode.NodeHeight, X);
+            then DrawVLine(-1, FNode.NodeHeight, X + FGrid.FIndentWidth)
+            else DrawVLine(-1, FNode.NodeHeight, X);
 
     ltLeftBottom:
           if Reverse
             then  begin
-                    DrawVLine(0, FNode.NodeHeight - 1, X + FGrid.FIndentWidth);
-                    DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 1);
+                    DrawVLine(-1, FNode.NodeHeight - 0.5, X + FGrid.FIndentWidth);
+                    //DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 0.5);  //рисуется в процедуре DoContentPaint2
                   end
             else  begin
-                    DrawVLine(0, FNode.NodeHeight - 1, X);
-                    DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 1);
+                    DrawVLine(-1, FNode.NodeHeight - 0.5, X);
+                    //DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 0.5);  //рисуется в процедуре DoContentPaint2
                   end;
   end;
+end;
+
+
+function TD2TreeCell.GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
+//получить альтернативный массив линий дерева для режима LineMode=lmBands
+var
+  i: Integer;
+  NewStyles: TD2TreeLineArray;
+begin
+  // // Преобразование линейных изображений в правильные полосы. Convert the line images in correct bands.
+  NewStyles := nil;
+  SetLength(NewStyles, Length(LineArray));
+  for i := IndentSize - 1 downto 0 do
+  begin
+    if (vsExpanded in FNode.States) and not (vsAllChildrenHidden in FNode.States) then
+      NewStyles[i] := ltLeft
+    else
+      case LineArray[i] of
+        ltRight,
+        ltBottomRight,
+        ltTopDownRight,
+        ltTopRight:
+          NewStyles[i] := ltLeftBottom;
+        ltNone:
+          // Должно взять изображение справа от него. Ни одна строка не может появляться как
+          // последняя запись, поэтому мне не нужна проверка конца здесь.
+          // Have to take over the image to the right of this one. A no line entry can never appear as
+          // last entry so i don't need an end check here.
+          if LineArray[i + 1] in [ltNone, ltTopRight]
+            then NewStyles[i] := NewStyles[i + 1]
+            else NewStyles[i] := ltLeft;
+        ltTopDown:
+          // Необходимо проверить изображение справа от него. Верхняя нижняя строка никогда не может появляться
+          // последняя запись, поэтому мне не нужна проверка конца здесь.
+          // Have to check the image to the right of this one. A top down line can never appear as
+          // last entry so i don't need an end check here.
+          if LineArray[i + 1] in [ltNone, ltTopRight]
+            then NewStyles[i] := NewStyles[i + 1]
+            else NewStyles[i] := ltLeft;
+      end;
+  end;
+  Result:= NewStyles;
 end;
 
 procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
@@ -337,19 +380,18 @@ begin
   begin
     FExpander:=TD2CustomButton(B);
     FExpander.OnClick:=DoExpanderClick;
-    if FExpander.Visible then
-    begin
+    //if FExpander.Visible then
+    //begin
       FExpander.ApplyResource;
       FExpander.StartTriggerAnimation(Self,'IsExpanded');
-    end;
+    //end;
+    B:=FExpander.FindResource('plus');
+    if (B <> nil) and (B is TD2Path) then
+      FPlus:= TD2Path(B);
+    B:=FExpander.FindResource('minus');
+    if (B <> nil) and (B is TD2Path) then
+      FMinus:= TD2Path(B);
   end;
-  B:=FindResource('plus');
-  if (B <> nil) and (B is TD2Path) then
-    FPlus:= TD2Path(B);
-  B:=FindResource('minus');
-  if (B <> nil) and (B is TD2Path) then
-    FMinus:= TD2Path(B);
-
   B:=FindResource('check');
   if (B <> nil) and (B is TD2CheckBox) then
   begin
@@ -377,10 +419,12 @@ begin
   end;
   if FControl<>nil then
   begin
-    B:=FindResource('splitter');
+    B:=FControl.FindResource('splitter');
     if (B <> nil) and (B is TD2SplitLayout) then
     begin
       FSplitter:=TD2SplitLayout(B);
+      FSplitter.AutoCapture:= true;  //продолжать изменение размера при выходе курсора за пределы элемента пока нажата кнопка мыши
+      FSplitter.OnMouseMove := DoSplitterMouseMove; //обработчик прерывания изменения размера
     end;
   end;
   StartTriggerAnimation(Self,'IsSelected');
@@ -389,7 +433,8 @@ end;
 procedure TD2TreeCell.FreeStyle;
 begin
   inherited;
-  if FControl<>nil then FControl.Parent:=Self;
+  if FControl<>nil
+    then FControl.Parent:=Self;
   FIndent:=nil;
   FExpander:=nil;
   FPlus:=nil;
@@ -438,6 +483,27 @@ begin
   inherited Destroy;
 end;
 
+procedure TD2TreeCell.DoSplitterMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y, Dx, Dy: single);
+var
+  NewSize:single;
+begin
+  if TD2HackVisualObject(FSplitter).FPressed then
+  begin
+    if (FNode <> nil) and (FGrid <> nil) then
+    begin
+      NewSize:=AbsoluteToLocal(FSplitter.LocalToAbsolute(d2Point(X,Y))).Y;
+      if (NewSize < FGrid.FRowHeight) then NewSize:=FGrid.FRowHeight;
+      if (NewSize <> FNode.NodeHeight) then
+      begin
+        //Height := NewSize;
+        FGrid.SetNodeHeight(FNode,NewSize); //установить новый размер узла
+        FGrid.Realign;                      //перестроить грид
+      end;
+    end;
+  end;
+end;
+
 { TD2TreeColumn }
 
 procedure TD2TreeColumn.DoChangeCheck(Sender: TObject);
@@ -453,7 +519,7 @@ begin
         if IsExpanded <> (vsExpanded in FNode.States) then
         begin
           TD2TreeGrid(Self.FGrid).ToggleNode(FNode);
-          Self.FGrid.Realign;
+          //Self.FGrid.Realign;
         end;
 end;
 
@@ -486,14 +552,22 @@ begin
       ACellControl.OnKillFocus:=nil;
       ACellControl.OnKeyDown:=nil;
       ACellControl.OnCanFocused:=nil;
-      TD2TreeCell(ACellControl).FControl.OnCanFocused:=DoCanFocused;
-      TD2TreeCell(ACellControl).FControl.OnEnterFocus:=DoEnterFocus;
-      TD2TreeCell(ACellControl).FControl.OnKillFocus:=DoKillFocus;
-      TD2TreeCell(ACellControl).FControl.OnKeyDown:=DoKeyDown;
-      TD2TreeCell(ACellControl).OnChangeCheck:=DoChangeCheck;
-      TD2TreeCell(ACellControl).OnChangeExpander:=DoChangeExpander;
-      //TD2TreeCell(ACellControl).OnGetHaveChildren:=DoGetHaveChildren;
-      TD2TreeCell(ACellControl).ApplyResource;
+      with TD2TreeCell(ACellControl) do
+      begin
+        FControl.ApplyResource;
+        FControl.OnCanFocused:=DoCanFocused;
+        FControl.OnEnterFocus:=DoEnterFocus;
+        FControl.OnKillFocus:=DoKillFocus;
+        FControl.OnKeyDown:=DoKeyDown;
+        OnChangeCheck:=DoChangeCheck;
+        OnChangeExpander:=DoChangeExpander;
+        ApplyResource;
+      end;
+
+  begin
+
+  end;
+
     end;
 end;
 
@@ -503,21 +577,15 @@ procedure TD2TreeColumn.UpdateColumn;
 var
   Node: PD2TreeNode;
   BaseOffset: Single;          // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
-
-  //LineArray: TD2TreeLineArray; //массив линий дерева
+  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
   Cell: TD2TreeCell;           //текущий контрол ячейки
   i: integer;
-  //IndentSize: integer;         //отступ
-
-  //MaximumBottom: Single;      // Максимальное вертикальное целевое положение. maximum vertical target position
 
   //UseBackground,
   //ShowImages,
   //ShowStateImages,
   //ShowCheckImages: Boolean;
-  //VAlign,
-  //ButtonY: Single;
-  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
+
 begin
   if FGrid = nil then exit; //нет грида - выходим
   if FGrid.ContentLayout=nil then exit; //нет окна для вывода колонок - выходим
@@ -530,25 +598,21 @@ begin
   //  begin
   //    DoStateChange([tsPainting]);
       try
-        //Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
+        ////Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
         //UseBackground := (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) ;
         //ShowImages := Assigned(FImages);
         //ShowStateImages := Assigned(FStateImages);
         //ShowCheckImages := Assigned(FCheckImages) and} (toCheckSupport in FOptions.FMiscOptions);
 
-        //MaximumBottom:= ContentLayout.LocalRect.Bottom + 2 * FRowHeight;  //координата нижней границы видимой области в абсолютных координатах дерева.
-        //Node := TopNode;  // Определим начальный узел для рисования. Determine node to start drawing with.
         BaseOffset:= 0;
         i:= 0;  //индекс текущей видимой ячейки
 
-        //while Assigned(Node) do  // ----------- основной цикл. Пока есть узел main node paint loop
-        for Node in FVisibleRowsList do
+        for Node in FVisibleRowsList do // ----------- основной цикл. Пока есть узел main node paint loop
         begin
-          //if not (vsInitialized in Node.States) then InitNode(Node); // Инициализировать узел, если еще не выполнено. Initialize node if not already done.
-          //MeasureItemHeight(Node); // Убедиться, что высота узла определена.  Ensure the node's height is determined.
           if i >= FCellControls.Count            //если текущий индекс больше чем кол-во созданных ячеек
              then begin                          //то
-                    Cell:=TD2TreeCell(CreateCellControl);       //создадим ячеку
+                    Cell:=TD2TreeCell(CreateCellControl); //создадим ячеку
+                    Cell.SendToBack;                    //переместим ячейку выше всех
                     InitCellControl(Cell);         //настроим ячеку
                     FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
                   end
@@ -560,14 +624,16 @@ begin
           Cell.Visible:=true;
           Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
 
-
           if IsMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
              then begin
                     //отступ
                     if Cell.FIndent <> nil then
                     begin
-                      SelectLevel := DetermineLineArrayAndSelectLevel(Node, Cell.FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
                       Cell.FIndent.Visible := true; //включаем отсуп
+                      SelectLevel := DetermineLineArrayAndSelectLevel(Node, Cell.FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
+                      //if (vsSelected in Node.States) and
+                      //   not (toChildrenAbove in FOptions.FPaintOptions)
+                      //  then Inc(SelectLevel);
 
                       //экспандер
                       if Cell.FExpander <> nil then
@@ -588,12 +654,7 @@ begin
                           else Cell.FExpander.Visible:= false;
                       end;
                       Cell.CalculateIndent;         //рассчитаем отступ, нарисуем линии дерева
-
-                      //if (vsSelected in Node.States) and
-                      //   not (toChildrenAbove in FOptions.FPaintOptions)
-                      //  then Inc(SelectLevel);
                     end;
-
 
                     //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
                     //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
@@ -710,6 +771,13 @@ begin
                        then Cell.FRadio.Visible := false;
                   end;
 
+          //включить сплиттер если разрешено изменение размеров
+          if (Cell.FSplitter <> nil) then
+          begin
+            if (toNodeHeightResize in TreeOptions.MiscOptions)
+              then Cell.FSplitter.Visible:= true
+              else Cell.FSplitter.Visible:= false;
+          end;
 
           // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
           if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
@@ -2234,13 +2302,11 @@ procedure TD2CustomTreeGrid.SetDefaultNodeHeight(Value: Single);
 //Установить высоту узла по умолчанию
 begin
   if Value = 0 then
-    Value := 18;
+    Value := FRowHeight;
   if FDefaultNodeHeight <> Value then
   begin
-    //Inc(Integer(FRoot.TotalHeight), Integer(Value) - Integer(FDefaultNodeHeight));
-    FRoot.TotalHeight := FRoot.TotalHeight + Value - FDefaultNodeHeight;
-    //Inc(SmallInt(FRoot.NodeHeight), Integer(Value) - Integer(FDefaultNodeHeight));
-    FRoot.NodeHeight := FRoot.NodeHeight + Value - FDefaultNodeHeight;
+    d2IncFloat(FRoot.TotalHeight, Value - FDefaultNodeHeight);
+    d2IncFloat(FRoot.NodeHeight, Value - FDefaultNodeHeight);
 
     FDefaultNodeHeight := Value;
     InvalidateCache;
@@ -3416,11 +3482,15 @@ procedure TD2CustomTreeGrid.DoContentPaint2(Sender: TObject;
   const Canvas: TD2Canvas; const ARect: TD2Rect);
 //отрисовка горизонтальных и вертикальных линий
 var
-  i,t:integer;
+  i,t, m:integer;
   P,K:TD2Point;
   State:integer;
   s, Offset: single;
   Node: PD2TreeNode;
+  //l: TD2TreeLineType;
+
+  NewStyles: TD2TreeLineArray;
+
 begin
   FShowHorzLines:= toShowHorzGridLines in TreeOptions.PaintOptions;
   FShowVertLines:= toShowVertGridLines in TreeOptions.PaintOptions;
@@ -3446,7 +3516,16 @@ begin
                           K:=Columns[FMainColumn].LocalToAbsolute(d2Point(0,0));
                           K:=TD2VisualObject(Sender).AbsoluteToLocal(K);
                           with TD2TreeCell(Columns[FMainColumn].FCellControls[i]) do
-                            if FIndent <> nil then s:= FIndent.Width;
+                            if FIndent <> nil
+                              then begin
+                                     NewStyles:= GetBandsLineArray( IfThen(toFixedIndent in FGrid.FOptions.FPaintOptions,
+                                                                           1, Length(FLineArray)), FLineArray);
+                                     s:= FIndent.Width;
+                                     for m:=Length(NewStyles)-1 downto 0 do
+                                        if (NewStyles[m] = ltLeftBottom) //преобразуются в ltLeftBottom
+                                           then d2DecFloat(s, FIndentWidth);
+                                     s:= Max(s, 0);
+                                   end;
                           if FMainColumn=0
                             then  Canvas.DrawLine(d2Point(P.X + s, P.Y - 0.5),d2Point(P.X + FContent.Width,P.Y - 0.5),AbsoluteOpacity)
                             else  begin
