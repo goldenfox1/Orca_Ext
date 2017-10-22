@@ -93,77 +93,6 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
-      object Path1: TD2Path
-        Position.Point = '(70,373)'
-        RotateAngle = 0
-        Width = 84
-        Height = 98
-        Fill.Style = d2BrushNone
-        StrokeThickness = 3
-        Data.Path = {
-          06000000000000000000000000000000010000000000803F0000000001000000
-          0000803F0000803F01000000000000000000803F010000000000000000000000
-          030000000000000000000000
-        }
-        object Line1: TD2Line
-          Position.Point = '(122,-14)'
-          RotateAngle = 0
-          Width = 63
-          Height = 102
-          ClipParent = True
-          Stroke.Color = '#FF101010'
-          LineType = d2LineVertical
-        end
-        object Path2: TD2Path
-          Position.Point = '(76,351)'
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Fill.Style = d2BrushNone
-          StrokeThickness = 3
-          Data.Path = {
-            06000000000000000000000000000000010000000000803F0000000001000000
-            0000803F0000803F01000000000000000000803F010000000000000000000000
-            030000000000000000000000
-          }
-          object Line2: TD2Line
-            Position.Point = '(104,-7)'
-            RotateAngle = 0
-            Width = 63
-            Height = 102
-            ClipParent = True
-            Stroke.Color = '#FF101010'
-            LineType = d2LineVertical
-          end
-        end
-        object Path3: TD2Path
-          Align = vaCenter
-          Position.Point = '(16,29)'
-          RotateAngle = 0
-          Width = 52
-          Height = 39
-          StrokeThickness = 3
-          Data.Path = {
-            06000000000000000000000000000000010000000000803F0000000001000000
-            0000803F0000803F01000000000000000000803F010000000000000000000000
-            030000000000000000000000
-          }
-        end
-      end
-      object SpinBox1: TD2SpinBox
-        Position.Point = '(350,449)'
-        RotateAngle = 0
-        Width = 89
-        Height = 22
-        TabOrder = 4
-        ReadOnly = False
-        OnChange = SpinBox1Change
-        Min = 0
-        Max = 500
-        Increment = 1
-        Value = 5
-        ValueType = d2ValueInteger
-      end
     end
   end
   object VT: TVirtualStringTree
@@ -187,6 +116,7 @@ object Form1: TForm1
     TabOrder = 1
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
+    TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
     OnGetText = VTGetText
     OnScroll = VTScroll
   end

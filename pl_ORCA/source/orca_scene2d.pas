@@ -9119,6 +9119,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure ValidateNodeDataSize(var Size: Integer); virtual;
               //Обновить узел для последующего выбора после удаления теущего выбранного узела.
     procedure UpdateNextNodeToSelect(Node: PD2TreeNode); virtual;
+              //обновить маркеры выбора строк
+    procedure UpdateSelection; override;
               // Записывает основные элементы узла Node в поток Stream.
     procedure WriteChunks(Stream: TStream; Node: PD2TreeNode); virtual;
               //Записывает основной элемент "обертку" узла Node в поток Stream и инициирует запись дочерних узлов и элементов.
