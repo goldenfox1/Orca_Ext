@@ -3534,6 +3534,127 @@ begin
   end;
 end;
 
+
+procedure TD2CustomTreeGrid.UpdateSelection;   //обновить маркеры выбора строк
+var
+  i:integer;
+  l,b: single;
+  P:TD2Point;
+  R:TD2Rect;
+  SelRects:array of TD2Rect; //массив прямоугольников
+  Clone:TD2VisualObject;
+
+  Offset: single;
+  Node: PD2TreeNode;
+begin
+
+  //inherited UpdateSelection;
+
+  if FSelection=nil then Exit;
+  if (FVisibleCount=0) or (ColumnCount=0) then
+  begin
+    FSelectedRows[0]:=0;			//обнулить длину массива выделенных строк
+    if FSelections <> nil then
+      begin
+        for i:=0 to FSelections.Count - 1 do
+          TD2VisualObject(FSelections[i]).Visible:=false;	//сркыть все маркеры выделения
+      end;
+    if FPreSelection <> nil then FPreSelection.Visible := false;  //скрыть маркер предвыделения
+    if FFocus <> nil then
+      FFocus.Visible:=false;
+    Exit;
+  end;
+  //делаем массив прямоугольников
+  SetLength(SelRects,0);
+  Offset:=GetTopRowY;    //координата Y верхнего видимого в окне узла
+  for i:=0 to FVisibleRowsList.Count-1 do //перебираем все видимые в окне узлы
+  begin
+    if (vsSelected in PD2TreeNode(FVisibleRowsList[i]).States) then //если узел выделен
+    begin
+      P := d2Point(0, Offset);                         //верхняя левая точка
+      P := FContent.LocalToAbsolute(P);                //преобразуем в координаты контента
+      if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
+        P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
+      if FContent.Width < ClientWidth
+        then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
+        else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
+      SetLength(SelRects,Length(SelRects) + 1);
+      SelRects[High(SelRects)]:=R;
+    end;
+    d2IncFloat(Offset, PD2TreeNode(FVisibleRowsList[i]).NodeHeight); //координата Y следующего узла
+  end;
+
+  // Create selection list
+  //создаем список маркеров выделения если его нет
+  if FSelections=nil
+    then FSelections:=TList.Create;
+
+  // create selections
+  if FSelections.Count < Length(SelRects) then	//если кол-во маркеров меньше чем кол-во прямоуголькиков
+    for i:=FSelections.Count to Length(SelRects) - 1 do	//то создадим недостающие маркеры и добавим их в список
+    begin
+      Clone:=TD2VisualObject(FSelection.Clone(Self));
+      Clone.ResourceName:='';
+      FSelections.Add(Clone);
+      Clone.Parent:=FSelection.Parent;
+      Clone.Stored:=false;
+    end;
+  // hide if not need  скроем лишние если нужно
+  if Length(SelRects) < FSelections.Count then 		//если кол-во маркеров больше чем кол-во прямоугольников
+    for i:=Length(SelRects) to FSelections.Count - 1 do	//то лишние скроем
+      TD2VisualObject(FSelections[i]).Visible:=false;
+
+  // align selections  расставим маркеры выделения
+  for i:=0 to High(SelRects) do
+  begin
+    TD2VisualObject(FSelections[i]).Visible := true; //влючим очередной маркер
+      with SelRects[i] do
+        TD2VisualObject(FSelections[i]).SetBounds(Left, Top, Right - Left, Bottom - Top); //установим границы маркера как у соотв. прямоугольника
+      if (FFocus <> nil) then
+      begin
+        if FShowSelectedCell and               // если разрешено выделять ячейку
+           IsOneRowSelected and                // и выделена только 1 строка
+           (FocusedColumn > NoColumn) then       // и есть выделенная колонка
+          begin
+            FFocus.Visible:=true;
+  	      FFocus.BringToFront;
+  	      P:=d2Point(Columns[FocusedColumn].Position.X,0);
+  	      P:=FContent.LocalToAbsolute(P);
+    	      if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
+  	      P:=FSelection.Parent.Visual.AbsoluteToLocal(P);
+            if FShowHorzLines then b:=1 else b:=0;
+            if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;
+            with SelRects[i] do                                                                  //установить координаты маркера ячейки
+              FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,
+                              Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
+                              SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);
+          end
+        else FFocus.Visible := false;  // иначе скрыть маркер ячейки
+    end;
+  end;
+  //установим маркер пред.выбора
+  if FPreSelection <> nil then
+    begin
+      if FIsPreSelected then
+        begin
+          FPreSelection.Visible:=true;
+          FPreSelection.BringToFront;
+          P := d2Point(0, FSelected * FRowHeight);
+          P := FContent.LocalToAbsolute(P);
+          if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual
+            then P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);
+          if FContent.Width < ClientWidth
+            then R := d2Rect(P.X, P.Y, P.X + ClientWidth, P.Y + FRowHeight)
+            else R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight);
+          FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
+        end
+        else  FPreSelection.Visible:=false;
+    end;
+
+  for i := 0 to ColumnCount - 1 do   //обновить колонки
+    Columns[i].UpdateSelected;
+end;
+
 //function TD2CustomTreeGrid.DoCreateEditor(Node: PD2TreeNode;
 //  Column: Integer): ID2VTEditLink;
 //begin
@@ -5244,128 +5365,6 @@ begin
                     then FNextNodeToSelect := Node.Parent
                     else FNextNodeToSelect := GetFirstChild(Node);
 end;//if Assigned(Node);
-
-procedure TD2CustomTreeGrid.UpdateSelection;   //обновить маркеры выбора строк
-var
-  i:integer;
-  l,b: single;
-  P:TD2Point;
-  R:TD2Rect;
-  SelRects:array of TD2Rect;
-  Clone:TD2VisualObject;
-begin
-
-  inherited UpdateSelection;
-
-  if FSelection=nil then Exit;
-  if (FVisibleCount=0) or (ColumnCount=0) then
-  begin
-    FSelectedRows[0]:=0;			//обнулить длину массива выделенных строк
-    if FSelections <> nil then
-      begin
-        for i:=0 to FSelections.Count - 1 do
-          TD2VisualObject(FSelections[i]).Visible:=false;	//сркыть все маркеры выделения
-      end;
-    if FPreSelection <> nil then FPreSelection.Visible := false;  //скрыть маркер предвыделения
-    if FFocus <> nil then
-      FFocus.Visible:=false;
-    Exit;
-  end;
-  ////делаем массив прямоугольников
-  //SetLength(SelRects,0);
-  //i := 1;
-  //while (i <= FSelectedRows[0]) do
-  //begin
-  //  if (FSelectedRows[i] <= FSelectedRows[i+1]) and
-  //     (FSelectedRows[i+1] < RowCount) then
-  //  begin
-  //    P := d2Point(0, FSelectedRows[i] * FRowHeight);  //верхняя левая точка
-  //    P := FContent.LocalToAbsolute(P);                //преобразуем в координаты контента
-  //    if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
-  //      P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
-  //    if FContent.Width < ClientWidth then
-  //      R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
-  //    else
-  //      R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
-  //    SetLength(SelRects,Length(SelRects) + 1);
-  //    SelRects[High(SelRects)]:=R;
-  //  end;
-  //  i:=i+2;
-  //end;
-  //// Create selection list
-  //if FSelections=nil then		//создаем список маркеров выделения если его нет
-  //  FSelections:=TList.Create;
-  //// create selections
-  //if FSelections.Count < Length(SelRects) then	//если кол-во маркеров меньше чем кол-во прямоуголькиков
-  //  for i:=FSelections.Count to Length(SelRects) - 1 do	//то создадим недостающие маркеры и добавим их в список
-  //  begin
-  //    Clone:=TD2VisualObject(FSelection.Clone(Self));
-  //    Clone.ResourceName:='';
-  //    FSelections.Add(Clone);
-  //    Clone.Parent:=FSelection.Parent;
-  //    Clone.Stored:=false;
-  //  end;
-  //// hide if not need
-  //if Length(SelRects) < FSelections.Count then 		//если кол-во маркеров больше чем кол-во прямоугольников
-  //  for i:=Length(SelRects) to FSelections.Count - 1 do	//то лишние скроем
-  //  begin
-  //    TD2VisualObject(FSelections[i]).Visible:=false;
-  //  end;
-  //// align selections  расставим маркеры выделения
-  //for i:=0 to High(SelRects) do
-  //begin
-  //  TD2VisualObject(FSelections[i]).Visible := true; //влючим очередной маркер
-  //    with SelRects[i] do
-  //      TD2VisualObject(FSelections[i]).SetBounds(Left, Top, Right - Left, Bottom - Top); //установим границы маркера как у соотв. прямоугольника
-  //    if (FFocus <> nil) then
-  //    begin
-  //      if FShowSelectedCell and               // если разрешено выделять ячейку
-  //         IsOneRowSelected and                // и выделена только 1 строка
-  //         (FocusedColumn > NoColumn) then       // и есть выделенная колонка
-  //        begin
-  //          FFocus.Visible:=true;
-  //	      FFocus.BringToFront;
-  //	      P:=d2Point(Columns[FocusedColumn].Position.X,0);
-  //	      P:=FContent.LocalToAbsolute(P);
-  //  	      if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
-  //	      P:=FSelection.Parent.Visual.AbsoluteToLocal(P);
-  //          if FShowHorzLines then b:=1 else b:=0;
-  //          if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;
-  //          with SelRects[i] do                                                                  //установить координаты маркера ячейки
-  //            FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,
-  //                            Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
-  //                            SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);
-  //        end
-  //      else FFocus.Visible := false;  // иначе скрыть маркер ячейки
-  //  end;
-  //end;
-  ////установим маркер пред.выбора
-  //if FPreSelection <> nil then
-  //  begin
-  //    if FIsPreSelected then
-  //      begin
-  //        FPreSelection.Visible:=true;
-  //        FPreSelection.BringToFront;
-  //        P := d2Point(0, FSelected * FRowHeight);
-  //        P := FContent.LocalToAbsolute(P);
-  //        if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual
-  //          then P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);
-  //        if FContent.Width < ClientWidth
-  //          then R := d2Rect(P.X, P.Y, P.X + ClientWidth, P.Y + FRowHeight)
-  //          else R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight);
-  //        FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
-  //      end
-  //      else  FPreSelection.Visible:=false;
-  //  end;
-  //
-  //for i := 0 to ColumnCount - 1 do   //обновить колонки
-  //  Columns[i].UpdateSelected;
-end;
-
-//procedure TD2CustomTreeGrid.UpdateSelection;
-//begin
-//  inherited UpdateSelection;
-//end;
 
 procedure TD2CustomTreeGrid.WriteChunks(Stream: TStream; Node: PD2TreeNode);
 //Записывает основные элементы узла Node в поток Stream.

@@ -87,7 +87,7 @@ end;
 
 procedure TForm1.SpinBox1Change(Sender: TObject);
 begin
-  TreeGrid1.VScrollBar.Value:=SpinBox1.Value;
+
 end;
 
 procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
@@ -138,6 +138,8 @@ begin
           Phone := IntToStr(t+1) + Phones[t];
         end;
       if t<=1 then
+      begin
+        Include(NewNode1^.States, vsSelected);
         for k:=0 to High(Names) do
         begin
           NewNode2 := TreeGrid1.AddChild(NewNode1);
@@ -149,6 +151,7 @@ begin
               Phone := Phones[k];
             end;
         end;
+      end;
 
     end;
     if i=0 then TreeGrid1.ToggleNode(NewNode);
@@ -217,7 +220,7 @@ end;
 procedure TForm1.TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX,
   DeltaY: single);
 begin
-  SpinBox1.Value:=TreeGrid1.VScrollBar.Value;
+
 end;
 
 procedure TForm1.VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
