@@ -7225,7 +7225,7 @@ TD2CustomGrid = class(TD2CustomScrollBox)
               //получить ширину виртуальной клиентской области грида
     function  GetContentWidth: Single;  virtual;
               //true - если выбрана 1 стока
-    function  IsOneRowSelected:boolean;
+    function  IsOneRowSelected:boolean; virtual;
               //true - если строка Row выбрана
     function  IsSelected(Row: integer):boolean;
                //обработка нажатий клавиатуры
@@ -7240,8 +7240,12 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure SetSelectedByPoint(const X, Y:single); virtual;
               //добавить к выбранным строки начиная с текущей до Idx
     procedure SetSelectedMoreRow(Idx: integer); virtual;
-              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
     procedure SetSelectedMoreRowByPoint(const X, Y: single); virtual;
+              //добавить к выбранным строки начиная с текущей до Idx без очистки ранее выбранных строк
+    procedure SetSelectedExtraRow(Idx: integer); virtual;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+    procedure SetSelectedExtraRowByPoint(const X, Y: single); virtual;
               //сохранить значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
               //обновить колоноки
@@ -9091,6 +9095,11 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure InternalRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Пометить кэш недействительным.
     procedure InvalidateCache;
+              //True - если выделена только одна строка
+    function  IsOneRowSelected: boolean; override;
+              //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+
               //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
     procedure MainColumnChanged; virtual;
               //Устанавливает флаг vsCutOrCopy в каждом выбранном в данный момент узле, кроме
@@ -9114,8 +9123,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
 
               //сделать выбранной строку по координатам X, Y
     procedure SetSelectedByPoint(const X, Y:single); override;
-              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
     procedure SetSelectedMoreRowByPoint(const X, Y: single); override;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+    procedure SetSelectedExtraRowByPoint(const X, Y: single); override;
               //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
     function  ChangeSelectionRowByPoint(const X, Y: single): boolean; override;
 
@@ -9534,6 +9545,7 @@ public
     property NodeHeight[Node: PD2TreeNode]: Single read GetNodeHeight write SetNodeHeight; //Высота узла Node
     property NodeParent[Node: PD2TreeNode]: PD2TreeNode read GetNodeParent write SetNodeParent; //Получить/установить родителя узла Node
     property RootNode: PD2TreeNode read FRoot; //Указатель на корневой узел дерева
+    //property RowCount: Cardinal read FVisibleCount; //Текущее кол-во видимых узлов (для совместимости
     property Selected[Node: PD2TreeNode]: Boolean read GetSelected write SetSelected; //получить/установить состояние узела Node "выбран": True - выбран; False - не выбран
     property SelectedCount: Integer read FSelectionCount; //Кол-во выбранных узлов
     property SelectionLocked: Boolean read FSelectionLocked write FSelectionLocked; //True - Запрещает изменения выбора узлов в дереве.

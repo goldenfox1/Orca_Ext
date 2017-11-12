@@ -50,11 +50,12 @@ object Form1: TForm1
       object Grid1: TD2Grid
         Position.Point = '(318,174)'
         RotateAngle = 0
-        Width = 200
+        Width = 260
         Height = 241
         Resource = 'Grid1Style1'
         TabOrder = 1
         AlternatingRowBackground = True
+        MultiSelect = True
         RowCount = 100
         RowHeight = 21
         ScrollDuration = 0.300000011920929
@@ -64,6 +65,14 @@ object Form1: TForm1
           Height = 216
           HitTest = False
           TabOrder = 0
+        end
+        object TextColumn2: TD2TextColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 216
+          HitTest = False
+          TabOrder = 1
         end
       end
       object TreeGrid1: TD2TreeGrid

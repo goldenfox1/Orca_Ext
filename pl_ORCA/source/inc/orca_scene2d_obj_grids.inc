@@ -1154,9 +1154,6 @@ begin
       begin
         if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
         begin
-          //Columns[FocusedColumn].CellControlByRow(Selected).HitTest:=true;
-          //Columns[FocusedColumn].CellControlByRow(Selected).CanFocused:=true;
-          //Columns[FocusedColumn].CellControlByRow(Selected).SetFocus;
           Columns[FocusedColumn].CellSetFocus(Selected);
           TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
@@ -1169,8 +1166,11 @@ begin
           end;
         VK_LEFT:
           begin
-            if (Shift = []) and (FocusedColumn > 0) then FocusedColumn := FocusedColumn - 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> 0) then FocusedColumn := 0;
+            if (Shift = []) and (FocusedColumn > 0)
+              then FocusedColumn := FocusedColumn - 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
+              then FocusedColumn := 0;
+            Key:=0;
           end;
         VK_RIGHT:
           begin
@@ -1178,6 +1178,7 @@ begin
               then FocusedColumn := FocusedColumn + 1;
             if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
                then FocusedColumn := ColumnCount - 1;
+            Key:=0;
           end;
       end;
     end;
@@ -1239,7 +1240,6 @@ begin
           if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
           if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
         end;
-		{Block End added by GoldenFox}
       else Exit;
     end;
     Key:=0;
@@ -1258,9 +1258,10 @@ begin
 
   if Button=mbLeft then
   begin
-    if Shift = [ssLeft] then SetSelectedByPoint(P.X, P.Y);                 //нажата только ЛКМ
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);  //если нажаты ЛКМ + Ctrl
+    if Shift = [ssLeft] then SetSelectedByPoint(P.X, P.Y);                          //нажата только ЛКМ
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y);          //если нажаты ЛКМ + Shift
+    if Shift = [ssLeft, ssShift, ssCtrl] then SetSelectedExtraRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift + Ctrl
+    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl
     Column:=ColumnByPoint(X, Y);
     if Column <> nil then
       FocusedColumn:=Column.Index;
@@ -1463,9 +1464,22 @@ begin
     else SetSelected(Idx);
 end;
 
+procedure TD2CustomGrid.SetSelectedExtraRow(Idx: integer);
+//добавить к выбранным строки начиная с текущей до Idx без очистки ранее выбранных строк
+begin
+  SetSelectedMoreRow(Idx);
+end;
+
 procedure TD2CustomGrid.SetSelectedMoreRowByPoint(const X, Y: single);
+//добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
 begin
   SetSelectedMoreRow(RowByPoint(X, Y));
+end;
+
+procedure TD2CustomGrid.SetSelectedExtraRowByPoint(const X, Y: single);
+//добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+begin
+  SetSelectedExtraRow(RowByPoint(X, Y));
 end;
 
 procedure TD2CustomGrid.AddObject(AObject:TD2Object);
