@@ -139,7 +139,7 @@ begin
         end;
       if t<=1 then
       begin
-        Include(NewNode1^.States, vsSelected);
+        //Include(NewNode1^.States, vsSelected);
         for k:=0 to High(Names) do
         begin
           NewNode2 := TreeGrid1.AddChild(NewNode1);

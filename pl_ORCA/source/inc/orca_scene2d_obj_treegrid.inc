@@ -1999,7 +1999,7 @@ end;
 {$IMPLICITEXCEPTIONS OFF}
 
 function TD2CustomTreeGrid.PackArray(TheArray: TD2NodeArray; Count: Integer): Integer; assembler;
-// Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
+// Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов.
 // Массив выбора должен быть отсортирован для работы этого алгоритма. У удаляемых узлов
 // установлен бит 0 (LSB). Этот маленький трюк работает, потому что выделение памяти всегда
 // выровнены на DWORD. Поскольку массив выбора должен быть отсортирован при определении
@@ -2596,34 +2596,31 @@ procedure TD2CustomTreeGrid.SetSelected(Node: PD2TreeNode; Value: Boolean);
 begin
   if not FSelectionLocked and Assigned(Node) and (Node <> FRoot) and (Value xor (vsSelected in Node.States)) then
   begin
-    if Value then
-    begin
-      if FSelectionCount = 0 then
-        FRangeAnchor := Node
-      else
-        if not (toMultiSelect in FOptions.FSelectionOptions) then
-          ClearSelection;
+    if Value
+      then  begin
+              if FSelectionCount = 0
+                then FRangeAnchor := Node
+                else if not (toMultiSelect in FOptions.FSelectionOptions)
+                       then ClearSelection;
+              AddToSelection(Node);
 
-      AddToSelection(Node);
-
-      // Make sure there is a valid column selected (if there are columns at all).
-      //if ((FFocusedColumn < 0) or not (coVisible in FHeader.Columns[FFocusedColumn].Options)) and
-      //  (FHeader.MainColumn > NoColumn) then
-      //  if ([coVisible, coAllowFocus] *  FHeader.Columns[FHeader.MainColumn].Options = [coVisible, coAllowFocus]) then
-      //    FFocusedColumn := FHeader.MainColumn
-      //  else
-      //    FFocusedColumn := FHeader.Columns.GetFirstVisibleColumn(True);
-      if FRangeAnchor = nil then
-        FRangeAnchor := Node;
-    end
-    else
-    begin
-      RemoveFromSelection(Node);
-      if FSelectionCount = 0 then
-        ResetRangeAnchor;
-    end;
-    if FullyVisible[Node] and not IsEffectivelyFiltered[Node] then
-      InvalidateNode(Node);
+              // Make sure there is a valid column selected (if there are columns at all).
+              //if ((FFocusedColumn < 0) or not (coVisible in FHeader.Columns[FFocusedColumn].Options)) and
+              //  (FHeader.MainColumn > NoColumn) then
+              //  if ([coVisible, coAllowFocus] *  FHeader.Columns[FHeader.MainColumn].Options = [coVisible, coAllowFocus]) then
+              //    FFocusedColumn := FHeader.MainColumn
+              //  else
+              //    FFocusedColumn := FHeader.Columns.GetFirstVisibleColumn(True);
+              if FRangeAnchor = nil
+                then FRangeAnchor := Node;
+            end
+      else  begin
+              RemoveFromSelection(Node);
+              if FSelectionCount = 0
+                then ResetRangeAnchor;
+            end;
+    if FullyVisible[Node] and not IsEffectivelyFiltered[Node]
+      then InvalidateNode(Node);
   end;
 end;
 
@@ -2875,7 +2872,7 @@ procedure TD2CustomTreeGrid.AddToSelection(const NewItems: TD2NodeArray;
 //NewItems быть больше, чем фактические используемые записи).
 //ForceInsert = True, если узлы должны быть вставлены без учета ограничения
 //уровня выбора или уже установленных флагов (например, при загрузке из потока).
-//Внимание! В случае ForceInsert = True то вызывающий несет ответственность за то,
+//Внимание! В случае ForceInsert = True вызывающий несет ответственность за то,
 //          чтобы новые узлы уже не были в массиве выбора!
 
 // Adds the given items all at once into the current selection array. NewLength is the amount of
@@ -3756,6 +3753,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoFocusNode(Node: PD2TreeNode; Ask: Boolean);
+//Вызывает прерывание при изменениии фокуса узла
 begin
   if not (tsEditing in FStates) or EndEditNode then
   begin
@@ -3765,6 +3763,8 @@ begin
     begin
       if Assigned(FFocusedNode) then
       begin
+        //Автоматическое свертывание последнего сфокусированного узла, если включено. Это, однако, выполняется
+        //только в том случае, если старый и новый сфокусированный узел имеет общий родительский узел.
         // Do automatic collapsing of last focused node if enabled. This is however only done if
         // old and new focused node have a common parent node.
         if (toAutoExpand in FOptions.FAutoOptions) and Assigned(Node) and (Node.Parent = FFocusedNode.Parent) and
@@ -3776,12 +3776,16 @@ begin
       FFocusedNode := Node;
     end;
 
+    //Необходимо прокручивать узел в представлении, даже если он тот же узел, что и раньше.
     // Have to scroll the node into view, even it is the same node as before.
     if Assigned(FFocusedNode) then
     begin
-      //// Make sure a valid column is set if columns are used and no column has currently the focus.
+      //Убедитесь, что допустимый столбец установлен, если используются столбцы, и в настоящий момент ни один столбец не находится в фокусе.
+      // Make sure a valid column is set if columns are used and no column has currently the focus.
       //if FHeader.UseColumns and (not FHeader.FColumns.IsValidColumn(FFocusedColumn)) then
       //  FFocusedColumn := FHeader.MainColumn;
+
+      //Делаем автоматическое расширение вновь сфокусированного узла, если он включен.
       // Do automatic expansion of the newly focused node if enabled.
       if (toAutoExpand in FOptions.FAutoOptions) and not (vsExpanded in FFocusedNode.States) then
         ToggleNode(FFocusedNode);
@@ -3791,6 +3795,7 @@ begin
           (MouseButtonDown * FStates = []), not (toFullRowSelect in FOptions.SelectionOptions) );
     end;
 
+    //При необходимости замените анкер.
     // Reset range anchor if necessary.
     if FSelectionCount = 0 then
       ResetRangeAnchor;
@@ -3913,7 +3918,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DoRemoveFromSelection(Node: PD2TreeNode);
-//Вызов прерывания OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
+//Вызов прерывание OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
 begin
   if Assigned(FOnRemoveFromSelection) then
     FOnRemoveFromSelection(Self, Node);
@@ -4489,6 +4494,7 @@ end;
 
 function TD2CustomTreeGrid.InternalAddToSelection(Node: PD2TreeNode;
   ForceInsert: Boolean): Boolean;
+// Внутренняя версия метода AddToSelection, не вызвающая событие OnChange
 begin
   Assert(Assigned(Node), 'Node must not be nil!'); //прервать выполение если Node=Nil
   FSingletonNodeArray[0] := Node;
@@ -4643,7 +4649,6 @@ begin
     inc(NodeNum);
     Result := GetNextVisibleNoInit(Result, True);
   end;
-
   if Result = FRoot
      then Result := nil;
 
@@ -5179,7 +5184,7 @@ end;
 
 procedure TD2CustomTreeGrid.SelectNodes(StartNode, EndNode: PD2TreeNode;
   AddOnly: Boolean);
-//Выбирает диапазон узлов от узла StartNode до узла и EndNode отменяет выделение всех
+//Выбирает диапазон узлов от узла StartNode до узла EndNode и отменяет выделение всех
 //ранее выбранных узлов, которые не находятся в этом диапазоне, если AddOnly = false.
 //EndNode должен быть виден в то время как StartNode не обязательно, как и в том случае,
 //когда последним сфокусированным был узел StartNode, но он является дочерним узлом,
@@ -5245,8 +5250,44 @@ begin
   end;
 end;
 
-procedure TD2CustomTreeGrid.SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer);
+procedure TD2CustomTreeGrid.SetSelectedByPoint(const X, Y: single);
+//сделать выбранной строку по координатам X, Y
+begin
+  InternalClearSelection;
+  SetSelected(GetNodeAtTree(X, Y), true);
+end;
 
+procedure TD2CustomTreeGrid.SetSelectedMoreRowByPoint(const X, Y: single);
+//добавить к выбранным строки начиная с текущей до строки с координатами X, Y
+var
+  Node: PD2TreeNode;
+begin
+  Node:=GetNodeAtTree(X, Y);
+  if Assigned(Node) then
+    begin
+      if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+        then SelectNodes(FRangeAnchor, Node, false)
+        else SetSelected(Node, true);
+    end;
+end;
+
+function TD2CustomTreeGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;
+//Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
+var
+  Node: PD2TreeNode;
+  s: boolean;
+begin
+  Node:=GetNodeAtTree(X, Y);
+  if Assigned(Node) then
+  begin
+    s:= not GetSelected(Node);
+    SetSelected(Node, s);
+    Result:=s;
+  end;
+end;
+
+procedure TD2CustomTreeGrid.SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer);
+//Устанавливает фокус на узел Node и колонку Column
 var
   OldColumn: Integer;
   WasDifferent: Boolean;
@@ -5497,6 +5538,151 @@ begin
   inherited;
   DoStateChange([], [tsPainting]);
 
+end;
+
+procedure TD2CustomTreeGrid.ToggleSelection(StartNode, EndNode: PD2TreeNode);
+// Переключает состояние выбора диапазона узлов от StartNode до EndNode
+// Примечание. Этот метод специально разработан для выбора диапазонов с клавиатурой
+//             и поэтому учитывает анкер диапазона.
+
+// Switchs the selection state of a range of nodes.
+// Note: This method is specifically designed to help selecting ranges with the keyboard and considers therefore
+//       the range anchor.
+
+var
+  NodeFrom,
+  NodeTo: PD2TreeNode;
+  NewSize: Integer;
+  Position: Integer;
+
+begin
+  if not FSelectionLocked then
+  begin
+    Assert(Assigned(EndNode), 'EndNode must not be nil!');
+    if StartNode = nil then
+      StartNode := FRoot.FirstChild
+    else
+      if not FullyVisible[StartNode] then
+        StartNode := GetPreviousVisible(StartNode, True);
+
+    Position := CompareNodePositions(StartNode, EndNode);
+    // nothing to do if start and end node are the same
+    if Position <> 0 then
+    begin
+      if Position < 0 then
+      begin
+        NodeFrom := StartNode;
+        NodeTo := EndNode;
+      end
+      else
+      begin
+        NodeFrom := EndNode;
+        NodeTo := StartNode;
+      end;
+
+      ClearTempCache;
+
+      // 1) toggle the start node if it is before the range anchor
+      if CompareNodePositions(NodeFrom, FRangeAnchor) < 0 then
+        if not (vsSelected in NodeFrom.States) then
+          InternalCacheNode(NodeFrom)
+        else
+          InternalRemoveFromSelection(NodeFrom);
+
+      // 2) toggle all nodes within the range
+      NodeFrom := GetNextVisible(NodeFrom, True);
+      while NodeFrom <> NodeTo do
+      begin
+        if not (vsSelected in NodeFrom.States) then
+          InternalCacheNode(NodeFrom)
+        else
+          InternalRemoveFromSelection(NodeFrom);
+        NodeFrom := GetNextVisible(NodeFrom, True);
+      end;
+
+      // 3) toggle end node if it is after the range anchor
+      if CompareNodePositions(NodeFrom, FRangeAnchor) > 0 then
+        if not (vsSelected in NodeFrom.States) then
+          InternalCacheNode(NodeFrom)
+        else
+          InternalRemoveFromSelection(NodeFrom);
+
+      // Do some housekeeping if there was a change.
+      NewSize := PackArray(FSelectionNodes, FSelectionCount);
+      if NewSize > -1 then
+      begin
+        FSelectionCount := NewSize;
+        SetLength(FSelectionNodes, FSelectionCount);
+      end;
+      // If the range went over the anchor then we need to reselect it.
+      if not (vsSelected in FRangeAnchor.States) then
+        InternalCacheNode(FRangeAnchor);
+      if FTempNodeCount > 0 then
+        AddToSelection(FTempNodeCache, FTempNodeCount);
+      ClearTempCache;
+    end;
+  end;
+end;
+
+procedure TD2CustomTreeGrid.UnselectNodes(StartNode, EndNode: PD2TreeNode);
+//Отменяет выбор диапазона узлов от StartNode до EndNode.
+//EndNode должен быть видимым, при этом StartNode может быть не видим. Например, когда
+//StartNode является последним сфокусированным и дочерним узлом ранее свернутого узла.
+//В этом случае первый видимый родительский узел используется как начальный.
+//StartNode может быть nil, в этом случае используется самый первый узел в дереве.
+
+// Deselects a range of nodes.
+// EndNode must be visible while StartNode must not as in the case where the last focused node is the start node
+// but it is a child of a node which has been collapsed previously. In this case the first visible parent node
+// is used as start node. StartNode can be nil in which case the very first node in the tree is used.
+
+var
+  NodeFrom,
+  NodeTo: PD2TreeNode;
+  NewSize: Integer;
+
+begin
+  if not FSelectionLocked then
+  begin
+    Assert(Assigned(EndNode), 'EndNode must not be nil!');
+
+    if StartNode = nil then
+      StartNode := FRoot.FirstChild
+    else
+      if not FullyVisible[StartNode] then
+      begin
+        StartNode := GetPreviousVisible(StartNode, True);
+        if StartNode = nil then
+          StartNode := FRoot.FirstChild;
+      end;
+
+    if CompareNodePositions(StartNode, EndNode) < 0 then
+    begin
+      NodeFrom := StartNode;
+      NodeTo := EndNode;
+    end
+    else
+    begin
+      NodeFrom := EndNode;
+      NodeTo := StartNode;
+    end;
+
+    while NodeFrom <> NodeTo do
+    begin
+      InternalRemoveFromSelection(NodeFrom);
+      NodeFrom := GetNextVisible(NodeFrom, True);
+    end;
+    // Deselect last node too.
+    InternalRemoveFromSelection(NodeFrom);
+
+    // Do some housekeeping.
+    NewSize := PackArray(FSelectionNodes, FSelectionCount);
+    if NewSize > -1 then
+    begin
+      FSelectionCount := NewSize;
+      SetLength(FSelectionNodes, FSelectionCount);
+    end;
+  end;
 end;
 
 function TD2CustomTreeGrid.GetTopRowY: single;
@@ -5786,32 +5972,32 @@ var
 begin
   if not FSelectionLocked and (FSelectionCount > 0) and not (csDestroying in ComponentState) then
   begin
-    if (FUpdateCount = 0) {and HandleAllocated} and (FVisibleCount > 0) then
-    begin
-      // Итерация всех видимыех в настоящее время узлов в клиентской области, и их аннулирование.
-      // Iterate through nodes currently visible in the client area and invalidate them.
-      Node := TopNode;
-      if Assigned(Node) then
-        R := GetDisplayRect(Node, NoColumn, False);
-      Counter := FSelectionCount;
-
-      while Assigned(Node) do
-      begin
-        R.Bottom := R.Top + NodeHeight[Node];
-        if vsSelected in Node.States then
-        begin
-          //InvalidateRect(Handle, @R, False);
-          InvalidateRect(R);
-          Dec(Counter);
-          // Only try as many nodes as are selected.
-          if Counter = 0 then Break;
-        end;
-        R.Top := R.Bottom;
-        if R.Top > ClientHeight then
-          Break;
-        Node := GetNextVisibleNoInit(Node, True);
-      end;
-    end;
+    //if (FUpdateCount = 0) {and HandleAllocated} and (FVisibleCount > 0) then
+    //begin
+    //  // Итерация всех видимыех в настоящее время узлов в клиентской области, и их аннулирование.
+    //  // Iterate through nodes currently visible in the client area and invalidate them.
+    //  Node := TopNode;
+    //  if Assigned(Node) then
+    //    R := GetDisplayRect(Node, NoColumn, False);
+    //  Counter := FSelectionCount;
+    //
+    //  while Assigned(Node) do
+    //  begin
+    //    R.Bottom := R.Top + NodeHeight[Node];
+    //    if vsSelected in Node.States then
+    //    begin
+    //      //InvalidateRect(Handle, @R, False);
+    //      InvalidateRect(R);
+    //      Dec(Counter);
+    //      // Only try as many nodes as are selected.
+    //      if Counter = 0 then Break;
+    //    end;
+    //    R.Top := R.Bottom;
+    //    if R.Top > ClientHeight then
+    //      Break;
+    //    Node := GetNextVisibleNoInit(Node, True);
+    //  end;
+    //end;
 
     InternalClearSelection;
     Change(nil);
@@ -7635,8 +7821,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNodeAt(const P: TD2Point): PD2TreeNode;
-//Получить узел по координатам P.X и P.Y (Перегруженный вариант  функции GetNodeAt).
-//P.X и P.Y задаются в координатах клиентской области
+//Получить узел по координатам P.X и P.Y клиентской области(Перегруженный вариант  функции GetNodeAt).
 begin
   Result := GetNodeAt(P.X, P.Y);
 end;
@@ -7656,8 +7841,7 @@ begin
 end;
 
 function TD2CustomTreeGrid.GetNodeAt(X, Y: Single): PD2TreeNode;
-//Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
-//X и Y задаются в координатах клиентской области
+//Получить узел по координатам X и Y клиентской области (перегруженный вариант  функции GetNodeAt)
 
 // Overloaded variant of GetNodeAt to easy life of application developers which do not need to have the exact
 // top position returned and always use client coordinates.
@@ -7667,6 +7851,16 @@ var
   DummyI: Integer;
 begin
   Result := GetNodeAt(X, Y, True, Dummy, DummyI);
+end;
+
+function TD2CustomTreeGrid.GetNodeAtTree(X, Y: Single): PD2TreeNode;
+//Получить узел по координатам X и Y дерева(перегруженный вариант  функции GetNodeAt).
+
+var
+  Dummy: Single;
+  DummyI: Integer;
+begin
+  Result := GetNodeAt(X, Y, False, Dummy, DummyI);
 end;
 
 function TD2CustomTreeGrid.GetNodeData(Node: PD2TreeNode): Pointer;

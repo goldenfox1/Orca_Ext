@@ -1072,17 +1072,11 @@ begin
       end;
 end;
 
-function TD2CustomGrid.RowByPoint(const X,Y:single):integer;
-var P: TD2Point;
+function TD2CustomGrid.RowByPoint(const X, Y:single):integer;
 begin
-  P:=LocalToAbsolute(d2Point(X,Y));
-  if FContent <> nil then
-  begin
-    P:=FContent.AbsoluteToLocal(P);
-    Result:=trunc(P.Y / FRowHeight);
-    Exit;
-  end;
-  Result:=-1;
+  if FContent <> nil
+    then Result:=trunc(Y / FRowHeight)
+    else Result:=-1;
 end;
 
 function TD2CustomGrid.ColumnByIndex(const Idx:integer):TD2Column;
@@ -1252,18 +1246,22 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.MouseDown(Button:TMouseButton; Shift:TShiftState; X,
-  Y:single);
+procedure TD2CustomGrid.MouseDown(Button:TMouseButton; Shift:TShiftState; X, Y:single);
 var
   Column:TD2Column;
+  P: TD2Point;
 begin
   inherited;
+  if FContent = nil then exit;
+  P:=LocalToAbsolute(d2Point(X,Y));
+  P:=FContent.AbsoluteToLocal(P);
+
   if Button=mbLeft then
   begin
-    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                  //нажата только ЛКМ
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y)); //если нажаты ЛКМ + Shift
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y));  //если нажаты ЛКМ + Ctrl
-    Column:=ColumnByPoint(X,Y);
+    if Shift = [ssLeft] then SetSelectedByPoint(P.X, P.Y);                 //нажата только ЛКМ
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift
+    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);  //если нажаты ЛКМ + Ctrl
+    Column:=ColumnByPoint(X, Y);
     if Column <> nil then
       FocusedColumn:=Column.Index;
   end;
@@ -1282,7 +1280,8 @@ begin
   end;
 end;
 
-function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean; //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
+function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean;  //Added by GoldenFox
+//Инвертировать выделение строки c индексом Idx. Результат: true - строка выделена, false - развыделена
 var L, M, R: integer; //левая граница, середина, правая граница
     b: boolean;       //
 
@@ -1412,6 +1411,11 @@ begin
   UpdateSelection;
 end;
 
+function TD2CustomGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;
+begin
+  Result:=ChangeSelectionRow(RowByPoint(X, Y));
+end;
+
 procedure TD2CustomGrid.SetSelectedMoreRow(Idx: integer);  //добавить выделенных строк procedure added by GoldenFox
 begin
   if FMultiSelect then
@@ -1457,6 +1461,11 @@ begin
       UpdateSelection;
     end
     else SetSelected(Idx);
+end;
+
+procedure TD2CustomGrid.SetSelectedMoreRowByPoint(const X, Y: single);
+begin
+  SetSelectedMoreRow(RowByPoint(X, Y));
 end;
 
 procedure TD2CustomGrid.AddObject(AObject:TD2Object);
@@ -1565,6 +1574,7 @@ begin
 end;
 
 procedure TD2CustomGrid.SetSelected(const Value:integer);
+//сделать выбранной строку с номером Value
 begin
   if (FSelected <> Value) or
      (FSelectedRows[0] <> 2) or
@@ -1581,6 +1591,12 @@ begin
     ScrollToRow(FSelected);
     UpdateSelection;
   end;
+end;
+
+procedure TD2CustomGrid.SetSelectedByPoint(const X, Y: single);
+//сделать выбранной строку по координатам X, Y
+begin
+  SetSelected(RowByPoint(X, Y)); //выбрать строку
 end;
 
 function TD2CustomGrid.IsSelected(Row:integer):boolean; //проверить выбрана строка или нет

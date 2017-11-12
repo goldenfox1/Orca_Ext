@@ -7190,8 +7190,10 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
               //true - если данные можно редактировать
     function  CanEditModify: Boolean;  virtual;
-              //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена
+              //Инвертировать выделение строки c индексом Idx. Результат: true - строка выделена, false - развыделена
     function  ChangeSelectionRow(Idx: integer):boolean; virtual;
+              //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRowByPoint(const X, Y: single): boolean; virtual;
               //удаление дочерних объектов
     procedure ContentRemoveObject(AObject: TD2Object); override;
               //двойной клик ЛКМ
@@ -7232,10 +7234,14 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure Reset;  virtual;
               //установить маркер предвыбора на выбранную строку
     procedure SetPreSelected(const Value: integer); virtual;
-              //установить выбранную строку
+              //сделать выбранной строку с номером Value
     procedure SetSelected(const Value: integer); virtual;
+              //сделать выбранной строку по координатам X, Y
+    procedure SetSelectedByPoint(const X, Y:single); virtual;
               //добавить к выбранным строки начиная с текущей до Idx
     procedure SetSelectedMoreRow(Idx: integer); virtual;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y
+    procedure SetSelectedMoreRowByPoint(const X, Y: single); virtual;
               //сохранить значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
               //обновить колоноки
@@ -9014,7 +9020,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoNodeMoved(Node: PD2TreeNode); virtual;
              //Вызов прерывания OnNodeMoving перед перемещением узла Node к новому родителю NewParent
     function DoNodeMoving(Node, NewParent: PD2TreeNode): Boolean; virtual;
-              //Вызов прерывания OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
+              //Вызов прерывание OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
     procedure DoRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Вызов прерывания nResetNode (вызывается, когда узел устанавливается как неинициализированный)
     procedure DoReset(Node: PD2TreeNode); virtual;
@@ -9105,6 +9111,14 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //Выбирает диапазон узлов от узла StartNode до узла и EndNode отменяет выделение всех
               //ранее выбранных узлов, которые не находятся в этом диапазоне, если AddOnly = false.
     procedure SelectNodes(StartNode, EndNode: PD2TreeNode; AddOnly: Boolean); virtual;
+
+              //сделать выбранной строку по координатам X, Y
+    procedure SetSelectedByPoint(const X, Y:single); override;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y
+    procedure SetSelectedMoreRowByPoint(const X, Y: single); override;
+              //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRowByPoint(const X, Y: single): boolean; override;
+
               //Устанавливает фокус на узел Node и колонку Column
     procedure SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer); virtual;
               //Игнорирует данные для следующего узла в потоке Stream (в том числе и дочерние узлы).
@@ -9127,6 +9141,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure WriteNode(Stream: TStream; Node: PD2TreeNode); virtual;
               //Обновить колонки
     procedure UpdateColumns; override;
+              // Переключает состояние выбора диапазона узлов от StartNode до EndNode
+    procedure ToggleSelection(StartNode, EndNode: PD2TreeNode); virtual;
+              //Отменяет выбор диапазона узлов от StartNode до EndNode.
+    procedure UnselectNodes(StartNode, EndNode: PD2TreeNode); virtual;
 
     //------- свойства
 
@@ -9351,12 +9369,13 @@ public
              //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
              //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
     function GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single; var NodeNum: integer): PD2TreeNode; overload;
-             //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
-             //X и Y задаются в координатах клиентской области
+             //Получить узел по координатам X и Y клиентской области (перегруженный вариант  функции GetNodeAt)
     function GetNodeAt(X, Y: Single): PD2TreeNode; overload;
-             //Получить узел по координатам P.X и P.Y (Перегруженный вариант  функции GetNodeAt).
-             //P.X и P.Y задаются в координатах клиентской области
+             //Получить узел по координатам P.X и P.Y клиентской области(Перегруженный вариант  функции GetNodeAt).
     function GetNodeAt(const P: TD2Point): PD2TreeNode; overload; inline;
+             //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
+             //X и Y задаются в координатах дерева
+    function GetNodeAtTree(X, Y: Single): PD2TreeNode; overload;
              // Возвращает адрес определяемой пользователем области данных для узла Node
     function GetNodeData(Node: PD2TreeNode): Pointer;
              // Возвращает уровень узла Node
@@ -9515,7 +9534,7 @@ public
     property NodeHeight[Node: PD2TreeNode]: Single read GetNodeHeight write SetNodeHeight; //Высота узла Node
     property NodeParent[Node: PD2TreeNode]: PD2TreeNode read GetNodeParent write SetNodeParent; //Получить/установить родителя узла Node
     property RootNode: PD2TreeNode read FRoot; //Указатель на корневой узел дерева
-    property Selected[Node: PD2TreeNode]: Boolean read GetSelected write SetSelected; //True - узел Node выбран
+    property Selected[Node: PD2TreeNode]: Boolean read GetSelected write SetSelected; //получить/установить состояние узела Node "выбран": True - выбран; False - не выбран
     property SelectedCount: Integer read FSelectionCount; //Кол-во выбранных узлов
     property SelectionLocked: Boolean read FSelectionLocked write FSelectionLocked; //True - Запрещает изменения выбора узлов в дереве.
     property ShowCheckboxes: boolean read FShowCheckboxes write SetShowCheckboxes  default false; //Видимость чек-боксов: true - показывать; false - не показывать
