@@ -5045,111 +5045,6 @@ begin
   Result:= (FSelectionCount = 1);
 end;
 
-procedure TD2CustomTreeGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
-var
-  MultiSelect: boolean;
-begin
-  inherited;
-  if FVisibleCount > 0 then
-  begin
-    MultiSelect:= (toMultiSelect in FOptions.FSelectionOptions);
-    if IsOneRowSelected then
-    begin
-      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
-      begin
-      //  if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
-      //  begin
-      //    Columns[FocusedColumn].CellSetFocus(Selected);
-      //    TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
-      //  end;
-      end;
-      case Key of
-        //VK_F2:
-        //  begin
-        //    if Columns[FocusedColumn] <> nil
-        //       then Columns[FocusedColumn].CellSetFocus(Selected);
-        //  end;
-        VK_LEFT:
-          begin
-            if (Shift = []) and (FocusedColumn > 0)
-              then FocusedColumn := FocusedColumn - 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
-              then FocusedColumn := 0;
-            Key:=0;
-          end;
-        VK_RIGHT:
-          begin
-            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
-              then FocusedColumn := FocusedColumn + 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
-               then FocusedColumn := ColumnCount - 1;
-            Key:=0;
-          end;
-      end;
-    end;
-    case Key of
-      VK_SPACE:
-        if MultiSelect and (Shift = [ssCtrl])  then
-        begin
-          if Assigned(FLastSelected)
-             then SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
-          //UpdateSelection;
-        end;
-      VK_A:
-        if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A
-          begin
-            SelectAll(false);
-            FIsPreSelected:=false;
-          end;
-      //VK_UP:
-      //  if FSelected > 0 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх
-      //    if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
-      //  end;
-      //VK_DOWN:
-      //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
-      //  end;
-      //VK_HOME:
-      //  if FSelected > 0 then
-      //  begin
-      //    if Shift = [] then SetSelected(0);  //нажата только Home
-      //    if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home
-      //    if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
-      //  end;
-      //VK_END:
-      //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(RowCount - 1);  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End
-      //    if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
-      //  end;
-      //VK_PRIOR:
-      //  if FSelected > 0 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-      //  end;
-      //VK_NEXT:
-      //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-      //  end;
-      else Exit;
-    end;
-    Key:=0;
-  end;
-
-end;
-
 procedure TD2CustomTreeGrid.MainColumnChanged;
 //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
 begin
@@ -5364,51 +5259,152 @@ procedure TD2CustomTreeGrid.SetSelectedByPoint(const X, Y: single);
 //сделать выбранной строку по координатам X, Y
 begin
   InternalClearSelection;
-  SetSelected(GetNodeAtTree(X, Y), true);
+  FLastSelected:=GetNodeAtTree(X, Y);
+  if Assigned(FLastSelected)
+    then SetSelected(FLastSelected, true);
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedMoreRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
-var
-  Node: PD2TreeNode;
 begin
-  Node:=GetNodeAtTree(X, Y);
-  if Assigned(Node) then
+  FLastSelected:=GetNodeAtTree(X, Y);
+  if Assigned(FLastSelected) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, Node, false)
-        else SetSelected(Node, true);
+        then SelectNodes(FRangeAnchor, FLastSelected, false)
+        else SetSelected(FLastSelected, true);
     end;
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedExtraRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
-var
-  Node: PD2TreeNode;
 begin
-  Node:=GetNodeAtTree(X, Y);
-  if Assigned(Node) then
+  FLastSelected:=GetNodeAtTree(X, Y);
+  if Assigned(FLastSelected) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, Node, true)
-        else SetSelected(Node, true);
+        then SelectNodes(FRangeAnchor, FLastSelected, true)
+        else SetSelected(FLastSelected, true);
     end;
 end;
 
 function TD2CustomTreeGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;
 //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
-var
-  Node: PD2TreeNode;
-  s: boolean;
+var s: boolean;
 begin
-  Node:=GetNodeAtTree(X, Y);
-  if Assigned(Node) then
+  FLastSelected:=GetNodeAtTree(X, Y);
+  if Assigned(FLastSelected) then
   begin
-    s:= not GetSelected(Node);
-    SetSelected(Node, s);
-    FRangeAnchor:=Node;
+    s:= not GetSelected(FLastSelected);
+    SetSelected(FLastSelected, s);
+    if SelectedCount>0
+      then FRangeAnchor:=FLastSelected
+      else FRangeAnchor:=nil;
     Result:=s;
   end;
+end;
+
+procedure TD2CustomTreeGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
+var
+  MultiSelect: boolean;
+begin
+  inherited;
+  if FVisibleCount > 0 then
+  begin
+    MultiSelect:= (toMultiSelect in FOptions.FSelectionOptions);
+    if IsOneRowSelected then
+    begin
+      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
+      begin
+      //  if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
+      //  begin
+      //    Columns[FocusedColumn].CellSetFocus(Selected);
+      //    TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
+      //  end;
+      end;
+      case Key of
+        //VK_F2:
+        //  begin
+        //    if Columns[FocusedColumn] <> nil
+        //       then Columns[FocusedColumn].CellSetFocus(Selected);
+        //  end;
+        VK_LEFT:
+          begin
+            if (Shift = []) and (FocusedColumn > 0)
+              then FocusedColumn := FocusedColumn - 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
+              then FocusedColumn := 0;
+            Key:=0;
+          end;
+        VK_RIGHT:
+          begin
+            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
+              then FocusedColumn := FocusedColumn + 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
+               then FocusedColumn := ColumnCount - 1;
+            Key:=0;
+          end;
+      end;
+    end;
+    case Key of
+      VK_SPACE:
+        if MultiSelect and (Shift = [ssCtrl])  then
+        begin
+          if Assigned(FLastSelected)
+             then SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
+        end;
+      VK_A:
+        if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A
+          begin
+            SelectAll(false);
+            FIsPreSelected:=false;
+          end;
+      VK_UP:
+      //  if FSelected > 0 then
+        begin
+      //    if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх
+      //    if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
+      //VK_DOWN:
+      //  if FSelected < RowCount-1 then
+      //  begin
+      //    if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз
+      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
+      //  end;
+      //VK_HOME:
+      //  if FSelected > 0 then
+      //  begin
+      //    if Shift = [] then SetSelected(0);  //нажата только Home
+      //    if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home
+      //    if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
+      //  end;
+      //VK_END:
+      //  if FSelected < RowCount-1 then
+      //  begin
+      //    if Shift = [] then SetSelected(RowCount - 1);  //нажата только End
+      //    if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End
+      //    if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
+      //  end;
+      //VK_PRIOR:
+      //  if FSelected > 0 then
+      //  begin
+      //    if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End
+      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
+      //  end;
+      //VK_NEXT:
+      //  if FSelected < RowCount-1 then
+      //  begin
+      //    if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End
+      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
+      //  end;
+      else Exit;
+    end;
+    Key:=0;
+  end;
+
 end;
 
 procedure TD2CustomTreeGrid.SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer);
