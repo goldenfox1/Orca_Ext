@@ -124,9 +124,9 @@ object Form1: TForm1
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
     ParentBiDiMode = False
     TabOrder = 1
-    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect, toAlwaysSelectNode]
+    TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
     OnGetText = VTGetText
     OnScroll = VTScroll
   end

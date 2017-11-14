@@ -5352,40 +5352,124 @@ begin
         begin
           if Assigned(FLastSelected)
              then SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
+          Key:=0;
         end;
       VK_A:
         if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A
           begin
             SelectAll(false);
             FIsPreSelected:=false;
+            Key:=0;
           end;
       VK_UP:
       //  if FSelected > 0 then
         begin
-      //    if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх
-      //    if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех
+          if Shift = [] then  //нажата только вверх
+            begin
+              InternalClearSelection;
+              FLastSelected:=GetPreviousVisible(FLastSelected);
+              if Assigned(FLastSelected)
+                then SetSelected(FLastSelected, true)
+                else begin
+                       FLastSelected:=GetFirstVisible;
+                       if Assigned(FLastSelected)
+                         then SetSelected(FLastSelected, true)
+                     end;
+              Key:=0;
+            end;
+          if Shift = [ssShift] then  //если Shift + ввех
+            begin
+              FLastSelected:=GetPreviousVisible(FLastSelected);
+              if Assigned(FLastSelected) then
+                begin
+                  if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                    then SelectNodes(FRangeAnchor, FLastSelected, false)
+                    else SetSelected(FLastSelected, true);
+                end
+                else FLastSelected:=GetFirstVisible;
+              Key:=0;
+            end;
       //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
-      //VK_DOWN:
+
+        end;
+      VK_DOWN:
       //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз
+        begin
+          if Shift = [] then  //нажата только вниз
+            begin
+              InternalClearSelection;
+              FLastSelected:=GetNextVisible(FLastSelected);
+              if Assigned(FLastSelected)
+                then SetSelected(FLastSelected, true)
+                else begin
+                       FLastSelected:=GetLastVisible;
+                       if Assigned(FLastSelected)
+                         then SetSelected(FLastSelected, true)
+                     end;
+              Key:=0;
+            end;
+          if Shift = [ssShift] then  //если Shift + вниз
+            begin
+              FLastSelected:=GetNextVisible(FLastSelected);
+              if Assigned(FLastSelected) then
+                begin
+                  if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                    then SelectNodes(FRangeAnchor, FLastSelected, false)
+                    else SetSelected(FLastSelected, true);
+                end
+                else FLastSelected:=GetLastVisible;
+              Key:=0;
+            end;
       //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
-      //  end;
-      //VK_HOME:
+        end;
+      VK_HOME:
       //  if FSelected > 0 then
-      //  begin
-      //    if Shift = [] then SetSelected(0);  //нажата только Home
-      //    if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home
+        begin
+          if Shift = [] then  //нажата только Home
+            begin
+              InternalClearSelection;
+              FLastSelected:=GetFirstVisible;
+              if Assigned(FLastSelected)
+                then SetSelected(FLastSelected, true);
+              Key:=0;
+            end;
+          if Shift = [ssShift] then  //если Shift + Home
+            begin
+              FLastSelected:=GetFirstVisible;
+              if Assigned(FLastSelected) then
+                begin
+                  if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                    then SelectNodes(FRangeAnchor, FLastSelected, false)
+                    else SetSelected(FLastSelected, true);
+                end;
+              Key:=0;
+            end;
       //    if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
-      //  end;
-      //VK_END:
+        end;
+      VK_END:
       //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(RowCount - 1);  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End
+        begin
+          if Shift = [] then  //нажата только End
+            begin
+              InternalClearSelection;
+              FLastSelected:=GetLastVisible;
+              if Assigned(FLastSelected)
+                then SetSelected(FLastSelected, true);
+              Key:=0;
+            end;
+          if Shift = [ssShift] then  //если Shift + End
+            begin
+              FLastSelected:=GetLastVisible;
+              if Assigned(FLastSelected) then
+                begin
+                  if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                    then SelectNodes(FRangeAnchor, FLastSelected, false)
+                    else SetSelected(FLastSelected, true);
+                end;
+              Key:=0;
+            end;
       //    if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
-      //  end;
+        end;
       //VK_PRIOR:
       //  if FSelected > 0 then
       //  begin
