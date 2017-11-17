@@ -5330,17 +5330,43 @@ begin
         //  end;
         VK_LEFT:
           begin
-            if (Shift = []) and (FocusedColumn > 0)
-              then FocusedColumn := FocusedColumn - 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
+            //if (Shift = []) and (FocusedColumn > 0)
+            //  then FocusedColumn := FocusedColumn - 1;
+            if (Shift = []) then                    //нажата только влево
+            begin
+              if Assigned(FLastSelected) then //если есть выделенная ячейка
+              begin
+                if (FFocusedColumn = FMainColumn) and          // если это главная колонка и
+                       (HasChildren[FLastSelected]) and             // есть дети и
+                            (Expanded[FLastSelected])               // узел разсвернут
+                  then Expanded[FLastSelected]:=false            // то свернуть узел
+                  else begin                                     // иначе
+                          if (FocusedColumn > 0)                   // если это не первая колонка
+                            then FocusedColumn := FocusedColumn - 1; // то выделить предыдущую ячейку строки
+                        end;
+              end;
+            end;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)  //нажата Ctrl+влево
               then FocusedColumn := 0;
             Key:=0;
           end;
         VK_RIGHT:
           begin
-            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
-              then FocusedColumn := FocusedColumn + 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
+            if (Shift = []) then                     //нажата только вправо
+            begin
+              if Assigned(FLastSelected) then              // если есть выделенная ячейка
+              begin
+                if (FFocusedColumn = FMainColumn) and        // если это главная колонка и
+                       (HasChildren[FLastSelected]) and           // есть дети и узел свернут и
+                            (not Expanded[FLastSelected])         // узел свернут
+                  then Expanded[FLastSelected]:=true           // то развернуть узел
+                  else begin                                     // иначе
+                          if (FocusedColumn < ColumnCount - 1)     //если это не последняя колонка
+                            then FocusedColumn := FocusedColumn + 1; //то выделить следующую ячейку строки
+                        end;
+              end;
+            end;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1) //нажата Ctrl+вправо
                then FocusedColumn := ColumnCount - 1;
             Key:=0;
           end;

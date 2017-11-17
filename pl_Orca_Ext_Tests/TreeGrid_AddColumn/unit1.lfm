@@ -82,6 +82,7 @@ object Form1: TForm1
         Height = 254
         Resource = 'gridstyle'
         TabOrder = 2
+        MainColumn = 1
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toNodeHeightResize, toEditOnClick]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
         TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
