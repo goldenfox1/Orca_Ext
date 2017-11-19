@@ -351,13 +351,6 @@ begin
     then FControl.SetData(Value);
 end;
 
-procedure TD2TreeCell.SetTagString(const Value: string);
-begin
-  inherited;
-  if FControl<>nil
-    then FControl.TagString:=Value;
-end;
-
 procedure TD2TreeCell.ApplyStyle;
 var
   B:TD2Object;
@@ -785,6 +778,27 @@ begin
 
 end;
 
+procedure TD2TreeColumn.NodeSetFocus(Node: PD2TreeNode);
+begin
+  // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
+end;
+
+function TD2TreeColumn.CellControlByNode(Node: PD2TreeNode): TD2Control;
+//Получить видимую ячейку дерева, соответствующую узлу Node
+var
+  i:integer;
+begin
+  Result:=nil;
+  if Grid=nil then Exit;
+  for i:=0 to FCellControls.Count - 1 do
+    with TD2TreeCell(FCellControls.Items[i]) do
+      if Visible and (FNode=Node) then
+      begin
+        Result:=TD2Control(FCellControls.Items[i]);
+        Exit;
+      end;
+end;
+
 { TD2TreeTextColumn }
 
 function TD2TreeTextColumn.CreateCellControl: TD2Control;
@@ -815,19 +829,19 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
+  with TD2TreeCell(TD2TextCell(Sender).Owner) do
   begin
-    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(Grid.FOnEdititingDone) then
-      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
+    if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
+      TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
   end;
 end;
 
-procedure TD2TreeTextColumn.CellSetFocus(ARow: integer);
+procedure TD2TreeTextColumn.NodeSetFocus(Node: PD2TreeNode);
 var C: TD2Control;
 begin
   inherited;
-  C:=CellControlByRow(ARow);
+  C:=CellControlByNode(Node);
   if (C <> nil) and (C is TD2TreeCell) and (TD2TreeCell(C).FControl <> nil) then
   begin
     TD2TreeCell(C).FControl.HitTest:=true;
@@ -846,8 +860,7 @@ begin
   inherited;
   FResource:='gridstyle';
   RowCount:=0;
-  //ControlStyle := ControlStyle - [csSetCaption] + [csCaptureMouse, csOpaque, csReplicatable, csDisplayDragImage,
-  //  csReflector];
+  //ControlStyle := ControlStyle - [csSetCaption] + [csCaptureMouse, csOpaque, csReplicatable, csDisplayDragImage, csReflector];
   FTotalInternalDataSize := 0;
   FNodeDataSize := -1;
   Width := 200;
@@ -3943,7 +3956,8 @@ end;
 
 function TD2CustomTreeGrid.DoSetOffsetXY(Value: TD2Point;
   Options: TD2ScrollUpdateOptions{; ClipRect: PRect}): Boolean;
-
+// Фактический установщик смещения, используемый для прокрутки клиентской области, обновления полос прокрутки и аннулирования заголовка (все необязательные).
+// Возвращает True, если смещение действительно изменилось, иначе возвращается False.
 // Actual offset setter used to scroll the client area, update scroll bars and invalidating the header (all optional).
 // Returns True if the offset really changed otherwise False is returned.
 
@@ -3960,17 +3974,17 @@ begin
   {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'Value',Value);{$endif}
   //{$ifdef DEBUG_VTV}Logger.SendCallStack([lcScroll],'CallStack');{$endif}
   // Range check, order is important here.
-  if Value.X < (ClientWidth - Integer(FRangeX)) then
-    Value.X := ClientWidth - Integer(FRangeX);
-  if Value.X > 0 then
-    Value.X := 0;
+  if Value.X < (ClientWidth - FRangeX)
+    then Value.X := ClientWidth - FRangeX;
+  if Value.X > 0
+    then Value.X := 0;
   DeltaX := Value.X - HScrollBarValue;
   //if UseRightToLeftAlignment then
   //  DeltaX := -DeltaX;
-  if Value.Y < (ClientHeight - Integer(FRangeY)) then
-    Value.Y := ClientHeight - Integer(FRangeY);
-  if Value.Y > 0 then
-    Value.Y := 0;
+  if Value.Y < (ClientHeight - FRangeY)
+    then Value.Y := ClientHeight - FRangeY;
+  if Value.Y > 0
+    then Value.Y := 0;
   DeltaY := Value.Y - VScrollBarValue;
   {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'FOffsetX: %d FOffsetY: %d',[FOffsetX,FOffsetY]);{$endif}
   {$ifdef DEBUG_VTV}Logger.Send([lcScroll],'DeltaX: %d DeltaY: %d',[DeltaX,DeltaY]);{$endif}
@@ -3979,8 +3993,8 @@ begin
   begin
     HScrollBar.Value := Value.X;
     VScrollBar.Value := Value.Y;
-    if tsHint in Self.FStates then
-      Application.CancelHint;
+    if tsHint in Self.FStates
+      then Application.CancelHint;
 
     if FUpdateCount = 0 then
     begin
@@ -5316,22 +5330,22 @@ begin
     begin
       if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
-      //  if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
-      //  begin
-      //    Columns[FocusedColumn].CellSetFocus(Selected);
-      //    TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
-      //  end;
+        if (Columns[FocusedColumn] <> nil) and (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
+        begin
+          TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
+          TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected)).KeyDown(Key,KeyChar,Shift);
+          Key:=0;
+        end;
       end;
       case Key of
-        //VK_F2:
-        //  begin
-        //    if Columns[FocusedColumn] <> nil
-        //       then Columns[FocusedColumn].CellSetFocus(Selected);
-        //  end;
+        VK_F2:
+          begin
+            if Columns[FocusedColumn] <> nil
+               then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
+            Key:=0;
+          end;
         VK_LEFT:
           begin
-            //if (Shift = []) and (FocusedColumn > 0)
-            //  then FocusedColumn := FocusedColumn - 1;
             if (Shift = []) then                    //нажата только влево
             begin
               if Assigned(FLastSelected) then //если есть выделенная ячейка
@@ -5399,7 +5413,7 @@ begin
                 else begin
                        FLastSelected:=GetFirstVisible;
                        if Assigned(FLastSelected)
-                         then SetSelected(FLastSelected, true)
+                         then SetSelected(FLastSelected, true);
                      end;
               Key:=0;
             end;
@@ -5512,8 +5526,11 @@ begin
       //  end;
       else Exit;
     end;
+    if Assigned(FLastSelected)
+      then ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
     Key:=0;
   end;
+
 
 end;
 
@@ -6728,7 +6745,7 @@ var
   MaxUnclippedHeight: Single;
   TM: TTextMetric;
   ExtraVerticalMargin: Single;
-  PColumn: TD2Column;
+  PColumn: TD2TreeColumn;
 begin
   //{$ifdef DEBUG_VTV}Logger.EnterMethod([lcPaintHeader],'GetDisplayRect');{$endif}
   Assert(Assigned(Node), 'Node must not be nil.');
@@ -6791,21 +6808,10 @@ begin
 
   Result := d2Rect(0, Offset, Max(FRangeX, ClientWidth), Offset + NodeHeight[Node]);
 
-  // Ограничить левую и правую границы в указанном столбце (если есть) и переместить границы в соответствии с текущим состоянием прокрутки.
-  // Limit left and right bounds to the given column (if any) and move bounds according to current scroll state.
-  if Column > NoColumn then
-  begin
-    PColumn:= GetColumn(Column);
-    GetColumnBounds(Column, Result.Left, Result.Right);
-    //// Правая граница столбца не является частью этой ячейки. The right column border is not part of this cell.
-    //d2DecFloat(Result.Right);
-    d2OffsetRect(Result, 0, VScrollBarValue);
-  end
-  //else d2OffsetRect(Result, -FEffectiveOffsetX, FOffsetY);
-  else d2OffsetRect(Result, -HScrollBarValue, VScrollBarValue);
+  // Ограничить левую и правую границы в указанном столбце (если есть). Limit left and right bounds to the given column (if any).
+  if Column > NoColumn then GetColumnBounds(Column, Result.Left, Result.Right);
 
-  // Ограничить границы слева и справа, если требуется только текстовая область.
-  // Limit left and right bounds further if only the text area is required.
+  // Ограничить границы слева и справа, если требуется только текстовая область. Limit left and right bounds further if only the text area is required.
   if TextOnly then
   begin
     // Начнем со смещения текста в столбце и рассмотрим также уровень отступа.
@@ -6819,9 +6825,11 @@ begin
               //CurrentAlignment := Alignment;
             end
        else begin
+              PColumn:=TD2TreeColumn(GetColumn(Column));
               Offset := PColumn.FMargins.Left + Indent;
               //CurrentBidiMode := PColumn.BidiMode;
               //CurrentAlignment := PColumn.Alignment;
+              PColumn:=nil;
             end;
 
     if MainColumnHit then
@@ -9741,7 +9749,7 @@ function TD2CustomTreeGrid.ScrollIntoView(Node: PD2TreeNode;
 // Note: All collapsed parents of the node are expanded.
 
 var
-  R: TRect;
+  R: TD2Rect;
   Run: PD2TreeNode;
   UseColumns,
   HScrollBarVisible: Boolean;
@@ -9749,64 +9757,60 @@ var
   ScrolledHorizontally: Boolean;
 
 begin
-  ////todo: minimize calls to ClientHeight and ClientWidth
-  //ScrolledVertically := False;
-  //ScrolledHorizontally := False;
-  //
-  //if Assigned(Node) and (Node <> FRoot) then
-  //begin
-  //  // Make sure all parents of the node are expanded.
-  //  Run := Node.Parent;
-  //  while Run <> FRoot do
-  //  begin
-  //    if not (vsExpanded in Run.States) then
-  //      ToggleNode(Run);
-  //    Run := Run.Parent;
-  //  end;
-  //  UseColumns := FHeader.UseColumns;
-  //  if UseColumns and FHeader.FColumns.IsValidColumn(FFocusedColumn) then
-  //    R := GetDisplayRect(Node, FFocusedColumn, not (toGridExtensions in FOptions.FMiscOptions))
-  //  else
-  //    R := GetDisplayRect(Node, NoColumn, not (toGridExtensions in FOptions.FMiscOptions));
-  //
-  //  // The returned rectangle can never be empty after the expand code above.
-  //  // 1) scroll vertically
-  //  //lclheader
-  //  if hoVisible in FHeader.FOptions then
-  //    OffsetRect(R, 0, -FHeader.Height);
-  //
-  //  if R.Top < 0 then
-  //  begin
-  //    if Center then
-  //      SetOffsetY(VScrollBarValue - R.Top + ClientHeight div 2)
-  //    else
-  //      SetOffsetY(VScrollBarValue - R.Top);
-  //    ScrolledVertically := True;
-  //  end
-  //  else
-  //    if (R.Bottom > ClientHeight) or Center then
-  //    begin
-  //      HScrollBarVisible := (ScrollBarOptions.ScrollBars in [ssBoth, ssHorizontal]) and
-  //        (ScrollBarOptions.AlwaysVisible or (Integer(FRangeX) > ClientWidth));
-  //      if Center then
-  //        SetOffsetY(VScrollBarValue - R.Bottom + ClientHeight div 2)
-  //      else
-  //        SetOffsetY(VScrollBarValue - R.Bottom + ClientHeight);
-  //      // When scrolling up and the horizontal scroll appears because of the operation
-  //      // then we have to move up the node the horizontal scrollbar's height too
-  //      // in order to avoid that the scroll bar hides the node which we wanted to have in view.
-  //      if not UseColumns and not HScrollBarVisible and (Integer(FRangeX) > ClientWidth) then
-  //        SetOffsetY(VScrollBarValue - GetSystemMetrics(SM_CYHSCROLL));
-  //      ScrolledVertically := True;
-  //    end;
-  //
-  //  if Horizontally then
-  //    // 2) scroll horizontally
-  //    ScrolledHorizontally := ScrollIntoView(FFocusedColumn, Center);
-  //
-  //end;
-  //
-  //Result := ScrolledVertically or ScrolledHorizontally;
+  //todo: minimize calls to ClientHeight and ClientWidth
+  ScrolledVertically := False;
+  ScrolledHorizontally := False;
+
+  if Assigned(Node) and (Node <> FRoot) then
+  begin
+    // Убедимся, что все родители узла развернуты. Make sure all parents of the node are expanded.
+    Run := Node.Parent;
+    while Run <> FRoot do
+    begin
+      if not (vsExpanded in Run.States) then
+        ToggleNode(Run);
+      Run := Run.Parent;
+    end;
+    UseColumns := (ColumnCount > 0);
+
+    if UseColumns and IsValidColumn(FFocusedColumn)
+      then R := GetDisplayRect(Node, FFocusedColumn, not (toGridExtensions in FOptions.FMiscOptions))
+      else R := GetDisplayRect(Node, NoColumn,       not (toGridExtensions in FOptions.FMiscOptions));
+
+    // Возвращенный прямоугольник никогда не быть пустым после кода расширения выше. The returned rectangle can never be empty after the expand code above.
+    // 1) Вертикальная прокрутка. scroll vertically
+    if R.Top < VScrollBarValue
+      then  begin
+              if Center
+                then VScrollBar.Value := R.Top + ClientHeight / 2 + Node.NodeHeight / 2
+                else VScrollBar.Value := R.Top;
+              ScrolledVertically := True;
+            end
+      else
+        if (R.Bottom > VScrollBarValue + ClientHeight) or Center then
+        begin
+          if Center
+            then VScrollBar.Value := R.Bottom - ClientHeight / 2 - Node.NodeHeight / 2
+            else VScrollBar.Value := R.Bottom - ClientHeight;
+
+          // При прокрутке вверх и появлении горизонтальной скроллера, мы должны перемещать узел вверх,
+          // чтобы избежать того, чтобы горизонтальной скроллера не скрывал узел, который мы хотели видеть.
+
+          // When scrolling up and the horizontal scroll appears because of the operation
+          // then we have to move up the node the horizontal scrollbar's height too
+          // in order to avoid that the scroll bar hides the node which we wanted to have in view.
+          if not UseColumns and not HScrollBar.Visible and (FRangeX > ClientWidth)
+            then SetOffsetY(VScrollBarValue - HScrollBar.Height);
+          ScrolledVertically := True;
+        end;
+
+    if Horizontally then
+      // 2) Горизонтальная прокрутка. scroll horizontally
+      ScrolledHorizontally := ScrollIntoView(FFocusedColumn, Center);
+
+  end;
+
+  Result := ScrolledVertically or ScrolledHorizontally;
 end;
 
 procedure TD2CustomTreeGrid.ShowError(const Msg: String; HelpContext: Integer);

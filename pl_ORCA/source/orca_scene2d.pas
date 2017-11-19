@@ -8306,8 +8306,6 @@ TD2TreeCell = class(TD2Control)
 
     procedure SetIsChecked(const Value:boolean);
     procedure SetIsExpanded(const Value:boolean);
-    procedure SetTagString(const Value:string); override;
-
 
   protected
     procedure CalculateIndent;
@@ -8364,10 +8362,15 @@ TD2TreeColumn = class(TD2Column)
     procedure UpdateColumn; override;
 
     //procedure PaintColumn; virtual;
+
               //Нарисовать прямоугольник целевого узла перетаскивания
     procedure PaintDropMark(const Cell: TD2TreeCell);
+              // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
+    procedure NodeSetFocus(Node: PD2TreeNode);  virtual;
 
   public
+              //Получить видимую ячейку дерева, соответствующую узлу Node
+    function CellControlByNode(Node: PD2TreeNode): TD2Control;
     property IsMainColumn: boolean read GetIsMainColumn; //True - колонка является главной (содержит дерево)
   published
 
@@ -8386,7 +8389,7 @@ TD2TreeTextColumn = class(TD2TreeColumn)
                  //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
               //обработчик двойного клика по ячейке. используется из грида
-    procedure CellSetFocus(ARow: integer);  override;
+    procedure NodeSetFocus(Node: PD2TreeNode);  override;
 
 end;
 
@@ -9584,6 +9587,9 @@ end;
 
 //Класс дерева
 TD2TreeGrid = class(TD2CustomTreeGrid)
+  public
+    property VScrollBar;
+    property HScrollBar;
   published
     property LineMode;
     property MainColumn;
@@ -9592,6 +9598,8 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property OnBeforeDrawTreeLine;
     property OnGetValue;
     property OnScroll;
+    property OnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
+
 end;
 
 

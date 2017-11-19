@@ -19,11 +19,15 @@ type
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
+    Label1: TD2Label;
+    Label2: TD2Label;
+    Label3: TD2Label;
     Root1: TD2Background;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
     StringGrid1: TD2StringGrid;
     TextColumn1: TD2TextColumn;
+    TextColumn2: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
@@ -38,6 +42,8 @@ type
       const ARect: TD2Rect);
     procedure TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single
       );
+    procedure TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
+      const Column: integer; const Value: Variant);
     procedure VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
     procedure VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
@@ -103,6 +109,22 @@ begin
       1: Value := Phone^.Phone; // Текст для колонки телефонного номера
     end;
   end;
+end;
+
+procedure TForm1.TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
+  const Column: integer; const Value: Variant);
+var
+  Phone: PPhoneNode;
+begin
+  with TD2TreeGrid(Sender) do
+  begin
+    Phone:= GetNodeData(Node);
+    case Columns[Column].Tag of
+      0: Phone^.Name := Value; // Текст для колонки имени
+      1: Phone^.Phone := Value; // Текст для колонки телефонного номера
+    end;
+  end;
+
 end;
 
 procedure TForm1.CreateTreeGreed;
@@ -220,8 +242,11 @@ end;
 procedure TForm1.TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX,
   DeltaY: single);
 begin
-
+  Label1.Text:='Min= ' + floattostr(TreeGrid1.VScrollBar.Min);
+  Label2.Text:='Max= ' + floattostr(TreeGrid1.VScrollBar.Max);
+  Label3.Text:='Val= ' + floattostr(TreeGrid1.VScrollBar.Value);
 end;
+
 
 procedure TForm1.VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
   Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
