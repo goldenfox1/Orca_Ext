@@ -2099,8 +2099,7 @@ begin
       Run := Run.Parent;
     end;
     R := GetDisplayRect(Node, MainColumn, True);
-    DoSetOffsetXY(d2Point(HScrollBarValue, VScrollBarValue + ClientHeight - R.Top - NodeHeight[Node]),
-                  [suoRepaintScrollBars, suoUpdateNCArea]);
+    VScrollBar.Value := R.Bottom - ClientHeight - 1;
   end;
 end;
 
@@ -2656,7 +2655,7 @@ begin
     R := GetDisplayRect(Node, MainColumn, True);
     //header
     //if ShowHeader then d2DecFloat(R.Top, FHeader.Height);
-    SetOffsetY(VScrollBarValue - R.Top);
+    VScrollBar.Value := R.Top;
   end;
 end;
 
@@ -5321,6 +5320,7 @@ end;
 procedure TD2CustomTreeGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
 var
   MultiSelect: boolean;
+  ANode: PD2TreeNode;
 begin
   inherited;
   if FVisibleCount > 0 then
@@ -5390,8 +5390,7 @@ begin
       VK_SPACE:
         if MultiSelect and (Shift = [ssCtrl])  then
         begin
-          if Assigned(FLastSelected)
-             then SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
+          SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
           Key:=0;
         end;
       VK_A:
@@ -5412,8 +5411,7 @@ begin
                 then SetSelected(FLastSelected, true)
                 else begin
                        FLastSelected:=GetFirstVisible;
-                       if Assigned(FLastSelected)
-                         then SetSelected(FLastSelected, true);
+                       SetSelected(FLastSelected, true);
                      end;
               Key:=0;
             end;
@@ -5443,8 +5441,7 @@ begin
                 then SetSelected(FLastSelected, true)
                 else begin
                        FLastSelected:=GetLastVisible;
-                       if Assigned(FLastSelected)
-                         then SetSelected(FLastSelected, true)
+                       SetSelected(FLastSelected, true)
                      end;
               Key:=0;
             end;
@@ -5469,8 +5466,7 @@ begin
             begin
               InternalClearSelection;
               FLastSelected:=GetFirstVisible;
-              if Assigned(FLastSelected)
-                then SetSelected(FLastSelected, true);
+              SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + Home
@@ -5493,8 +5489,7 @@ begin
             begin
               InternalClearSelection;
               FLastSelected:=GetLastVisible;
-              if Assigned(FLastSelected)
-                then SetSelected(FLastSelected, true);
+              SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + End
@@ -5510,24 +5505,120 @@ begin
             end;
       //    if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
         end;
-      //VK_PRIOR:
+    end;
+    ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+
+    case Key of
+      VK_PRIOR:
       //  if FSelected > 0 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-      //  end;
-      //VK_NEXT:
+        begin
+          if Shift = [] then   //нажата только PgUp
+          begin
+            InternalClearSelection;
+            ANode:=GetTopNode;
+            if ANode <> FLastSelected
+              then  begin
+                      FLastSelected:=ANode;
+                      SetTopNode(FLastSelected);
+                    end
+              else  begin
+                      SetBottomNode(FLastSelected);
+                      FLastSelected:=GetTopNode;
+                      SetTopNode(FLastSelected);
+                    end;
+              if Assigned(FLastSelected)
+                then SetSelected(FLastSelected, true)
+                else begin
+                       FLastSelected:=GetFirstVisible;
+                       SetSelected(FLastSelected, true);
+                     end;
+            Key:=0;
+          end;
+
+          if Shift = [ssShift] then    //если Shift + PgUp
+          begin
+            ANode:=GetTopNode;
+            if ANode <> FLastSelected
+              then  begin
+                      FLastSelected:=ANode;
+                      SetTopNode(FLastSelected);
+                    end
+              else  begin
+                      SetBottomNode(FLastSelected);
+                      FLastSelected:=GetTopNode;
+                      SetTopNode(FLastSelected);
+                    end;
+              if Assigned(FLastSelected)
+                then  begin
+                        if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                          then SelectNodes(FRangeAnchor, FLastSelected, false)
+                          else SetSelected(FLastSelected, true);
+                      end
+                else begin
+                       FLastSelected:=GetFirstVisible;
+                       SetSelected(FLastSelected, true);
+                     end;
+            Key:=0;
+          end;
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + PgUp и выбрана не последняя строка
+        end;
+      VK_NEXT:
       //  if FSelected < RowCount-1 then
-      //  begin
-      //    if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End
-      //    if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-      //  end;
+        begin
+          if Shift = [] then  //нажата только PgDn
+          begin
+            InternalClearSelection;
+            ANode:=GetBottomNode;
+            if ANode <> FLastSelected
+              then  begin
+                      FLastSelected:=ANode;
+                      SetBottomNode(FLastSelected);
+                    end
+              else  begin
+                      SetTopNode(FLastSelected);
+                      FLastSelected:=GetBottomNode;
+                      SetBottomNode(FLastSelected);
+                    end;
+            if Assigned(FLastSelected)
+              then SetSelected(FLastSelected, true)
+              else begin
+                     FLastSelected:=GetLastVisible;
+                     SetSelected(FLastSelected, true);
+                   end;
+            Key:=0;
+          end;
+
+          if Shift = [ssShift] then    //если Shift + PgDn
+          begin
+            ANode:=GetBottomNode;
+            if ANode <> FLastSelected
+              then  begin
+                      FLastSelected:=ANode;
+                      SetBottomNode(FLastSelected);
+                    end
+              else  begin
+                      SetTopNode(FLastSelected);
+                      FLastSelected:=GetBottomNode;
+                      SetBottomNode(FLastSelected);
+                    end;
+
+            if Assigned(FLastSelected)
+              then  begin
+                      if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
+                        then SelectNodes(FRangeAnchor, FLastSelected, false)
+                        else SetSelected(FLastSelected, true);
+                    end
+              else begin
+                     FLastSelected:=GetLastVisible;
+                     SetSelected(FLastSelected, true);
+                   end;
+            Key:=0;
+          end;
+      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + PgDn и выбрана не последняя строка
+        end;
       else Exit;
     end;
-    if Assigned(FLastSelected)
-      then ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+
     Key:=0;
   end;
 
@@ -9791,7 +9882,7 @@ begin
         begin
           if Center
             then VScrollBar.Value := R.Bottom - ClientHeight / 2 - Node.NodeHeight / 2
-            else VScrollBar.Value := R.Bottom - ClientHeight;
+            else VScrollBar.Value := R.Bottom - ClientHeight - 1;
 
           // При прокрутке вверх и появлении горизонтальной скроллера, мы должны перемещать узел вверх,
           // чтобы избежать того, чтобы горизонтальной скроллера не скрывал узел, который мы хотели видеть.
