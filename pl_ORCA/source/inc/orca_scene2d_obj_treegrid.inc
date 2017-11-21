@@ -3590,6 +3590,11 @@ begin
       SetLength(SelRects,Length(SelRects) + 1);
       SelRects[High(SelRects)]:=R;
     end;
+    //установим границы маркера пред.выбора
+    if FIsPreSelected and (FPreSelection <> nil) and      //если включен маркер предвыбора и маркер предвыбора имеется и
+       (FLastSelected = PD2TreeNode(FVisibleRowsList[i])) //     выбранный узел равен текущему
+      then FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
+
     d2IncFloat(Offset, PD2TreeNode(FVisibleRowsList[i]).NodeHeight); //координата Y следующего узла
   end;
 
@@ -3598,7 +3603,7 @@ begin
   if FSelections=nil
     then FSelections:=TList.Create;
 
-  // create selections
+  // создаем маркеры выделения create selections
   if FSelections.Count < Length(SelRects) then	//если кол-во маркеров меньше чем кол-во прямоуголькиков
     for i:=FSelections.Count to Length(SelRects) - 1 do	//то создадим недостающие маркеры и добавим их в список
     begin
@@ -3608,12 +3613,12 @@ begin
       Clone.Parent:=FSelection.Parent;
       Clone.Stored:=false;
     end;
-  // hide if not need  скроем лишние если нужно
+  // скроем лишние если нужно hide if not need
   if Length(SelRects) < FSelections.Count then 		//если кол-во маркеров больше чем кол-во прямоугольников
     for i:=Length(SelRects) to FSelections.Count - 1 do	//то лишние скроем
       TD2VisualObject(FSelections[i]).Visible:=false;
 
-  // align selections  расставим маркеры выделения
+  // расставим маркеры выделения align selections
   for i:=0 to High(SelRects) do
   begin
     TD2VisualObject(FSelections[i]).Visible := true; //влючим очередной маркер
@@ -3641,26 +3646,17 @@ begin
         else FFocus.Visible := false;  // иначе скрыть маркер ячейки
     end;
   end;
-  //установим маркер пред.выбора
-  if FPreSelection <> nil then
-    begin
-      if FIsPreSelected then
-        begin
-          FPreSelection.Visible:=true;
-          FPreSelection.BringToFront;
-          P := d2Point(0, FSelected * FRowHeight);
-          P := FContent.LocalToAbsolute(P);
-          if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual
-            then P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);
-          if FContent.Width < ClientWidth
-            then R := d2Rect(P.X, P.Y, P.X + ClientWidth, P.Y + FRowHeight)
-            else R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight);
-          FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
-        end
-        else  FPreSelection.Visible:=false;
-    end;
 
-  for i := 0 to ColumnCount - 1 do   //обновить колонки
+  //включим маркер пред.выбора
+    if FIsPreSelected and (FPreSelection <> nil)
+      then begin
+             FPreSelection.Visible:=true;
+             FPreSelection.BringToFront;
+           end
+      else FPreSelection.Visible:=false;
+
+  //обновим колонки
+  for i := 0 to ColumnCount - 1 do
     Columns[i].UpdateSelected;
 end;
 
@@ -5388,7 +5384,7 @@ begin
     end;
     case Key of
       VK_SPACE:
-        if MultiSelect and (Shift = [ssCtrl])  then
+        if (Shift = [ssCtrl]) and MultiSelect then   //Ctrl + пробел
         begin
           SetSelected(FLastSelected, (not GetSelected(FLastSelected)));
           Key:=0;
@@ -5401,22 +5397,20 @@ begin
             Key:=0;
           end;
       VK_UP:
-      //  if FSelected > 0 then
         begin
           if Shift = [] then  //нажата только вверх
             begin
               InternalClearSelection;
+              FIsPreSelected:=false;
               FLastSelected:=GetPreviousVisible(FLastSelected);
-              if Assigned(FLastSelected)
-                then SetSelected(FLastSelected, true)
-                else begin
-                       FLastSelected:=GetFirstVisible;
-                       SetSelected(FLastSelected, true);
-                     end;
+              if not Assigned(FLastSelected)
+                then FLastSelected:=GetFirstVisible;
+              SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + ввех
             begin
+              FIsPreSelected:=false;
               FLastSelected:=GetPreviousVisible(FLastSelected);
               if Assigned(FLastSelected) then
                 begin
@@ -5427,26 +5421,39 @@ begin
                 else FLastSelected:=GetFirstVisible;
               Key:=0;
             end;
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
-
+          if Shift = [ssCtrl]  then //Ctrl + ввех
+          begin
+            FLastSelected:=GetPreviousVisible(FLastSelected);
+            if not Assigned(FLastSelected)
+              then FLastSelected:=GetFirstVisible;
+            if MultiSelect
+            then begin
+                   if IsOneRowSelected
+                     then FIsPreSelected:=false
+                     else FIsPreSelected:=true;
+                 end
+            else begin
+                   InternalClearSelection;
+                   SetSelected(FLastSelected, true);
+                 end;
+            Key:=0;
+          end;
         end;
       VK_DOWN:
-      //  if FSelected < RowCount-1 then
         begin
           if Shift = [] then  //нажата только вниз
             begin
               InternalClearSelection;
+              FIsPreSelected:=false;
               FLastSelected:=GetNextVisible(FLastSelected);
-              if Assigned(FLastSelected)
-                then SetSelected(FLastSelected, true)
-                else begin
-                       FLastSelected:=GetLastVisible;
-                       SetSelected(FLastSelected, true)
-                     end;
+              if not Assigned(FLastSelected)
+                then FLastSelected:=GetLastVisible;
+              SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + вниз
             begin
+              FIsPreSelected:=false;
               FLastSelected:=GetNextVisible(FLastSelected);
               if Assigned(FLastSelected) then
                 begin
@@ -5457,20 +5464,37 @@ begin
                 else FLastSelected:=GetLastVisible;
               Key:=0;
             end;
-      //    if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
+          if Shift = [ssCtrl]  then //Ctrl + вниз
+            begin
+              FLastSelected:=GetNextVisible(FLastSelected);
+              if not Assigned(FLastSelected)
+                then FLastSelected:=GetLastVisible;
+              if MultiSelect
+              then begin
+                     if IsOneRowSelected
+                       then FIsPreSelected:=false
+                       else FIsPreSelected:=true;
+                   end
+              else begin
+                     InternalClearSelection;
+                     SetSelected(FLastSelected, true);
+                   end;
+              Key:=0;
+            end;
         end;
       VK_HOME:
-      //  if FSelected > 0 then
         begin
           if Shift = [] then  //нажата только Home
             begin
               InternalClearSelection;
+              FIsPreSelected:=false;
               FLastSelected:=GetFirstVisible;
               SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + Home
             begin
+              FIsPreSelected:=false;
               FLastSelected:=GetFirstVisible;
               if Assigned(FLastSelected) then
                 begin
@@ -5483,17 +5507,18 @@ begin
       //    if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
         end;
       VK_END:
-      //  if FSelected < RowCount-1 then
         begin
           if Shift = [] then  //нажата только End
             begin
               InternalClearSelection;
+              FIsPreSelected:=false;
               FLastSelected:=GetLastVisible;
               SetSelected(FLastSelected, true);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + End
             begin
+              FIsPreSelected:=false;
               FLastSelected:=GetLastVisible;
               if Assigned(FLastSelected) then
                 begin
@@ -5510,11 +5535,11 @@ begin
 
     case Key of
       VK_PRIOR:
-      //  if FSelected > 0 then
         begin
           if Shift = [] then   //нажата только PgUp
           begin
             InternalClearSelection;
+            FIsPreSelected:=false;
             ANode:=GetTopNode;
             if ANode <> FLastSelected
               then  begin
@@ -5537,6 +5562,7 @@ begin
 
           if Shift = [ssShift] then    //если Shift + PgUp
           begin
+            FIsPreSelected:=false;
             ANode:=GetTopNode;
             if ANode <> FLastSelected
               then  begin
@@ -5563,11 +5589,11 @@ begin
       //    if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + PgUp и выбрана не последняя строка
         end;
       VK_NEXT:
-      //  if FSelected < RowCount-1 then
         begin
           if Shift = [] then  //нажата только PgDn
           begin
             InternalClearSelection;
+            FIsPreSelected:=false;
             ANode:=GetBottomNode;
             if ANode <> FLastSelected
               then  begin
@@ -5590,6 +5616,7 @@ begin
 
           if Shift = [ssShift] then    //если Shift + PgDn
           begin
+            FIsPreSelected:=false;
             ANode:=GetBottomNode;
             if ANode <> FLastSelected
               then  begin
