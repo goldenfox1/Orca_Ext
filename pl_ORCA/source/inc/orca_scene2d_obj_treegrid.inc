@@ -3591,9 +3591,10 @@ begin
       SelRects[High(SelRects)]:=R;
     end;
     //установим границы маркера пред.выбора
-    if FIsPreSelected and (FPreSelection <> nil) and      //если включен маркер предвыбора и маркер предвыбора имеется и
-       (FLastSelected = PD2TreeNode(FVisibleRowsList[i])) //     выбранный узел равен текущему
-      then FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
+    if FIsPreSelected then
+      if (FPreSelection <> nil) then      //если включен маркер предвыбора и маркер предвыбора имеется и
+        if (FLastSelected = PD2TreeNode(FVisibleRowsList[i])) //     выбранный узел равен текущему
+          then FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
 
     d2IncFloat(Offset, PD2TreeNode(FVisibleRowsList[i]).NodeHeight); //координата Y следующего узла
   end;
@@ -5431,6 +5432,8 @@ begin
                    if IsOneRowSelected
                      then FIsPreSelected:=false
                      else FIsPreSelected:=true;
+                   ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+                   Realign;
                  end
             else begin
                    InternalClearSelection;
@@ -5474,6 +5477,8 @@ begin
                      if IsOneRowSelected
                        then FIsPreSelected:=false
                        else FIsPreSelected:=true;
+                     ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+                     Realign;
                    end
               else begin
                      InternalClearSelection;
