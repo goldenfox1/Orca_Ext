@@ -8915,7 +8915,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure SetOptions(const Value: TD2CustomTreeOptions);
               //установить кол-во детей для узла Root
     procedure SetRootNodeCount(Value: Cardinal);
-              //Установить статус "выбран" узла Node в соответствие с Value
+              //Установить статус "выбран" узла Node в соответствие с Value.
     procedure SetSelected(Node: PD2TreeNode; Value: Boolean);
               //Установить узел Node верхним видимым
     procedure SetTopNode(Node: PD2TreeNode);
@@ -9120,6 +9120,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure RemoveFromSelection(Node: PD2TreeNode); virtual;
               //Вызывается, когда больше нет выбранного узла и для якоря массива выбора узлов нужно новое значение.
     procedure ResetRangeAnchor; virtual;
+              //Делает выбранным узел Node и отменяет выделение всех ранее выделенных узлов
+    procedure SelectNode(Node: PD2TreeNode);
               //Выбирает диапазон узлов от узла StartNode до узла и EndNode отменяет выделение всех
               //ранее выбранных узлов, которые не находятся в этом диапазоне, если AddOnly = false.
     procedure SelectNodes(StartNode, EndNode: PD2TreeNode; AddOnly: Boolean); virtual;
@@ -9504,6 +9506,7 @@ public
                      DoInit: Boolean = True); virtual;
               //Сортировка всего дерева по колонке Column в направлении Direction с инициализацией узлов при необходимости.
     procedure SortTree(Column: Integer; Direction: TD2SortDirection; DoInit: Boolean = True); virtual;
+
               //Быстрая сортировка массива TheArray в диапазоне индексов от L до R
     procedure QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
              //Изменение развернутого/свернутого состояния узла на противоположное.

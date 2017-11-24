@@ -799,10 +799,9 @@ begin
       P := FContent.LocalToAbsolute(P);                //преобразуем в координаты контента
       if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
         P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
-      if FContent.Width < ClientWidth then
-        R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
-      else
-        R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
+      if FContent.Width < ClientWidth
+        then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
+        else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
       SetLength(SelRects,Length(SelRects) + 1);
       SelRects[High(SelRects)]:=R;
     end;
