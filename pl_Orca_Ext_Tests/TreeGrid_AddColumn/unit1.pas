@@ -152,6 +152,7 @@ begin
     for t:=0 to High(Names) do
     begin
       NewNode1 := TreeGrid1.AddChild(NewNode);
+      NewNode1^.CheckType:=ctRadioButton;
       NewPhone := TreeGrid1.GetNodeData(NewNode1);
       if Assigned(NewPhone) then
         with NewPhone^ do
@@ -161,10 +162,11 @@ begin
         end;
       if t<=1 then
       begin
-        //Include(NewNode1^.States, vsSelected);
         for k:=0 to High(Names) do
         begin
           NewNode2 := TreeGrid1.AddChild(NewNode1);
+          //NewNode2^.CheckType:=ctTriStateCheckBox;
+          NewNode2^.CheckType:=ctCheckBox;
           NewPhone := TreeGrid1.GetNodeData(NewNode2);
           if Assigned(NewPhone) then
             with NewPhone^ do

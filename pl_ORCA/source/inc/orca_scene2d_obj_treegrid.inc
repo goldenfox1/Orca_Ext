@@ -437,9 +437,22 @@ end;
 procedure TD2TreeCell.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
 begin
-  inherited;
-  if FControl <> nil then
-    TD2HackVisualObject(FControl).KeyDown(Key,KeyChar,Shift);
+
+  case Key of
+    VK_SPACE:
+      if (Shift = []) then  //Нажат только пробел
+        begin
+          if (FCheck <> nil) and (FCheck.Visible)
+            then TD2HackVisualObject(FCheck).KeyDown(Key, KeyChar, Shift);
+          if (FRadio <> nil) and (FRadio.Visible)
+            then TD2HackVisualObject(FRadio).KeyDown(Key, KeyChar, Shift);
+        end;
+    else  begin
+            inherited;
+            if FControl <> nil then
+              TD2HackVisualObject(FControl).KeyDown(Key, KeyChar, Shift);
+          end;
+  end;
 end;
 
 constructor TD2TreeCell.Create(AOwner: TComponent);
@@ -648,7 +661,7 @@ begin
                           begin
                             if Cell.FCheck <> nil
                                then begin
-                                      Cell.FCheck.Visible := false;
+                                      Cell.FCheck.Visible := true;
                                       Cell.FCheck.AllowGrayed:=true;
                                       Case Node.CheckState of
                                         csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
@@ -672,7 +685,7 @@ begin
                           begin
                             if Cell.FCheck <> nil
                                then begin
-                                      Cell.FCheck.Visible := false;
+                                      Cell.FCheck.Visible := true;
                                       Cell.FCheck.AllowGrayed:=false;
                                       Case Node.CheckState of
                                         csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
@@ -5345,7 +5358,9 @@ begin
       begin
         if (Columns[FocusedColumn] <> nil) and (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
         begin
-          TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
+          if (KeyChar <> ' ')
+            then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected)
+            else Key:=VK_SPACE;
           TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected)).KeyDown(Key,KeyChar,Shift);
           Key:=0;
         end;
