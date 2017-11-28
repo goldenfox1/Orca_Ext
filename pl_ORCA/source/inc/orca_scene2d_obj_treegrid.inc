@@ -295,19 +295,18 @@ end;
 procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
 begin
   IsExpanded:=not IsExpanded;
-  if Assigned(FOnChangeExpander) then
-    //FOnChangeExpander(Sender);
-    FOnChangeExpander(Self);
+  if Assigned(FOnChangeExpander)
+    then FOnChangeExpander(Self);
 end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
 begin
   if FCheck <> nil
-    then FIsChecked:=FCheck.IsChecked
+    then FIsChecked:=FCheck.FIsChecked
     else if FRadio <> nil
-           then FIsChecked:=FRadio.IsChecked;
-  if Assigned(FOnChangeCheck) then
-    FOnChangeCheck(Sender);
+           then FIsChecked:=FRadio.FIsChecked;
+  if Assigned(FOnChangeCheck)
+    then FOnChangeCheck(Self);
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
@@ -316,9 +315,9 @@ begin
   begin
     FIsChecked:=Value;
     if FCheck <> nil then
-      FCheck.IsChecked:=FIsChecked;
+      FCheck.FIsChecked:=FIsChecked;
     if FRadio <> nil then
-      FRadio.IsChecked:=FIsChecked;
+      FRadio.FIsChecked:=FIsChecked;
   end;
 end;
 
@@ -369,17 +368,14 @@ begin
   begin
     FExpander:=TD2CustomButton(B);
     FExpander.OnClick:=DoExpanderClick;
-    //if FExpander.Visible then
-    //begin
-      FExpander.ApplyResource;
-      FExpander.StartTriggerAnimation(Self,'IsExpanded');
-    //end;
+    FExpander.ApplyResource;
+    FExpander.StartTriggerAnimation(Self,'IsExpanded');
     B:=FExpander.FindResource('plus');
-    if (B <> nil) and (B is TD2Path) then
-      FPlus:= TD2Path(B);
+    if (B <> nil) and (B is TD2Path)
+      then FPlus:= TD2Path(B);
     B:=FExpander.FindResource('minus');
-    if (B <> nil) and (B is TD2Path) then
-      FMinus:= TD2Path(B);
+    if (B <> nil) and (B is TD2Path)
+      then FMinus:= TD2Path(B);
   end;
   B:=FindResource('check');
   if (B <> nil) and (B is TD2CheckBox) then
@@ -510,6 +506,48 @@ end;
 
 procedure TD2TreeColumn.DoChangeCheck(Sender: TObject);
 begin
+  if (FGrid <> nil) then
+    with TD2TreeCell(Sender) do
+      if (FNode <> nil) then
+        case FNode.CheckType of
+          ctCheckBox,
+          ctTriStateCheckBox:
+            if TD2CheckBox(Sender).FIsGrayed
+              then  FNode.CheckState:=csMixedNormal
+              else  begin
+                      if TD2CheckBox(Sender).FIsChecked
+                        then FNode.CheckState:=csCheckedNormal
+                        else FNode.CheckState:=csUncheckedNormal;
+                    end;
+
+          ctRadioButton:
+            if TD2RadioButton(Sender).FIsChecked
+              then FNode.CheckState:=csCheckedNormal
+              else FNode.CheckState:=csUncheckedNormal;
+
+          //ctButton:
+          //ctNone:
+        end;
+
+//// Cостояния отметки включают переходные и текучие (временные) состояния. Временное состояние,
+//// определяемое в текуций момент является состоянием нажатия отметки.
+//TD2CheckState = (
+//    csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+//    csUncheckedPressed, // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+//    csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+//    csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+//    csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+//    csMixedPressed      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+//  );
+
+////Тип отметки. Возможно установить только в событии инициализации.
+//TD2CheckType = (
+//    ctNone,             // Узел без отметки.
+//    ctTriStateCheckBox, // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
+//    ctCheckBox,         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
+//    ctRadioButton,      // Узел с отметкой типа TRadioButton.
+//    ctButton            // Узел с кнопкой слева от надписи.
+//  );
 
 end;
 
@@ -667,15 +705,21 @@ begin
                                         csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
                                         csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
                                           begin
-                                            Cell.FCheck.IsChecked := false;
-                                            Cell.FCheck.IsGrayed := false;
+                                            Cell.FCheck.FIsChecked := false;
+                                            Cell.FCheck.FIsGrayed := false;
                                           end;
                                         csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
                                         csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-                                          Cell.FCheck.IsChecked := true;
+                                          begin
+                                            Cell.FCheck.FIsChecked := true;
+                                            Cell.FCheck.FIsGrayed := false;
+                                          end;
                                         csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
                                         csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          Cell.FCheck.IsGrayed := true;
+                                          begin
+                                            Cell.FCheck.FIsChecked := false;
+                                            Cell.FCheck.FIsGrayed := true;
+                                          end;
                                       end;
                                     end;
                             if Cell.FRadio <> nil
@@ -691,14 +735,17 @@ begin
                                         csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
                                         csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
                                           begin
-                                            Cell.FCheck.IsChecked := false;
-                                            Cell.FCheck.IsGrayed := false;
+                                            Cell.FCheck.FIsChecked := false;
+                                            Cell.FCheck.FIsGrayed := false;
                                           end;
                                         csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
                                         csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
                                         csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
                                         csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          Cell.FCheck.IsChecked := true;
+                                          begin
+                                            Cell.FCheck.FIsChecked := true;
+                                            Cell.FCheck.FIsGrayed := false;
+                                          end;
                                       end;
                                     end;
                             if Cell.FRadio <> nil
@@ -714,12 +761,12 @@ begin
                                       Case Node.CheckState of
                                         csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
                                         csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-                                            Cell.FRadio.IsChecked := false;
+                                            Cell.FRadio.FIsChecked := false;
                                         csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
                                         csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
                                         csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
                                         csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          Cell.FRadio.IsChecked := true;
+                                          Cell.FRadio.FIsChecked := true;
                                       end;
                                      end;
                           end;

@@ -134,6 +134,26 @@ object Form1: TForm1
         VertTextAlign = d2TextAlignCenter
         Text = 'Val'
       end
+      object CheckBox1: TD2CheckBox
+        Position.Point = '(97,402)'
+        RotateAngle = 0
+        Width = 120
+        Height = 19
+        TabOrder = 7
+        IsChecked = False
+        IsGrayed = False
+        AllowGrayed = False
+        TextAlign = d2TextAlignNear
+      end
+      object RadioButton1: TD2RadioButton
+        Position.Point = '(99,439)'
+        RotateAngle = 0
+        Width = 120
+        Height = 19
+        TabOrder = 6
+        IsChecked = False
+        TextAlign = d2TextAlignNear
+      end
     end
   end
   object VT: TVirtualStringTree

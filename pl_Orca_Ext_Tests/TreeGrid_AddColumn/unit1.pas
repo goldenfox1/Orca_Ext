@@ -16,12 +16,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    CheckBox1: TD2CheckBox;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
+    RadioButton1: TD2RadioButton;
     Root1: TD2Background;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
