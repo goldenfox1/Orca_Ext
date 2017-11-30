@@ -301,10 +301,6 @@ end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
 begin
-  if FCheck <> nil
-    then FIsChecked:=FCheck.FIsChecked
-    else if FRadio <> nil
-           then FIsChecked:=FRadio.FIsChecked;
   if Assigned(FOnChangeCheck)
     then FOnChangeCheck(Self);
 end;
@@ -314,11 +310,60 @@ begin
   if FIsChecked <> Value then
   begin
     FIsChecked:=Value;
-    if FCheck <> nil then
-      FCheck.FIsChecked:=FIsChecked;
-    if FRadio <> nil then
-      FRadio.FIsChecked:=FIsChecked;
+    if Value then FIsGrayed:= false;
+    //if (csLoading in ComponentState) then exit;
+    //StartTriggerAnimation(Self,'IsChecked');
+    //StartTriggerAnimation(Self,'IsGrayed');
+
+    if (FCheck <> nil) and (FCheck.Visible)
+      then begin
+             FCheck.StartTriggerAnimation(Self,'IsChecked');
+             FCheck.StartTriggerAnimation(Self,'IsGrayed');
+           end;
+    if (FRadio <> nil) and (FRadio.Visible)
+      then FRadio.StartTriggerAnimation(Self,'IsChecked');
   end;
+end;
+
+procedure TD2TreeCell.SetIsGrayed(Value: boolean);
+begin
+  if FIsGrayed <> Value then
+  begin
+    FIsGrayed:=Value;
+    if Value then
+      if FAllowGrayed
+        then  begin
+                FIsGrayed:= true;
+                FIsChecked:= false;
+              end
+        else  begin
+                FIsGrayed:= false;
+                FIsChecked:= true;
+              end;
+
+    //if (csLoading in ComponentState) then exit;
+
+    //StartTriggerAnimation(Self,'IsChecked');
+    //StartTriggerAnimation(Self,'IsGrayed');
+
+    if (FCheck <> nil) and (FCheck.Visible)
+      then begin
+             FCheck.StartTriggerAnimation(Self,'IsGrayed');
+             FCheck.StartTriggerAnimation(Self,'IsChecked');
+           end;
+    if (FRadio <> nil) and (FRadio.Visible)
+      then FRadio.StartTriggerAnimation(Self,'IsGrayed');
+
+  end;
+end;
+
+procedure TD2TreeCell.SetAllowGrayed(Value: boolean);
+begin
+  if FAllowGrayed <> Value then
+    begin
+      FAllowGrayed:=Value;
+      if not Value then IsGrayed:=false;
+    end;
 end;
 
 procedure TD2TreeCell.SetIsExpanded(const Value: boolean);
@@ -326,14 +371,9 @@ begin
   if FIsExpanded <> Value then
   begin
     FIsExpanded:=Value;
-    if (FExpander <> nil) and not (csLoading in ComponentState) then
-    begin
-      //FExpander.Visible:=GetHaveChildren;
-      if FExpander.Visible then
-      begin
-        FExpander.StartTriggerAnimation(Self,'IsExpanded');
-      end;
-    end;
+    if (csLoading in ComponentState) then exit;
+    if (FExpander <> nil) and (FExpander.Visible)
+      then FExpander.StartTriggerAnimation(Self,'IsExpanded');
   end;
 end;
 
@@ -378,18 +418,16 @@ begin
       then FMinus:= TD2Path(B);
   end;
   B:=FindResource('check');
-  if (B <> nil) and (B is TD2CheckBox) then
+  if (B <> nil) and (B is TD2CustomButton) then
   begin
-    FCheck:=TD2CheckBox(B);
-    FCheck.IsChecked:=IsChecked;
-    FCheck.OnChange:=DoCheckClick;
+    FCheck:=TD2CustomButton(B);
+    FCheck.OnClick:=DoCheckClick;
   end;
   B:=FindResource('radio');
-  if (B <> nil) and (B is TD2RadioButton) then
+  if (B <> nil) and (B is TD2CustomButton) then
   begin
-    FRadio:=TD2RadioButton(B);
-    FRadio.IsChecked:=IsChecked;
-    FRadio.OnChange:=DoCheckClick;
+    FRadio:=TD2CustomButton(B);
+    FRadio.OnClick:=DoCheckClick;
   end;
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Layout) then
@@ -506,48 +544,36 @@ end;
 
 procedure TD2TreeColumn.DoChangeCheck(Sender: TObject);
 begin
-  if (FGrid <> nil) then
-    with TD2TreeCell(Sender) do
-      if (FNode <> nil) then
-        case FNode.CheckType of
-          ctCheckBox,
-          ctTriStateCheckBox:
-            if TD2CheckBox(Sender).FIsGrayed
-              then  FNode.CheckState:=csMixedNormal
-              else  begin
-                      if TD2CheckBox(Sender).FIsChecked
-                        then FNode.CheckState:=csCheckedNormal
-                        else FNode.CheckState:=csUncheckedNormal;
-                    end;
+  if FGrid = nil then exit;
+  with TD2TreeCell(Sender) do
+  begin
+    if FRadio.Visible then FIsChecked:=not FIsChecked;
+    if FCheck.Visible then
+      if FAllowGrayed
+        then if FIsGrayed
+               then begin
+                      FIsChecked:=true;
+                      FIsGrayed:=false;
+                    end
+               else begin
+                      if FIsChecked
+                        then FIsChecked:=false
+                        else begin
+                               FIsChecked:=false;
+                               FIsGrayed:=true;
+                             end;
+                    end
+        else FIsChecked:=not FIsChecked;
 
-          ctRadioButton:
-            if TD2RadioButton(Sender).FIsChecked
-              then FNode.CheckState:=csCheckedNormal
-              else FNode.CheckState:=csUncheckedNormal;
-
-          //ctButton:
-          //ctNone:
-        end;
-
-//// Cостояния отметки включают переходные и текучие (временные) состояния. Временное состояние,
-//// определяемое в текуций момент является состоянием нажатия отметки.
-//TD2CheckState = (
-//    csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
-//    csUncheckedPressed, // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-//    csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
-//    csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-//    csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
-//    csMixedPressed      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-//  );
-
-////Тип отметки. Возможно установить только в событии инициализации.
-//TD2CheckType = (
-//    ctNone,             // Узел без отметки.
-//    ctTriStateCheckBox, // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
-//    ctCheckBox,         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
-//    ctRadioButton,      // Узел с отметкой типа TRadioButton.
-//    ctButton            // Узел с кнопкой слева от надписи.
-//  );
+    if (FNode <> nil) then
+      if FIsGrayed
+        then  TD2TreeGrid(FGrid).CheckState[FNode]:=csMixedNormal
+        else  begin
+                if FIsChecked
+                  then TD2TreeGrid(FGrid).CheckState[FNode]:=csCheckedNormal
+                  else TD2TreeGrid(FGrid).CheckState[FNode]:=csUncheckedNormal;
+              end;
+  end;
 
 end;
 
@@ -685,99 +711,76 @@ begin
                     //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
                     // Show node button if allowed, if there child nodes and at least one of the child
                     // nodes is visible or auto button hiding is disabled.
-                    if (toCheckSupport in FOptions.FMiscOptions) then
-                      case Node.CheckType of
-                        ctNone,             // Узел без отметки.
-                        ctButton:           // Узел с кнопкой слева от надписи.
-                          begin
-                            if Cell.FCheck <> nil
-                               then Cell.FCheck.Visible := false;
-                            if Cell.FRadio <> nil
-                               then Cell.FRadio.Visible := false;
-                          end;
-                        ctTriStateCheckBox: // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
-                          begin
-                            if Cell.FCheck <> nil
-                               then begin
-                                      Cell.FCheck.Visible := true;
-                                      Cell.FCheck.AllowGrayed:=true;
-                                      Case Node.CheckState of
-                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
-                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-                                          begin
-                                            Cell.FCheck.FIsChecked := false;
-                                            Cell.FCheck.FIsGrayed := false;
-                                          end;
-                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
-                                        csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-                                          begin
-                                            Cell.FCheck.FIsChecked := true;
-                                            Cell.FCheck.FIsGrayed := false;
-                                          end;
-                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
-                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          begin
-                                            Cell.FCheck.FIsChecked := false;
-                                            Cell.FCheck.FIsGrayed := true;
-                                          end;
-                                      end;
-                                    end;
-                            if Cell.FRadio <> nil
-                               then Cell.FRadio.Visible := false;
-                          end;
-                        ctCheckBox:         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
-                          begin
-                            if Cell.FCheck <> nil
-                               then begin
-                                      Cell.FCheck.Visible := true;
-                                      Cell.FCheck.AllowGrayed:=false;
-                                      Case Node.CheckState of
-                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
-                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-                                          begin
-                                            Cell.FCheck.FIsChecked := false;
-                                            Cell.FCheck.FIsGrayed := false;
-                                          end;
-                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
-                                        csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
-                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          begin
-                                            Cell.FCheck.FIsChecked := true;
-                                            Cell.FCheck.FIsGrayed := false;
-                                          end;
-                                      end;
-                                    end;
-                            if Cell.FRadio <> nil
-                               then Cell.FRadio.Visible := false;
-                          end;
-                        ctRadioButton:      // Узел с отметкой типа TRadioButton.
-                          begin
-                            if Cell.FCheck <> nil
-                               then Cell.FCheck.Visible := false;
-                            if Cell.FRadio <> nil
-                               then begin
-                                      Cell.FRadio.Visible := true;
-                                      Case Node.CheckState of
-                                        csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
-                                        csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-                                            Cell.FRadio.FIsChecked := false;
-                                        csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
-                                        csCheckedPressed,   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-                                        csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
-                                        csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                          Cell.FRadio.FIsChecked := true;
-                                      end;
-                                     end;
-                          end;
+                    if (toCheckSupport in FOptions.FMiscOptions)
+                      then  begin
+                              case Node.CheckType of
+                                ctNone,             // Узел без отметки.
+                                ctButton:           // Узел с кнопкой слева от надписи.
+                                  begin
+                                    if Cell.FCheck <> nil
+                                       then Cell.FCheck.Visible := false;
+                                    if Cell.FRadio <> nil
+                                       then Cell.FRadio.Visible := false;
+                                  end;
+                                ctTriStateCheckBox: // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
+                                  begin
+                                    if Cell.FCheck <> nil
+                                       then begin
+                                              Cell.AllowGrayed:=true;
+                                              Cell.FCheck.Visible := true;
+                                            end;
+                                    if Cell.FRadio <> nil
+                                       then Cell.FRadio.Visible := false;
+                                  end;
+                                ctCheckBox:         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
+                                  begin
+                                    if Cell.FCheck <> nil
+                                       then  begin
+                                               Cell.AllowGrayed:=false;
+                                               Cell.FCheck.Visible := true;
+                                             end;
+                                    if Cell.FRadio <> nil
+                                       then Cell.FRadio.Visible := false;
+                                  end;
+                                ctRadioButton:      // Узел с отметкой типа TRadioButton.
+                                  begin
+                                    if Cell.FCheck <> nil
+                                      then  begin
+                                              Cell.AllowGrayed:=false;
+                                              Cell.FCheck.Visible := false;
+                                            end;
+                                    if Cell.FRadio <> nil
+                                      then Cell.FRadio.Visible := true;
+                                  end;
+                              end;
 
-                       end
-                    else  begin
-                            if Cell.FCheck <> nil
-                               then Cell.FCheck.Visible := false;
-                            if Cell.FRadio <> nil
-                               then Cell.FRadio.Visible := false;
-                          end;
+                              //определяем состояние отметки
+                              Case Node.CheckState of
+                                csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+                                csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+                                  begin
+                                    Cell.IsChecked := false;
+                                    Cell.IsGrayed := false;
+                                  end;
+                                csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+                                csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+                                  begin
+                                    Cell.IsChecked := true;
+                                  end;
+                                csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+                                csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+                                  begin
+                                    Cell.IsGrayed := true;
+                                  end;
+                              end;
+
+                            end
+                      else  begin
+                              if Cell.FCheck <> nil
+                                 then Cell.FCheck.Visible := false;
+                              if Cell.FRadio <> nil
+                                 then Cell.FRadio.Visible := false;
+                            end;
 
                     //if ShowStateImages
                     //   then begin
@@ -818,9 +821,8 @@ begin
              then PaintDropMark(Cell);
           inc(i);
           d2IncFloat(BaseOffset, Node.NodeHeight);
-          //if BaseOffset >= MaximumBottom then Break; //если верхняя координата следующего узла нижи чем нижний край видимого окна, то выходим из цикла
-          //Node := GetNextVisible(Node, True); // Переход к следующему видимому узлу. Advance to next visible node.
         end;    //-------------- конец основного цикла
+
         for i:=i to FCellControls.Count - 1 do  //Cкрыть остальные ячейки, если есть,
           TD2Control(FCellControls.Items[i]).Visible:=false;
         UpdateSelected;
@@ -9782,9 +9784,6 @@ begin
     StructureChange(Source, crNodeMoved);
   end;
 end;
-
-
-
 
 procedure TD2CustomTreeGrid.ReinitChildren(Node: PD2TreeNode; Recursive: Boolean);
 //Принудительная переинициализация всех детей узла Node, при Recursive=true в том числе и внуки.

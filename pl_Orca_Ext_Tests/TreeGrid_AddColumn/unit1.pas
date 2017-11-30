@@ -16,14 +16,13 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    CheckBox1: TD2CheckBox;
+    CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
-    RadioButton1: TD2RadioButton;
     Root1: TD2Background;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
@@ -34,6 +33,7 @@ type
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
+    procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure SpinBox1Change(Sender: TObject);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
@@ -91,6 +91,12 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   CreateTreeGreed;
   CreateVT;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+
+
 end;
 
 procedure TForm1.SpinBox1Change(Sender: TObject);
@@ -154,7 +160,8 @@ begin
     for t:=0 to High(Names) do
     begin
       NewNode1 := TreeGrid1.AddChild(NewNode);
-      NewNode1^.CheckType:=ctRadioButton;
+      TreeGrid1.CheckType[NewNode1]:=ctRadioButton;
+      if t=1 then TreeGrid1.CheckState[NewNode1]:=csCheckedNormal;
       NewPhone := TreeGrid1.GetNodeData(NewNode1);
       if Assigned(NewPhone) then
         with NewPhone^ do
@@ -167,8 +174,11 @@ begin
         for k:=0 to High(Names) do
         begin
           NewNode2 := TreeGrid1.AddChild(NewNode1);
-          //NewNode2^.CheckType:=ctTriStateCheckBox;
-          NewNode2^.CheckType:=ctCheckBox;
+          //TreeGrid1.CheckType[NewNode2]:=ctCheckBox;
+          TreeGrid1.CheckType[NewNode2]:=ctTriStateCheckBox;
+          if k=0 then TreeGrid1.CheckState[NewNode2]:=csMixedNormal;
+          if k=1 then TreeGrid1.CheckState[NewNode2]:=csCheckedNormal;
+
           NewPhone := TreeGrid1.GetNodeData(NewNode2);
           if Assigned(NewPhone) then
             with NewPhone^ do

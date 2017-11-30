@@ -8269,7 +8269,8 @@ TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
 
 TD2TreeCell = class(TD2Control)
   private
-    FCheck: TD2CheckBox;          //указатель на чекбокс
+    FAllowGrayed: boolean;
+    FCheck: TD2CustomButton;          //указатель на чекбокс
     FGrid: TD2CustomTreeGrid;     //указатель на грид
     FColumnIndex: integer;        //индекс связанной колонки
     FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
@@ -8277,12 +8278,13 @@ TD2TreeCell = class(TD2Control)
     FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
     FIndent: TD2Path;             //указатель на отступ
     FIsChecked: boolean;          //true - чекбокс отмечен
+    FIsGrayed: boolean;           //true - чекбокс в среднем состоянии
     FIsExpanded: boolean;         //true - узел развернут
     FLineArray: TD2TreeLineArray; //массив линий дерева
     FMinus: TD2Path;            //указатель на кнопку "-" экспандера
     FNode: PD2TreeNode;           //указатель на связанный узел дерева
     FPlus: TD2Path;             //указатель на кнопку "+" экспандера
-    FRadio: TD2RadioButton;       //указатель на радиокнопку
+    FRadio: TD2CustomButton;       //указатель на радиокнопку
     FSplitter: TD2SplitLayout;    //указатель на сплиттер
     FVAlign: single;              //сдвиг горизонтальной линии дерева
     FTreeLineStrokeColor: TD2Color;     //цвет линий дерева из стиля
@@ -8303,9 +8305,13 @@ TD2TreeCell = class(TD2Control)
     procedure DoCheckClick(Sender: TObject);
              //получить альтернативный массив линий дерева для режима LineMode=lmBands
     function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
+              //установить состояние разрешения 3-х позиционного чек-бокса
+    procedure SetAllowGrayed(Value: boolean);
 
     procedure SetIsChecked(const Value:boolean);
+    procedure SetIsGrayed(Value: boolean);
     procedure SetIsExpanded(const Value:boolean);
+
 
   protected
     procedure CalculateIndent;
@@ -8334,7 +8340,9 @@ TD2TreeCell = class(TD2Control)
              // обработчик прерывания получения флага наличия детей
     //property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;
   published
+    property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
+    property IsGrayed: boolean read FIsGrayed write SetIsGrayed;       //true - у узла установлено среднее состояние
     property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
     //property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
 end;

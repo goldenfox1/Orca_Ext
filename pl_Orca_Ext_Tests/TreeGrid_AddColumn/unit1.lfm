@@ -59,27 +59,35 @@ object Form1: TForm1
         RowCount = 100
         RowHeight = 21
         ScrollDuration = 0.300000011920929
-        object TextColumn1: TD2TextColumn
+        object CheckColumn1: TD2CheckColumn
           RotateAngle = 0
           Width = 100
-          Height = 216
+          Height = 200
           HitTest = False
           TabOrder = 0
         end
-        object TextColumn2: TD2TextColumn
+        object TextColumn1: TD2TextColumn
           Position.Point = '(100,0)'
           RotateAngle = 0
           Width = 100
-          Height = 216
+          Height = 200
           HitTest = False
           TabOrder = 1
+        end
+        object TextColumn2: TD2TextColumn
+          Position.Point = '(200,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 200
+          HitTest = False
+          TabOrder = 2
         end
       end
       object TreeGrid1: TD2TreeGrid
         Position.Point = '(16,22)'
         RotateAngle = 0
         Width = 286
-        Height = 254
+        Height = 261
         Resource = 'gridstyle'
         TabOrder = 2
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toNodeHeightResize, toEditOnClick]
@@ -91,7 +99,7 @@ object Form1: TForm1
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 100
-          Height = 229
+          Height = 236
           HitTest = False
           TabOrder = 0
         end
@@ -99,13 +107,13 @@ object Form1: TForm1
           Position.Point = '(100,0)'
           RotateAngle = 0
           Width = 100
-          Height = 229
+          Height = 236
           HitTest = False
           TabOrder = 1
         end
       end
       object Label1: TD2Label
-        Position.Point = '(54,300)'
+        Position.Point = '(328,449)'
         RotateAngle = 0
         Width = 134
         Height = 15
@@ -115,7 +123,7 @@ object Form1: TForm1
         Text = 'Min'
       end
       object Label2: TD2Label
-        Position.Point = '(54,317)'
+        Position.Point = '(328,467)'
         RotateAngle = 0
         Width = 138
         Height = 15
@@ -125,7 +133,7 @@ object Form1: TForm1
         Text = 'Max'
       end
       object Label3: TD2Label
-        Position.Point = '(54,338)'
+        Position.Point = '(328,488)'
         RotateAngle = 0
         Width = 134
         Height = 15
@@ -133,26 +141,6 @@ object Form1: TForm1
         TextAlign = d2TextAlignCenter
         VertTextAlign = d2TextAlignCenter
         Text = 'Val'
-      end
-      object CheckBox1: TD2CheckBox
-        Position.Point = '(97,402)'
-        RotateAngle = 0
-        Width = 120
-        Height = 19
-        TabOrder = 7
-        IsChecked = False
-        IsGrayed = False
-        AllowGrayed = False
-        TextAlign = d2TextAlignNear
-      end
-      object RadioButton1: TD2RadioButton
-        Position.Point = '(99,439)'
-        RotateAngle = 0
-        Width = 120
-        Height = 19
-        TabOrder = 6
-        IsChecked = False
-        TextAlign = d2TextAlignNear
       end
     end
   end
