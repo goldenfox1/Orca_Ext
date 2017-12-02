@@ -30,8 +30,6 @@ type
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
-    TreeTextColumn1: TD2TreeTextColumn;
-    TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -161,7 +159,7 @@ begin
     begin
       NewNode1 := TreeGrid1.AddChild(NewNode);
       TreeGrid1.CheckType[NewNode1]:=ctRadioButton;
-      if t=1 then TreeGrid1.CheckState[NewNode1]:=csCheckedNormal;
+      if t<=1 then TreeGrid1.CheckState[NewNode1]:=csCheckedNormal;
       NewPhone := TreeGrid1.GetNodeData(NewNode1);
       if Assigned(NewPhone) then
         with NewPhone^ do
@@ -174,11 +172,21 @@ begin
         for k:=0 to High(Names) do
         begin
           NewNode2 := TreeGrid1.AddChild(NewNode1);
-          //TreeGrid1.CheckType[NewNode2]:=ctCheckBox;
-          TreeGrid1.CheckType[NewNode2]:=ctTriStateCheckBox;
-          if k=0 then TreeGrid1.CheckState[NewNode2]:=csMixedNormal;
-          if k=1 then TreeGrid1.CheckState[NewNode2]:=csCheckedNormal;
-
+          if k=0 then
+            begin
+              TreeGrid1.CheckType[NewNode2]:=ctTriStateCheckBox;
+              TreeGrid1.CheckState[NewNode2]:=csMixedNormal;
+            end;
+          if k=1 then
+            begin
+              TreeGrid1.CheckType[NewNode2]:=ctCheckBox;
+              TreeGrid1.CheckState[NewNode2]:=csCheckedNormal;
+            end;
+          if k>1 then
+            begin
+              TreeGrid1.CheckType[NewNode2]:=ctCheckBox;
+              //TreeGrid1.CheckState[NewNode2]:=csCheckedNormal;
+            end;
           NewPhone := TreeGrid1.GetNodeData(NewNode2);
           if Assigned(NewPhone) then
             with NewPhone^ do
@@ -192,6 +200,7 @@ begin
     end;
     if i=0 then TreeGrid1.ToggleNode(NewNode);
   end;
+  TreeGrid1.FullExpand;
   TreeGrid1.EndUpdate;
 end;
 

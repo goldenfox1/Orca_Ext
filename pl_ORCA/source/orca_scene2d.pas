@@ -8230,8 +8230,8 @@ type
 TD2CustomTreeGrid = class;
 
 
-TOnChangeCheck = procedure(Sender: TObject) of object;
-TOnChangeExpander = procedure(Sender: TObject) of object;
+//TOnChangeCheck = procedure(Sender: TObject) of object;
+//TOnChangeExpander = procedure(Sender: TObject) of object;
 TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
 
 // Определяет внешний вид линий дерева. Determines the look of a tree's lines.
@@ -8289,19 +8289,14 @@ TD2TreeCell = class(TD2Control)
     FVAlign: single;              //сдвиг горизонтальной линии дерева
     FTreeLineStrokeColor: TD2Color;     //цвет линий дерева из стиля
     FTreeLineStrokeDash: TD2StrokeDash; //тип пунктира линий дерева
-
-    FOnChangeCheck: TOnChangeCheck;          //указатель на обработчик прерывания изменения состояния отметки
-    FOnChangeExpander: TOnChangeExpander;    //указатель на обработчик прерывания разворачивания/сворачивания узла
-    //FOnGetHaveChildren: TOnGetHaveChildren;  //указатель на обработчик прерывания получения флага наличия детей
-
               //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
               //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
     procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
               //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
     procedure PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
-
-
+              //обработчик нажатия на экспандер
     procedure DoExpanderClick(Sender: TObject);
+              //обработчик нажатия на отметку выделения
     procedure DoCheckClick(Sender: TObject);
              //получить альтернативный массив линий дерева для режима LineMode=lmBands
     function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
@@ -8324,6 +8319,8 @@ TD2TreeCell = class(TD2Control)
     procedure FreeStyle;  override;
               //обработка нажатий клавиатуры
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+                 //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
+    function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
   public
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;
@@ -8333,18 +8330,11 @@ TD2TreeCell = class(TD2Control)
     procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
               //перестроить объект
     procedure Realign; override;
-               //обработчик прерывания изменения состояния отметки
-    property OnChangeCheck: TOnChangeCheck read FOnChangeCheck write FOnChangeCheck;
-             //обработчик прерывания разворачивания/сворачивания узла
-    property OnChangeExpander: TOnChangeExpander read FOnChangeExpander write FOnChangeExpander;
-             // обработчик прерывания получения флага наличия детей
-    //property OnGetHaveChildren: TOnGetHaveChildren read FOnGetHaveChildren write FOnGetHaveChildren;
   published
     property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
     property IsGrayed: boolean read FIsGrayed write SetIsGrayed;       //true - у узла установлено среднее состояние
     property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
-    //property IsHaveChildren: boolean read GetHaveChildren; //true - у узла есть дочерние узлы
 end;
 
 { TD2TreeColumn }
@@ -8352,8 +8342,6 @@ end;
 TD2TreeColumn = class(TD2Column)
 
   protected
-              //обработчик изменения состояния отметки ячейки
-    procedure DoChangeCheck(Sender: TObject);
               //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
 
@@ -8970,8 +8958,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
              //Эти идентификаторы используются для рисования древовидных линий перед узлом Node
              //Возвращает уровень вложенности узла, используемый для рисования.
     function DetermineLineArrayAndSelectLevel(Node: PD2TreeNode; var LineArray: TD2TreeLineArray): Integer; virtual;
-             //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
-    function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
 
     procedure DoBeforeDrawTreeLine(Node: PD2TreeNode; Level: integer; var XPos: single); virtual;
               //Отменяет текущие действие редактирования или отложенного редактирования.

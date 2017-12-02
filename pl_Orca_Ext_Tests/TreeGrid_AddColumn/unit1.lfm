@@ -83,41 +83,12 @@ object Form1: TForm1
           TabOrder = 2
         end
       end
-      object TreeGrid1: TD2TreeGrid
-        Position.Point = '(16,22)'
-        RotateAngle = 0
-        Width = 286
-        Height = 261
-        Resource = 'gridstyle'
-        TabOrder = 2
-        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toNodeHeightResize, toEditOnClick]
-        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
-        TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
-        OnGetValue = TreeGrid1GetValue
-        OnScroll = TreeGrid1Scroll
-        OnSetValue = TreeGrid1SetValue
-        object TreeTextColumn1: TD2TreeTextColumn
-          RotateAngle = 0
-          Width = 100
-          Height = 236
-          HitTest = False
-          TabOrder = 0
-        end
-        object TreeTextColumn2: TD2TreeTextColumn
-          Position.Point = '(100,0)'
-          RotateAngle = 0
-          Width = 100
-          Height = 236
-          HitTest = False
-          TabOrder = 1
-        end
-      end
       object Label1: TD2Label
         Position.Point = '(328,449)'
         RotateAngle = 0
         Width = 134
         Height = 15
-        TabOrder = 3
+        TabOrder = 2
         TextAlign = d2TextAlignCenter
         VertTextAlign = d2TextAlignCenter
         Text = 'Min'
@@ -127,7 +98,7 @@ object Form1: TForm1
         RotateAngle = 0
         Width = 138
         Height = 15
-        TabOrder = 5
+        TabOrder = 4
         TextAlign = d2TextAlignCenter
         VertTextAlign = d2TextAlignCenter
         Text = 'Max'
@@ -137,10 +108,38 @@ object Form1: TForm1
         RotateAngle = 0
         Width = 134
         Height = 15
-        TabOrder = 4
+        TabOrder = 3
         TextAlign = d2TextAlignCenter
         VertTextAlign = d2TextAlignCenter
         Text = 'Val'
+      end
+      object TreeGrid1: TD2TreeGrid
+        Position.Point = '(12,22)'
+        RotateAngle = 0
+        Width = 285
+        Height = 294
+        Resource = 'gridstyle'
+        TabOrder = 5
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
+        TreeOptions.SelectionOptions = [toMultiSelect]
+        OnGetValue = TreeGrid1GetValue
+        OnSetValue = TreeGrid1SetValue
+        object TreeTextColumn1: TD2TreeTextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 269
+          HitTest = False
+          TabOrder = 0
+        end
+        object TreeTextColumn2: TD2TreeTextColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 269
+          HitTest = False
+          TabOrder = 1
+        end
       end
     end
   end

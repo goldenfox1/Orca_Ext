@@ -9,6 +9,8 @@
 { TD2TreeCell }
 
 procedure TD2TreeCell.Realign;
+var
+  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
 begin
   if csDestroying in ComponentState then Exit;
   if FDisableDefaultAlign then Exit;
@@ -16,6 +18,131 @@ begin
   if FUpdating > 0 then Exit;
   if csLoading in ComponentState then Exit;
   inherited;
+  if FGrid = nil then exit;
+  if FNode = nil then exit;
+  with TD2TreeGrid(FGrid) do
+  begin
+
+    if FColumnIndex=FMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
+      then  begin
+              //отступ
+              if FIndent <> nil then
+              begin
+                FIndent.Visible := true; //включаем отсуп
+                SelectLevel := DetermineLineArrayAndSelectLevel(FNode, FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
+
+                //экспандер
+                if FExpander <> nil then
+                begin
+                  if (toShowButtons in TreeOptions.FPaintOptions) and
+                     (vsHasChildren in FNode.States) and
+                      not ((vsAllChildrenHidden in FNode.States) and
+                           (toAutoHideButtons in TreeOptions.FAutoOptions)) and
+                     (((FNode.Parent = FRoot) and
+                       (toShowRoot in TreeOptions.FPaintOptions)) or
+                      (FNode.Parent <> FRoot))
+                    then  begin
+                            FExpander.Visible:= true;
+                            if vsExpanded in FNode.States //если узел раскрыт
+                              then IsExpanded:=true         //установим флаг раскрытия
+                              else IsExpanded:=false;       //иначе снимем флаг раскрытия
+                          end
+                    else FExpander.Visible:= false;
+                end;
+                CalculateIndent;         //рассчитаем отступ, нарисуем линии дерева
+              end;
+
+              //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
+              //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
+              // Show node button if allowed, if there child nodes and at least one of the child
+              // nodes is visible or auto button hiding is disabled.
+              if (toCheckSupport in FOptions.FMiscOptions)
+                then  begin
+                        case FNode.CheckType of
+                          ctNone,             // Узел без отметки.
+                          ctButton:           // Узел с кнопкой слева от надписи.
+                            begin
+                              if FCheck <> nil
+                                 then FCheck.Visible := false;
+                              if FRadio <> nil
+                                 then FRadio.Visible := false;
+                            end;
+                          ctTriStateCheckBox: // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
+                            begin
+                              if FCheck <> nil
+                                 then begin
+                                        AllowGrayed:=true;
+                                        FCheck.Visible := true;
+                                      end;
+                              if FRadio <> nil
+                                 then FRadio.Visible := false;
+                            end;
+                          ctCheckBox:         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
+                            begin
+                              if FCheck <> nil
+                                 then  begin
+                                         AllowGrayed:=false;
+                                         FCheck.Visible := true;
+                                       end;
+                              if FRadio <> nil
+                                 then FRadio.Visible := false;
+                            end;
+                          ctRadioButton:      // Узел с отметкой типа TRadioButton.
+                            begin
+                              if FCheck <> nil
+                                then  begin
+                                        AllowGrayed:=false;
+                                        FCheck.Visible := false;
+                                      end;
+                              if FRadio <> nil
+                                then FRadio.Visible := true;
+                            end;
+                        end;
+                        //определяем состояние отметки
+                        Case FNode.CheckState of
+                          csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
+                          csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
+                            begin
+                              IsChecked := false;
+                              IsGrayed := false;
+                            end;
+
+                          csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
+                          csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
+                              IsChecked := true;
+
+                          csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
+                          csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
+                              IsGrayed := true;
+                        end;
+                      end
+                else  begin
+                        if FCheck <> nil
+                           then FCheck.Visible := false;
+                        if FRadio <> nil
+                           then FRadio.Visible := false;
+                      end;
+            end
+      else  begin  //это не главная колонка
+              if FIndent <> nil                    //уберем отступ если есть
+                then FIndent.Visible := false;
+              if FExpander <> nil                  //скроем эеспандер если есть
+                then FExpander.Visible := false;
+              if FCheck <> nil                     //скроем чекбокс если есть
+                then FCheck.Visible := false;
+              if FRadio <> nil                     //скроем радиокнопку если есть
+                then FRadio.Visible := false;
+            end;
+
+    //включить сплиттер если разрешено изменение размеров
+    if FSplitter <> nil then
+    begin
+      if (toNodeHeightResize in TreeOptions.MiscOptions)
+        then FSplitter.Visible:= true
+        else FSplitter.Visible:= false;
+    end;
+
+  end;
 end;
 
 procedure TD2TreeCell.CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
@@ -293,16 +420,17 @@ begin
 end;
 
 procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
+//обработчик нажатия на экспандер
 begin
-  IsExpanded:=not IsExpanded;
-  if Assigned(FOnChangeExpander)
-    then FOnChangeExpander(Self);
+  if (FNode <> nil) and (FGrid <> nil)
+    then FGrid.ToggleNode(FNode);
 end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
+//обработчик нажатия на отметку выделения
 begin
-  if Assigned(FOnChangeCheck)
-    then FOnChangeCheck(Self);
+  if (FNode <> nil) and (FGrid <> nil) then
+    FGrid.ChangeCheckState(FNode, DetermineNextCheckState(FNode.CheckType, FNode.CheckState));
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
@@ -310,17 +438,11 @@ begin
   if FIsChecked <> Value then
   begin
     FIsChecked:=Value;
-    if Value then FIsGrayed:= false;
-    //if (csLoading in ComponentState) then exit;
-    //StartTriggerAnimation(Self,'IsChecked');
-    //StartTriggerAnimation(Self,'IsGrayed');
-
-    if (FCheck <> nil) and (FCheck.Visible)
-      then begin
-             FCheck.StartTriggerAnimation(Self,'IsChecked');
-             FCheck.StartTriggerAnimation(Self,'IsGrayed');
-           end;
-    if (FRadio <> nil) and (FRadio.Visible)
+    if Value then IsGrayed:= false;
+  //обновим отметку
+    if FCheck <> nil
+      then FCheck.StartTriggerAnimation(Self,'IsChecked');
+    if FRadio <> nil
       then FRadio.StartTriggerAnimation(Self,'IsChecked');
   end;
 end;
@@ -329,31 +451,17 @@ procedure TD2TreeCell.SetIsGrayed(Value: boolean);
 begin
   if FIsGrayed <> Value then
   begin
-    FIsGrayed:=Value;
-    if Value then
-      if FAllowGrayed
-        then  begin
-                FIsGrayed:= true;
-                FIsChecked:= false;
-              end
-        else  begin
-                FIsGrayed:= false;
-                FIsChecked:= true;
-              end;
-
-    //if (csLoading in ComponentState) then exit;
-
-    //StartTriggerAnimation(Self,'IsChecked');
-    //StartTriggerAnimation(Self,'IsGrayed');
-
-    if (FCheck <> nil) and (FCheck.Visible)
-      then begin
-             FCheck.StartTriggerAnimation(Self,'IsGrayed');
-             FCheck.StartTriggerAnimation(Self,'IsChecked');
-           end;
-    if (FRadio <> nil) and (FRadio.Visible)
-      then FRadio.StartTriggerAnimation(Self,'IsGrayed');
-
+    if Value
+      then  begin
+              IsChecked:= false;
+              if FAllowGrayed
+                then FIsGrayed:= true
+                else FIsGrayed:= false;
+            end
+      else FIsGrayed:= false;
+    //обновим отметку
+    if (FCheck <> nil)
+      then FCheck.StartTriggerAnimation(Self,'IsGrayed');
   end;
 end;
 
@@ -362,7 +470,8 @@ begin
   if FAllowGrayed <> Value then
     begin
       FAllowGrayed:=Value;
-      if not Value then IsGrayed:=false;
+      if not Value
+        then IsGrayed:=false;
     end;
 end;
 
@@ -371,8 +480,8 @@ begin
   if FIsExpanded <> Value then
   begin
     FIsExpanded:=Value;
-    if (csLoading in ComponentState) then exit;
-    if (FExpander <> nil) and (FExpander.Visible)
+    //обновим экспандер
+    if FExpander <> nil
       then FExpander.StartTriggerAnimation(Self,'IsExpanded');
   end;
 end;
@@ -422,12 +531,17 @@ begin
   begin
     FCheck:=TD2CustomButton(B);
     FCheck.OnClick:=DoCheckClick;
+    FCheck.ApplyResource;
+    FCheck.StartTriggerAnimation(Self,'IsChecked');
+    FCheck.StartTriggerAnimation(Self,'IsGrayed');
   end;
   B:=FindResource('radio');
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FRadio:=TD2CustomButton(B);
     FRadio.OnClick:=DoCheckClick;
+    FRadio.ApplyResource;
+    FRadio.StartTriggerAnimation(Self,'IsChecked');
   end;
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Layout) then
@@ -489,6 +603,29 @@ begin
   end;
 end;
 
+function TD2TreeCell.DetermineNextCheckState(CheckType: TD2CheckType;
+  CheckState: TD2CheckState): TD2CheckState;
+//Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
+// Determines the next check state in case the user click the check image or pressed the space key.
+begin
+  case CheckType of
+    ctTriStateCheckBox:
+      if CheckState = csUncheckedNormal
+        then Result:= csMixedNormal
+        else if CheckState = csCheckedNormal
+               then Result:= csUncheckedNormal
+               else Result:= csCheckedNormal;
+    ctCheckBox:
+      if CheckState = csCheckedNormal
+        then Result := csUncheckedNormal
+        else Result := csCheckedNormal;
+    ctRadioButton:
+      Result := csCheckedNormal;
+  else
+    Result := csUncheckedNormal;
+  end;
+end;
+
 constructor TD2TreeCell.Create(AOwner: TComponent);
 begin
   inherited;
@@ -509,8 +646,6 @@ begin
   FRadio:=nil;             //указатель на радиокнопку
   FSplitter:=nil;          //указатель на сплиттер
   FVAlign:= 0;             //сдвиг горизонтальной линии дерева
-  FOnChangeCheck:=nil;     //указатель на обработчик прерывания изменения состояния отметки
-  FOnChangeExpander:=nil;  //указатель на обработчик прерывания разворачивания/сворачивания узла
 end;
 
 destructor TD2TreeCell.Destroy;
@@ -541,41 +676,6 @@ begin
 end;
 
 { TD2TreeColumn }
-
-procedure TD2TreeColumn.DoChangeCheck(Sender: TObject);
-begin
-  if FGrid = nil then exit;
-  with TD2TreeCell(Sender) do
-  begin
-    if FRadio.Visible then FIsChecked:=not FIsChecked;
-    if FCheck.Visible then
-      if FAllowGrayed
-        then if FIsGrayed
-               then begin
-                      FIsChecked:=true;
-                      FIsGrayed:=false;
-                    end
-               else begin
-                      if FIsChecked
-                        then FIsChecked:=false
-                        else begin
-                               FIsChecked:=false;
-                               FIsGrayed:=true;
-                             end;
-                    end
-        else FIsChecked:=not FIsChecked;
-
-    if (FNode <> nil) then
-      if FIsGrayed
-        then  TD2TreeGrid(FGrid).CheckState[FNode]:=csMixedNormal
-        else  begin
-                if FIsChecked
-                  then TD2TreeGrid(FGrid).CheckState[FNode]:=csCheckedNormal
-                  else TD2TreeGrid(FGrid).CheckState[FNode]:=csUncheckedNormal;
-              end;
-  end;
-
-end;
 
 procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
 begin
@@ -617,8 +717,8 @@ begin
         FControl.OnEnterFocus:=DoEnterFocus;
         FControl.OnKillFocus:=DoKillFocus;
         FControl.OnKeyDown:=DoKeyDown;
-        OnChangeCheck:=DoChangeCheck;
-        OnChangeExpander:=DoChangeExpander;
+        //OnChangeCheck:=DoChangeCheck;
+        //OnChangeExpander:=DoChangeExpander;
         ApplyResource;
       end;
     end;
@@ -629,7 +729,6 @@ procedure TD2TreeColumn.UpdateColumn;
 var
   Node: PD2TreeNode;
   BaseOffset: Single;          // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
-  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
   Cell: TD2TreeCell;           //текущий контрол ячейки
   i: integer;
 
@@ -668,157 +767,17 @@ begin
                     FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
                   end
              else Cell:= FCellControls.Items[i]; //иначе возьмем текущую ячейку
+          Cell.Visible:=true;
+          Cell.FGrid:=TD2CustomTreeGrid(FGrid);
           Cell.FColumnIndex:= Self.Index;
           Cell.FNode:=Node;
-          Cell.FGrid:=TD2CustomTreeGrid(FGrid);
           Cell.Data:= GetValue(Node, Self.Index);
-          Cell.Visible:=true;
           Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
-
-          if IsMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
-             then begin
-                    //отступ
-                    if Cell.FIndent <> nil then
-                    begin
-                      Cell.FIndent.Visible := true; //включаем отсуп
-                      SelectLevel := DetermineLineArrayAndSelectLevel(Node, Cell.FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
-                      //if (vsSelected in Node.States) and
-                      //   not (toChildrenAbove in FOptions.FPaintOptions)
-                      //  then Inc(SelectLevel);
-
-                      //экспандер
-                      if Cell.FExpander <> nil then
-                      begin
-                        if (toShowButtons in TreeOptions.FPaintOptions) and
-                           (vsHasChildren in Node.States) and
-                            not ((vsAllChildrenHidden in Node.States) and
-                                 (toAutoHideButtons in TreeOptions.FAutoOptions)) and
-                           (((Node.Parent = FRoot) and
-                             (toShowRoot in TreeOptions.FPaintOptions)) or
-                            (Node.Parent <> FRoot))
-                          then  begin
-                                  Cell.FExpander.Visible:= true;
-                                  if vsExpanded in Node.States //если узел раскрыт
-                                    then Cell.IsExpanded:=true    //установим флаг раскрытия
-                                    else Cell.IsExpanded:=false;  //иначе снимем флаг раскрытия
-                                end
-                          else Cell.FExpander.Visible:= false;
-                      end;
-                      Cell.CalculateIndent;         //рассчитаем отступ, нарисуем линии дерева
-                    end;
-
-                    //Показывать кнопку узла, если это разрешено, если есть дочерние узлы и хотя бы один
-                    //из дочерних узлов виден или автоматическое скрытие кнопки отключено.
-                    // Show node button if allowed, if there child nodes and at least one of the child
-                    // nodes is visible or auto button hiding is disabled.
-                    if (toCheckSupport in FOptions.FMiscOptions)
-                      then  begin
-                              case Node.CheckType of
-                                ctNone,             // Узел без отметки.
-                                ctButton:           // Узел с кнопкой слева от надписи.
-                                  begin
-                                    if Cell.FCheck <> nil
-                                       then Cell.FCheck.Visible := false;
-                                    if Cell.FRadio <> nil
-                                       then Cell.FRadio.Visible := false;
-                                  end;
-                                ctTriStateCheckBox: // Узел с отметкой типа TCheckBox, которая может иметь 3 состояния (отмечена, grayed, не отмечена).
-                                  begin
-                                    if Cell.FCheck <> nil
-                                       then begin
-                                              Cell.AllowGrayed:=true;
-                                              Cell.FCheck.Visible := true;
-                                            end;
-                                    if Cell.FRadio <> nil
-                                       then Cell.FRadio.Visible := false;
-                                  end;
-                                ctCheckBox:         // Узел с отметкой типа TCheckBox, которая может иметь 2 состояния.
-                                  begin
-                                    if Cell.FCheck <> nil
-                                       then  begin
-                                               Cell.AllowGrayed:=false;
-                                               Cell.FCheck.Visible := true;
-                                             end;
-                                    if Cell.FRadio <> nil
-                                       then Cell.FRadio.Visible := false;
-                                  end;
-                                ctRadioButton:      // Узел с отметкой типа TRadioButton.
-                                  begin
-                                    if Cell.FCheck <> nil
-                                      then  begin
-                                              Cell.AllowGrayed:=false;
-                                              Cell.FCheck.Visible := false;
-                                            end;
-                                    if Cell.FRadio <> nil
-                                      then Cell.FRadio.Visible := true;
-                                  end;
-                              end;
-
-                              //определяем состояние отметки
-                              Case Node.CheckState of
-                                csUncheckedNormal,  // Узел не отмечен и не зажат. unchecked and not pressed
-                                csUncheckedPressed: // Узел не отмечен и пользователь зажал кнопку мыши над отметкой. unchecked and pressed
-                                  begin
-                                    Cell.IsChecked := false;
-                                    Cell.IsGrayed := false;
-                                  end;
-                                csCheckedNormal,    // Узел отмечен и не зажат. checked and not pressed
-                                csCheckedPressed:   // Узел отмечен и пользователь зажал кнопку мыши над отметкой. checked and pressed
-                                  begin
-                                    Cell.IsChecked := true;
-                                  end;
-                                csMixedNormal,      // Отметка имеет промежуточное состояние. 3-state check box and not pressed
-                                csMixedPressed:      // Отметка имеет промежуточное состояние и пользователь зажал кнопку мыши над отметкой. 3-state check box and pressed
-                                  begin
-                                    Cell.IsGrayed := true;
-                                  end;
-                              end;
-
-                            end
-                      else  begin
-                              if Cell.FCheck <> nil
-                                 then Cell.FCheck.Visible := false;
-                              if Cell.FRadio <> nil
-                                 then Cell.FRadio.Visible := false;
-                            end;
-
-                    //if ShowStateImages
-                    //   then begin
-                    //          GetImageIndex(PaintInfo, ikState, iiState, FStateImages);
-                    //          if ImageInfo[iiState].Index > -1 then
-                    //            AdjustImageBorder(FStateImages.Width, FStateImages.Height, BidiMode, VAlign, ContentRect, ImageInfo[iiState]);
-                    //        end
-                    //   else ImageInfo[iiState].Index := -1;
-                    //if ShowImages
-                    //   then begin
-                    //          GetImageIndex(PaintInfo, ImageKind[vsSelected in Node.States], iiNormal, FImages);
-                    //          if ImageInfo[iiNormal].Index > -1 then
-                    //            AdjustImageBorder(ImageInfo[iiNormal].Images, BidiMode, VAlign, ContentRect, ImageInfo[iiNormal]);
-                    //        end
-                    //   else ImageInfo[iiNormal].Index := -1;
-                  end
-             else begin  //это не главная колонка
-                    if Cell.FIndent <> nil                    //уберем отступ если есть
-                       then Cell.FIndent.Visible := false;
-                    if Cell.FExpander <> nil                  //скроем эеспандер если есть
-                       then Cell.FExpander.Visible := false;
-                    if Cell.FCheck <> nil                     //скроем чекбокс если есть
-                       then Cell.FCheck.Visible := false;
-                    if Cell.FRadio <> nil                     //скроем радиокнопку если есть
-                       then Cell.FRadio.Visible := false;
-                  end;
-
-          //включить сплиттер если разрешено изменение размеров
-          if (Cell.FSplitter <> nil) then
-          begin
-            if (toNodeHeightResize in TreeOptions.MiscOptions)
-              then Cell.FSplitter.Visible:= true
-              else Cell.FSplitter.Visible:= false;
-          end;
-
+          Cell.Realign;
           // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
           if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
              then PaintDropMark(Cell);
+
           inc(i);
           d2IncFloat(BaseOffset, Node.NodeHeight);
         end;    //-------------- конец основного цикла
@@ -3355,27 +3314,6 @@ begin
 
   //if (tsUseExplorerTheme in FStates) and HasChildren[Node] and (Indent >= 0) then
   //  LineArray[Indent] := ltNone;
-end;
-
-function TD2CustomTreeGrid.DetermineNextCheckState(CheckType: TD2CheckType;
-  CheckState: TD2CheckState): TD2CheckState;
-//Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
-// Determines the next check state in case the user click the check image or pressed the space key.
-begin
-  case CheckType of
-    ctTriStateCheckBox,
-    ctCheckBox:
-      if CheckState = csCheckedNormal then
-        Result := csUncheckedNormal
-      else
-        Result := csCheckedNormal;
-    ctRadioButton:
-      Result := csCheckedNormal;
-    ctButton:
-      Result := csUncheckedNormal;
-  else
-    Result := csMixedNormal;
-  end;
 end;
 
 procedure TD2CustomTreeGrid.DoBeforeDrawTreeLine(Node: PD2TreeNode; Level: integer; var XPos: single);
