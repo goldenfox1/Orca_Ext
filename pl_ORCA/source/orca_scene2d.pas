@@ -8319,7 +8319,7 @@ TD2TreeCell = class(TD2Control)
     procedure FreeStyle;  override;
               //обработка нажатий клавиатуры
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-                 //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
+              //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
   public
               //создать экземпляр объекта
@@ -8643,7 +8643,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
       CacheThreshold = 2000;        // Number of nodes a tree must at least have to start caching and at the same
                                     // time the maximum number of nodes between two cache entries.
     var
+    FCheckNode: PD2TreeNode;                     //Узел, который «захватывает» событие проверки. node which "captures" a check event
     FCheckPropagationCount: Cardinal;            //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
+
     FBottomSpace: Single;                        //Дополнительное место ниже последнего узла. Extra space below the last node.
     FDefaultNodeHeight: Single;                  //Высота узла по умолчанию
     FDefaultPasteMode: TD2TreeNodeAttachMode;    //Используется для определения, где добавить вставляемый узел. Used to determine where to add pasted nodes to.
@@ -8666,14 +8668,12 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
                                                   основной структуре и внутренним данным), если -1, то делать обратный вызов.
                                                    number of bytes to allocate with each node (in addition to its base
                                                    structure and the internal data), if -1 then do callback  }
-    //FEffectiveOffsetX: Single;                   //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от Направления письма BidiMode). Actual position of the horizontal scroll bar (varies depending on bidi mode).
-    //FOffsetX: Single;                            //Определяет смещение прокрутки слева. Determines left scroll offset.
-    //FOffsetY: Single;                            //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
 
     FOperationCanceled: Boolean;       //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
     FOperationCount: Cardinal;         //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
     FOptions: TD2CustomTreeOptions;    //Текущие опции поведения дерева
-    FPositionCache: TD2Cache;            //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
+    FPendingCheckState: TD2CheckState; //Новое состояние отметки, которое получит текущий узел, если все пойдет нормально. the new state the check node will get if all went fine
+    FPositionCache: TD2Cache;          //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
     FRangeAnchor: PD2TreeNode;         //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
     FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
     FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
@@ -8701,7 +8701,6 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FOnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent; //Вызывается для изменения сдвига линий дерева. Called to allow adjusting the indention of treelines.
 
     FOnChange: TD2VTChangeEvent;                   //Вызывается при изменении выбранных узлов. selection change
-    FOnChangeCheck:TNotifyEvent;                   //Вызывается при изменения состояния отметки узла???
     FOnChecked: TD2VTChangeEvent;                  //Вызывается после изменения состояния отметки узла. called after a node's check state has been changed
     FOnChecking: TD2VTCheckChangingEvent;          //вызывается перед изменением состояния отметки узла. called just before a node's check state is changed
     FOnCollapsed: TD2VTChangeEvent;                //Вызывается после сворачивания узла. called after a node has been collapsed
@@ -9096,7 +9095,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function  IsOneRowSelected: boolean; override;
               //обработка нажатий клавиатуры
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-
+              //обработка отпускания клавиатуры
+    procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
     procedure MainColumnChanged; virtual;
               //Устанавливает флаг vsCutOrCopy в каждом выбранном в данный момент узле, кроме
@@ -9562,7 +9562,8 @@ public
 
     property OnAddToSelection: TD2VTAddToSelectionEvent read FOnAddToSelection write FOnAddToSelection; //Прерывание при добавлении узла к выбранным
     property OnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent read FOnBeforeDrawTreeLine write FOnBeforeDrawTreeLine;
-    property OnChangeCheck:TNotifyEvent read FOnChangeCheck write FOnChangeCheck; //Прерывание при изменении состояния отметки узла
+    property OnChecked: TD2VTChangeEvent read FOnChecked write FOnChecked;            //Прерывание после изменения состояния отметки узла.
+    property OnChecking: TD2VTCheckChangingEvent read FOnChecking write FOnChecking;  //Прерывание перед изменением состояния отметки узла.
     property OnEdititingDone: TD2VTEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize; //Прерывание при NodeDataSize = -1
     property OnGetValue:TD2VTGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
@@ -9596,6 +9597,9 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property OnGetValue;
     property OnScroll;
     property OnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
+
+    property OnChecked;     //Прерывание после изменения состояния отметки узла.
+    property OnChecking;    //Прерывание перед измененем состояния отметки узла.
 
 end;
 

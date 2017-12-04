@@ -16,6 +16,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TD2Button;
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
@@ -30,10 +31,14 @@ type
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
+    TreeTextColumn1: TD2TreeTextColumn;
+    TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure SpinBox1Change(Sender: TObject);
+    procedure TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
+    procedure TreeGrid1Checking(Sender: TD2CustomTreeGrid; Node: PD2TreeNode;
+      var NewState: TD2CheckState; var Allowed: Boolean);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
@@ -93,13 +98,21 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-
-
+   if TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]=csCheckedNormal
+     then  TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csUnCheckedNormal
+     else TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csCheckedNormal;
+   //TreeGrid1.Realign;
 end;
 
-procedure TForm1.SpinBox1Change(Sender: TObject);
+procedure TForm1.TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
 begin
+  //
+end;
 
+procedure TForm1.TreeGrid1Checking(Sender: TD2CustomTreeGrid;
+  Node: PD2TreeNode; var NewState: TD2CheckState; var Allowed: Boolean);
+begin
+  //
 end;
 
 procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;

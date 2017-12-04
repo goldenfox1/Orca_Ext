@@ -427,10 +427,24 @@ begin
 end;
 
 procedure TD2TreeCell.DoCheckClick(Sender: TObject);
-//обработчик нажатия на отметку выделения
+//обработчик нажатия на отметку выделения мышью
+var NewCheckState: TD2CheckState;
 begin
-  if (FNode <> nil) and (FGrid <> nil) then
-    FGrid.ChangeCheckState(FNode, DetermineNextCheckState(FNode.CheckType, FNode.CheckState));
+  //if (FNode <> nil) and (FNode.CheckType <> ctNone) and (FGrid <> nil) and
+  //   (toCheckSupport in FGrid.FOptions.FMiscOptions)
+  //  then  begin
+  //          NewCheckState:=DetermineNextCheckState(FNode.CheckType, FNode.CheckState);
+  //          if FGrid.DoChecking(FNode, NewCheckState) then
+  //          begin
+  //            FGrid.DoStateChange([tsKeyCheckPending]);
+  //            FGrid.FPendingCheckState := NewCheckState;
+  //            FNode.CheckState := PressedState[FNode.CheckState];
+  //
+  //            //if FGrid.ChangeCheckState(FNode, NewCheckState)
+  //            //   then FGrid.DoChecked(FNode);
+  //
+  //          end;
+  //end;
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
@@ -584,16 +598,39 @@ end;
 
 procedure TD2TreeCell.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
+var NewCheckState: TD2CheckState;
 begin
 
   case Key of
     VK_SPACE:
       if (Shift = []) then  //Нажат только пробел
         begin
-          if (FCheck <> nil) and (FCheck.Visible)
-            then TD2HackVisualObject(FCheck).KeyDown(Key, KeyChar, Shift);
-          if (FRadio <> nil) and (FRadio.Visible)
-            then TD2HackVisualObject(FRadio).KeyDown(Key, KeyChar, Shift);
+          //if (FCheck <> nil) and (FCheck.Visible)
+          //  then TD2HackVisualObject(FCheck).KeyDown(Key, KeyChar, Shift);
+          //if (FRadio <> nil) and (FRadio.Visible)
+          //  then TD2HackVisualObject(FRadio).KeyDown(Key, KeyChar, Shift);
+
+
+          if (FGrid<>nil) and (toCheckSupport in FGrid.FOptions.FMiscOptions) and
+             (FNode<>nil) and (FNode.CheckType <> ctNone) then
+            begin
+              if (FGrid.FStates * [tsKeyCheckPending, tsMouseCheckPending] = []) and
+                not (vsDisabled in FNode.States) then
+              begin
+                NewCheckState := DetermineNextCheckState(FNode.CheckType, FNode.CheckState);
+                if FGrid.DoChecking(FNode, NewCheckState) then    //если узел может изменить состояние (определяется прложением)
+                begin
+                  FGrid.DoStateChange([tsKeyCheckPending]);
+                  FGrid.FCheckNode := FNode;
+                  FGrid.FPendingCheckState := NewCheckState;
+                  FNode.CheckState := PressedState[FNode.CheckState];
+                  //RepaintNode(FCheckNode);
+                end;
+              end;
+            end;
+            //else
+            //  DoStateChange([tsIncrementalSearchPending]);
+
         end;
     else  begin
             inherited;
@@ -3373,14 +3410,13 @@ function TD2CustomTreeGrid.DoChecking(Node: PD2TreeNode; var NewCheckState: TD2C
 //Определяет может ли узел Node изменить состояние отметки проверки на NewCheckState и вызывает прерывание OnChecking
 // Determines if a node is allowed to change its check state to NewCheckState.
 begin
-  if toReadOnly in FOptions.FMiscOptions then
-    Result := False
-  else
-  begin
-    Result := True;
-    if Assigned(FOnChecking) then
-      FOnChecking(Self, Node, NewCheckState, Result);
-  end;
+  if toReadOnly in FOptions.FMiscOptions
+    then Result := False
+    else  begin
+            Result := True;
+            if Assigned(FOnChecking)
+              then FOnChecking(Self, Node, NewCheckState, Result);
+          end;
 end;
 
 procedure TD2CustomTreeGrid.DoCollapsed(Node: PD2TreeNode);
@@ -5343,11 +5379,14 @@ begin
     begin
       if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
-        if (Columns[FocusedColumn] <> nil) and (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
+        if (Columns[FocusedColumn] <> nil) and
+           (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
         begin
-          if (KeyChar <> ' ')
-            then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected)
-            else Key:=VK_SPACE;
+          if (KeyChar = ' ')
+            then  if (FocusedColumn = FMainColumn)
+                    then Key:=VK_SPACE
+                    else KeyChar:= #0
+            else TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
           TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected)).KeyDown(Key,KeyChar,Shift);
           Key:=0;
         end;
@@ -5706,6 +5745,20 @@ begin
 
 end;
 
+procedure TD2CustomTreeGrid.KeyUp(var Key: Word; var KeyChar: System.WideChar;
+  Shift: TShiftState);
+begin
+  If (Key=VK_SPACE) and (tsKeyCheckPending in FStates)
+    then  begin
+            DoStateChange([], [tskeyCheckPending]);
+            if (FCheckNode <> nil) and (FCheckNode=FLastSelected) then
+              DoCheckClick(FCheckNode, FPendingCheckState);
+            //InvalidateNode(FCheckNode);
+            FCheckNode := nil;
+          end
+    else inherited;
+end;
+
 procedure TD2CustomTreeGrid.SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer);
 //Устанавливает фокус на узел Node и колонку Column
 //var
@@ -5739,9 +5792,7 @@ end;
 procedure TD2CustomTreeGrid.SkipNode(Stream: TStream);
 //Игнорирует данные для следующего узла в потоке Stream (в том числе и дочерние узлы).
 // Skips the data for the next node in the given stream (including the child nodes).
-var
-  Header: TD2ChunkHeader;
-
+var Header: TD2ChunkHeader;
 begin
   with Stream do
   begin

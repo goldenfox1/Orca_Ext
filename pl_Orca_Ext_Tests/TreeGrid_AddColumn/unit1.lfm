@@ -4,13 +4,13 @@ object Form1: TForm1
   Top = 117
   Width = 876
   Caption = 'Form1'
-  ClientHeight = 552
-  ClientWidth = 876
+  ClientHeight = 0
+  ClientWidth = 0
   OnCreate = FormCreate
   LCLVersion = '1.6.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 552
+    Height = 0
     Top = 0
     Width = 600
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 600
-      Height = 552
+      Height = 0
       object StringGrid1: TD2StringGrid
         Position.Point = '(318,22)'
         RotateAngle = 0
@@ -48,7 +48,7 @@ object Form1: TForm1
         end
       end
       object Grid1: TD2Grid
-        Position.Point = '(318,174)'
+        Position.Point = '(318,171)'
         RotateAngle = 0
         Width = 260
         Height = 241
@@ -114,7 +114,7 @@ object Form1: TForm1
         Text = 'Val'
       end
       object TreeGrid1: TD2TreeGrid
-        Position.Point = '(12,22)'
+        Position.Point = '(19,22)'
         RotateAngle = 0
         Width = 285
         Height = 294
@@ -125,6 +125,8 @@ object Form1: TForm1
         TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
         OnSetValue = TreeGrid1SetValue
+        OnChecked = TreeGrid1Checked
+        OnChecking = TreeGrid1Checking
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 100
@@ -140,6 +142,17 @@ object Form1: TForm1
           HitTest = False
           TabOrder = 1
         end
+      end
+      object Button1: TD2Button
+        Position.Point = '(172,390)'
+        RotateAngle = 0
+        Width = 80
+        Height = 22
+        OnClick = Button1Click
+        TabOrder = 6
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
       end
     end
   end
