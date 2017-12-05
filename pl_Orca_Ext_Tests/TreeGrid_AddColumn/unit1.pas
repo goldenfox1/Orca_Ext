@@ -35,6 +35,8 @@ type
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
     procedure Button1Click(Sender: TObject);
+    procedure Button1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: single);
     procedure FormCreate(Sender: TObject);
     procedure TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
     procedure TreeGrid1Checking(Sender: TD2CustomTreeGrid; Node: PD2TreeNode;
@@ -102,6 +104,12 @@ begin
      then  TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csUnCheckedNormal
      else TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csCheckedNormal;
    //TreeGrid1.Realign;
+end;
+
+procedure TForm1.Button1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: single);
+begin
+
 end;
 
 procedure TForm1.TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);

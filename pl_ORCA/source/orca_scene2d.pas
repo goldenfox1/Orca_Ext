@@ -8289,6 +8289,7 @@ TD2TreeCell = class(TD2Control)
     FVAlign: single;              //сдвиг горизонтальной линии дерева
     FTreeLineStrokeColor: TD2Color;     //цвет линий дерева из стиля
     FTreeLineStrokeDash: TD2StrokeDash; //тип пунктира линий дерева
+
               //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
               //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
     procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
@@ -8296,22 +8297,28 @@ TD2TreeCell = class(TD2Control)
     procedure PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
               //обработчик нажатия на экспандер
     procedure DoExpanderClick(Sender: TObject);
-              //обработчик нажатия на отметку выделения
-    procedure DoCheckClick(Sender: TObject);
+              //обработчик нажатия ЛКМ над отметкой узла
+    procedure DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
              //получить альтернативный массив линий дерева для режима LineMode=lmBands
     function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
-              //установить состояние разрешения 3-х позиционного чек-бокса
+              //установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса
     procedure SetAllowGrayed(Value: boolean);
-
+              //установить флаг IsChecked (отметка узла) в состояние Value
     procedure SetIsChecked(const Value:boolean);
+              //установить флаг IsGrayed (серая (промежуточная) отметка узла) для 3-х позиционного чек-бокса в состояние Value
     procedure SetIsGrayed(Value: boolean);
+              //установить флаг IsExpanded (узел развернут/свернут) в состояние Value
     procedure SetIsExpanded(const Value:boolean);
 
-
   protected
+              //рассчитать отступ експандера и/или отметки узла и нарисовать линии дерева
     procedure CalculateIndent;
+              // Рисует (в зависимости от стиля) один из 5 типов линий дерева.
+              // Если Reverse = True, то столбец рисуется справа налево, и горизонтальные линии должны быть зеркалированы.
     procedure DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
+              //получить данные из ячейки
     function  GetData: Variant;  override;
+              //установить данные ячейки в Value
     procedure SetData(const Value:Variant);  override;
               //применить стиль
     procedure ApplyStyle;  override;

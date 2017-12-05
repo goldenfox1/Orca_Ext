@@ -22,7 +22,6 @@ begin
   if FNode = nil then exit;
   with TD2TreeGrid(FGrid) do
   begin
-
     if FColumnIndex=FMainColumn  // Некоторые части отображаются только для основного столбца. Some parts are only drawn for the main column.
       then  begin
               //отступ
@@ -34,12 +33,12 @@ begin
                 //экспандер
                 if FExpander <> nil then
                 begin
-                  if (toShowButtons in TreeOptions.FPaintOptions) and
+                  if (toShowButtons in FOptions.FPaintOptions) and
                      (vsHasChildren in FNode.States) and
                       not ((vsAllChildrenHidden in FNode.States) and
-                           (toAutoHideButtons in TreeOptions.FAutoOptions)) and
+                           (toAutoHideButtons in FOptions.FAutoOptions)) and
                      (((FNode.Parent = FRoot) and
-                       (toShowRoot in TreeOptions.FPaintOptions)) or
+                       (toShowRoot in FOptions.FPaintOptions)) or
                       (FNode.Parent <> FRoot))
                     then  begin
                             FExpander.Visible:= true;
@@ -137,7 +136,7 @@ begin
     //включить сплиттер если разрешено изменение размеров
     if FSplitter <> nil then
     begin
-      if (toNodeHeightResize in TreeOptions.MiscOptions)
+      if (toNodeHeightResize in FOptions.MiscOptions)
         then FSplitter.Visible:= true
         else FSplitter.Visible:= false;
     end;
@@ -185,6 +184,7 @@ begin
 end;
 
 procedure TD2TreeCell.CalculateIndent;
+//рассчитать отступ експандера и/или отметки узла и нарисовать линии дерева
 var
   ButtonY: single;
   IndentSize: integer;
@@ -241,14 +241,11 @@ begin
 
     case FGrid.FLineMode of
       lmBands:
-        //if poGridLines in PaintInfo.PaintOptions then
         begin
           NewStyles:= GetBandsLineArray(IndentSize, LineArray);
-
           FIndent.Stroke.SolidColor:=FGrid.FLineFill.SolidColor;
           FIndent.StrokeDash:=d2DashSolid;
 
-          //PaintInfo.Canvas.Font.Color := FColors.GridLineColor;
           for i := 0 to IndentSize - 1 do
           begin
             FGrid.DoBeforeDrawTreeLine(FNode, i + Ord(not (toShowRoot in FGrid.TreeOptions.PaintOptions)), XPos);
@@ -257,7 +254,6 @@ begin
           end;
         end;
       else // lmNormal
-
         FIndent.Stroke.SolidColor:=FTreeLineStrokeColor;
         FIndent.StrokeDash:=FTreeLineStrokeDash;
         for i := 0 to IndentSize - 1 do
@@ -266,7 +262,7 @@ begin
           DrawTreeLine(XPos, LineArray[i], ((FExpander.Visible) and (i=IndentSize - 1)), false {BidiMode <> bdLeftToRight});
           d2IncFloat(XPos, Offset);
         end;
-  end;
+     end;
   {$ifdef DEBUG_TreeGrid}
      DebugLn('Y: ' + d2FloatToStr(Position.Y) + ' Column: ' + inttostr(FColumnIndex) + ' Path: ' + FIndent.Data.Data);
   {$endif}
@@ -286,7 +282,6 @@ begin
   FIndent.Data.Data:= FIndent.Data.Data +
                       ' M ' + d2FloatToStr(Left) + ',' + d2FloatToStr(Top) +
                       ' L ' + d2FloatToStr(Left) + ',' + d2FloatToStr(Bottom) + ' Z';
-  //R := d2Rect(Left, Min(Top, Bottom), Left , Max(Top, Bottom) );
 end;
 
 procedure DrawHLine(Left, Right, Top: single);
@@ -295,7 +290,6 @@ begin
   FIndent.Data.Data:= FIndent.Data.Data +
                       ' M ' + d2FloatToStr(Left)  + ',' + d2FloatToStr(Top-0.5) +
                       ' L ' + d2FloatToStr(Right) + ',' + d2FloatToStr(Top-0.5) + ' Z';
-  //R := d2Rect(Min(Left, Right), Top, Max(Left, Right), Top);
 end;
 
 var
@@ -366,14 +360,8 @@ begin
 
     ltLeftBottom:
           if Reverse
-            then  begin
-                    DrawVLine(-1, FNode.NodeHeight - 0.5, X + FGrid.FIndentWidth);
-                    //DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 0.5);  //рисуется в процедуре DoContentPaint2
-                  end
-            else  begin
-                    DrawVLine(-1, FNode.NodeHeight - 0.5, X);
-                    //DrawHLine(X, X + FGrid.FIndentWidth, FNode.NodeHeight - 0.5);  //рисуется в процедуре DoContentPaint2
-                  end;
+            then DrawVLine(-1, FNode.NodeHeight - 0.5, X + FGrid.FIndentWidth)
+            else DrawVLine(-1, FNode.NodeHeight - 0.5, X);
   end;
 end;
 
@@ -426,28 +414,20 @@ begin
     then FGrid.ToggleNode(FNode);
 end;
 
-procedure TD2TreeCell.DoCheckClick(Sender: TObject);
-//обработчик нажатия на отметку выделения мышью
-var NewCheckState: TD2CheckState;
+procedure TD2TreeCell.SetIsExpanded(const Value: boolean);
+//установить флаг IsExpanded (узел развернут/свернут) в состояние Value
 begin
-  //if (FNode <> nil) and (FNode.CheckType <> ctNone) and (FGrid <> nil) and
-  //   (toCheckSupport in FGrid.FOptions.FMiscOptions)
-  //  then  begin
-  //          NewCheckState:=DetermineNextCheckState(FNode.CheckType, FNode.CheckState);
-  //          if FGrid.DoChecking(FNode, NewCheckState) then
-  //          begin
-  //            FGrid.DoStateChange([tsKeyCheckPending]);
-  //            FGrid.FPendingCheckState := NewCheckState;
-  //            FNode.CheckState := PressedState[FNode.CheckState];
-  //
-  //            //if FGrid.ChangeCheckState(FNode, NewCheckState)
-  //            //   then FGrid.DoChecked(FNode);
-  //
-  //          end;
-  //end;
+  if FIsExpanded <> Value then
+  begin
+    FIsExpanded:=Value;
+    //обновим экспандер
+    if FExpander <> nil
+      then FExpander.StartTriggerAnimation(Self,'IsExpanded');
+  end;
 end;
 
 procedure TD2TreeCell.SetIsChecked(const Value: boolean);
+//установить флаг IsChecked (отметка узла) в состояние Value
 begin
   if FIsChecked <> Value then
   begin
@@ -462,6 +442,7 @@ begin
 end;
 
 procedure TD2TreeCell.SetIsGrayed(Value: boolean);
+//установить флаг IsGrayed (серая (промежуточная) отметка узла) для 3-х позиционного чек-бокса в состояние Value
 begin
   if FIsGrayed <> Value then
   begin
@@ -480,6 +461,7 @@ begin
 end;
 
 procedure TD2TreeCell.SetAllowGrayed(Value: boolean);
+//установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса
 begin
   if FAllowGrayed <> Value then
     begin
@@ -489,18 +471,8 @@ begin
     end;
 end;
 
-procedure TD2TreeCell.SetIsExpanded(const Value: boolean);
-begin
-  if FIsExpanded <> Value then
-  begin
-    FIsExpanded:=Value;
-    //обновим экспандер
-    if FExpander <> nil
-      then FExpander.StartTriggerAnimation(Self,'IsExpanded');
-  end;
-end;
-
 function TD2TreeCell.GetData: Variant;
+//получить данные из ячейки
 begin
   if FControl<>nil
     then Result:=FControl.GetData
@@ -508,6 +480,7 @@ begin
 end;
 
 procedure TD2TreeCell.SetData(const Value: Variant);
+//установить данные ячейки в Value
 begin
   if FControl<>nil
     then FControl.SetData(Value);
@@ -544,7 +517,7 @@ begin
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FCheck:=TD2CustomButton(B);
-    FCheck.OnClick:=DoCheckClick;
+    FCheck.OnMouseDown:=DoCheckMouseDown;
     FCheck.ApplyResource;
     FCheck.StartTriggerAnimation(Self,'IsChecked');
     FCheck.StartTriggerAnimation(Self,'IsGrayed');
@@ -553,7 +526,7 @@ begin
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FRadio:=TD2CustomButton(B);
-    FRadio.OnClick:=DoCheckClick;
+    FRadio.OnMouseDown:=DoCheckMouseDown;
     FRadio.ApplyResource;
     FRadio.StartTriggerAnimation(Self,'IsChecked');
   end;
@@ -605,12 +578,6 @@ begin
     VK_SPACE:
       if (Shift = []) then  //Нажат только пробел
         begin
-          //if (FCheck <> nil) and (FCheck.Visible)
-          //  then TD2HackVisualObject(FCheck).KeyDown(Key, KeyChar, Shift);
-          //if (FRadio <> nil) and (FRadio.Visible)
-          //  then TD2HackVisualObject(FRadio).KeyDown(Key, KeyChar, Shift);
-
-
           if (FGrid<>nil) and (toCheckSupport in FGrid.FOptions.FMiscOptions) and
              (FNode<>nil) and (FNode.CheckType <> ctNone) then
             begin
@@ -624,13 +591,9 @@ begin
                   FGrid.FCheckNode := FNode;
                   FGrid.FPendingCheckState := NewCheckState;
                   FNode.CheckState := PressedState[FNode.CheckState];
-                  //RepaintNode(FCheckNode);
                 end;
               end;
             end;
-            //else
-            //  DoStateChange([tsIncrementalSearchPending]);
-
         end;
     else  begin
             inherited;
@@ -638,6 +601,26 @@ begin
               TD2HackVisualObject(FControl).KeyDown(Key, KeyChar, Shift);
           end;
   end;
+end;
+
+procedure TD2TreeCell.DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+//обработчик нажатия ЛКМ над отметкой узла
+var NewCheckState: TD2CheckState;
+begin
+  if {(Button = mbLeft) and }(Shift = [ssLeft]) and
+     (FGrid<>nil) and (toCheckSupport in FGrid.FOptions.FMiscOptions) and
+     (FNode<>nil) and not (vsDisabled in FNode.States) and (FNode.CheckType<>ctNone) and
+     (FGrid.FStates * [tsMouseCheckPending, tsKeyCheckPending] = [])
+    then  begin
+            NewCheckState := DetermineNextCheckState(FNode.CheckType, FNode.CheckState);
+            if FGrid.DoChecking(FNode, NewCheckState) then    //если узел может изменить состояние (определяется прложением)
+              begin
+                FGrid.DoStateChange([tsMouseCheckPending]);
+                FGrid.FCheckNode := FNode;
+                FGrid.FPendingCheckState := NewCheckState;
+                FNode.CheckState := PressedState[FNode.CheckState];
+              end;
+          end;
 end;
 
 function TD2TreeCell.DetermineNextCheckState(CheckType: TD2CheckType;
