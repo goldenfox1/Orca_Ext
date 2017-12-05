@@ -16,11 +16,14 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TD2Button;
     CheckColumn1: TD2CheckColumn;
+    CloseButton1: TD2CloseButton;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
+    DockingPanel1: TD2DockingPanel;
+    DockingPlace1: TD2DockingPlace;
     Grid1: TD2Grid;
+    TreeGrid1: TD2TreeGrid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
@@ -30,7 +33,6 @@ type
     StringGrid1: TD2StringGrid;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
-    TreeGrid1: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;

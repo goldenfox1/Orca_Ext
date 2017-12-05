@@ -518,6 +518,8 @@ begin
   begin
     FCheck:=TD2CustomButton(B);
     FCheck.OnMouseDown:=DoCheckMouseDown;
+    FCheck.OnMouseUp:=DoCheckMouseUp;
+    FCheck.OnMouseLeave:=DoCheckMouseLeave;
     FCheck.ApplyResource;
     FCheck.StartTriggerAnimation(Self,'IsChecked');
     FCheck.StartTriggerAnimation(Self,'IsGrayed');
@@ -527,6 +529,8 @@ begin
   begin
     FRadio:=TD2CustomButton(B);
     FRadio.OnMouseDown:=DoCheckMouseDown;
+    FRadio.OnMouseUp:=DoCheckMouseUp;
+    FRadio.OnMouseLeave:=DoCheckMouseLeave;
     FRadio.ApplyResource;
     FRadio.StartTriggerAnimation(Self,'IsChecked');
   end;
@@ -603,8 +607,9 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
-//обработчик нажатия ЛКМ над отметкой узла
+procedure TD2TreeCell.DoCheckMouseDown(Sender: TObject; Button: TMouseButton;
+                                       Shift: TShiftState; X, Y:single);
+//обработчик нажатия кнопок мыши над отметкой узла
 var NewCheckState: TD2CheckState;
 begin
   if {(Button = mbLeft) and }(Shift = [ssLeft]) and
@@ -621,6 +626,36 @@ begin
                 FNode.CheckState := PressedState[FNode.CheckState];
               end;
           end;
+end;
+
+procedure TD2TreeCell.DoCheckMouseUp(Sender: TObject; Button: TMouseButton;
+                                     Shift: TShiftState; X, Y: single);
+//обработчик отпускания кнопок мыши над отметкой узла
+begin
+
+  if (FGrid<>nil) and (tsMouseCheckPending in FGrid.FStates) then
+    begin
+      FGrid.DoStateChange([], [tsMouseCheckPending]);
+      //Нужна проверка на nil, номер # 285, т.к. когда кнопка мыши нажата на флажке,
+      //но еще не отпущена, и в этот момент список начинает перестраиваться по таймеру,
+      //то после этого, когда кнопка мыши отпускается FCheckNode уже равен nil
+      //  Need check for nil, issue #285
+      //  because when mouse down on checkbox but not yet released
+      //  and in this time list starts to rebuild by timer
+      //  after this when mouse release  FCheckNode equal nil
+      if (FGrid.FCheckNode<>nil) and (FNode<>nil) then
+      begin
+        if (FGrid.FCheckNode=FNode) and (FCheck.MouseInObject or FRadio.MouseInObject) //мышь все еще над тем же узлом?  Is the mouse still over the same node?
+          then FGrid.DoCheckClick(FNode, FGrid.FPendingCheckState)
+          else FGrid.FCheckNode.CheckState := UnpressedState[FGrid.FCheckNode.CheckState];
+      end;
+      FGrid.FCheckNode := nil;
+    end;
+end;
+
+procedure TD2TreeCell.DoCheckMouseLeave(Sender: TObject);
+begin
+  //
 end;
 
 function TD2TreeCell.DetermineNextCheckState(CheckType: TD2CheckType;
@@ -5734,10 +5769,13 @@ begin
   If (Key=VK_SPACE) and (tsKeyCheckPending in FStates)
     then  begin
             DoStateChange([], [tskeyCheckPending]);
-            if (FCheckNode <> nil) and (FCheckNode=FLastSelected) then
-              DoCheckClick(FCheckNode, FPendingCheckState);
-            //InvalidateNode(FCheckNode);
-            FCheckNode := nil;
+            if (FCheckNode <> nil) then
+            begin
+              if (FCheckNode = FLastSelected)
+                then DoCheckClick(FCheckNode, FPendingCheckState)
+                else FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState];
+              FCheckNode := nil;
+            end;
           end
     else inherited;
 end;

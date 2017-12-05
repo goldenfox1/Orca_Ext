@@ -8297,8 +8297,12 @@ TD2TreeCell = class(TD2Control)
     procedure PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
               //обработчик нажатия на экспандер
     procedure DoExpanderClick(Sender: TObject);
-              //обработчик нажатия ЛКМ над отметкой узла
+              //обработчик нажатия кнопок мыши над отметкой узла
     procedure DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+              //обработчик отпускания кнопок мыши над отметкой узла
+    procedure DoCheckMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+              //обработчик выхода мыши за гранизу отметки
+    procedure DoCheckMouseLeave(Sender: TObject);
              //получить альтернативный массив линий дерева для режима LineMode=lmBands
     function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
               //установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса

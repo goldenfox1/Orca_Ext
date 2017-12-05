@@ -48,7 +48,7 @@ object Form1: TForm1
         end
       end
       object Grid1: TD2Grid
-        Position.Point = '(318,171)'
+        Position.Point = '(323,174)'
         RotateAngle = 0
         Width = 260
         Height = 241
@@ -114,23 +114,20 @@ object Form1: TForm1
         Text = 'Val'
       end
       object TreeGrid1: TD2TreeGrid
-        Position.Point = '(19,22)'
+        Position.Point = '(15,24)'
         RotateAngle = 0
-        Width = 285
-        Height = 294
+        Width = 281
+        Height = 266
         Resource = 'gridstyle'
         TabOrder = 5
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
-        TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
         OnSetValue = TreeGrid1SetValue
-        OnChecked = TreeGrid1Checked
-        OnChecking = TreeGrid1Checking
         object TreeTextColumn1: TD2TreeTextColumn
           RotateAngle = 0
           Width = 100
-          Height = 269
+          Height = 241
           HitTest = False
           TabOrder = 0
         end
@@ -138,22 +135,38 @@ object Form1: TForm1
           Position.Point = '(100,0)'
           RotateAngle = 0
           Width = 100
-          Height = 269
+          Height = 241
           HitTest = False
           TabOrder = 1
         end
       end
-      object Button1: TD2Button
-        Position.Point = '(172,390)'
+      object DockingPanel1: TD2DockingPanel
+        Position.Point = '(213,395)'
         RotateAngle = 0
-        Width = 80
-        Height = 22
-        OnClick = Button1Click
-        OnMouseDown = Button1MouseDown
+        Width = 130
+        Height = 130
+        CanClipped = False
         TabOrder = 6
-        StaysPressed = False
-        IsPressed = False
         TextAlign = d2TextAlignCenter
+        MinHeight = 42
+        MinWidth = 42
+      end
+      object DockingPlace1: TD2DockingPlace
+        Position.Point = '(24,303)'
+        RotateAngle = 0
+        Width = 200
+        Height = 200
+        TabOrder = 7
+        TabHeight = 0
+      end
+      object CloseButton1: TD2CloseButton
+        Position.Point = '(473,438)'
+        RotateAngle = 0
+        Width = 20
+        Height = 20
+        CanClipped = False
+        TabOrder = 9
+        CloseForm = False
       end
     end
   end
