@@ -8301,8 +8301,6 @@ TD2TreeCell = class(TD2Control)
     procedure DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
               //обработчик отпускания кнопок мыши над отметкой узла
     procedure DoCheckMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
-              //обработчик выхода мыши за гранизу отметки
-    procedure DoCheckMouseLeave(Sender: TObject);
              //получить альтернативный массив линий дерева для режима LineMode=lmBands
     function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
               //установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса
@@ -9108,6 +9106,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //обработка отпускания клавиатуры
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //обработка отпускания клавиатуры
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
               //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
     procedure MainColumnChanged; virtual;
               //Устанавливает флаг vsCutOrCopy в каждом выбранном в данный момент узле, кроме

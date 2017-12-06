@@ -435,9 +435,15 @@ begin
     if Value then IsGrayed:= false;
   //обновим отметку
     if FCheck <> nil
-      then FCheck.StartTriggerAnimation(Self,'IsChecked');
+      then  begin
+              FCheck.StartTriggerAnimation(Self,'IsChecked');
+              FCheck.StartTriggerAnimation(Self,'IsPressed');
+            end;
     if FRadio <> nil
-      then FRadio.StartTriggerAnimation(Self,'IsChecked');
+      then  begin
+              FRadio.StartTriggerAnimation(Self,'IsChecked');
+              FRadio.StartTriggerAnimation(Self,'IsPressed');
+            end;
   end;
 end;
 
@@ -456,7 +462,10 @@ begin
       else FIsGrayed:= false;
     //обновим отметку
     if (FCheck <> nil)
-      then FCheck.StartTriggerAnimation(Self,'IsGrayed');
+      then begin
+              FCheck.StartTriggerAnimation(Self,'IsGrayed');
+              FCheck.StartTriggerAnimation(Self,'IsPressed');
+            end;
   end;
 end;
 
@@ -503,8 +512,9 @@ begin
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FExpander:=TD2CustomButton(B);
-    FExpander.OnClick:=DoExpanderClick;
     FExpander.ApplyResource;
+    FExpander.OnClick:=DoExpanderClick;
+    FExpander.AutoCapture:= false; //отключить захват нажатия мыши при выходе курсора за пределы элемента
     FExpander.StartTriggerAnimation(Self,'IsExpanded');
     B:=FExpander.FindResource('plus');
     if (B <> nil) and (B is TD2Path)
@@ -517,22 +527,24 @@ begin
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FCheck:=TD2CustomButton(B);
+    FCheck.ApplyResource;
     FCheck.OnMouseDown:=DoCheckMouseDown;
     FCheck.OnMouseUp:=DoCheckMouseUp;
-    FCheck.OnMouseLeave:=DoCheckMouseLeave;
-    FCheck.ApplyResource;
+    FCheck.AutoCapture:= false; //отключить захват нажатия мыши при выходе курсора за пределы элемента
     FCheck.StartTriggerAnimation(Self,'IsChecked');
     FCheck.StartTriggerAnimation(Self,'IsGrayed');
+    FCheck.StartTriggerAnimation(Self,'IsPressed');
   end;
   B:=FindResource('radio');
   if (B <> nil) and (B is TD2CustomButton) then
   begin
     FRadio:=TD2CustomButton(B);
+    FRadio.ApplyResource;
     FRadio.OnMouseDown:=DoCheckMouseDown;
     FRadio.OnMouseUp:=DoCheckMouseUp;
-    FRadio.OnMouseLeave:=DoCheckMouseLeave;
-    FRadio.ApplyResource;
+    FRadio.AutoCapture:= false;  //отключить захват нажатия мыши при выходе курсора за пределы элемента
     FRadio.StartTriggerAnimation(Self,'IsChecked');
+    FCheck.StartTriggerAnimation(Self,'IsPressed');
   end;
   B:=FindResource('content');
   if (B <> nil) and (B is TD2Layout) then
@@ -637,7 +649,7 @@ begin
     begin
       FGrid.DoStateChange([], [tsMouseCheckPending]);
       //Нужна проверка на nil, номер # 285, т.к. когда кнопка мыши нажата на флажке,
-      //но еще не отпущена, и в этот момент список начинает перестраиваться по таймеру,
+      //но еще не отпущена, и в этот момент грид начинает перестраиваться по таймеру????,
       //то после этого, когда кнопка мыши отпускается FCheckNode уже равен nil
       //  Need check for nil, issue #285
       //  because when mouse down on checkbox but not yet released
@@ -651,11 +663,6 @@ begin
       end;
       FGrid.FCheckNode := nil;
     end;
-end;
-
-procedure TD2TreeCell.DoCheckMouseLeave(Sender: TObject);
-begin
-  //
 end;
 
 function TD2TreeCell.DetermineNextCheckState(CheckType: TD2CheckType;
@@ -5776,6 +5783,19 @@ begin
                 else FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState];
               FCheckNode := nil;
             end;
+          end
+    else inherited;
+end;
+
+procedure TD2CustomTreeGrid.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: single);
+begin
+  if tsMouseCheckPending in FStates
+    then  begin
+            DoStateChange([], [tsMouseCheckPending]);
+            if (FCheckNode <> nil)
+              then FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState];
+            FCheckNode := nil;
           end
     else inherited;
 end;

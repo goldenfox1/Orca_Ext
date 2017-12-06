@@ -140,33 +140,15 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
-      object DockingPanel1: TD2DockingPanel
-        Position.Point = '(213,395)'
+      object SpeedButton1: TD2SpeedButton
+        Position.Point = '(134,448)'
         RotateAngle = 0
-        Width = 130
-        Height = 130
-        CanClipped = False
-        TabOrder = 6
-        TextAlign = d2TextAlignCenter
-        MinHeight = 42
-        MinWidth = 42
-      end
-      object DockingPlace1: TD2DockingPlace
-        Position.Point = '(24,303)'
-        RotateAngle = 0
-        Width = 200
-        Height = 200
+        Width = 23
+        Height = 23
         TabOrder = 7
-        TabHeight = 0
-      end
-      object CloseButton1: TD2CloseButton
-        Position.Point = '(473,438)'
-        RotateAngle = 0
-        Width = 20
-        Height = 20
-        CanClipped = False
-        TabOrder = 9
-        CloseForm = False
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
       end
     end
   end

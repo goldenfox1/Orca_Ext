@@ -17,12 +17,10 @@ type
 
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
-    CloseButton1: TD2CloseButton;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
-    DockingPanel1: TD2DockingPanel;
-    DockingPlace1: TD2DockingPlace;
     Grid1: TD2Grid;
+    SpeedButton1: TD2SpeedButton;
     TreeGrid1: TD2TreeGrid;
     Label1: TD2Label;
     Label2: TD2Label;
