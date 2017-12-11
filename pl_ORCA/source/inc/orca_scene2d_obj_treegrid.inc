@@ -688,6 +688,12 @@ begin
   end;
 end;
 
+procedure TD2TreeCell.DoDragOver(Sender: TObject; const Data: TD2DragObject;
+  const Point: TD2Point; var Accept: Boolean);
+begin
+  Accept:=true;
+end;
+
 constructor TD2TreeCell.Create(AOwner: TComponent);
 begin
   inherited;
@@ -708,6 +714,8 @@ begin
   FRadio:=nil;             //указатель на радиокнопку
   FSplitter:=nil;          //указатель на сплиттер
   FVAlign:= 0;             //сдвиг горизонтальной линии дерева
+  DragMode:=d2DragAutomatic;
+  OnDragOver:=DoDragOver;
 end;
 
 destructor TD2TreeCell.Destroy;

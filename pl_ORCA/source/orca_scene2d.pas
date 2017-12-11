@@ -6754,29 +6754,50 @@ private
   FTextControl: TD2Text;    //ссылка на текст
   FTimer: TD2Timer;         //ссылка на таймер закрытия
   FIsShowPanel:boolean;     //флаг видимости панели: true - панель выдвинута; false - скрыта
-  function  GetAlign: TD2DockingAlign;              //получить данные выравнивания
-  procedure SetAlign(const Value:TD2DockingAlign);  //задать выравнивание
-  procedure SetAutoWidth(const Value:boolean);      //задать флаг автоматического подбора ширины
+
+            //получить данные выравнивания
+  function GetAlign: TD2DockingAlign;
+            //задать выравнивание
+  procedure SetAlign(const Value:TD2DockingAlign);
+            //задать флаг автоматического подбора ширины
+  procedure SetAutoWidth(const Value:boolean);
 protected
-  procedure ApplyStyle;  override;   //применить стиль
-  procedure DesignSelect;  override; //выбор закладки в дизайн-моде (показать/скрыть панель)
-  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override; //обрабока нажатий клавиш мыши
-  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;               //обрабока перемещения мыши
-  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обрабока отпускания клавиш мыши
-  procedure MouseEnter;  override;   //обработка входа указателя мыши в видимую область объекта
-  procedure MouseLeave;  override;   //обработка выхода указателя мыши за видимую область объекта
-  procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
-  procedure SetText(const Value:WideString);  override; //установка отображаемого на закладке текста
+            //применить стиль
+  procedure ApplyStyle;  override;
+            //выбор закладки в дизайн-моде (показать/скрыть панель)
+  procedure DesignSelect;  override;
+            //обрабока нажатий клавиш мыши
+  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+            //обрабока перемещения мыши
+  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
+            //обрабока отпускания клавиш мыши
+  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+            //обработка входа указателя мыши в видимую область объекта
+  procedure MouseEnter;  override;
+            //обработка выхода указателя мыши за видимую область объекта
+  procedure MouseLeave;  override;
+            //очистка FLayout при его удалении
+  procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+            //установка отображаемого на закладке текста
+  procedure SetText(const Value:WideString);  override;
 public
-  constructor Create(AOwner: TComponent);  override;  //создать объект
-  destructor Destroy;  override;                      //уничтожить объект
-  procedure DoAutoWidth(AMinWidth:single);  //выполнить автоматический подбор ширины
-  procedure DoTimer(Sender: TObject);       //обработка события таймера скрытия панели
-  procedure Realign;  override;             //перерисовать объект
-  procedure Select(ASelected:boolean);      //выделение закладки
-  procedure ShowPanel(const Value:boolean); //ture - показать (выдвинуть панель) false - скрыть
-  property IsSelected:boolean read FIsSelected;    //флаг выделения закладки
-  property IsShowPanel:boolean read FIsShowPanel;  //флаг видимости панели: true - панель выдвинута; false - скрыта
+              //создать объект
+  constructor Create(AOwner: TComponent);  override;
+             //уничтожить объект
+  destructor Destroy;  override;
+            //выполнить автоматический подбор ширины
+  procedure DoAutoWidth(AMinWidth:single);
+            //обработка события таймера скрытия панели
+  procedure DoTimer(Sender: TObject);
+            //перерисовать объект
+  procedure Realign;  override;
+            //выделение закладки
+  procedure Select(ASelected:boolean);
+            //ture - показать (выдвинуть панель) false - скрыть
+  procedure ShowPanel(const Value:boolean);
+
+  property IsSelected:boolean read FIsSelected;  //флаг выделения закладки
+  property IsShowPanel:boolean read FIsShowPanel; //флаг видимости панели: true - панель выдвинута; false - скрыта
 published
   property Align: TD2DockingAlign read GetAlign write SetAlign; //выравнивание
   property AutoTranslate default true;              //флаг автоматического перевода текста на закладке
@@ -6832,45 +6853,82 @@ TD2DockingPanel = class(TD2TextControl)  //перемещаемая панель
     FShowCloseButton:boolean;     //показать кнопку закрытия
     FShowFixedCheckBox:boolean;   //показать чек бокс фиксации окна
     FShowHeader:boolean;          //показать заголовок
-    procedure DoCloseClick(Sender: TObject);     //нажатие на кнопку закрытия панели
-    procedure DoFixedChange(Sender: TObject);    //нажатие на кнопку фикасации панели
-    procedure DoHeaderDblClick(Sender: TObject); //двойной щелчок на заголовке панели
-    procedure DoHeaderDragEnd(Sender: TObject);  //конец перемещения панели
-    procedure DoSplitterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single); //нажатие ЛКМ на сплиттере
-    procedure DoSplitterMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);   //отпускание ЛКМ на сплиттере
-    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);               //перемещение мыши на сплиттере
-    procedure SetAlign(const Value:TD2DockingAlign);     //установить расположение панели
-    procedure SetAllowDock(Value:TD2DockingAllowAligns); //установить разрешения на расположение панели
-    procedure SetDragMode (const Value:TD2DragMode);     //установить режим перетаскивания панели
-    procedure SetIsDockable (const Value:boolean);       //установить/снять разрешение изменять положение
-    procedure SetIsFixed(const Value:boolean);           //установить/снять фиксацию панели
-    procedure SetMinHeight(const Value:Single);          //установка минимальной высоты панели
-    procedure SetMinWidth(const Value:Single);           //установка минимальной ширины панели
-    procedure SetShowCloseButton(const Value:boolean);   //показать/скрыть кнопку закрытия панели
-    procedure SetShowFixedCheck(const Value:boolean);    //показать/скрыть чек бокс фиксации панели
-    procedure SetShowHeader(const Value:boolean);        //показать/скрыть заголовок панели
-    procedure SetTabAutoWidth (const Value:boolean);     //установить/снять автоматического подбора ширины закладки
+              //нажатие на кнопку закрытия панели
+    procedure DoCloseClick(Sender: TObject);
+              //нажатие на кнопку фикасации панели
+    procedure DoFixedChange(Sender: TObject);
+              //двойной щелчок на заголовке панели
+    procedure DoHeaderDblClick(Sender: TObject);
+              //конец перемещения панели
+    procedure DoHeaderDragEnd(Sender: TObject);
+              //нажатие ЛКМ на сплиттере
+    procedure DoSplitterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);
+              //отпускание ЛКМ на сплиттере
+    procedure DoSplitterMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);
+              //перемещение мыши на сплиттере
+    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
+              //установить расположение панели
+    procedure SetAlign(const Value:TD2DockingAlign);
+              //установить разрешения на расположение панели
+    procedure SetAllowDock(Value:TD2DockingAllowAligns);
+              //установить режим перетаскивания панели
+    procedure SetDragMode (const Value:TD2DragMode);
+              //установить/снять разрешение изменять положение
+    procedure SetIsDockable (const Value:boolean);
+              //установить/снять фиксацию панели
+    procedure SetIsFixed(const Value:boolean);
+              //установка минимальной высоты панели
+    procedure SetMinHeight(const Value:Single);
+              //установка минимальной ширины панели
+    procedure SetMinWidth(const Value:Single);
+              //показать/скрыть кнопку закрытия панели
+    procedure SetShowCloseButton(const Value:boolean);
+              //показать/скрыть чек бокс фиксации панели
+    procedure SetShowFixedCheck(const Value:boolean);
+              //показать/скрыть заголовок панели
+    procedure SetShowHeader(const Value:boolean);
+              //установить/снять автоматического подбора ширины закладки
+    procedure SetTabAutoWidth (const Value:boolean);
   protected
-    procedure ApplyAlign;  virtual;     //применить размещение
-    procedure ApplyStyle;  override;    //применить стиль
-    procedure FreeStyle;  override;     //удалить стиль
-    procedure DesignClick;  override;   //двойной щелчок по панели в дизайн-моде (изменение фиксации)
-    procedure DesignInsert;  override;  //вставка в дизайн-моде
-    procedure DesignSelect;  override;  //одиночный щелчок щелчок по закладке в дизайн-моде (показать/скрыть панель)
-    procedure TabInsert;                //вставить закладку на связанном DockingPlace
-    procedure TabDelete;                //удалить закладку со связанного DockingPlace
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
-    procedure SetHeight(const Value:single);  override;   //установить высоту панели
-    procedure SetText(const Value:WideString);  override; overload;  //установка отображаемого в заголовке текста
-    procedure SetWidth(const Value:single);  override;    //установить ширину панели
-    procedure SetVisible(const Value:boolean);  override; //установить видимость панели
-    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override; //установить флаг нахождения указателя мыши над дочерним объектом у родителя; остановить /запустить таймер скрытия панели //Added by GoldenFox
+              //применить размещение
+    procedure ApplyAlign;  virtual;
+              //применить стиль
+    procedure ApplyStyle;  override;
+              //удалить стиль
+    procedure FreeStyle;  override;
+              //двойной щелчок по панели в дизайн-моде (изменение фиксации)
+    procedure DesignClick;  override;
+              //вставка в дизайн-моде
+    procedure DesignInsert;  override;
+              //одиночный щелчок щелчок по закладке в дизайн-моде (показать/скрыть панель)
+    procedure DesignSelect;  override;
+              //вставить закладку на связанном DockingPlace
+    procedure TabInsert;
+              //удалить закладку со связанного DockingPlace
+    procedure TabDelete;
+              //очистка FLayout при его удалении
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+              //установить высоту панели
+    procedure SetHeight(const Value:single);  override;
+              //установка отображаемого в заголовке текста
+    procedure SetText(const Value:WideString);  override; overload;
+              //установить ширину панели
+    procedure SetWidth(const Value:single);  override;
+              //установить видимость панели
+    procedure SetVisible(const Value:boolean);  override;
+              //установить флаг нахождения указателя мыши над дочерним объектом у родителя; остановить /запустить таймер скрытия панели
+    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override;
   public
-    constructor Create(AOwner: TComponent);  override;  //создать объект
-    destructor Destroy;  override;                      //разрушить объект
-    procedure AddObject(AObject: TD2Object);  override; //добавить объект в окно
-    procedure Realign;  override;                       //перестроить клиентскую область
-    procedure DragMove(Sender: TD2VisualObject; Point: TD2Point);  virtual; //сместить панель
+                //создать объект
+    constructor Create(AOwner: TComponent);  override;
+               //разрушить объект
+    destructor Destroy;  override;
+              //добавить объект в окно
+    procedure AddObject(AObject: TD2Object);  override;
+              //перестроить клиентскую область
+    procedure Realign;  override;
+              //сместить панель
+    procedure DragMove(Sender: TD2VisualObject; Point: TD2Point);  virtual;
   published
     property Font;          //имя шрифта
     property TextAlign;     //выравнивание текста заголовка
@@ -6911,24 +6969,38 @@ TD2DockingPlace = class(TD2Control)   //площадка для размещен
     FIndexMaxBottom: integer;     //индекс последней нижней закладки
     FTabHeight:single;            //высота закладок (или ширина для вертикальных)
     FBackground: TD2VisualObject; //ссылка на фон
-    procedure SetAllowDockChildren(Value:TD2DockingAllowAligns); //установить разрешения на расположение панелей
-    procedure SetTabHeight(const Value:single);                  //установить высоту закладки
-    procedure DoContentDragLeave(Sender: TObject);                            //обработка выхода перемещаемой панели за видимую область площадки
-    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject;  //обработка входа перемещаемой панели в видимую область площадки
-                                 const Point: TD2Point);
-    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject;   //обработка нахождения перемещаемой панели над видимой областю площадки
-                                const Point: TD2Point; var Accept:boolean);
+
+              //установить разрешения на расположение панелей
+    procedure SetAllowDockChildren(Value:TD2DockingAllowAligns);
+              //установить высоту закладки
+    procedure SetTabHeight(const Value:single);
+              //обработка выхода перемещаемой панели за видимую область площадки
+    procedure DoContentDragLeave(Sender: TObject);
+              //обработка входа перемещаемой панели в видимую область площадки
+    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point);
+              //обработка нахождения перемещаемой панели над видимой областю площадки
+    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept:boolean);
+
   protected
-    procedure ApplyStyle;  override;       // применить стиль
-    procedure FreeStyle;  override;        // удалить стиль
+              // применить стиль
+    procedure ApplyStyle;  override;
+              // удалить стиль
+    procedure FreeStyle;  override;
   public
-    constructor Create(AOwner: TComponent);  override;  //создать объект
-    destructor Destroy;  override;                      //уничтожить объект
-    procedure HideAllPanels(ANotHide: TD2DockingTab);   //скрыть все открытые панели кроме указанной в параметре
-    function ItemClass: string;  override;              //возвращает класс дочерних элементов
-    procedure Realign;  override;                       //перестроить объект
-    procedure AddObject(AObject: TD2Object);  override; //добавить дочерний объект
-    procedure SetDragRects;                             //переопределить области присоединения панелей
+                //создать объект
+    constructor Create(AOwner: TComponent);  override;
+               //уничтожить объект
+    destructor Destroy;  override;
+              //скрыть все открытые панели кроме указанной в параметре
+    procedure HideAllPanels(ANotHide: TD2DockingTab);
+             //возвращает класс дочерних элементов
+    function ItemClass: string;  override;
+              //перестроить объект
+    procedure Realign;  override;
+              //добавить дочерний объект
+    procedure AddObject(AObject: TD2Object);  override;
+              //переопределить области присоединения панелей
+    procedure SetDragRects;
   published
     property Resource;                                  //имя ресурса
     property AllowDockChildren: TD2DockingAllowAligns   //разрешеные места присоединения панелей
@@ -8330,6 +8402,7 @@ TD2TreeCell = class(TD2Control)
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
+    procedure DoDragOver(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);
   public
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;

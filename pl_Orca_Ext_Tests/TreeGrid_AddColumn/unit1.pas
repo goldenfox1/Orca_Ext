@@ -38,9 +38,13 @@ type
     procedure Button1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: single);
     procedure FormCreate(Sender: TObject);
+    procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
+      const Point: TD2Point; var Accept: Boolean);
     procedure TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
     procedure TreeGrid1Checking(Sender: TD2CustomTreeGrid; Node: PD2TreeNode;
       var NewState: TD2CheckState; var Allowed: Boolean);
+    procedure TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
+      const Point: TD2Point; var Accept: Boolean);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
@@ -98,6 +102,12 @@ begin
   CreateVT;
 end;
 
+procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
+  const Point: TD2Point; var Accept: Boolean);
+begin
+  Accept:=true;
+end;
+
 procedure TForm1.Button1Click(Sender: TObject);
 begin
    if TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]=csCheckedNormal
@@ -121,6 +131,12 @@ procedure TForm1.TreeGrid1Checking(Sender: TD2CustomTreeGrid;
   Node: PD2TreeNode; var NewState: TD2CheckState; var Allowed: Boolean);
 begin
   //
+end;
+
+procedure TForm1.TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
+  const Point: TD2Point; var Accept: Boolean);
+begin
+  Accept:=true;
 end;
 
 procedure TForm1.TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;

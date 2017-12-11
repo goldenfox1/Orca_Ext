@@ -48,10 +48,12 @@ object Form1: TForm1
         end
       end
       object Grid1: TD2Grid
+        DragMode = d2DragAutomatic
         Position.Point = '(323,174)'
         RotateAngle = 0
         Width = 260
         Height = 241
+        OnDragOver = Grid1DragOver
         Resource = 'Grid1Style1'
         TabOrder = 1
         AlternatingRowBackground = True
@@ -114,14 +116,17 @@ object Form1: TForm1
         Text = 'Val'
       end
       object TreeGrid1: TD2TreeGrid
+        DragMode = d2DragAutomatic
         Position.Point = '(15,24)'
         RotateAngle = 0
         Width = 281
         Height = 266
+        OnDragOver = TreeGrid1DragOver
         Resource = 'gridstyle'
         TabOrder = 5
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
+        TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
         OnSetValue = TreeGrid1SetValue
         object TreeTextColumn1: TD2TreeTextColumn
@@ -145,7 +150,7 @@ object Form1: TForm1
         RotateAngle = 0
         Width = 23
         Height = 23
-        TabOrder = 7
+        TabOrder = 6
         StaysPressed = False
         IsPressed = False
         TextAlign = d2TextAlignCenter
