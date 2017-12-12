@@ -49,7 +49,7 @@ object Form1: TForm1
       end
       object Grid1: TD2Grid
         DragMode = d2DragAutomatic
-        Position.Point = '(323,174)'
+        Position.Point = '(318,165)'
         RotateAngle = 0
         Width = 260
         Height = 241
@@ -85,36 +85,6 @@ object Form1: TForm1
           TabOrder = 2
         end
       end
-      object Label1: TD2Label
-        Position.Point = '(328,449)'
-        RotateAngle = 0
-        Width = 134
-        Height = 15
-        TabOrder = 2
-        TextAlign = d2TextAlignCenter
-        VertTextAlign = d2TextAlignCenter
-        Text = 'Min'
-      end
-      object Label2: TD2Label
-        Position.Point = '(328,467)'
-        RotateAngle = 0
-        Width = 138
-        Height = 15
-        TabOrder = 4
-        TextAlign = d2TextAlignCenter
-        VertTextAlign = d2TextAlignCenter
-        Text = 'Max'
-      end
-      object Label3: TD2Label
-        Position.Point = '(328,488)'
-        RotateAngle = 0
-        Width = 134
-        Height = 15
-        TabOrder = 3
-        TextAlign = d2TextAlignCenter
-        VertTextAlign = d2TextAlignCenter
-        Text = 'Val'
-      end
       object TreeGrid1: TD2TreeGrid
         DragMode = d2DragAutomatic
         Position.Point = '(15,24)'
@@ -123,7 +93,7 @@ object Form1: TForm1
         Height = 266
         OnDragOver = TreeGrid1DragOver
         Resource = 'gridstyle'
-        TabOrder = 5
+        TabOrder = 2
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
         TreeOptions.SelectionOptions = [toMultiSelect]
@@ -145,15 +115,23 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
-      object SpeedButton1: TD2SpeedButton
-        Position.Point = '(134,448)'
+      object DockingPlace1: TD2DockingPlace
+        Position.Point = '(28,310)'
         RotateAngle = 0
-        Width = 23
-        Height = 23
-        TabOrder = 6
-        StaysPressed = False
-        IsPressed = False
+        Width = 215
+        Height = 212
+        TabOrder = 4
+        TabHeight = 0
+      end
+      object DockingPanel1: TD2DockingPanel
+        Position.Point = '(271,413)'
+        RotateAngle = 0
+        Width = 130
+        Height = 130
+        TabOrder = 3
         TextAlign = d2TextAlignCenter
+        MinHeight = 42
+        MinWidth = 42
       end
     end
   end
@@ -163,6 +141,7 @@ object Form1: TForm1
     Top = 61
     Width = 224
     DefaultText = 'Node'
+    DragMode = dmAutomatic
     Header.AutoSizeIndex = 0
     Header.Columns = <    
       item
@@ -179,6 +158,7 @@ object Form1: TForm1
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
+    OnDragOver = VTDragOver
     OnGetText = VTGetText
     OnScroll = VTScroll
   end

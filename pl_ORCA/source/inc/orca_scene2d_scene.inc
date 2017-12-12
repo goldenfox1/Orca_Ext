@@ -1735,24 +1735,18 @@ begin
   if not FDesignTime then
   begin
     Obj:=TD2VisualObject(ObjectByPoint(FMousePos.X,FMousePos.Y));
-    if (Obj <> nil) then
-    begin
-      if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG)) then
-      begin
-        BeginResize;
-      end
-      else
-      begin
-        P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
-        TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
-        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) then
-        begin
-          TD2VisualObject(Obj).BeginAutoDrag;
-        end;
-      end;
-    end
-    else
-      BeginDrag;
+    if (Obj <> nil)
+      then  begin
+              if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG))
+                then  BeginResize
+                else  begin
+                        P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
+                        TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
+                        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic)
+                          then TD2VisualObject(Obj).BeginAutoDrag;
+                      end;
+            end
+    else BeginDrag;
   end;
 end;
 

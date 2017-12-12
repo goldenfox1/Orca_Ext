@@ -19,12 +19,10 @@ type
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
+    DockingPanel1: TD2DockingPanel;
+    DockingPlace1: TD2DockingPlace;
     Grid1: TD2Grid;
-    SpeedButton1: TD2SpeedButton;
     TreeGrid1: TD2TreeGrid;
-    Label1: TD2Label;
-    Label2: TD2Label;
-    Label3: TD2Label;
     Root1: TD2Background;
     StringColumn1: TD2StringColumn;
     StringColumn2: TD2StringColumn;
@@ -55,6 +53,9 @@ type
       );
     procedure TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; const Value: Variant);
+    procedure VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
+      Shift: TShiftState; State: TDragState; const Pt: TPoint; Mode: TDropMode;
+      var Effect: LongWord; var Accept: Boolean);
     procedure VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
     procedure VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
@@ -168,6 +169,13 @@ begin
     end;
   end;
 
+end;
+
+procedure TForm1.VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
+  Shift: TShiftState; State: TDragState; const Pt: TPoint; Mode: TDropMode;
+  var Effect: LongWord; var Accept: Boolean);
+begin
+  Accept:=true;
 end;
 
 procedure TForm1.CreateTreeGreed;
@@ -302,9 +310,7 @@ end;
 procedure TForm1.TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX,
   DeltaY: single);
 begin
-  Label1.Text:='Min= ' + floattostr(TreeGrid1.VScrollBar.Min);
-  Label2.Text:='Max= ' + floattostr(TreeGrid1.VScrollBar.Max);
-  Label3.Text:='Val= ' + floattostr(TreeGrid1.VScrollBar.Value);
+
 end;
 
 
