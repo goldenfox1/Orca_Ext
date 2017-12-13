@@ -506,7 +506,7 @@ begin
     FOnDrop(Self,Data,Point);
 end;
 
-procedure TD2DropTarget.DragOver(const Data:TD2DragObject;
+procedure TD2DropTarget.DragOver(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point; var Accept:boolean);
 begin
   inherited;

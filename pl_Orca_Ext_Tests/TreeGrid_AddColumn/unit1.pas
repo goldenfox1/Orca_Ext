@@ -22,6 +22,8 @@ type
     DockingPanel1: TD2DockingPanel;
     DockingPlace1: TD2DockingPlace;
     Grid1: TD2Grid;
+    Label1: TD2Label;
+    Label2: TD2Label;
     TreeGrid1: TD2TreeGrid;
     Root1: TD2Background;
     StringColumn1: TD2StringColumn;
@@ -33,24 +35,16 @@ type
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
     procedure Button1Click(Sender: TObject);
-    procedure Button1MouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: single);
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);
-    procedure TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
-    procedure TreeGrid1Checking(Sender: TD2CustomTreeGrid; Node: PD2TreeNode;
-      var NewState: TD2CheckState; var Allowed: Boolean);
     procedure TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
-      const Point: TD2Point; var Accept: Boolean);
+      Shift: TShiftState; const Point: TD2Point; var TargetNode: PD2TreeNode;
+      var Mode: TD2DropMode; var Accept: Boolean);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
     procedure CreateVT;
-    procedure TreeGrid1Paint(Sender: TObject; const ACanvas: TD2Canvas;
-      const ARect: TD2Rect);
-    procedure TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single
-      );
     procedure TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; const Value: Variant);
     procedure VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
@@ -58,7 +52,6 @@ type
       var Effect: LongWord; var Accept: Boolean);
     procedure VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
   private
     { private declarations }
   public
@@ -103,12 +96,6 @@ begin
   CreateVT;
 end;
 
-procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
-  const Point: TD2Point; var Accept: Boolean);
-begin
-  Accept:=true;
-end;
-
 procedure TForm1.Button1Click(Sender: TObject);
 begin
    if TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]=csCheckedNormal
@@ -117,25 +104,30 @@ begin
    //TreeGrid1.Realign;
 end;
 
-procedure TForm1.Button1MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: single);
+procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
+  const Point: TD2Point; var Accept: Boolean);
 begin
-
-end;
-
-procedure TForm1.TreeGrid1Checked(Sender: TD2CustomTreeGrid; Node: PD2TreeNode);
-begin
-  //
-end;
-
-procedure TForm1.TreeGrid1Checking(Sender: TD2CustomTreeGrid;
-  Node: PD2TreeNode; var NewState: TD2CheckState; var Allowed: Boolean);
-begin
-  //
+  Accept:=true;
 end;
 
 procedure TForm1.TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
-  const Point: TD2Point; var Accept: Boolean);
+  Shift: TShiftState; const Point: TD2Point; var TargetNode: PD2TreeNode;
+  var Mode: TD2DropMode; var Accept: Boolean);
+begin
+  case Mode of
+    dmNowhere: Label1.Text:='dmNowhere';
+      dmAbove: Label1.Text:='dmAbove';
+      dmBelow: Label1.Text:='dmBelow';
+     dmOnNode: Label1.Text:='dmOnNode';
+  end;
+  with PPhoneNode(TD2TreeGrid(Sender).GetNodeData(TargetNode))^ do
+    label2.Text:= Phone + ' ' + Name;
+  Accept:=true;
+end;
+
+procedure TForm1.VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
+  Shift: TShiftState; State: TDragState; const Pt: TPoint; Mode: TDropMode;
+  var Effect: LongWord; var Accept: Boolean);
 begin
   Accept:=true;
 end;
@@ -169,13 +161,6 @@ begin
     end;
   end;
 
-end;
-
-procedure TForm1.VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
-  Shift: TShiftState; State: TDragState; const Pt: TPoint; Mode: TDropMode;
-  var Effect: LongWord; var Accept: Boolean);
-begin
-  Accept:=true;
 end;
 
 procedure TForm1.CreateTreeGreed;
@@ -301,19 +286,6 @@ begin
   VT.EndUpdate;
 end;
 
-procedure TForm1.TreeGrid1Paint(Sender: TObject; const ACanvas: TD2Canvas;
-  const ARect: TD2Rect);
-begin
-
-end;
-
-procedure TForm1.TreeGrid1Scroll(Sender: TD2CustomScrollBox; DeltaX,
-  DeltaY: single);
-begin
-
-end;
-
-
 procedure TForm1.VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
   Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
 var
@@ -327,11 +299,6 @@ begin
       1: CellText := Phone^.Phone; // Текст для колонки телефонного номера
     end;
   end;
-end;
-
-procedure TForm1.VTScroll(Sender: TBaseVirtualTree; DeltaX, DeltaY: Integer);
-begin
-
 end;
 
 end.

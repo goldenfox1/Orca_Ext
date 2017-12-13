@@ -688,12 +688,6 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.DoDragOver(Sender: TObject; const Data: TD2DragObject;
-  const Point: TD2Point; var Accept: Boolean);
-begin
-  Accept:=true;
-end;
-
 constructor TD2TreeCell.Create(AOwner: TComponent);
 begin
   inherited;
@@ -708,14 +702,12 @@ begin
   FIsChecked:=false;       //true - чекбокс отмечен
   FIsExpanded:=false;      //true - узел развернут
   SetLength(FLineArray,0); //массив линий дерева
-  FMinus:=nil;           //указатель на кнопку "-" экспандера
+  FMinus:=nil;             //указатель на кнопку "-" экспандера
   FNode:=nil;              //указатель на связанный узел дерева
-  FPlus:=nil;            //указатель на кнопку "+" экспандера
+  FPlus:=nil;              //указатель на кнопку "+" экспандера
   FRadio:=nil;             //указатель на радиокнопку
   FSplitter:=nil;          //указатель на сплиттер
   FVAlign:= 0;             //сдвиг горизонтальной линии дерева
-  DragMode:=d2DragAutomatic;
-  OnDragOver:=DoDragOver;
 end;
 
 destructor TD2TreeCell.Destroy;
@@ -4345,6 +4337,39 @@ begin
   begin
     Realign; //UpdateScrollBars(True);
   end;
+end;
+
+procedure TD2CustomTreeGrid.DragOver(const Data: TD2DragObject;
+  Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
+var
+  T: Single;
+  N: integer;
+  H: Single;
+  P: TD2Point;
+begin
+  //inherited DragOver(Data, Shift, Point, Accept);
+  FLastDropMode:=dmNowhere;                                   //режим падения - никуда
+  P:=Point;
+  if FContent<>nil
+    then P:=FContent.AbsoluteToLocal(LocalToAbsolute(P));
+  FDropTargetNode:=GetNodeAt(P.X,P.Y,true,T,N); //целевой узел
+
+  if FDropTargetNode<>nil then
+    begin
+      H:=FDropTargetNode.NodeHeight/3;
+      if (P.Y <= T + H)
+        then FLastDropMode:=dmAbove
+        else if (P.Y >= T + 2*H)
+               then FLastDropMode:=dmBelow
+               else FLastDropMode:=dmOnNode;
+    end;
+  if Assigned(OnDragOver) then
+    OnDragOver(Self,Data,Shift,Point,FDropTargetNode,FLastDropMode,Accept);
+
+  if Accept and (FDropTargetNode<>nil) then
+    begin
+      //подсвечиваем FDropTargetNode выбранный узел  в соответствии с FLastDropMode
+    end;
 end;
 
 procedure TD2CustomTreeGrid.EndOperation(OperationKind: TD2TreeOperationKind);

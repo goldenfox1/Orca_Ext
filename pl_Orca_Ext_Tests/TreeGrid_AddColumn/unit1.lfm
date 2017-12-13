@@ -124,7 +124,7 @@ object Form1: TForm1
         TabHeight = 0
       end
       object DockingPanel1: TD2DockingPanel
-        Position.Point = '(271,413)'
+        Position.Point = '(276,415)'
         RotateAngle = 0
         Width = 130
         Height = 130
@@ -132,6 +132,26 @@ object Form1: TForm1
         TextAlign = d2TextAlignCenter
         MinHeight = 42
         MinWidth = 42
+      end
+      object Label1: TD2Label
+        Position.Point = '(447,429)'
+        RotateAngle = 0
+        Width = 120
+        Height = 15
+        TabOrder = 6
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'X='
+      end
+      object Label2: TD2Label
+        Position.Point = '(439,448)'
+        RotateAngle = 0
+        Width = 120
+        Height = 15
+        TabOrder = 5
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Y='
       end
     end
   end
@@ -160,7 +180,6 @@ object Form1: TForm1
     TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
     OnDragOver = VTDragOver
     OnGetText = VTGetText
-    OnScroll = VTScroll
   end
   object DBStringTree1: TDBStringTree
     Left = 632

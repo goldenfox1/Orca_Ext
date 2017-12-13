@@ -1486,7 +1486,7 @@ begin
   end;
 end;
 
-procedure TD2ListBox.DragOver(const Data:TD2DragObject;
+procedure TD2ListBox.DragOver(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point; var Accept:boolean);
 var
   Obj:TD2ListBoxItem;

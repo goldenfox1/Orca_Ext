@@ -1604,7 +1604,7 @@ TD2Effect = class(TD2Object)
 
 
   TD2DragEnterEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
-  TD2DragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean) of object;
+  TD2DragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean) of object;
   TD2DragDropEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
 
   TD2CanFocusedEvent = procedure(Sender: TObject; var ACanFocused: boolean) of object;
@@ -1771,7 +1771,7 @@ TD2VisualObject = class(TD2Object)
     procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  virtual;	//установить флаг нахождения указателя мыши над дочерним объектом у родителя //Added by GoldenFox
     procedure ContextMenu(const ScreenPosition: TD2Point);  virtual;
     procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  virtual;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  virtual;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  virtual;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  virtual;
     procedure DragLeave;  virtual;
     procedure DragEnd;  virtual;
@@ -1805,7 +1805,7 @@ TD2VisualObject = class(TD2Object)
     procedure SetSizeWithoutChange(AWidth, AHeight:single);
     function  CheckParentVisible:boolean;  virtual;
     function  MakeScreenshot: TD2Bitmap;
-    function  FindTarget(const APoint: TD2Point; const Data: TD2DragObject): TD2VisualObject;
+    function  FindTarget(Shift: TShiftState; const APoint: TD2Point; const Data: TD2DragObject): TD2VisualObject;
     procedure ShowCaretProc;
     procedure SetCaretPos(const APoint: TD2Point);
     procedure SetCaretSize(const ASize: TD2Point);
@@ -2127,6 +2127,8 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     FDisableUpdate:boolean;
     FChildren: TList;
     FDesignRoot, FSelected, FCaptured, FHovered, FFocused: TD2VisualObject;
+    FDragged: TD2VisualObject; //объект ожидающий перетаскивания
+    FDragStartPos: TD2Point;         //начальная позиция курсора после нажатия кл.мыши
     FSelection: array of TD2Object;
     FDesignPlaceObject: TD2VisualObject;
     FDesignGridLines: array of TD2VisualObject;
@@ -4203,7 +4205,7 @@ TD2ImageControl = class(TD2Control)
     procedure ApplyStyle;  override;
     procedure FreeStyle;  override;
     procedure Click;  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     procedure DoBitmapChanged(Sender: TObject);  virtual;
     function  GetData: Variant;  override;
@@ -4642,7 +4644,7 @@ type
     procedure SetItemIndex(const Value:integer);  virtual;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     procedure ApplyStyle;  override;
     procedure FreeStyle;  override;
@@ -5066,7 +5068,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     property Count: integer read GetCount;
     property GlobalCount: integer read FGlobalCount;
@@ -6019,7 +6021,7 @@ TD2DropTarget = class(TD2TextControl)
     FOnDrop: TD2DragDropEvent;
     FFilter: string;
   protected
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -6979,7 +6981,7 @@ TD2DockingPlace = class(TD2Control)   //площадка для размещен
               //обработка входа перемещаемой панели в видимую область площадки
     procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point);
               //обработка нахождения перемещаемой панели над видимой областю площадки
-    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept:boolean);
+    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept:boolean);
 
   protected
               // применить стиль
@@ -8402,7 +8404,6 @@ TD2TreeCell = class(TD2Control)
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
-    procedure DoDragOver(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);
   public
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;
@@ -8532,8 +8533,23 @@ TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; 
 
 TD2VTCompareEvent = procedure(Sender: TD2CustomTreeGrid; Node1, Node2: PD2TreeNode; Column: Integer;
     var Result: Integer) of object;
- TD2VTIncrementalSearchEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; const SearchText: String;
+TD2VTIncrementalSearchEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; const SearchText: String;
     var Result: Integer) of object;
+
+//Drag & Drop
+
+// Режимы для определения положения падения в операциях Drag & Drop. modes to determine drop position further
+TD2DropMode = (
+  dmNowhere,   //никуда
+  dmAbove,     //Выше узла
+  dmOnNode,    //На узел
+  dmBelow      //Ниже узла
+);
+
+//Drag & Drop Прерывание при перетаскивании над объектом
+TD2VTDragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState;
+                               const Point: TD2Point; var TargetNode: PD2TreeNode;
+                               var Mode: TD2DropMode; var Accept: Boolean) of object;
 
 //Типы экспорта. Export type
 TD2TreeExportType = (
@@ -8736,6 +8752,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
     FIndentWidth: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
+    FLastDropMode: TD2DropMode;
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
     FLastSelected: PD2TreeNode;                  //Ссылка на узел, который был выбран последним???
     FLastVCLDragTarget: PD2TreeNode;             //Ссылка на узел, который был последней целью при операции VCL drag'n drop??? A node cache for VCL drag'n drop (keywords: DragLeave on DragDrop).
@@ -8788,6 +8805,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FOnCollapsed: TD2VTChangeEvent;                //Вызывается после сворачивания узла. called after a node has been collapsed
     FOnCollapsing: TD2VTChangingEvent;             //Вызывается перед сворачиванием узла. called just before a node is collapsed
     FOnCompareNodes: TD2VTCompareEvent;            //Используется для сортировки. used during sort
+    FOnDragOver: TD2VTDragOverEvent;               //Вызывается при перетаскивании над объектом
     FOnEditCancelled: TD2VTEditCancelEvent;        //Вызывается при отмене редактирования. called when editing has been cancelled
     FOnEdited: TD2VTEditChangeEvent;               //Вызывается после успешного окончания редактирования. called when editing has successfully been finished
     FOnEditing: TD2VTEditChangingEvent;            //Вызывается непосредственно перед переходом узла в режим редактирования. called just before a node goes into edit mode
@@ -9117,8 +9135,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //Вызов прерывания OnStructureChange при изменении структуры дерева
     procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
 
-
     function DoValidateCache: Boolean; virtual;
+
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean); override;
               //Вызывается для индикации завершения длительной операции.
     procedure EndOperation(OperationKind: TD2TreeOperationKind);
              //Поиск узла P в массиве выбора. LowBound и HighBound нижняя и верхняя границы диапазона поиска.
@@ -9262,6 +9281,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property RangeY: Single read FRangeY;
              //Кол-во детей у узла Root
     property RootNodeCount: Cardinal read GetRootNodeCount write SetRootNodeCount default 0;
+             //Последний режим падения
+    property LastDropMode: TD2DropMode read FLastDropMode write FLastDropMode;
              //Тип линий деревьева: дерево или полосы и т.д. tree lines or bands etc.
     property LineMode: TD2TreeLineMode read FLineMode write SetLineMode default lmNormal;
              //Опции поведения дерева
@@ -9648,6 +9669,7 @@ public
     property OnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent read FOnBeforeDrawTreeLine write FOnBeforeDrawTreeLine;
     property OnChecked: TD2VTChangeEvent read FOnChecked write FOnChecked;            //Прерывание после изменения состояния отметки узла.
     property OnChecking: TD2VTCheckChangingEvent read FOnChecking write FOnChecking;  //Прерывание перед изменением состояния отметки узла.
+    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
     property OnEdititingDone: TD2VTEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize; //Прерывание при NodeDataSize = -1
     property OnGetValue:TD2VTGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
@@ -9684,6 +9706,8 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
 
     property OnChecked;     //Прерывание после изменения состояния отметки узла.
     property OnChecking;    //Прерывание перед измененем состояния отметки узла.
+
+    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
 
 end;
 

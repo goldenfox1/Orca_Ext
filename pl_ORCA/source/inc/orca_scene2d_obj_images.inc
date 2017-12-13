@@ -58,7 +58,7 @@ begin
   D.Free;
 end;
 
-procedure TD2ImageControl.DragOver(const Data:TD2DragObject;
+procedure TD2ImageControl.DragOver(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point; var Accept:boolean);
 begin
   inherited;

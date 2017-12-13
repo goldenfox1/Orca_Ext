@@ -963,20 +963,20 @@ begin
     Data.Source:=Source;
 
   P:=d2Point(X,Y);
-  NewTarget:=Root.Visual.FindTarget(P,Data);
+  NewTarget:=Root.Visual.FindTarget(FShift, P, Data);
 
-  if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
-  begin
-    if varD2FTarget <> nil then
-      TD2VisualObject(varD2FTarget).DragLeave;
-    varD2FTarget:=nil;
-    Accept:=false;
-    Exit;
-  end;
+  //if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
+  //begin
+  //  if varD2FTarget <> nil then
+  //    TD2VisualObject(varD2FTarget).DragLeave;
+  //  varD2FTarget:=nil;
+  //  Accept:=false;
+  //  Exit;
+  //end;
 
   if varD2FTarget <> nil then
   begin
-    TD2VisualObject(varD2FTarget).DragOver(Data,P,Accept);
+    TD2VisualObject(varD2FTarget).DragOver(Data, FShift, P, Accept);
   end;
   if (NewTarget <> varD2FTarget) then
   begin
@@ -1742,8 +1742,13 @@ begin
                 else  begin
                         P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
                         TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
-                        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic)
-                          then TD2VisualObject(Obj).BeginAutoDrag;
+                        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) and //если у объекта режим автоматического старта перетаскивания
+                           (FDragged=nil)                                       //и еще нет перетаскиваемых объектов
+                          //then TD2VisualObject(Obj).BeginAutoDrag;
+                          then  begin
+                                  FDragged:=Obj;            //сохраним объект как ожидающий перетаскивания
+                                  FDragStartPos:=FMousePos; //сохраним начальную позицию курсора после нажатия кл.мыши
+                                end;
                       end;
             end
     else BeginDrag;
@@ -2012,6 +2017,21 @@ begin
   { event }
   if not FDesignTime then
   begin
+    //FDragged: TD2VisualObject;
+    //FDragStartPos: TPoint;         //начальная позиция курсора после нажатия кл.мыши
+    if (ssLeft in Shift)   //если нажата ЛКМ
+      then  begin
+              if (FDragged <> nil) and                        //если есть объект ожидающий перетаскивания и
+                 ((abs(FDragStartPos.X - FMousePos.X) > 2) or //мышь передвинута от начального положения больше чем на 2
+                  (abs(FDragStartPos.Y - FMousePos.Y) > 2)) then
+                begin
+                  P:=FDragged.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
+                  TD2VisualObject(FDragged).MouseMove(Shift,P.X,P.Y,0,0);
+                  TD2VisualObject(FDragged).BeginAutoDrag;
+                  Exit;
+                end;
+            end
+      else FDragged := nil;
     if (FCaptured <> nil) then
     begin
       P:=FCaptured.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
@@ -3660,7 +3680,7 @@ begin
     Result:=S_OK;
     with ScreenToClient(pt) do
       P:=d2Point(X,Y);
-    NewTarget:=Root.Visual.FindTarget(P,GetDataObject);
+    NewTarget:=Root.Visual.FindTarget(FShift, P, GetDataObject);
     if (NewTarget <> varD2FTarget) then
     begin
       if varD2FTarget <> nil then  TD2VisualObject(varD2FTarget).DragLeave;
