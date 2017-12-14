@@ -19,22 +19,19 @@ type
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
-    DockingPanel1: TD2DockingPanel;
-    DockingPlace1: TD2DockingPlace;
+    GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
-    TreeGrid1: TD2TreeGrid;
+    Label3: TD2Label;
+    Rectangle1: TD2Rectangle;
     Root1: TD2Background;
-    StringColumn1: TD2StringColumn;
-    StringColumn2: TD2StringColumn;
-    StringGrid1: TD2StringGrid;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
-    procedure Button1Click(Sender: TObject);
+    TreeGrid1: TD2TreeGrid;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);
@@ -96,14 +93,6 @@ begin
   CreateVT;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-   if TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]=csCheckedNormal
-     then  TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csUnCheckedNormal
-     else TreeGrid1.CheckState[TreeGrid1.RootNode^.FirstChild^.FirstChild]:=csCheckedNormal;
-   //TreeGrid1.Realign;
-end;
-
 procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
   const Point: TD2Point; var Accept: Boolean);
 begin
@@ -120,8 +109,13 @@ begin
       dmBelow: Label1.Text:='dmBelow';
      dmOnNode: Label1.Text:='dmOnNode';
   end;
-  with PPhoneNode(TD2TreeGrid(Sender).GetNodeData(TargetNode))^ do
-    label2.Text:= Phone + ' ' + Name;
+
+  if TargetNode<>nil then
+    with PPhoneNode(TD2TreeGrid(Sender).GetNodeData(TargetNode))^ do
+      label2.Text:= Phone + ' ' + Name
+    else label2.Text:= '-- нет --';
+
+  Label3.Text:='X='+inttostr(round(Point.X))+' Y='+inttostr(round(Point.Y));
   Accept:=true;
 end;
 
@@ -189,6 +183,7 @@ begin
     begin
       NewNode1 := TreeGrid1.AddChild(NewNode);
       TreeGrid1.CheckType[NewNode1]:=ctRadioButton;
+      //TreeGrid1.CheckType[NewNode1]:=ctTriStateCheckBox;
       if t<=1 then TreeGrid1.CheckState[NewNode1]:=csCheckedNormal;
       NewPhone := TreeGrid1.GetNodeData(NewNode1);
       if Assigned(NewPhone) then

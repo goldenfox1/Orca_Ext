@@ -1656,7 +1656,7 @@ TD2VisualObject = class(TD2Object)
     FCanClipped:boolean;
     FCursor: TCursor;
     FDragMode: TD2DragMode;
-    FDragDisableHighlight:boolean;
+    FDragDisableHighlight:boolean;      //true - запретить подсветку целевого объекта при перетаскивании
     FOnDragEnter: TD2DragEnterEvent;
     FOnDragDrop: TD2DragDropEvent;
     FOnDragLeave:TNotifyEvent;
@@ -1851,7 +1851,7 @@ TD2VisualObject = class(TD2Object)
     property Align: TD2Align read FAlign write SetAlign  default vaNone;
     property Cursor: TCursor read FCursor write SetCursor  default crDefault;
     property DragMode: TD2DragMode read FDragMode write FDragMode  default d2DragManual;
-    property DragDisableHighlight: boolean read FDragDisableHighlight write FDragDisableHighlight  default false;
+    property DragDisableHighlight: boolean read FDragDisableHighlight write FDragDisableHighlight  default false; //true - запретить подсветку целевого объекта при перетаскивании
     property Enabled: boolean read FEnabled write SetEnabled  default true;
     property Position: TD2Position read FPosition write SetPosition;
     property RotateAngle:single read FRotateAngle write SetRotateAngle;
@@ -8732,7 +8732,6 @@ published
   property SelectionOptions; //Опиции, определяющие поведение дерева при выборе узлов
 end;
 
-
 { TD2CustomTreeGrid }
 //Базовый класс дерева описывающий все поля и свойства
 TD2CustomTreeGrid = class(TD2CustomGrid)
@@ -8752,7 +8751,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
     FIndentWidth: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
-    FLastDropMode: TD2DropMode;
+    FLastDropMode: TD2DropMode;                  //Pежим вставки после падения в операциях drag & drop. set while dragging and used to track changes
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
     FLastSelected: PD2TreeNode;                  //Ссылка на узел, который был выбран последним???
     FLastVCLDragTarget: PD2TreeNode;             //Ссылка на узел, который был последней целью при операции VCL drag'n drop??? A node cache for VCL drag'n drop (keywords: DragLeave on DragDrop).
@@ -9136,6 +9135,12 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
 
     function DoValidateCache: Boolean; virtual;
+
+    procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  override;
+
+    procedure DragLeave;  override;
+
+    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point); override;
 
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean); override;
               //Вызывается для индикации завершения длительной операции.

@@ -3639,6 +3639,7 @@ begin
   //делаем массив прямоугольников
   SetLength(SelRects,0);
   Offset:=GetTopRowY;    //координата Y верхнего видимого в окне узла
+  FPreSelection.Visible:=false;
   for i:=0 to FVisibleRowsList.Count-1 do //перебираем все видимые в окне узлы
   begin
     if vsSelected in PD2TreeNode(FVisibleRowsList[i]).States then //если текущий узел выделен
@@ -3654,18 +3655,19 @@ begin
     end;
 
     //установим границы маркера пред.выбора
-    if FIsPreSelected and (FPreSelection <> nil) and          //если маркер предвыбора влючен и маркер предвыбора имеется и
-       (FLastSelected = PD2TreeNode(FVisibleRowsList[i])) then     //предвыбранный узел равен текущему, то
-    begin
-      P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
-      if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
-        P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);                     //то преобразуем в координаты владельца FPreSelection
-      if FContent.Width < ClientWidth
-        then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
-        else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
-      FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
-     end;
-
+    if (FPreSelection <> nil) and             //если маркер предвыбора имеется и
+       ( (FIsDragOver    and (FDropTargetNode = PD2TreeNode(FVisibleRowsList[i]))) or     //маркер предвыбора влючен и предвыбранный узел равен текущему, или
+         (FIsPreSelected and (FLastSelected   = PD2TreeNode(FVisibleRowsList[i]))) and not FIsDragOver) then  //осуществляется перетаскивание и целевой узел равен текущему, то
+      begin
+        P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
+        if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
+          P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);                     //то преобразуем в координаты владельца FPreSelection
+        if FContent.Width < ClientWidth
+          then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
+          else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
+        FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
+        FPreSelection.Visible:=true;
+      end;
     d2IncFloat(Offset, PD2TreeNode(FVisibleRowsList[i]).NodeHeight); //координата Y следующего узла
   end;
 
@@ -3718,13 +3720,9 @@ begin
     end;
   end;
 
-  //включим маркер пред.выбора
-    if FIsPreSelected and (FPreSelection <> nil)
-      then begin
-             FPreSelection.Visible:=true;
-             FPreSelection.BringToFront;
-           end
-      else FPreSelection.Visible:=false;
+  //переместим вперед маркер пред.выбора если он включен
+    if (FPreSelection <> nil) and (FPreSelection.Visible)
+      then FPreSelection.BringToFront;
 
   //обновим колонки
   for i := 0 to ColumnCount - 1 do
@@ -4339,6 +4337,31 @@ begin
   end;
 end;
 
+procedure TD2CustomTreeGrid.DragEnter(const Data: TD2DragObject;
+  const Point: TD2Point);
+begin
+  inherited;
+  UpdateSelection;
+end;
+
+procedure TD2CustomTreeGrid.DragLeave;
+begin
+  inherited;
+  UpdateSelection;
+end;
+
+procedure TD2CustomTreeGrid.DragDrop(const Data: TD2DragObject;
+  const Point: TD2Point);
+begin
+  inherited;
+  if (FPreSelection<>nil) and (FPreSelection is TD2Rectangle) then
+    begin
+      TD2Rectangle(FPreSelection).Sides:=[];
+      TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushNone;
+      UpdateSelection;
+    end;
+end;
+
 procedure TD2CustomTreeGrid.DragOver(const Data: TD2DragObject;
   Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
 var
@@ -4347,29 +4370,56 @@ var
   H: Single;
   P: TD2Point;
 begin
-  //inherited DragOver(Data, Shift, Point, Accept);
-  FLastDropMode:=dmNowhere;                                   //режим падения - никуда
-  P:=Point;
-  if FContent<>nil
-    then P:=FContent.AbsoluteToLocal(LocalToAbsolute(P));
-  FDropTargetNode:=GetNodeAt(P.X,P.Y,true,T,N); //целевой узел
-
-  if FDropTargetNode<>nil then
+  Accept:=false;            //разрешение отсутствует
+  FLastDropMode:=dmNowhere; //режим падения - никуда
+  if (FIsDragOver) and (FContent<>nil) and          //если курсор над гридом и есть объект контента и
+     (FContent.PointInObject(Point.X,Point.Y)) then //курсор мыши над ним
     begin
-      H:=FDropTargetNode.NodeHeight/3;
-      if (P.Y <= T + H)
-        then FLastDropMode:=dmAbove
-        else if (P.Y >= T + 2*H)
-               then FLastDropMode:=dmBelow
-               else FLastDropMode:=dmOnNode;
-    end;
+      P:=FContent.AbsoluteToLocal(Point);           //преобразуем координаты мыши в локальные
+      P.Y:=P.Y - VScrollBarValue;
+      FDropTargetNode:=GetNodeAt(P.X,P.Y,true,T,N); //найдем целевой узел
+      if FDropTargetNode<>nil then                  //если целевой узел найден
+        begin
+          H:=FDropTargetNode.NodeHeight/3;            //найдем 1/3 высоты узла
+          if (P.Y <= T + H)                           //если курсор в верхней трети узла
+            then FLastDropMode:=dmAbove                 //то режим - "выше узла"
+            else if (P.Y >= T + 2*H)                    //иначе если курсор в нижней трети узла
+                   then FLastDropMode:=dmBelow                   //то режим - "ниже узла"
+                   else FLastDropMode:=dmOnNode;                 //иначе режим - "на узел" (курсор в середине узла)
+        end;
+    end
+    else FDropTargetNode:=nil;   //иначе целового узла нет (или контента нет или курсор вне его)
+
   if Assigned(OnDragOver) then
     OnDragOver(Self,Data,Shift,Point,FDropTargetNode,FLastDropMode,Accept);
 
-  if Accept and (FDropTargetNode<>nil) then
-    begin
-      //подсвечиваем FDropTargetNode выбранный узел  в соответствии с FLastDropMode
+  if (FPreSelection<>nil) and (FPreSelection is TD2Rectangle) then
+    case FLastDropMode of
+      dmNowhere: begin
+                   TD2Rectangle(FPreSelection).Sides:=[];
+                   TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushNone;
+
+                 end;
+        dmAbove: begin
+                   TD2Rectangle(FPreSelection).Sides:=[d2SideTop];
+                   TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
+                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   UpdateSelection;
+                 end;
+        dmBelow: begin
+                   TD2Rectangle(FPreSelection).Sides:=[d2SideBottom];
+                   TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
+                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   UpdateSelection;
+                 end;
+       dmOnNode: begin
+                   TD2Rectangle(FPreSelection).Sides:=[d2SideTop, d2SideLeft, d2SideBottom, d2SideRight];
+                   TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
+                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   UpdateSelection;
+                 end;
     end;
+
 end;
 
 procedure TD2CustomTreeGrid.EndOperation(OperationKind: TD2TreeOperationKind);
