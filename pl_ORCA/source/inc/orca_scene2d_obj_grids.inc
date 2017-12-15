@@ -1257,14 +1257,35 @@ begin
 
   if Button=mbLeft then
   begin
-    if Shift = [ssLeft] then SetSelectedByPoint(P.X, P.Y);                          //нажата только ЛКМ
+    if (Shift = [ssLeft]) and not IsSelected(P.X, P.Y) //если нажата только ЛКМ и строка еще не выбрана
+      then SetSelectedByPoint(P.X, P.Y);                 //то выбрать эту строку
     if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y);          //если нажаты ЛКМ + Shift
     if Shift = [ssLeft, ssShift, ssCtrl] then SetSelectedExtraRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift + Ctrl
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl
+    //if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl
     Column:=ColumnByPoint(X, Y);
     if Column <> nil then
       FocusedColumn:=Column.Index;
   end;
+end;
+
+procedure TD2CustomGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+//обработка отпускания кнопок мыши
+var
+  P: TD2Point;
+begin
+  inherited;
+  if FContent = nil then exit;
+  P:=LocalToAbsolute(d2Point(X,Y));
+  P:=FContent.AbsoluteToLocal(P);
+
+  if Button=mbLeft then     //отпущена ЛКМ
+  begin
+    if (Shift = []) and IsSelected(P.X, P.Y) //больше ни чего не нажато и строка уже выбрана
+      then SetSelectedByPoint(P.X, P.Y);
+    if Shift = [ssCtrl]
+      then ChangeSelectionRowByPoint(P.X, P.Y);//если отпущена ЛКМ и нажат Ctrl
+  end;
+
 end;
 
 procedure TD2CustomGrid.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
@@ -1627,6 +1648,11 @@ begin
       then exit
       else i:=i+2;
   Result := false;
+end;
+
+function TD2CustomGrid.IsSelected(const X, Y: single): boolean;
+begin
+  Result:=IsSelected(RowByPoint(X, Y));
 end;
 
 function TD2CustomGrid.IsOneRowSelected: boolean;

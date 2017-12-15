@@ -3662,7 +3662,7 @@ begin
         P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
         if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
           P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);                     //то преобразуем в координаты владельца FPreSelection
-        if FContent.Width < ClientWidth
+        if (FContent.Width < ClientWidth) or FIsDragOver
           then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
           else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
         FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
@@ -4372,14 +4372,18 @@ var
 begin
   Accept:=false;            //разрешение отсутствует
   FLastDropMode:=dmNowhere; //режим падения - никуда
-  if (FIsDragOver) and (FContent<>nil) and          //если курсор над гридом и есть объект контента и
-     (FContent.PointInObject(Point.X,Point.Y)) then //курсор мыши над ним
+  if (FIsDragOver) and (FContentLayout<>nil) and          //если курсор над гридом и есть объект контента и
+     (FContentLayout.PointInObject(Point.X,Point.Y)) then //курсор мыши над ним
     begin
-      P:=FContent.AbsoluteToLocal(Point);           //преобразуем координаты мыши в локальные
-      P.Y:=P.Y - VScrollBarValue;
+      P:=FContentLayout.AbsoluteToLocal(Point);           //преобразуем координаты мыши в локальные
       FDropTargetNode:=GetNodeAt(P.X,P.Y,true,T,N); //найдем целевой узел
-      if FDropTargetNode<>nil then                  //если целевой узел найден
+
+      if Assigned(FDropTargetNode) then  //если целевой узел найден
         begin
+          //if (GetTopNode=FDropTargetNode) //если целевой узел является верхним
+          //  then StartDragScroll(scLineUp);  //то запустим отложенную прокрутку вверх
+          //  else if (GetBottomNode=FDropTargetNode) //иначе если целевой узел является нижним
+          //         then StartDragScroll(scLineDown);          //то запустим отложенную прокрутку вниз
           H:=FDropTargetNode.NodeHeight/3;            //найдем 1/3 высоты узла
           if (P.Y <= T + H)                           //если курсор в верхней трети узла
             then FLastDropMode:=dmAbove                 //то режим - "выше узла"
@@ -4398,24 +4402,30 @@ begin
       dmNowhere: begin
                    TD2Rectangle(FPreSelection).Sides:=[];
                    TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushNone;
-
+                   UpdateSelection;
                  end;
         dmAbove: begin
                    TD2Rectangle(FPreSelection).Sides:=[d2SideTop];
+                   TD2Rectangle(FPreSelection).Corners:=[d2CornerTopLeft,d2CornerTopRight];
                    TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
-                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   TD2Rectangle(FPreSelection).Stroke.SolidColor:=$FF3752FD;;
+                   TD2Rectangle(FPreSelection).StrokeThickness:=4;
                    UpdateSelection;
                  end;
         dmBelow: begin
                    TD2Rectangle(FPreSelection).Sides:=[d2SideBottom];
+                   TD2Rectangle(FPreSelection).Corners:=[d2CornerBottomLeft,d2CornerBottomRight];
                    TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
-                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   TD2Rectangle(FPreSelection).Stroke.SolidColor:=$FF3752FD;
+                   TD2Rectangle(FPreSelection).StrokeThickness:=5;
                    UpdateSelection;
                  end;
        dmOnNode: begin
-                   TD2Rectangle(FPreSelection).Sides:=[d2SideTop, d2SideLeft, d2SideBottom, d2SideRight];
+                   TD2Rectangle(FPreSelection).Sides:= AllSides;
+                   TD2Rectangle(FPreSelection).Corners:=AllCorners;
                    TD2Rectangle(FPreSelection).Stroke.Style:= d2BrushSolid;
-                   TD2Rectangle(FPreSelection).Stroke.Color:= '#FF1B47E5';
+                   TD2Rectangle(FPreSelection).Stroke.SolidColor:=$FF3752FD;
+                   TD2Rectangle(FPreSelection).StrokeThickness:=7;
                    UpdateSelection;
                  end;
     end;
@@ -4761,6 +4771,23 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
+
+function TD2CustomTreeGrid.GetNodeAtTree(Row: integer): PD2TreeNode;
+//Получить узел по номеру Row видимой строки (перегруженный вариант  функции GetNodeAtTree).
+var
+  Num: integer;
+begin
+  Result:=nil;
+  if (Row < 0) or (Row > VisibleCount-1) then exit;
+
+  Result := GetFirstVisibleNoInit(nil, True);
+  Num := 0;
+  while (Num < Row) and (Result <> nil) do
+  begin
+    Result := GetNextVisibleNoInit(nil, True);
+    inc(Num);
+  end;
+end;
 
 function TD2CustomTreeGrid.InternalGetNodeAt(X, Y: Single; Relative: Boolean;
   var NodeTop: Single; var NodeNum: integer): PD2TreeNode;
@@ -5205,7 +5232,17 @@ end;
 
 function TD2CustomTreeGrid.IsOneRowSelected: boolean;
 begin
-  Result:= (FSelectionCount = 1);
+  Result:= (FSelectionCount <= 1);
+end;
+
+function TD2CustomTreeGrid.IsSelected(Row: integer): boolean;
+begin
+  Result:=GetSelected(GetNodeAtTree(Row));
+end;
+
+function TD2CustomTreeGrid.IsSelected(const X, Y: single): boolean;
+begin
+  Result:=GetSelected(GetNodeAtTree(X, Y));
 end;
 
 procedure TD2CustomTreeGrid.MainColumnChanged;

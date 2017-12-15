@@ -7300,8 +7300,10 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function  GetContentWidth: Single;  virtual;
               //true - если выбрана 1 стока
     function  IsOneRowSelected:boolean; virtual;
-              //true - если строка Row выбрана
-    function  IsSelected(Row: integer):boolean;
+              //true - если строка c номером Row выбрана
+    function  IsSelected(Row: integer):boolean; virtual; overload;
+              //true - если строка по координатам X,Y выбрана
+    function  IsSelected(const X, Y: single):boolean; virtual; overload;
                //обработка нажатий клавиатуры
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
@@ -7348,6 +7350,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function ItemClass: string;  override;
               //обработка нажатий кнопок мыши
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+              //обработка отпускания кнопок мыши
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
               //обработка перемещения мыши
     procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
               //перестроить грид
@@ -9199,6 +9203,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure InvalidateCache;
               //True - если выделена только одна строка
     function  IsOneRowSelected: boolean; override;
+              //true - если строка c номером Row выбрана
+    function  IsSelected(Row: integer):boolean; override;
+              //true - если строка по координатам X,Y выбрана
+    function  IsSelected(const X, Y: single):boolean; override;
               //обработка нажатий клавиатуры
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //обработка отпускания клавиатуры
@@ -9496,6 +9504,8 @@ public
              //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
              //X и Y задаются в координатах дерева
     function GetNodeAtTree(X, Y: Single): PD2TreeNode; overload;
+             //Получить узел по номеру Row видимой строки (перегруженный вариант  функции GetNodeAtTree).
+    function GetNodeAtTree(Row: integer): PD2TreeNode; overload;
              // Возвращает адрес определяемой пользователем области данных для узла Node
     function GetNodeData(Node: PD2TreeNode): Pointer;
              // Возвращает уровень узла Node

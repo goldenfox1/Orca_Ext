@@ -152,6 +152,7 @@ object Form1: TForm1
         StrokeThickness = 5
         xRadius = 3
         yRadius = 3
+        Corners = []
         Sides = [d2SideTop]
       end
     end
