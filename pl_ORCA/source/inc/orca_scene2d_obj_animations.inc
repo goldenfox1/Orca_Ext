@@ -453,7 +453,7 @@ begin
   FStopColor:=d2StrToColor(Value);
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2GradientAnimation ===================================================================}
 
 constructor TD2GradientAnimation.Create(AOwner:TComponent);
 begin
@@ -531,7 +531,7 @@ begin
   FStopGradient.Assign(Value);
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2FloatAnimation ===================================================================}
 
 constructor TD2FloatAnimation.Create(AOwner:TComponent);
 begin
@@ -593,7 +593,7 @@ begin
   end;
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2RectAnimation ===================================================================}
 
 constructor TD2RectAnimation.Create(AOwner:TComponent);
 begin
@@ -666,7 +666,7 @@ begin
   end;
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2BitmapAnimation ===================================================================}
 
 constructor TD2BitmapAnimation.Create(AOwner:TComponent);
 begin
@@ -747,7 +747,7 @@ begin
   end;
 end;
 
-{ TD2BitmapListAnimation }
+{ TD2BitmapListAnimation ===================================================================}
 
 constructor TD2BitmapListAnimation.Create(AOwner:TComponent);
 begin
@@ -974,7 +974,7 @@ begin
   end;
 end;
 
-{ TD2PathAnimation }
+{ TD2PathAnimation ========================================================}
 
 constructor TD2PathAnimation.Create(AOwner:TComponent);
 begin
