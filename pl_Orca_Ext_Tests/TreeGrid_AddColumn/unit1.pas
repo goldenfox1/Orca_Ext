@@ -24,7 +24,6 @@ type
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
-    Rectangle1: TD2Rectangle;
     Root1: TD2Background;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;

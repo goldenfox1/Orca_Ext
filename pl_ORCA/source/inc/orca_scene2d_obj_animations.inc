@@ -25,11 +25,6 @@ begin
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);
-{begin
-  OneStep;
-end;
-
-procedure TD2AniThread.OneStep;}
 var
   i:integer;
   NewTime:single;
@@ -38,10 +33,6 @@ begin
   if NewTime <= FTime then Exit;
   FDeltaTime:=NewTime - FTime;
   FTime:=NewTime;
-  //if FAniList.Count > 0 then
-  //begin
-  //  i:=FAniList.Count - 1;
-  //  while i >= 0 do
   i := 0;
   while i < FAniList.Count do
   begin
@@ -58,12 +49,8 @@ begin
               end
         else TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
     end;
-    //Dec(i);
-    //if i >= FAniList.Count then
-    //  i:=FAniList.Count - 1;
     Inc(i);
   end;
-  //end;
 end;
 
 //================== TD2Animation ==================================
@@ -1054,21 +1041,6 @@ constructor TD2PathSwitcher.Create(AOwner:TComponent);
 begin
   inherited;
   Duration:=0.001;
-end;
-
-destructor TD2PathSwitcher.Destroy;
-begin
-  inherited;
-end;
-
-procedure TD2PathSwitcher.Start;
-begin
-  inherited;
-end;
-
-procedure TD2PathSwitcher.ProcessAnimation;
-begin
-  inherited;
 end;
 
 procedure TD2PathSwitcher.SetPathFalse(const Value:string);

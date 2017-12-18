@@ -143,18 +143,6 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
-      object Rectangle1: TD2Rectangle
-        Position.Point = '(140,355)'
-        RotateAngle = 0
-        Width = 50
-        Height = 50
-        StrokeCap = d2CapRound
-        StrokeThickness = 5
-        xRadius = 3
-        yRadius = 3
-        Corners = []
-        Sides = [d2SideTop]
-      end
     end
   end
   object VT: TVirtualStringTree

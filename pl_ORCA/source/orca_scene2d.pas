@@ -648,7 +648,6 @@ TD2AniThread = class(TD2Timer)
     FStartTime:single;
     FTime     :single;
     FDeltaTime:single;
-    //procedure OneStep;
     procedure DoSyncTimer(Sender: TObject);
   protected
   public
@@ -1530,6 +1529,7 @@ TD2Object = class(TComponent)
     property ResourceName: string read FResourceName write SetResourceName;
   end;
 
+//Базовый класс анимации
   TD2Animation = class(TD2Object)
   private
     FDuration:single;
@@ -2457,6 +2457,7 @@ type
 
 TD2CustomTranslateProc = function (AText: WideString): WideString;
 
+//Анимация цвета
 TD2ColorAnimation = class(TD2Animation)
   private
     FStartColor: TD2Color;
@@ -2481,6 +2482,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+//Анимация цветового градиента
   TD2GradientAnimation = class(TD2Animation)
   private
     FStartGradient: TD2Gradient;
@@ -2503,6 +2505,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+//Анимация парамеров типа Float
   TD2FloatAnimation = class(TD2Animation)
   private
     FStartFloat:single;
@@ -2524,6 +2527,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+  //Анимация прямоугольников
   TD2RectAnimation = class(TD2Animation)
   private
     FStartRect: TD2Bounds;
@@ -2545,6 +2549,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+  //Анимация картинок
   TD2BitmapAnimation = class(TD2Animation)
   private
     FPropertyName: AnsiString;
@@ -2653,7 +2658,7 @@ TD2FloatKeyAnimation = class(TD2Animation)
     property StartFromCurrent: boolean read FStartFromCurrent write FStartFromCurrent;
   end;
 
-
+//Анимация пути (перемещение вдоль линии)
 TD2PathAnimation = class(TD2Animation)
   private
     FPath: TD2PathData;
@@ -2677,17 +2682,12 @@ TD2PathAnimation = class(TD2Animation)
 TD2PathSwitcher = class(TD2Animation)
   private
     FPath, FPropertyName: AnsiString;
-    //FInstance: TObject;
     FPathTrue: string;
     FPathFalse: string;
     procedure SetPathFalse(const Value:string);
     procedure SetPathTrue(const Value:string);
-  protected
-    procedure ProcessAnimation;  override;
   public
     constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    procedure Start;  override;
   published
     property PathTrue: string read FPathTrue write SetPathTrue;
     property PathFalse: string read FPathFalse write SetPathFalse;
