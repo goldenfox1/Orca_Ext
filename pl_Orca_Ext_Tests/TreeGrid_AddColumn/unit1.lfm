@@ -122,6 +122,7 @@ object Form1: TForm1
         OnDragOver = TreeGrid1DragOver
         Resource = 'gridstyle'
         TabOrder = 4
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toUseBlendedImages]
         TreeOptions.SelectionOptions = [toMultiSelect]
@@ -141,6 +142,12 @@ object Form1: TForm1
           Height = 245
           HitTest = False
           TabOrder = 1
+        end
+        object FloatAnimation1: TD2FloatAnimation
+          Delay = 0
+          Duration = 0.200000002980232
+          StartValue = 0
+          StopValue = 0
         end
       end
     end

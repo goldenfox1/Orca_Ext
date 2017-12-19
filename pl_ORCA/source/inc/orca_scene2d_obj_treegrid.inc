@@ -33,13 +33,14 @@ begin
                 //экспандер
                 if FExpander <> nil then
                 begin
-                  if (toShowButtons in FOptions.FPaintOptions) and
-                     (vsHasChildren in FNode.States) and
-                      not ((vsAllChildrenHidden in FNode.States) and
-                           (toAutoHideButtons in FOptions.FAutoOptions)) and
-                     (((FNode.Parent = FRoot) and
-                       (toShowRoot in FOptions.FPaintOptions)) or
-                      (FNode.Parent <> FRoot))
+                  //if (toShowButtons in FOptions.FPaintOptions) and
+                  //   (vsHasChildren in FNode.States) and
+                  //    not ((vsAllChildrenHidden in FNode.States) and
+                  //         (toAutoHideButtons in FOptions.FAutoOptions)) and
+                  //   (((FNode.Parent = FRoot) and
+                  //     (toShowRoot in FOptions.FPaintOptions)) or
+                  //    (FNode.Parent <> FRoot))
+                  if HasExpander[FNode]
                     then  begin
                             FExpander.Visible:= true;
                             if vsExpanded in FNode.States //если узел раскрыт
@@ -971,8 +972,8 @@ begin
   //FCustomCheckChangeLink := TChangeLink.Create;
   //FCustomCheckChangeLink.OnChange := ImageListChange;
 
-  //FAutoExpandDelay := 1000;
-  //FAutoScrollDelay := 1000;
+  FAutoExpandDelay := 1000;
+  FAutoScrollDelay := 100;
   //FAutoScrollInterval := 1;
 
   //FBackground := TPicture.Create;
@@ -1062,7 +1063,8 @@ begin
   //FreeAndNil(FHeader);
 
   FreeMem(FRoot);
-
+  FreeAndNil(FScrollTimer);
+  FreeAndNil(FExpandTimer);
   //FPlusBM.Free;
   //FHotPlusBM.Free;
   //FMinusBM.Free;
@@ -1806,6 +1808,18 @@ begin
     Result := vsHasChildren in Node.States
   else
     Result := vsHasChildren in FRoot.States;
+end;
+
+function TD2CustomTreeGrid.GetHasExpander(Node: PD2TreeNode): Boolean;
+begin
+  Result:= (Node<>nil) and
+          (toShowButtons in FOptions.FPaintOptions) and
+          (vsHasChildren in Node.States) and
+           not ((vsAllChildrenHidden in Node.States) and
+          (toAutoHideButtons in FOptions.FAutoOptions)) and
+          ( ( (Node.Parent = FRoot) and
+              (toShowRoot in FOptions.FPaintOptions) ) or
+            (Node.Parent <> FRoot))
 end;
 
 function TD2CustomTreeGrid.GetMainColumn: integer;
@@ -4346,6 +4360,8 @@ end;
 
 procedure TD2CustomTreeGrid.DragLeave;
 begin
+  StopDragScroll; //остановим автоскроллинг
+  StopDropExpand; //остановим авторазворачивание узла
   inherited;
   UpdateSelection;
 end;
@@ -4353,6 +4369,8 @@ end;
 procedure TD2CustomTreeGrid.DragDrop(const Data: TD2DragObject;
   const Point: TD2Point);
 begin
+  StopDragScroll; //остановим автоматический скроллинг
+  StopDropExpand; //остановим авторазворачивание узла
   inherited;
   if (FPreSelection<>nil) and (FPreSelection is TD2Rectangle) then
     begin
@@ -4362,6 +4380,76 @@ begin
     end;
 end;
 
+procedure TD2CustomTreeGrid.DoDragScroll(Sender: TObject);
+begin
+  if FAutoScrollUp
+   then VScrollBar.Value:=VScrollBar.Value-FDefaultNodeHeight
+   else VScrollBar.Value:=VScrollBar.Value+FDefaultNodeHeight;
+   UpdateSelection;
+end;
+
+procedure TD2CustomTreeGrid.StartDragScroll(ScrollUp: boolean; Distance: single);
+begin
+  if not (toAutoScroll in FOptions.FAutoOptions) then
+    begin
+      StopDragScroll;
+      exit;
+    end;
+  if FScrollTimer = nil then //если таймера нет, то создадим и инициализируем его
+    begin
+      FScrollTimer := TD2Timer.Create(Self);
+      FScrollTimer.Interval:=AutoScrollDelay;
+      FScrollTimer.OnTimer:=DoDragScroll;
+    end;
+  if (FAutoScrollUp <> ScrollUp)      //если меняется направление автоскроллинга
+    then FScrollTimer.Enabled:=false;   //то остановить таймер
+  FAutoScrollUp:=ScrollUp;             //сохраним направление автоскроллинга
+  if (Distance > FDefaultNodeHeight) //если расстояние до края клиентской области больше чем минимальная высота узла
+    then FScrollTimer.Enabled:=false  //то остановить таймер
+    else if not FScrollTimer.Enabled   //иначе если таймер не запущен
+           then FScrollTimer.Enabled:=true; //запустить таймер
+end;
+
+procedure TD2CustomTreeGrid.StopDragScroll;
+begin
+ if FScrollTimer <> nil              //если есть таймер автоскрола
+   then FScrollTimer.Enabled:=false; //то остановим его
+end;
+
+procedure TD2CustomTreeGrid.DoDropExpand(Sender: TObject);
+begin
+  StopDropExpand; //остановим таймер авторазворачивания узла
+  if (FIsDragOver) and               //если дерево в режиме перетаскивания и
+     (Assigned(FDropTargetNode)) and      //есть целевой узел и
+     (HasExpander[FDropTargetNode]) and   //у целевого узла есть кнопка разворачивания/сворачивания и
+     (not Expanded[FDropTargetNode])      //целевой узел свернут
+    then Expanded[FDropTargetNode]:=true;   //то развернем узел
+end;
+
+procedure TD2CustomTreeGrid.StartDropExpand;
+begin
+  if not (toAutoDropExpand in FOptions.FAutoOptions) or
+     not HasExpander[FDropTargetNode]  then
+    begin
+      StopDropExpand;
+      exit;
+    end;
+  if FExpandTimer = nil then //если таймера нет, то создадим и инициализируем его
+    begin
+      FExpandTimer := TD2Timer.Create(Self);
+      FExpandTimer.Interval:=AutoExpandDelay;
+      FExpandTimer.OnTimer:=DoDropExpand;
+    end;
+  if not FExpandTimer.Enabled
+    then FExpandTimer.Enabled:=true;
+end;
+
+procedure TD2CustomTreeGrid.StopDropExpand;
+begin
+  if FExpandTimer <> nil           //если есть таймер авторазворачивания
+   then FExpandTimer.Enabled:=false; //то остановим его
+end;
+
 procedure TD2CustomTreeGrid.DragOver(const Data: TD2DragObject;
   Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
 var
@@ -4369,6 +4457,7 @@ var
   N: integer;
   H: Single;
   P: TD2Point;
+  OldTarget: PD2TreeNode;
 begin
   Accept:=false;            //разрешение отсутствует
   FLastDropMode:=dmNowhere; //режим падения - никуда
@@ -4376,14 +4465,17 @@ begin
      (FContentLayout.PointInObject(Point.X,Point.Y)) then //курсор мыши над ним
     begin
       P:=FContentLayout.AbsoluteToLocal(Point);           //преобразуем координаты мыши в локальные
+      OldTarget:=FDropTargetNode;
       FDropTargetNode:=GetNodeAt(P.X,P.Y,true,T,N); //найдем целевой узел
-
+      if FDropTargetNode <> OldTarget
+        then StartDropExpand;
       if Assigned(FDropTargetNode) then  //если целевой узел найден
         begin
-          //if (GetTopNode=FDropTargetNode) //если целевой узел является верхним
-          //  then StartDragScroll(scLineUp);  //то запустим отложенную прокрутку вверх
-          //  else if (GetBottomNode=FDropTargetNode) //иначе если целевой узел является нижним
-          //         then StartDragScroll(scLineDown);          //то запустим отложенную прокрутку вниз
+          if (P.Y <= FDefaultNodeHeight) //если курсор находится вверху
+            then StartDragScroll(true,P.Y)  //то запустим отложенную прокрутку вверх
+            else if (FContentLayout.Height-P.Y <= FDefaultNodeHeight) //иначе если курсор находится внизу
+                   then StartDragScroll(false,FContentLayout.Height-P.Y) //то запустим отложенную прокрутку вниз
+                   else StopDragScroll;                                  //иначе остановим таймер автоскроллинга
           H:=FDropTargetNode.NodeHeight/3;            //найдем 1/3 высоты узла
           if (P.Y <= T + H)                           //если курсор в верхней трети узла
             then FLastDropMode:=dmAbove                 //то режим - "выше узла"

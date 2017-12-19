@@ -8674,25 +8674,34 @@ TD2TreeNodeAlignment = (
   naProportional           //Align измеряется в процентах от всей высоты узла от верхней границы узла. align is to be measure in percent of the entire node height and relative to top
 );
 
-  //Режимы анимации при сворачивании/разворачивании узлов. Toggle animation modes.
-  TD2ToggleAnimationMode = (
-    tamScrollUp,
-    tamScrollDown,
-    tamNoScroll
-  );
 
-  // Внутренне данные  используемые для анимаций. Internally used data for animations.
-  TD2ToggleAnimationData = record
-    Window: HWND;                 // копия хендла окна дерева copy of the tree's window handle
-    DC: HDC;                      // DC окна для удаления непокрытых частей the DC of the window to erase uncovered parts
-    Brush: HBRUSH;                // кисть, используемая для стирания непокрытых частей the brush to be used to erase uncovered parts
-    R1,                           // 1-ый анимационный прямоугольник animation rectangles
-    R2: TD2Rect;                    // 2-ой анимационный прямоугольник animation rectangles
-    Mode1,                        // 1-ый режим анимации animation modes
-    Mode2: TD2ToggleAnimationMode;  // 2-ой режим анимации animation modes
-    ScaleFactor: Double;          // фактор между отсутствующим размером шага при выполнении двух анимаций the factor between the missing step size when doing two animations
-    MissedSteps: Double;          // шаг пропуска ???
-  end;
+// направления авто прокрутки auto scroll directions
+TD2ScrollDirections = (
+  sdLeft,  //влево
+  sdUp,    //вверх
+  sdRight, //вправо
+  sdDown   //вниз
+);
+
+//Режимы анимации при сворачивании/разворачивании узлов. Toggle animation modes.
+TD2ToggleAnimationMode = (
+  tamScrollUp,
+  tamScrollDown,
+  tamNoScroll
+);
+
+// Internally used data for animations.
+TD2ToggleAnimationData = record
+  Window: HWND;                 // copy of the tree's window handle
+  DC: HDC;                      // the DC of the window to erase uncovered parts
+  Brush: HBRUSH;                // the brush to be used to erase uncovered parts
+  R1,
+  R2: TD2Rect;                    // animation rectangles
+  Mode1,
+  Mode2: TD2ToggleAnimationMode;  // animation modes
+  ScaleFactor: Double;          // the factor between the missing step size when doing two animations
+  MissedSteps: Double;
+end;
 
 //Класс, описывающий опции поведения дерева
 TD2CustomTreeOptions = class(TPersistent)
@@ -8736,14 +8745,18 @@ published
   property SelectionOptions; //Опиции, определяющие поведение дерева при выборе узлов
 end;
 
+
 { TD2CustomTreeGrid }
 //Базовый класс дерева описывающий все поля и свойства
 TD2CustomTreeGrid = class(TD2CustomGrid)
   private
+    FAutoExpandDelay: Cardinal;
+    FAutoScrollDelay: Cardinal;
     const
       CacheThreshold = 2000;        // Number of nodes a tree must at least have to start caching and at the same
                                     // time the maximum number of nodes between two cache entries.
     var
+    FAutoScrollUp: boolean;                      //true - если нужно выполнить автоматический скроллинг вверх
     FCheckNode: PD2TreeNode;                     //Узел, который «захватывает» событие проверки. node which "captures" a check event
     FCheckPropagationCount: Cardinal;            //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
 
@@ -8752,8 +8765,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FDefaultPasteMode: TD2TreeNodeAttachMode;    //Используется для определения, где добавить вставляемый узел. Used to determine where to add pasted nodes to.
     FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
     FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
+    FExpandTimer: TD2Timer;                      //Таймер авторазворачивания узла при удержании мыши над експандером при перетаскивании
     FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
-    FIndentWidth: Single;                             //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
+    FIndentWidth: Single;                        //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
     FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
     FLastDropMode: TD2DropMode;                  //Pежим вставки после падения в операциях drag & drop. set while dragging and used to track changes
     FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
@@ -8780,6 +8794,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
     FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
     FRoot: PD2TreeNode;                //Корневой узел дерева.
+    FScrollTimer: TD2Timer;            //Таймер автосроллера (используется базовый класс анимации)
     FSelectionNodes: TD2NodeArray;     //Массив выделенных узлов. list of currently selected nodes
     FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelectionNodes). number of currently selected nodes (size of FSelectionNodes might differ)
     FSelectionLocked: Boolean;         //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
@@ -8911,6 +8926,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function GetFullyVisible(Node: PD2TreeNode): Boolean;
              //true - узел имеет дочерние узлы
     function GetHasChildren(Node: PD2TreeNode): Boolean;
+    function GetHasExpander(Node: PD2TreeNode): Boolean;
              //Получить колонку, отображающая структуру дерева
     function GetMainColumn: integer;
              //true - текст узла Node многострочный
@@ -9146,6 +9162,18 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
 
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point); override;
 
+    procedure DoDragScroll(Sender: TObject);
+
+    procedure DoDropExpand(Sender: TObject);
+
+    procedure StartDragScroll(ScrollUp: boolean; Distance: single);
+
+    procedure StartDropExpand;
+              //остановить автосроллинг
+    procedure StopDragScroll;
+              //остановить авторазворачивание узла
+    procedure StopDropExpand;
+
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean); override;
               //Вызывается для индикации завершения длительной операции.
     procedure EndOperation(OperationKind: TD2TreeOperationKind);
@@ -9273,7 +9301,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure UnselectNodes(StartNode, EndNode: PD2TreeNode); virtual;
 
     //------- свойства
-
+             //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoExpandDelay: Cardinal read FAutoExpandDelay write FAutoExpandDelay default 1000;
+             //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
+    property AutoScrollDelay: Cardinal read FAutoScrollDelay write FAutoScrollDelay default 100;
              //Дополнительное место ниже последнего узла
     property BottomSpace: Single read FBottomSpace write SetBottomSpace default 0;
              //Высота узла по умолчанию
@@ -9648,6 +9679,7 @@ public
     property CutCopyCount: Cardinal read GetCutCopyCount;  //Кол-во копируемых узлов в дереве
     property DropTargetNode: PD2TreeNode read FDropTargetNode write FDropTargetNode; //Узел выбранный в качестве целевого при операции перетаскивания
     property Expanded[Node: PD2TreeNode]: Boolean read GetExpanded write SetExpanded; //true - узел развернут; false - свернут
+    property HasExpander[Node: PD2TreeNode]: Boolean read GetHasExpander; //true - узел имеет кнопку разворачивания/сворачивания узла
     property FocusedNode: PD2TreeNode read FFocusedNode write SetFocusedNode; //Узел имееющий фокус
     property FullyVisible[Node: PD2TreeNode]: Boolean read GetFullyVisible write SetFullyVisible;  //True - узел видим и все его родители развернуты.
     property HasChildren[Node: PD2TreeNode]: Boolean read GetHasChildren write SetHasChildren;  //Наличие детей у узла Node: true - есть дети; false - нет детей
@@ -9710,6 +9742,8 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property VScrollBar;
     property HScrollBar;
   published
+    property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
     property LineMode;
     property MainColumn;
     property TreeOptions;

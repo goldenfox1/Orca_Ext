@@ -19,6 +19,7 @@ type
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
+    FloatAnimation1: TD2FloatAnimation;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
@@ -224,7 +225,7 @@ begin
     end;
     if i=0 then TreeGrid1.ToggleNode(NewNode);
   end;
-  TreeGrid1.FullExpand;
+  //TreeGrid1.FullExpand;
   TreeGrid1.EndUpdate;
 end;
 
