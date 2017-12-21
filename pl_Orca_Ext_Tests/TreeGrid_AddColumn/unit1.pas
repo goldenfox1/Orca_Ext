@@ -17,24 +17,25 @@ type
 
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
+    ColorAnimation1: TD2ColorAnimation;
     D2Scene1: TD2Scene;
     DBStringTree1: TDBStringTree;
-    FloatAnimation1: TD2FloatAnimation;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
+    Rectangle1: TD2Rectangle;
     Root1: TD2Background;
+    SpinBox1: TD2SpinBox;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
-    TreeTextColumn1: TD2TreeTextColumn;
-    TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
     TreeGrid1: TD2TreeGrid;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);
+    procedure SpinBox1Change(Sender: TObject);
     procedure TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
       Shift: TShiftState; const Point: TD2Point; var TargetNode: PD2TreeNode;
       var Mode: TD2DropMode; var Accept: Boolean);
@@ -42,6 +43,7 @@ type
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
     procedure CreateVT;
+    procedure TreeGrid1HeaderClick(Sender: TObject);
     procedure TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; const Value: Variant);
     procedure VTDragOver(Sender: TBaseVirtualTree; Source: TObject;
@@ -97,6 +99,11 @@ procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
   const Point: TD2Point; var Accept: Boolean);
 begin
   Accept:=true;
+end;
+
+procedure TForm1.SpinBox1Change(Sender: TObject);
+begin
+  TreeGrid1.SortColumn:=integer(SpinBox1.Value);
 end;
 
 procedure TForm1.TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
@@ -279,6 +286,19 @@ begin
     if i=0 then VT.ToggleNode(NewNode);
   end;
   VT.EndUpdate;
+end;
+
+procedure TForm1.TreeGrid1HeaderClick(Sender: TObject);
+begin
+  if TreeGrid1.SortColumn=TD2HeaderItem(Sender).Index
+    then  case TreeGrid1.SortDirection of
+            sdAscending: TreeGrid1.SortDirection:=sdDescending;
+           sdDescending: TreeGrid1.SortDirection:=sdAscending;
+          end
+    else  begin
+            TreeGrid1.SortColumn:=TD2HeaderItem(Sender).Index;
+            TreeGrid1.SortDirection:=sdAscending;
+          end;
 end;
 
 procedure TForm1.VTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;

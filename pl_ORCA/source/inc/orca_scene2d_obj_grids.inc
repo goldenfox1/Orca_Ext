@@ -13,6 +13,26 @@ begin
   CanFocused:=false;
   FxRadius:=0;
   FyRadius:=0;
+  FIsSortedUp:=false;        //true - сортировка от меньшего к большему
+  FIsSortedDown:=false;      //true - сортировка от большего к меньшему
+end;
+
+procedure TD2HeaderItem.SetIsSortedDown(AValue: boolean);
+begin
+  if FIsSortedDown=AValue then Exit;
+  FIsSortedDown:=AValue;
+  if AValue
+    then IsSortedUp:=not AValue;
+  StartTriggerAnimation(Self,'IsSortedDown');
+end;
+
+procedure TD2HeaderItem.SetIsSortedUp(AValue: boolean);
+begin
+  if FIsSortedUp=AValue then Exit;
+  FIsSortedUp:=AValue;
+  if AValue
+    then IsSortedDown:=not AValue;
+  StartTriggerAnimation(Self,'IsSortedUp');
 end;
 
 procedure TD2HeaderItem.ApplyStyle;
@@ -72,7 +92,7 @@ begin
           H.FItemsWidth:=H.FItemsWidth + Width; //вычисляем общую ширину полей заголовка
           Sides:=Sides+[d2SideLeft];            //у всех полей включим левую границу
         end;
-      BringToFront;              //текущее поле переместим вверх
+
     end;
 end;
 
@@ -85,6 +105,8 @@ begin
   if not FPressed then exit;
   H:=Header;
   if H = nil then exit;
+  FIsPositioning:=true;                        //начат процесс изменения позиции
+  BringToFront;              //текущее поле переместим вверх
   Position.X:=Position.X+(X-FMouseDownPos.X); //новая позиция поля
 
   idx:=FNewIndex;  //текущий индекс поля заголовка
@@ -125,7 +147,6 @@ procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: 
 var
   H: TD2Header;
 begin
-  inherited;
   Index:=FNewIndex;
   H:=Header;
   if H <> nil then
@@ -134,6 +155,8 @@ begin
     if Assigned(H.OnRealignItem)                                  //если у заголовка определено прерывание по изменению порядка полей
       then H.OnRealignItem(TD2Object(Self), FOldIndex, FNewIndex);  //то вызвать прерывание (эл-т, Старый индекс, новый индекс)
   end;
+  inherited;
+  FIsPositioning:=false;                        //закончен процесс изменения позиции
 end;
 
 function TD2HeaderItem.Header:TD2Header;
@@ -151,6 +174,20 @@ begin
     P := P.Parent;
   end;
   Result := nil;
+end;
+
+procedure TD2HeaderItem.Click;
+begin
+  if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderClick) //если закончен процесс изменения позиции
+    then Header.FGrid.FOnHeaderClick(Self);
+  inherited;
+end;
+
+procedure TD2HeaderItem.DblClick;
+begin
+  if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderDblClick) //если закончен процесс изменения позиции
+    then Header.FGrid.FOnHeaderDblClick(Self);
+  inherited;
 end;
 
 //=============== TD2Header ===================================================
@@ -687,6 +724,8 @@ begin
   FSelectedRows[1] := FSelected;
   FSelectedRows[2] := FSelected;
   FIsPreSelected := false;
+  FSortColumn := NoColumn;
+  FSortDirection := sdAscending;
 end;
 
 destructor TD2CustomGrid.Destroy;
@@ -879,8 +918,20 @@ end;
 
 procedure TD2CustomGrid.DoRealignItem(Sender:TObject; OldIndex,NewIndex:integer);
 begin
-  if FocusedColumn=Columns[OldIndex].Index then
-    FocusedColumn:=NewIndex;
+  if FocusedColumn=OldIndex
+    then FocusedColumn:=NewIndex
+    else if (OldIndex<FocusedColumn) and (FocusedColumn<=NewIndex)
+           then FocusedColumn:=FocusedColumn-1
+           else if (OldIndex>FocusedColumn) and (FocusedColumn>=NewIndex)
+                  then FocusedColumn:=FocusedColumn+1;
+
+  if SortColumn=OldIndex
+    then SortColumn:=NewIndex
+    else if (OldIndex<SortColumn) and (SortColumn<=NewIndex)
+           then SortColumn:=SortColumn-1
+           else if (OldIndex>SortColumn) and (SortColumn>=NewIndex)
+                  then SortColumn:=SortColumn+1;
+
   Columns[OldIndex].Index:=NewIndex;
 end;
 
@@ -919,7 +970,26 @@ begin
   for i := 0 to ColumnCount - 1 do //обновим ширину и надписи полей заголовка
   begin
     FHeader.Items[i].TextW := Columns[i].Header; //пропишем текст поля заголовка
-    FHeader.Items[i].Width := Columns[i].Width;  //установим ширину полея заголовка
+    FHeader.Items[i].Width := Columns[i].Width;  //установим ширину поля заголовка
+    if i=FSortColumn
+      then  begin
+              case FSortDirection of
+                sdAscending:
+                  begin
+                    FHeader.Items[i].IsSortedUp:=true;
+                    FHeader.Items[i].IsSortedDown:=false;
+                  end;
+                sdDescending:
+                  begin
+                    FHeader.Items[i].IsSortedUp:=false;
+                    FHeader.Items[i].IsSortedDown:=true;
+                  end;
+              end;
+            end
+      else  begin
+              FHeader.Items[i].IsSortedUp:=false;
+              FHeader.Items[i].IsSortedDown:=false;
+            end;
   end;
   FHeader.Realign;  //перестроим заголовок
 end;
@@ -1585,6 +1655,12 @@ begin
     FOnSetValue(Self,Col,Row,Value);
 end;
 
+procedure TD2CustomGrid.SortGrid;
+//отсортировать грид в соответствии со значениями SortColumn и SortDirection
+begin
+  Realign;
+end;
+
 procedure TD2CustomGrid.SetPreSelected(const Value: integer);
 var S:integer;
 begin
@@ -1726,6 +1802,24 @@ begin
     FShowVertLines:=Value;
     Repaint;
   end;
+end;
+
+procedure TD2CustomGrid.SetSortColumn(AValue: integer);
+begin
+  if AValue>ColumnCount-1
+    then AValue:=ColumnCount-1;
+  if AValue<InvalidColumn
+    then  AValue:=NoColumn;
+  if FSortColumn=AValue then Exit;
+  FSortColumn:=AValue;
+  SortGrid;
+end;
+
+procedure TD2CustomGrid.SetSortDirection(AValue: TD2SortDirection);
+begin
+  if FSortDirection=AValue then Exit;
+  FSortDirection:=AValue;
+  SortGrid;
 end;
 
 procedure TD2CustomGrid.SetFocusedColumn(const Value:integer);

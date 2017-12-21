@@ -7011,10 +7011,23 @@ TD2DockingPlace = class(TD2Control)   //площадка для размещен
     property TabHeight:single read FTabHeight write SetTabHeight;  //высота закладок
   end;
 
+const
+//Специальные идентификаторы столбцов. Special identifiers for columns.
+
+    NoColumn = -1;      //Нет колонки
+    InvalidColumn = -2; //Недействительная колонка
+
 type
+//Направления сортировки
+  TD2SortDirection = (
+      sdAscending,   //сортировка по возрастанию
+      sdDescending   //сортировка по убыванию
+    );
 
 TD2CustomGrid = class;
 TD2Header = class;
+
+{ TD2HeaderItem }
 
 TD2HeaderItem = class(TD2CornerButton)
   private
@@ -7023,11 +7036,18 @@ TD2HeaderItem = class(TD2CornerButton)
     FOldIndex: integer;          //индекс элемента до начала перемещения
     FNewIndex: integer;          //индекс элемента после начала перемещения
     FSplitter: TD2VisualObject;  //указатель на сплиттер
+    FIsPositioning: boolean;     //true - идет процесс изменения позиции
+    FIsSortedUp: boolean;        //true - сортировка от меньшего к большему
+    FIsSortedDown: boolean;      //true - сортировка от большего к меньшему
+    procedure SetIsSortedDown(AValue: boolean);
+    procedure SetIsSortedUp(AValue: boolean);
   protected
     procedure ApplyStyle;  override; //применить стиль
     procedure FreeStyle;  override;	 //освободить стиль
     procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
     function Header: TD2Header;
+    procedure Click;  override;
+    procedure DblClick;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
@@ -7037,6 +7057,8 @@ TD2HeaderItem = class(TD2CornerButton)
     property CanFocused  default false;
     property TextAlign  default d2TextAlignNear;
     property DragMode  default d2DragAutomatic;
+    property IsSortedUp: boolean read FIsSortedUp write SetIsSortedUp;
+    property IsSortedDown: boolean read FIsSortedDown write SetIsSortedDown;
   end;
 
 TD2OnRealignItemEvent = procedure (Sender: TObject; OldIndex, NewIndex: integer) of object;
@@ -7194,12 +7216,6 @@ end;
   TOnSetValue = procedure (Sender: TObject; const Col, Row:integer; const Value:Variant) of object;
   TOnEdititingDone = procedure (Sender: TObject; const Col, Row: integer) of object;
 
-//Направления сортировки
-  TD2SortDirection = (
-      sdAscending,   //сортировка по возрастанию
-      sdDescending   //сортировка по убыванию
-    );
-
 { TD2CustomGrid }
 
 //базовый класс сетки описывающий все поля и свойства
@@ -7211,6 +7227,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     FHeader: TD2Header;                 //указатель на строку заголовка
     FMultiSelect:boolean;               //флаг разрешения множественного выбора
     FOldSelected:integer;               //№ предыдущей выбранной строки
+    FOnHeaderClick: TNotifyEvent;       //указатель на процедуру прерывания при клике на заголовок
+    FOnHeaderDblClick: TNotifyEvent;    //указатель на процедуру прерывания при двойном клике на заголовок
     FPreSelection: TD2VisualObject;     //указатель на маркер пред.выбора строки
     FRowCount:integer;                  //общее кол-во строк в гриде
     FRowHeight:single;                  //высота строк
@@ -7256,6 +7274,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure SetShowSelectedCell(const Value:boolean);
               //установить режим отрисовки вертикальных линий
     procedure SetShowVertLines(const Value:boolean);
+    procedure SetSortColumn(AValue: integer);
+    procedure SetSortDirection(AValue: TD2SortDirection);
 
   protected
               //применить стиль
@@ -7324,6 +7344,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure SetSelectedExtraRowByPoint(const X, Y: single); virtual;
               //сохранить значение ячейки в колонке Col строке Row
     procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
+              //отсортировать грид в соответствии со значениями SortColumn и SortDirection
+    procedure SortGrid; virtual;
               //обновить колоноки
     procedure UpdateColumns;  virtual;
               //обновить заголовки колонок
@@ -7372,6 +7394,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false;        //Разрешить множественный выбор
     property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;                       //указатель на процедуру прерывания при получении данных из DataSet
+    property OnHeaderClick:TNotifyEvent read FOnHeaderClick write FOnHeaderClick;             //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick:TNotifyEvent read FOnHeaderDblClick write FOnHeaderDblClick;    //указатель на процедуру прерывания при двойном клике на заголовок
     property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;                       //указатель на процедуру прерывания при записи данных в DataSet
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;                 //флаг только чтение
     property RowCount: integer read FRowCount write SetRowCount;                              //кол-во строк
@@ -7383,6 +7407,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     property ShowScrollBars;                                                                  //true - показывать скроллеры
     property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true; //выделять выбранную ячейку
     property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;          //рисовать вертикальные линии
+    property SortColumn: integer read FSortColumn write SetSortColumn default NoColumn;                       //индекс колонки в которой происходит сортировка
+    property SortDirection: TD2SortDirection read FSortDirection write SetSortDirection default sdAscending;  //направление сортировки
     property TopRow: integer read GetTopRow;           //№ верхней видимой строки
     property VisibleRows: integer read GetVisibleRows; //кол-во видимых строк
     property UseSmallScrollBars;                       //true - использовать узкие скроллеры
@@ -7407,6 +7433,8 @@ TD2Grid = class(TD2CustomGrid)
     property ShowVertLines;              //рисовать вертикальные линии
     property UseSmallScrollBars;         //использовать узкие скроллеры
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
     property OnScroll;
@@ -8278,10 +8306,6 @@ NodeChunk = 1;     //Блок узла дерева
  CaptionChunk = 3;  //использованы строки дерева для хранения заголовка узла. used by the string tree to store a node's caption
  UserChunk = 4;     //используется для данных приложения.  used for data supplied by the application
 
-  //Специальные идентификаторы столбцов. Special identifiers for columns.
-
-  NoColumn = -1;      //Нет колонки
-  InvalidColumn = -2; //Недействительная колонка
 
   // Опции настройки внешнего вида дерева по умолчанию
   DefaultTreePaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowRoot, {toThemeAware,} toUseBlendedImages];
@@ -9648,10 +9672,11 @@ public
     procedure SelectAll(VisibleOnly: Boolean);
               //Сортировка дерева заданного узлом Node по колонке Column в направлении Direction.
     procedure Sort(Node: PD2TreeNode; Column: Integer; Direction: TD2SortDirection;
-                     DoInit: Boolean = True); virtual;
+                     DoInit: Boolean = True);
               //Сортировка всего дерева по колонке Column в направлении Direction с инициализацией узлов при необходимости.
     procedure SortTree(Column: Integer; Direction: TD2SortDirection; DoInit: Boolean = True); virtual;
-
+              //отсортировать грид в соответствии со значениями SortColumn и SortDirection
+    procedure SortGrid; override;
               //Быстрая сортировка массива TheArray в диапазоне индексов от L до R
     procedure QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
              //Изменение развернутого/свернутого состояния узла на противоположное.
@@ -9745,11 +9770,15 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
     property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
     property LineMode;
-    property MainColumn;
+    property MainColumn;     //индекс главной колонки
+    property SortColumn;     //индекс колонки в которой происходит сортировка
+    property SortDirection;  //направление сортировки
     property TreeOptions;
 
     property OnBeforeDrawTreeLine;
     property OnGetValue;
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
     property OnScroll;
     property OnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
 

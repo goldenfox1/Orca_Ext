@@ -3506,10 +3506,55 @@ end;
 
 function TD2CustomTreeGrid.DoCompare(Node1, Node2: PD2TreeNode; Column: Integer): Integer;
 //Вызывает прерывание сравнения узлов (OnCompareNodes)
+var Data1, Data2: Variant;
 begin
   Result := 0;
-  if Assigned(FOnCompareNodes) then
-    FOnCompareNodes(Self, Node1, Node2, Column, Result);
+  if Assigned(FOnCompareNodes)
+    then FOnCompareNodes(Self, Node1, Node2, Column, Result)
+    else if Assigned(FOnGetValue) then
+         begin
+           FOnGetValue(Self, Node1, Column, Data1);
+           FOnGetValue(Self, Node2, Column, Data2);
+           if (Columns[Column] is TD2TreeTextColumn)
+             then Result:=CompareStr(Data1,Data2);
+           if (Columns[Column] is TD2TreeProgressColumn)
+              then Result:=CompareValue(single(Data1),single(Data2));
+           if (Columns[Column] is TD2TreeCheckColumn)
+              then begin
+                     Result:=(Data1 xor Data2);
+                     if Result=1 then
+                       begin
+                         if Data1
+                           then Result:=1
+                           else Result:=-1
+                       end;
+              end;
+         end;
+
+  //      var
+//  Data1, Data2: PMyRec;
+//begin
+//  Data1:=Sender.GetNodeData(Node1);
+//  Data2:=Sender.GetNodeData(Node2);
+//
+//  // Depending on column in VST1.SortTree(...)
+//  // returns comparing result to internal sorting procedure
+//
+//  Result:=0;
+//  case column of
+//     0: Result:=CompareStr(Data1.Main,Data2.Main);
+//     1: begin
+//          Result:=CompareValue(Data1.One,Data2.One);
+//          // If numbers are equal, compare value from next column
+//          // On this way we product more complex sorting
+//          if Result=0 then
+//             Result:=CompareValue(Data1.Two,Data2.Two);
+//        end;
+//     2: Result:=CompareValue(Data1.Two,Data2.Two);
+//     3: Result:=CompareValue(Data1.Percent,Data2.Percent);
+//
+//  end
+//end;
 end;
 
 procedure TD2CustomTreeGrid.DoContentPaint(Sender: TObject;
@@ -10588,6 +10633,12 @@ finally
   end;
 end;
 
+end;
+
+procedure TD2CustomTreeGrid.SortGrid;
+//отсортировать грид в соответствии со значениями SortColumn и SortDirection
+begin
+  SortTree(FSortColumn, FSortDirection, False);
 end;
 
 procedure TD2CustomTreeGrid.QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
