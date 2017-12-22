@@ -945,8 +945,9 @@ end;
 procedure TD2CustomGrid.UpdateHeader;
 var
   i:integer;
-  c: integer; //Added by GoldenFox
+  c: integer;
   Item:TD2HeaderItem;
+  b: boolean;
 begin
   if FHeader = nil then Exit; //если нет заголовка, то выйти
   FHeader.FOffset := -HScrollBar.Value;  //установить сдвиг заголовка
@@ -967,6 +968,7 @@ begin
           Item.Free;
         end;
 
+  b:=false;
   for i := 0 to ColumnCount - 1 do //обновим ширину и надписи полей заголовка
   begin
     FHeader.Items[i].TextW := Columns[i].Header; //пропишем текст поля заголовка
@@ -975,23 +977,34 @@ begin
       then  begin
               case FSortDirection of
                 sdAscending:
-                  begin
-                    FHeader.Items[i].IsSortedUp:=true;
-                    FHeader.Items[i].IsSortedDown:=false;
-                  end;
+                  if (FHeader.Items[i].IsSortedUp<>true) or
+                     (FHeader.Items[i].IsSortedDown<>false)
+                    then  begin
+                            FHeader.Items[i].IsSortedUp:=true;
+                            FHeader.Items[i].IsSortedDown:=false;
+                            b:=true;
+                          end;
                 sdDescending:
-                  begin
-                    FHeader.Items[i].IsSortedUp:=false;
-                    FHeader.Items[i].IsSortedDown:=true;
-                  end;
+                  if (FHeader.Items[i].IsSortedUp<>false) or
+                     (FHeader.Items[i].IsSortedDown<>true)
+                    then  begin
+                            FHeader.Items[i].IsSortedUp:=false;
+                            FHeader.Items[i].IsSortedDown:=true;
+                            b:=true;
+                          end;
               end;
             end
-      else  begin
-              FHeader.Items[i].IsSortedUp:=false;
-              FHeader.Items[i].IsSortedDown:=false;
-            end;
+      else if (FHeader.Items[i].IsSortedUp<>false) or
+              (FHeader.Items[i].IsSortedDown<>false)
+             then begin
+                    FHeader.Items[i].IsSortedUp:=false;
+                    FHeader.Items[i].IsSortedDown:=false;
+                    b:=true;
+                  end;
   end;
-  FHeader.Realign;  //перестроим заголовок
+  if b                 //если требуется пересортировка,
+    then SortGrid          //то запустим сортировку с полным пререстроением грида
+    else FHeader.Realign;  //иначе перестроим только заголовок
 end;
 
 procedure TD2CustomGrid.UpdateColumns;
@@ -1806,10 +1819,8 @@ end;
 
 procedure TD2CustomGrid.SetSortColumn(AValue: integer);
 begin
-  if AValue>ColumnCount-1
-    then AValue:=ColumnCount-1;
-  if AValue<InvalidColumn
-    then  AValue:=NoColumn;
+  if AValue > ColumnCount-1 then AValue:=ColumnCount-1;
+  if AValue < 0 then  AValue:=NoColumn;
   if FSortColumn=AValue then Exit;
   FSortColumn:=AValue;
   SortGrid;
