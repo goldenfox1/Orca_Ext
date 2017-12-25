@@ -963,20 +963,20 @@ begin
     Data.Source:=Source;
 
   P:=d2Point(X,Y);
-  NewTarget:=Root.Visual.FindTarget(P,Data);
+  NewTarget:=Root.Visual.FindTarget(FShift, P, Data);
 
-  if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
-  begin
-    if varD2FTarget <> nil then
-      TD2VisualObject(varD2FTarget).DragLeave;
-    varD2FTarget:=nil;
-    Accept:=false;
-    Exit;
-  end;
+  //if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
+  //begin
+  //  if varD2FTarget <> nil then
+  //    TD2VisualObject(varD2FTarget).DragLeave;
+  //  varD2FTarget:=nil;
+  //  Accept:=false;
+  //  Exit;
+  //end;
 
   if varD2FTarget <> nil then
   begin
-    TD2VisualObject(varD2FTarget).DragOver(Data,P,Accept);
+    TD2VisualObject(varD2FTarget).DragOver(Data, FShift, P, Accept);
   end;
   if (NewTarget <> varD2FTarget) then
   begin
@@ -1735,24 +1735,23 @@ begin
   if not FDesignTime then
   begin
     Obj:=TD2VisualObject(ObjectByPoint(FMousePos.X,FMousePos.Y));
-    if (Obj <> nil) then
-    begin
-      if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG)) then
-      begin
-        BeginResize;
-      end
-      else
-      begin
-        P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
-        TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
-        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) then
-        begin
-          TD2VisualObject(Obj).BeginAutoDrag;
-        end;
-      end;
-    end
-    else
-      BeginDrag;
+    if (Obj <> nil)
+      then  begin
+              if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG))
+                then  BeginResize
+                else  begin
+                        P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
+                        TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
+                        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) and //если у объекта режим автоматического старта перетаскивания
+                           (FDragged=nil)                                       //и еще нет перетаскиваемых объектов
+                          //then TD2VisualObject(Obj).BeginAutoDrag;
+                          then  begin
+                                  FDragged:=Obj;            //сохраним объект как ожидающий перетаскивания
+                                  FDragStartPos:=FMousePos; //сохраним начальную позицию курсора после нажатия кл.мыши
+                                end;
+                      end;
+            end
+    else BeginDrag;
   end;
 end;
 
@@ -2018,6 +2017,21 @@ begin
   { event }
   if not FDesignTime then
   begin
+    //FDragged: TD2VisualObject;
+    //FDragStartPos: TPoint;         //начальная позиция курсора после нажатия кл.мыши
+    if (ssLeft in Shift)   //если нажата ЛКМ
+      then  begin
+              if (FDragged <> nil) and                        //если есть объект ожидающий перетаскивания и
+                 ((abs(FDragStartPos.X - FMousePos.X) > 2) or //мышь передвинута от начального положения больше чем на 2
+                  (abs(FDragStartPos.Y - FMousePos.Y) > 2)) then
+                begin
+                  P:=FDragged.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
+                  TD2VisualObject(FDragged).MouseMove(Shift,P.X,P.Y,0,0);
+                  TD2VisualObject(FDragged).BeginAutoDrag;
+                  Exit;
+                end;
+            end
+      else FDragged := nil;
     if (FCaptured <> nil) then
     begin
       P:=FCaptured.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
@@ -2458,6 +2472,37 @@ var
   Obj:TD2Object;
   OldSel:TD2VisualObject;
   InsertPos:TD2Point;
+
+  //установка координат добавляемого объекта внутри клиентской области
+  procedure SetObjPos(var Pos: TD2Point);
+  var CR: TRect;
+  begin
+    CR:= GetClientRect;
+    if TD2VisualObject(Obj).Width > CR.Width
+       then begin
+              TD2VisualObject(Obj).Width := CR.Width;
+              Pos.X:= 0;
+            end
+       else begin
+              if Pos.X < 0 then Pos.X := 0;
+              if Pos.X + TD2VisualObject(Obj).Width > CR.Right
+                 then Pos.X := CR.Right - TD2VisualObject(Obj).Width;
+            end;
+    if TD2VisualObject(Obj).Height > CR.Height
+       then begin
+              TD2VisualObject(Obj).Height := CR.Height;
+              Pos.Y:= 0;
+            end
+       else begin
+              if Pos.Y < 0 then Pos.Y := 0;
+              if Pos.Y + TD2VisualObject(Obj).Height > CR.Bottom
+                 then Pos.Y := CR.Bottom - TD2VisualObject(Obj).Height;
+            end;
+
+    TD2VisualObject(Obj).Position.X:=Pos.X;
+    TD2VisualObject(Obj).Position.Y:=Pos.Y;
+  end;
+
 begin
   if GetClass(ClassName) <> nil then
   begin
@@ -2491,16 +2536,15 @@ begin
             if GetPropInfo(Obj.ClassInfo,'Text',[tkString,tkLString,tkWString]) <> nil then
               SetStrProp(Obj,'Text',Copy(Obj.ClassName,4,Length(Obj.ClassName)));
 
-            if (Owner is TWinControl) and (FPopupPos.X > 0) then
+            if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
             begin
               if Pos('Item',Obj.ClassName)=0 then
               begin
                 P:=ScreenToClient(FPopupPos);
                 InsertPos:=OldSel.AbsoluteToLocal(d2Point(P.X,P.Y));
-
-                TD2VisualObject(Obj).Position.X:=InsertPos.X;
-                TD2VisualObject(Obj).Position.Y:=InsertPos.Y;
-
+                //TD2VisualObject(Obj).Position.X:=InsertPos.X;
+                //TD2VisualObject(Obj).Position.Y:=InsertPos.Y;
+                SetObjPos(InsertPos);
               end;
             end;
             FPopupPos:=Point(-1,-1);
@@ -2531,12 +2575,14 @@ begin
             end;
             if Obj.IsVisual then
             begin
-              if (Owner is TWinControl) and (FPopupPos.X > 0) then
+              if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
               begin
                 P:=TWinControl(Owner).ScreenToClient(FPopupPos);
                 InsertPos:=d2Point(P.X,P.Y);
-                TD2VisualObject(Obj).Position.X:=P.X;
-                TD2VisualObject(Obj).Position.Y:=P.Y;
+                //TD2VisualObject(Obj).Position.X:=P.X;
+                //TD2VisualObject(Obj).Position.Y:=P.Y;
+                SetObjPos(InsertPos);
+
               end;
               FPopupPos:=Point(-1,-1);
               FSelected:=TD2VisualObject(Obj);
@@ -3634,7 +3680,7 @@ begin
     Result:=S_OK;
     with ScreenToClient(pt) do
       P:=d2Point(X,Y);
-    NewTarget:=Root.Visual.FindTarget(P,GetDataObject);
+    NewTarget:=Root.Visual.FindTarget(FShift, P, GetDataObject);
     if (NewTarget <> varD2FTarget) then
     begin
       if varD2FTarget <> nil then  TD2VisualObject(varD2FTarget).DragLeave;

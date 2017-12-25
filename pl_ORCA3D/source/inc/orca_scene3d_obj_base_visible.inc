@@ -552,7 +552,7 @@ begin
   end;
 end;
 
-function TD3VisualObject.FindTarget(const APoint:TD3Point; AProjection:TD3Projection; const Data:TD3DragObject; var Distance:single):TD3VisualObject;
+function TD3VisualObject.FindTarget(Shift: TShiftState; const APoint:TD3Point; AProjection:TD3Projection; const Data:TD3DragObject; var Distance:single):TD3VisualObject;
 var
   i:integer;
   Obj,NewObj:TD3VisualObject;
@@ -571,7 +571,7 @@ begin
       if (Obj.Locked) and (Assigned(FScene) and (FScene.DesignTime)) then Continue;
       if FDesignHide and (Assigned(FScene) and (FScene.DesignTime)) then Continue;
 
-      NewObj:=Obj.FindTarget(APoint,AProjection,Data,Distance);
+      NewObj:=Obj.FindTarget(Shift,APoint,AProjection,Data,Distance);
       if NewObj <> nil then
       begin
         Result:=NewObj;
@@ -587,7 +587,7 @@ begin
       begin
         Distance:=d3VectorLength(d3VectorSubtract(IP,rPos));
         Accept:=false;
-        DragOver(Data,AbsoluteToLocal(APoint),Accept);
+        DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);
         if Accept then
           Result:=Self;
       end;
@@ -595,7 +595,7 @@ begin
       begin
         Distance:=d3VectorLength(d3VectorSubtract(IP,Canvas.FCurrentCamera.AbsolutePosition));
         Accept:=false;
-        DragOver(Data,AbsoluteToLocal(APoint),Accept);
+        DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);
         if Accept then
           Result:=Self;
       end;
@@ -1693,10 +1693,10 @@ begin
   Result:=false;
 end;
 
-procedure TD3VisualObject.DragOver(const Data:TD3DragObject; const Point:TD3Point; var Accept:boolean);
+procedure TD3VisualObject.DragOver(const Data:TD3DragObject; Shift: TShiftState; const Point:TD3Point; var Accept:boolean);
 begin
   if Assigned(OnDragOver) then
-    OnDragOver(Self,Data,Point,Accept);
+    OnDragOver(Self,Data,Shift,Point,Accept);
 end;
 
 procedure TD3VisualObject.DragDrop(const Data:TD3DragObject; const Point:TD3Point);

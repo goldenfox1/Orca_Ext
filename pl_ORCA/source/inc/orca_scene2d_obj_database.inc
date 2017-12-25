@@ -1597,333 +1597,6 @@ begin
   TD2ProgressCell(Result).Max:=FMax;
 end;
 
-{ TD2DBGrid }
-
-//constructor TD2DBGrid.Create(AOwner:TComponent);
-//begin
-//  inherited;
-//  FResource:='gridstyle';
-//  FDataLink:=TD2GridDataLink.Create(Self);
-//  RowCount:=0;
-//end;
-//
-//destructor TD2DBGrid.Destroy;
-//begin
-//  //FDataLink.Free
-//  //FDataLink:=nil;
-//  DataSource:=nil;
-//  FreeAndNil(FDataLink);
-//  inherited;
-//end;
-//
-//procedure TD2DBGrid.Loaded;
-//begin
-//  inherited ;
-//  DataChanged;
-//end;
-//
-//function TD2DBGrid.ItemClass:string;
-//begin
-//  Result:='TD2DBTextColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
-//end;
-//
-//type
-//  THack=class(TDataSet);
-//
-//procedure TD2DBGrid.UpdateRowCount;
-//begin
-//  if FDataLink.Active then
-//  begin
-//    FDataLink.BufferCount:=VisibleRows * 2;
-//    if FDataLink.BufferCount < FDataLink.DataSet.RecordCount then
-//      RowCount:=FDataLink.DataSet.RecordCount - FDataLink.BufferCount + FDataLink.RecordCount
-//    else
-//      RowCount:=FDataLink.RecordCount;
-//  end
-//  else
-//    RowCount:=0;
-//end;
-//
-//procedure TD2DBGrid.LinkActive(Value:boolean);
-//begin
-//  UpdateRowCount;
-//  UpdateSelection;
-//end;
-//
-//procedure TD2DBGrid.EditingChanged;
-//begin
-//  LinkActive(FDataLink.Active);
-//end;
-//
-//procedure TD2DBGrid.RecordChanged(Field:TField);
-//begin
-//  if DataSource.State <> dsInactive then
-//    UpdateColumns;
-//end;
-//
-//procedure TD2DBGrid.DataChanged;
-//begin
-//  if (DataSource <> nil) and (DataSource.State <> dsInactive) then
-//  begin
-//    FDisableMove:=true;
-//    if FDataLink.DataSet.RecNo > 0 then
-//      Selected:=(FDataLink.DataSet.RecNo - 1);
-//    FDisableMove:=false;
-//    UpdateColumns;
-//  end;
-//end;
-//
-//procedure TD2DBGrid.DataSetChanged;
-//begin
-//  if (FDataLink.DataSet <> nil) then
-//  begin
-//    UpdateRowCount;
-//    FDisableMove:=true;
-//    if FDataLink.DataSet.RecNo > 0 then
-//      Selected:=(FDataLink.DataSet.RecNo - 1);
-//    FDisableMove:=false;
-//    UpdateColumns;
-//  end;
-//end;
-//
-//function TD2DBGrid.GetValue(Col,Row:integer):Variant;
-//var
-//  C:TD2DBColumn;
-//  F,OldActive:integer;
-//begin
-//  Result:=NULL;
-//  if Assigned(DataLink) and DataLink.Active then
-//  begin
-//    C:=TD2DBColumn(Columns[Col]);
-//    if (C <> nil) and (C.GetField <> nil) then
-//    begin
-//      OldActive:=FDataLink.ActiveRecord;
-//      F:=(Selected - OldActive);
-//      try
-//        if (Row - F >= 0) and (Row - F < FDataLink.BufferCount) then
-//        begin
-//          FDatalink.ActiveRecord:=Row - F;
-//          Result:=C.GetData;
-//        end;
-// 
-//      finally
-//        FDatalink.ActiveRecord:=OldActive;
-//      end;
-//    end;
-//  end;
-//end;
-//
-//procedure TD2DBGrid.SetValue(Col,Row:integer; const Value:Variant);
-//var
-//  C:TD2DBColumn;
-//begin
-//  if Assigned(DataLink) and DataLink.Active and not FDataLink.ReadOnly then
-//  begin
-//    C:=TD2DBColumn(Columns[Col]);
-//    if (C <> nil) and (C.Field <> nil) and C.Field.CanModify then
-//    begin
-//      FDataLink.Modified;
-//      FEditValue:=Value;
-//      FNeedUpdate:=true;
-//      FDatalink.UpdateData;
-//    end;
-//  end;
-//end;
-//
-//function TD2DBGrid.GetDataSource:TDataSource;
-//begin
-//  Result:=FDataLink.DataSource;
-//end;
-//
-//procedure TD2DBGrid.SetDataSource(const Value:TDataSource);
-//begin
-//  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-//  begin
-//    FDataLink.DataSource:=Value;
-//  end;
-//  //if Value <> nil then Value.FreeNotification(Self); //Deleted by GoldenFox
-//end;
-//
-//procedure TD2DBGrid.Notification(AComponent:TComponent;
-//  Operation:TOperation);
-//begin
-//  inherited;
-//  if (Operation=opRemove) and (FDataLink <> nil) and
-//    (AComponent=DataSource) then DataSource:=nil;
-//end;
-//
-//procedure TD2DBGrid.UpdateData;
-//var
-//  C:TD2DBColumn;
-//begin
-//  C:=TD2DBColumn(Columns[ColumnIndex]);
-//  if (C <> nil) and FNeedUpdate then
-//    TD2DBColumn(Columns[ColumnIndex]).SetData(FEditValue);
-//  FEditValue:=NULL;
-//  FNeedUpdate:=false;
-//end;
-//
-//procedure TD2DBGrid.KeyDown(var Key:Word; var KeyChar:System.WideChar;
-//  Shift:TShiftState);
-//
-//  procedure DoSelection(Select:boolean; Direction:integer);
-//  begin
-//    BeginUpdate;
-//    try
-//      FDatalink.MoveBy(Direction);
-//    finally
-//      EndUpdate;
-//    end;
-//  end;
-//
-//  procedure NextRow(Select:boolean);
-//  begin
-//    with FDatalink.Dataset do
-//    begin
-//      if (State=dsInsert) and not Modified and not FDatalink.FModified then
-//        if FDataLink.EOF then Exit else Cancel
-//      else
-//        DoSelection(Select,1);
-//      if FDataLink.EOF and CanModify and (not ReadOnly) then
-//        Append;
-//    end;
-//  end;
-//
-//  procedure PriorRow(Select:boolean);
-//  begin
-//    with FDatalink.Dataset do
-//      if (State=dsInsert) and not Modified and FDataLink.EOF and
-//        not FDatalink.FModified then
-//        Cancel
-//      else
-//        DoSelection(Select,-1);
-//  end;
-//
-//begin
-//  if (RowCount > 0) and (FDataLink.Active) then
-//  begin
-//    case Key of
-//      VK_UP:PriorRow(True);
-//      VK_DOWN:NextRow(True);
-//      VK_NEXT:FDataLink.MoveBy(VisibleRows);
-//      VK_PRIOR:FDataLink.MoveBy(-VisibleRows);
-//      VK_DELETE:
-//        if (not ReadOnly) and not FDataLink.DataSet.IsEmpty
-//          and FDataLink.DataSet.CanModify
-//        then
-//          FDataLink.DataSet.Delete;
-//      VK_HOME:
-//        if ssCtrl in Shift then
-//          FDataLink.DataSet.First
-//        else
-//          ColumnIndex:=0;
-//      VK_END:
-//        if ssCtrl in Shift then
-//          FDataLink.DataSet.Last
-//        else
-//          ColumnIndex:=ColumnCount - 1;
-//      VK_INSERT:
-//        if FDataLink.DataSet.CanModify and (not ReadOnly) then
-//        begin
-//          FDataLink.DataSet.Insert;
-//        end;
-//      VK_ESCAPE:
-//        begin
-//          FDatalink.Reset;
-//          SetFocus;
-//        end;
-//    else
-//      inherited ;
-//      Exit;
-//    end;
-//    Key:=0;
-//  end;
-//  inherited ;
-//end;
-//
-//procedure TD2DBGrid.SetSelected(const Value:integer);
-//var
-//  S:integer;
-//begin
-//  S:=Selected;
-//  if Selected <> Value then
-//  begin
-//    inherited ;
-//    if not FDisableMove then
-//    begin
-//      if FDataLink.Active then
-//        FDataLink.MoveBy(Selected - S);
-//    end;
-//    UpdateSelection;
-//  end;
-//end;
-//
-//function TD2DBGrid.GetSelectedField:TField;
-//begin
-//  Result:=TD2DBColumn(Columns[ColumnIndex]).Field;
-//end;
-//
-//procedure TD2DBGrid.SetSelectedField(const Value:TField);
-//var
-//  i:integer;
-//begin
-//  for i:=0 to ColumnCount - 1 do
-//  begin
-//    if TD2DBColumn(Columns[i]).Field=Value then
-//    begin
-//      ColumnIndex:=i;
-//      Break;
-//    end;
-//  end;
-//end;
-//
-//function TD2DBGrid.CanEditAcceptKey(Key:System.WideChar):boolean;
-//begin
-//  with TD2DBColumn(Columns[ColumnIndex]) do
-//    Result:=FDatalink.Active and Assigned(Field) and Field.IsValidChar(Char(Key));
-//end;
-//
-//function TD2DBGrid.CanEditModify:boolean;
-//begin
-//  Result:=False;
-//  if not ReadOnly and FDatalink.Active and not FDatalink.Readonly then
-//  with TD2DBColumn(Columns[ColumnIndex]) do
-//    if (not ReadOnly) and Assigned(Field) and Field.CanModify then
-//    begin
-//      FDatalink.Edit;
-//      Result:=FDatalink.Editing;
-//      if Result then FDatalink.Modified;
-//    end;
-//end;
-//
-//procedure TD2DBGrid.Reset;
-//begin
-//  inherited;
-//  if FDatalink.Active then
-//    FDatalink.Reset;
-//end;
-//
-//procedure TD2DBGrid.VScrollChange(Sender:TObject);
-//begin
-//  inherited;
-//  //if FDataLink.Active then
-//  //begin
-//  //  if TopRow < Selected - FDataLink.ActiveRecord then
-//  //    Selected:=TopRow;
-//  //  if TopRow + VisibleRows - 1 > Selected - FDataLink.ActiveRecord + FDataLink.BufferCount then
-//  //  begin
-//  //    Selected:=TopRow + VisibleRows - 1;
-//  //    Selected:=Selected;
-//  //  end;
-//  //end;
-//end;
-//
-//function TD2DBGrid.GetContentBounds:TD2Rect;
-//begin
-//  Result:=inherited GetContentBounds;
-//  UpdateRowCount;
-//end;
-
 { TD2CustomDBGrid }
 
 function TD2CustomDBGrid.GetDataSource:TDataSource;
@@ -1939,7 +1612,7 @@ end;
 
 function TD2CustomDBGrid.GetSelectedField: TField;
 begin
-  Result:=TD2DBColumn(Columns[ColumnIndex]).Field;
+  Result:=TD2DBColumn(Columns[FocusedColumn]).Field;
 end;
 
 procedure TD2CustomDBGrid.SetSelectedField(const Value: TField);
@@ -1950,7 +1623,7 @@ begin
   begin
     if TD2DBColumn(Columns[i]).Field=Value then
     begin
-      ColumnIndex:=i;
+      FocusedColumn:=i;
       Break;
     end;
   end;
@@ -2117,7 +1790,7 @@ end;
 
 function TD2CustomDBGrid.CanEditAcceptKey(Key: System.WideChar): Boolean;
 begin
-  with TD2DBColumn(Columns[ColumnIndex]) do
+  with TD2DBColumn(Columns[FocusedColumn]) do
       Result:=FDataController.Active and Assigned(Field) and Field.IsValidChar(Char(Key));
 end;
 
@@ -2125,7 +1798,7 @@ function TD2CustomDBGrid.CanEditModify: Boolean;
 begin
   Result:=False;
   if not ReadOnly and FDataController.Active and not FDataController.Readonly then
-  with TD2DBColumn(Columns[ColumnIndex]) do
+  with TD2DBColumn(Columns[FocusedColumn]) do
   begin
     if (not ReadOnly) and Assigned(Field) then
       Result:=Field.CanModify;
@@ -2173,11 +1846,11 @@ begin
       //VK_HOME:
       //  if ssCtrl in Shift
       //    then FDataController.DataSet.First
-      //    else ColumnIndex:=0;
+      //    else FocusedColumn:=0;
       //VK_END:
       //  if ssCtrl in Shift
       //    then FDataController.DataSet.Last
-      //    else ColumnIndex:=ColumnCount - 1;
+      //    else FocusedColumn:=ColumnCount - 1;
       else
         inherited ;
         Exit;
@@ -2197,9 +1870,9 @@ end;
 procedure TD2CustomDBGrid.OnUpdateData(aDataSet: TDataSet);
 //var C: TD2DBColumn;
 begin
-  //C:=TD2DBColumn(Columns[ColumnIndex]);
-  if (TD2DBColumn(Columns[ColumnIndex]) <> nil) and FNeedUpdate then
-    TD2DBColumn(Columns[ColumnIndex]).SetData(FEditValue);
+  //C:=TD2DBColumn(Columns[FocusedColumn]);
+  if (TD2DBColumn(Columns[FocusedColumn]) <> nil) and FNeedUpdate then
+    TD2DBColumn(Columns[FocusedColumn]).SetData(FEditValue);
   FEditValue:=NULL;
   FNeedUpdate:=false;
 end;
@@ -2313,7 +1986,7 @@ begin
   FDataController.OnDataSetChanged:=nil;
   FDataController.OnRecordChanged:=nil;
   FDataController.Free;
-  inherited Destroy;
+  inherited;
 end;
 
 function TD2CustomDBGrid.ItemClass: string;

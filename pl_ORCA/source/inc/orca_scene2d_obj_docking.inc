@@ -1228,7 +1228,7 @@ end;
 
 
 procedure TD2DockingPlace.DoContentDragOver(Sender: TObject;
-  const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);
+  const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
 var
   Par: TD2Object;
 begin

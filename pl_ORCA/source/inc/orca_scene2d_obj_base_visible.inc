@@ -520,7 +520,7 @@ begin
     Result:=false;
 end;
 
-function TD2VisualObject.FindTarget(const APoint:TD2Point; const Data:TD2DragObject):TD2VisualObject;
+function TD2VisualObject.FindTarget(Shift: TShiftState; const APoint:TD2Point; const Data:TD2DragObject):TD2VisualObject;
 var
   i:integer;
   Obj,NewObj:TD2VisualObject;
@@ -547,7 +547,7 @@ begin
       //if ClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Delete by GoldenFox
 	  if DragClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Added by GoldenFox
 
-      NewObj:=Obj.FindTarget(APoint,Data);
+      NewObj:=Obj.FindTarget(Shift,APoint,Data);
       if NewObj <> nil then
       begin
         Result:=NewObj;
@@ -557,7 +557,7 @@ begin
 
   Result:=nil;
   Accept:=false;
-  DragOver(Data,APoint,Accept);
+  DragOver(Data,Shift,APoint,Accept);
   if PointInObject(APoint.X,APoint.Y) and CheckHitTest(HitTest) and (Accept) then
     Result:=Self;
 end;
@@ -1762,10 +1762,10 @@ begin
     OnDragLeave(Self);
 end;
 
-procedure TD2VisualObject.DragOver(const Data:TD2DragObject; const Point:TD2Point; var Accept:boolean);
+procedure TD2VisualObject.DragOver(const Data:TD2DragObject; Shift: TShiftState; const Point:TD2Point; var Accept:boolean);
 begin
   if Assigned(OnDragOver) then
-    OnDragOver(Self,Data,Point,Accept);
+    OnDragOver(Self,Data,Shift,Point,Accept);
 end;
 
 procedure TD2VisualObject.DragDrop(const Data:TD2DragObject; const Point:TD2Point);

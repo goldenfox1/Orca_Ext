@@ -13,6 +13,26 @@ begin
   CanFocused:=false;
   FxRadius:=0;
   FyRadius:=0;
+  FIsSortedUp:=false;        //true - сортировка от меньшего к большему
+  FIsSortedDown:=false;      //true - сортировка от большего к меньшему
+end;
+
+procedure TD2HeaderItem.SetIsSortedDown(AValue: boolean);
+begin
+  if FIsSortedDown=AValue then Exit;
+  FIsSortedDown:=AValue;
+  if AValue
+    then IsSortedUp:=not AValue;
+  StartTriggerAnimation(Self,'IsSortedDown');
+end;
+
+procedure TD2HeaderItem.SetIsSortedUp(AValue: boolean);
+begin
+  if FIsSortedUp=AValue then Exit;
+  FIsSortedUp:=AValue;
+  if AValue
+    then IsSortedDown:=not AValue;
+  StartTriggerAnimation(Self,'IsSortedUp');
 end;
 
 procedure TD2HeaderItem.ApplyStyle;
@@ -72,7 +92,7 @@ begin
           H.FItemsWidth:=H.FItemsWidth + Width; //вычисляем общую ширину полей заголовка
           Sides:=Sides+[d2SideLeft];            //у всех полей включим левую границу
         end;
-      BringToFront;              //текущее поле переместим вверх
+
     end;
 end;
 
@@ -85,6 +105,8 @@ begin
   if not FPressed then exit;
   H:=Header;
   if H = nil then exit;
+  FIsPositioning:=true;                        //начат процесс изменения позиции
+  BringToFront;              //текущее поле переместим вверх
   Position.X:=Position.X+(X-FMouseDownPos.X); //новая позиция поля
 
   idx:=FNewIndex;  //текущий индекс поля заголовка
@@ -125,7 +147,6 @@ procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: 
 var
   H: TD2Header;
 begin
-  inherited;
   Index:=FNewIndex;
   H:=Header;
   if H <> nil then
@@ -134,6 +155,8 @@ begin
     if Assigned(H.OnRealignItem)                                  //если у заголовка определено прерывание по изменению порядка полей
       then H.OnRealignItem(TD2Object(Self), FOldIndex, FNewIndex);  //то вызвать прерывание (эл-т, Старый индекс, новый индекс)
   end;
+  inherited;
+  FIsPositioning:=false;                        //закончен процесс изменения позиции
 end;
 
 function TD2HeaderItem.Header:TD2Header;
@@ -151,6 +174,20 @@ begin
     P := P.Parent;
   end;
   Result := nil;
+end;
+
+procedure TD2HeaderItem.Click;
+begin
+  if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderClick) //если закончен процесс изменения позиции
+    then Header.FGrid.FOnHeaderClick(Self);
+  inherited;
+end;
+
+procedure TD2HeaderItem.DblClick;
+begin
+  if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderDblClick) //если закончен процесс изменения позиции
+    then Header.FGrid.FOnHeaderDblClick(Self);
+  inherited;
 end;
 
 //=============== TD2Header ===================================================
@@ -221,11 +258,6 @@ begin
     else inherited;
 end;
 
-//procedure TD2Header.Paint;
-//begin
-//  inherited Paint;
-//end;
-
 procedure TD2Header.Realign;
 var
   i:integer;
@@ -274,25 +306,40 @@ begin
   HitTest:=false;
   CanFocused:=false;
   FGrid:= GetGrid;
+  FCellControls:= TList.Create;
+  FClipChildren:= true;
+end;
+
+destructor TD2Column.Destroy;
+var i: integer;
+begin
+  if FCellControls <> nil then
+  begin
+    for i:=0 to FCellControls.Count-1 do
+      TD2Control(FCellControls.Items[i]).Free;
+    FCellControls.Free;
+  end;
+
+  inherited Destroy;
 end;
 
 function TD2Column.CreateCellControl:TD2Control;
 begin
-  Result:=TD2TextCell.Create(Self);
-  TD2TextCell(Result).OnChange:=DoTextChanged;
+  Result:=nil;
 end;
 
-procedure TD2Column.DoTextChanged(Sender:TObject);
+procedure TD2Column.InitCellControl(ACellControl: TD2Control);
 begin
-  if Grid=nil then Exit;
-  if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
-  begin
-    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(Grid.FOnEdititingDone) then
-      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
-  end;
+  ACellControl.Parent:=Self;
+  ACellControl.HitTest:=false;
+  ACellControl.Visible:=false;
+  ACellControl.Locked:=true;
+  ACellControl.Stored:=false;
+  ACellControl.CanFocused:=false;
+  ACellControl.OnCanFocused:=DoCanFocused;
+  ACellControl.OnEnterFocus:=DoEnterFocus;
+  ACellControl.OnKillFocus:=DoKillFocus;
+  ACellControl.OnKeyDown:=DoKeyDown;
 end;
 
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
@@ -306,14 +353,8 @@ end;
 procedure TD2Column.DoEnterFocus(Sender:TObject);
 begin
   if Grid=nil then Exit;
-  Grid.ColumnIndex:=Index;
+  Grid.FocusedColumn:=Index;
   FSaveData:=TD2Object(Sender).Data;
-  if Sender is TD2CustomTextBox then
-    with TD2CustomTextBox(Sender) do
-    begin
-      SelLength:=0;
-      CaretPosition:=Length(TextW);
-    end;
 end;
 
 procedure TD2Column.DoKillFocus(Sender: TObject);
@@ -324,21 +365,6 @@ begin
       CanFocused:=false;
       HitTest:=false;
     end;
-  if Sender is TD2CustomTextBox then
-    with TD2CustomTextBox(Sender) do
-    begin
-      CaretPosition:=0;
-    end;
-end;
-
-procedure TD2Column.DoDblClick(Sender: TObject);
-begin
-  if TD2Object(Sender).IsVisual then
-  with TD2VisualObject(Sender) do
-  begin
-    CanFocused:=true;
-    SetFocus;
-  end;
 end;
 
 procedure TD2Column.DoKeyDown(Sender:TObject; var Key:Word; var KeyChar:System.WideChar;
@@ -369,6 +395,11 @@ begin
   end;
 end;
 
+procedure TD2Column.CellSetFocus(ARow: integer);
+begin
+  //виртуальный метод определяется в потомках
+end;
+
 procedure TD2Column.SetWidth(const Value: single);
 begin
   inherited SetWidth(Value);
@@ -396,9 +427,9 @@ procedure TD2Column.ClearColumn;
 var
   i:integer;
 begin
-  for i:=0 to High(FCellControls) do
-    FCellControls[i].Free;
-  SetLength(FCellControls,0);
+  for i:=0 to FCellControls.Count - 1 do
+    TD2Control(FCellControls.Items[i]).Free;
+  FCellControls.Clear;
 end;
 
 function TD2Column.CellControlByPoint(X,Y:single):TD2Control;
@@ -410,12 +441,13 @@ begin
   if Grid=nil then Exit;
 
   P:=Grid.LocalToAbsolute(d2Point(X,Y));
-  for i:=0 to High(FCellControls) do
-    if FCellControls[i].Visible and (FCellControls[i].pointInObject(P.X,P.Y)) then
-    begin
-      Result:=FCellControls[i];
-      Exit;
-    end;
+  for i:=0 to FCellControls.Count - 1 do
+    with TD2Control(FCellControls.Items[i]) do
+      if Visible and (pointInObject(P.X,P.Y)) then
+      begin
+        Result:=TD2Control(FCellControls.Items[i]);
+        Exit;
+      end;
 end;
 
 function TD2Column.CellControlByRow(Row:integer):TD2Control;
@@ -424,13 +456,13 @@ var
 begin
   Result:=nil;
   if Grid=nil then Exit;
-
-  for i:=0 to High(FCellControls) do
-    if (FCellControls[i].Visible) and (trunc(d2StringToPoint(FCellControls[i].TagString).Y)=Row) then
-    begin
-      Result:=FCellControls[i];
-      Exit;
-    end;
+  for i:=0 to FCellControls.Count - 1 do
+    with TD2Control(FCellControls.Items[i]) do
+      if Visible and (trunc(d2StringToPoint(TagString).Y)=Row) then
+      begin
+        Result:=TD2Control(FCellControls.Items[i]);
+        Exit;
+      end;
 end;
 
 procedure TD2Column.Realign;
@@ -439,52 +471,53 @@ begin
   if FGrid<>nil then FGrid.Realign;
 end;
 
+function TD2CustomGrid.GetTopRow:integer;
+begin
+  if FVScrollBar = nil
+    then Result:=0
+    else Result:=trunc(FVScrollBar.Value / FRowHeight);
+end;
+
+function TD2CustomGrid.GetTopRowY: single;
+begin
+  Result:= TopRow * FRowHeight;
+end;
+
 procedure TD2Column.UpdateColumn;
 var
-  i,C:integer;
+  i,C,m:integer;
   V:Variant;
+  cc: TD2Control;
 begin
   if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
+    m:= Min(Grid.RowCount,Grid.VisibleRows);
+    C:= FCellControls.Count;
     { Create controls }
-    if Length(FCellControls) < Min(Grid.RowCount,Grid.VisibleRows) then
-    begin
-      C:=High(FCellControls);
-      SetLength(FCellControls,Min(Grid.RowCount,Grid.VisibleRows));
-      for i:=C + 1 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
-      begin
-        FCellControls[i]:=CreateCellControl;
-        FCellControls[i].Parent:=Self;
-        FCellControls[i].HitTest:=false;
-        FCellControls[i].Visible:=false;
-        FCellControls[i].Locked:=true;
-        FCellControls[i].Stored:=false;
-        FCellControls[i].CanFocused:=false;
-        FCellControls[i].OnCanFocused:=DoCanFocused;
-        FCellControls[i].OnDblClick:=DoDblClick;
-        FCellControls[i].OnEnterFocus:=DoEnterFocus;
-        FCellControls[i].OnKillFocus:=DoKillFocus;
-        FCellControls[i].OnKeyDown:=DoKeyDown;
-      end;
-    end;
+    if C < m
+       then begin
+              for i:= C to m - 1 do
+              begin
+                cc:=CreateCellControl;
+                InitCellControl(cc);
+                FCellControls.Add(cc);
+              end;
+            end
+    else
     { Hide if need }
-    if Length(FCellControls) > Min(Grid.RowCount,Grid.VisibleRows) then
-    begin
-      for i:=Min(Grid.RowCount,Grid.VisibleRows) to High(FCellControls) do
-        FCellControls[i].Visible:=false;
-    end;
+    for i:=m to FCellControls.Count-1 do
+      TD2Control(FCellControls.Items[i]).Visible:=false;
+
     { Update Data }
-    for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
+    for i:=0 to m - 1 do
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
-
+      TD2Control(FCellControls.Items[i]).Visible:=true;
+      TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
+      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
       V:=Grid.GetValue(Index,Grid.TopRow + i);
-
-      FCellControls[i].Visible:=true;
-      FCellControls[i].SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);
-      FCellControls[i].TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
-      FCellControls[i].Data:=V;
+      TD2Control(FCellControls.Items[i]).Data:=V;
     end;
     UpdateSelected;
   finally
@@ -499,13 +532,14 @@ begin
   if Grid=nil then Exit;
   if Grid.ReadOnly then Exit;
   if ReadOnly then Exit;
-  if Assigned(FCellControls) and  (Length(FCellControls) > 0) then
+  if Assigned(FCellControls) and  (FCellControls.Count > 0) then
     for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
-      begin
-        FCellControls[i].HitTest:=false;
-        if FCellControls[i].IsFocused
-          then Grid.SetFocus;
-      end;
+      with TD2Control(FCellControls.Items[i]) do
+        begin
+          HitTest:=false;
+          if IsFocused
+            then Grid.SetFocus;
+        end;
 end;
 
 procedure TD2Column.SetHeader(const Value:String);
@@ -518,17 +552,75 @@ begin
   end;
 end;
 
-//=============== TD2CheckColumn ================================================
+//=============== TD2TextColumn ================================================
+function TD2TextColumn.CreateCellControl:TD2Control;
+begin
+  Result:=TD2TextCell.Create(Self);
+end;
 
-constructor TD2CheckColumn.Create(AOwner:TComponent);
+procedure TD2TextColumn.InitCellControl(ACellControl: TD2Control);
 begin
   inherited;
+  TD2TextCell(ACellControl).OnChange:=DoTextChanged;
 end;
+
+procedure TD2TextColumn.DoTextChanged(Sender:TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
+procedure TD2TextColumn.DoEnterFocus(Sender: TObject);
+begin
+  inherited;
+  with TD2TextCell(Sender) do
+  begin
+    SelLength:=0;
+    CaretPosition:=Length(TextW);
+  end;
+end;
+
+procedure TD2TextColumn.DoKillFocus(Sender: TObject);
+begin
+  inherited;
+  with TD2TextCell(Sender) do
+  begin
+    CaretPosition:=0;
+  end;
+end;
+
+procedure TD2TextColumn.CellSetFocus(ARow: integer);
+var C: TD2Control;
+begin
+  inherited;
+  C:=CellControlByRow(ARow);
+  if C <> nil then
+  begin
+    C.HitTest:=true;
+    C.CanFocused:=true;
+    C.SetFocus;
+  end;
+end;
+
+//=============== TD2CheckColumn ================================================
 
 function TD2CheckColumn.CreateCellControl:TD2Control;
 begin
   Result:=TD2CheckCell.Create(Self);
-  TD2CheckCell(Result).OnChange:=DoCheckChanged;
+
+end;
+
+procedure TD2CheckColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  TD2CheckCell(ACellControl).OnChange:=DoCheckChanged;
 end;
 
 procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
@@ -554,8 +646,13 @@ end;
 function TD2ProgressColumn.CreateCellControl:TD2Control;
 begin
   Result:=TD2ProgressCell.Create(Self);
-  TD2ProgressCell(Result).Min:=FMin;
-  TD2ProgressCell(Result).Max:=FMax;
+end;
+
+procedure TD2ProgressColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  TD2ProgressCell(ACellControl).Min:=FMin;
+  TD2ProgressCell(ACellControl).Max:=FMax;
 end;
 
 //=============== TD2PopupColumn ==============================================
@@ -575,7 +672,12 @@ end;
 function TD2PopupColumn.CreateCellControl:TD2Control;
 begin
   Result:=TD2PopupCell.Create(Self);
-  TD2PopupCell(Result).Items.Assign(FItems);
+end;
+
+procedure TD2PopupColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  TD2PopupCell(ACellControl).Items.Assign(FItems);
 end;
 
 procedure TD2PopupColumn.SetItems(const Value:TD2WideStrings);
@@ -585,15 +687,15 @@ end;
 
 //=============== TD2ImageColumn =============================================
 
-constructor TD2ImageColumn.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
-
 function TD2ImageColumn.CreateCellControl:TD2Control;
 begin
   Result:=TD2ImageCell.Create(Self);
-  TD2ImageCell(Result).EnableOpenDialog:=false;
+end;
+
+procedure TD2ImageColumn.InitCellControl(ACellControl: TD2Control);
+begin
+  inherited;
+  TD2ImageCell(ACellControl).EnableOpenDialog:=false;
 end;
          
 //=============== TD2CustomGrid ==============================================
@@ -612,7 +714,7 @@ begin
   FRowCount:=100;
   CanFocused:=true;
   AutoCapture:=true;
-  Width:=100;
+  Width:=200;
   Height:=100;
   //FItemHeight:=0;
   SetLength(FSelectedRows, 128);
@@ -622,6 +724,8 @@ begin
   FSelectedRows[1] := FSelected;
   FSelectedRows[2] := FSelected;
   FIsPreSelected := false;
+  FSortColumn := NoColumn;
+  FSortDirection := sdAscending;
 end;
 
 destructor TD2CustomGrid.Destroy;
@@ -697,12 +801,9 @@ begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
   Realign;
-  UpdateColumns;
-  UpdateHeader;
-  UpdateSelection;
 end;
 
-procedure TD2CustomGrid.UpdateSelection;
+procedure TD2CustomGrid.UpdateSelection;   //обновить маркеры выбора строк
 var
   i:integer;
   l,b: single;
@@ -737,10 +838,9 @@ begin
       P := FContent.LocalToAbsolute(P);                //преобразуем в координаты контента
       if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
         P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
-      if FContent.Width < ClientWidth then
-        R:=d2Rect(P.X,P.Y,P.X + ClientWidth,P.Y + FRowHeight*(FSelectedRows[i+1]-FSelectedRows[i]+1) )
-      else
-        R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1]-FSelectedRows[i]+1));
+      if FContent.Width < ClientWidth
+        then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
+        else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
       SetLength(SelRects,Length(SelRects) + 1);
       SelRects[High(SelRects)]:=R;
     end;
@@ -774,19 +874,20 @@ begin
       if (FFocus <> nil) then
       begin
         if FShowSelectedCell and               // если разрешено выделять ячейку
-           IsOneRowSelected then               // и выделена только 1 строка
+           IsOneRowSelected and                // и выделена только 1 строка
+           (FocusedColumn > NoColumn) then       // и есть выделенная колонка
           begin
 	    FFocus.Visible:=true;
 	    FFocus.BringToFront;
-	    P:=d2Point(Columns[ColumnIndex].Position.X,0);
+	    P:=d2Point(Columns[FocusedColumn].Position.X,0);
 	    P:=FContent.LocalToAbsolute(P);
 	    if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
 	      P:=FSelection.Parent.Visual.AbsoluteToLocal(P);
             if FShowHorzLines then b:=1 else b:=0;
-            if (FShowVertLines) and (ColumnIndex>0) then l:=1 else l:=0;
+            if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;
             with SelRects[i] do                                                                  //установить координаты маркера ячейки
               FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,
-                              Columns[FColumnIndex].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
+                              Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
                               SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);
           end
         else FFocus.Visible := false;  // иначе скрыть маркер ячейки
@@ -817,8 +918,20 @@ end;
 
 procedure TD2CustomGrid.DoRealignItem(Sender:TObject; OldIndex,NewIndex:integer);
 begin
-  if ColumnIndex=Columns[OldIndex].Index then
-    ColumnIndex:=NewIndex;
+  if FocusedColumn=OldIndex
+    then FocusedColumn:=NewIndex
+    else if (OldIndex<FocusedColumn) and (FocusedColumn<=NewIndex)
+           then FocusedColumn:=FocusedColumn-1
+           else if (OldIndex>FocusedColumn) and (FocusedColumn>=NewIndex)
+                  then FocusedColumn:=FocusedColumn+1;
+
+  if SortColumn=OldIndex
+    then SortColumn:=NewIndex
+    else if (OldIndex<SortColumn) and (SortColumn<=NewIndex)
+           then SortColumn:=SortColumn-1
+           else if (OldIndex>SortColumn) and (SortColumn>=NewIndex)
+                  then SortColumn:=SortColumn+1;
+
   Columns[OldIndex].Index:=NewIndex;
 end;
 
@@ -832,8 +945,9 @@ end;
 procedure TD2CustomGrid.UpdateHeader;
 var
   i:integer;
-  c: integer; //Added by GoldenFox
+  c: integer;
   Item:TD2HeaderItem;
+  b: boolean;
 begin
   if FHeader = nil then Exit; //если нет заголовка, то выйти
   FHeader.FOffset := -HScrollBar.Value;  //установить сдвиг заголовка
@@ -854,22 +968,61 @@ begin
           Item.Free;
         end;
 
+  b:=false;
   for i := 0 to ColumnCount - 1 do //обновим ширину и надписи полей заголовка
   begin
     FHeader.Items[i].TextW := Columns[i].Header; //пропишем текст поля заголовка
-    FHeader.Items[i].Width := Columns[i].Width;  //установим ширину полея заголовка
+    FHeader.Items[i].Width := Columns[i].Width;  //установим ширину поля заголовка
+    if i=FSortColumn
+      then  begin
+              case FSortDirection of
+                sdAscending:
+                  if (FHeader.Items[i].IsSortedUp<>true) or
+                     (FHeader.Items[i].IsSortedDown<>false)
+                    then  begin
+                            FHeader.Items[i].IsSortedUp:=true;
+                            FHeader.Items[i].IsSortedDown:=false;
+                            b:=true;
+                          end;
+                sdDescending:
+                  if (FHeader.Items[i].IsSortedUp<>false) or
+                     (FHeader.Items[i].IsSortedDown<>true)
+                    then  begin
+                            FHeader.Items[i].IsSortedUp:=false;
+                            FHeader.Items[i].IsSortedDown:=true;
+                            b:=true;
+                          end;
+              end;
+            end
+      else if (FHeader.Items[i].IsSortedUp<>false) or
+              (FHeader.Items[i].IsSortedDown<>false)
+             then begin
+                    FHeader.Items[i].IsSortedUp:=false;
+                    FHeader.Items[i].IsSortedDown:=false;
+                    b:=true;
+                  end;
   end;
-  FHeader.Realign;  //перестроим заголовок
+  if b                 //если требуется пересортировка,
+    then SortGrid          //то запустим сортировку с полным пререстроением грида
+    else FHeader.Realign;  //иначе перестроим только заголовок
 end;
 
 procedure TD2CustomGrid.UpdateColumns;
 var
-  i:integer;
+  R:TD2Rect;
+  i: integer;
+  Y: single;
 begin
-  for i:=0 to ColumnCount - 1 do
+  if (ContentLayout <> nil) then
   begin
-    Columns[i].Position.Y:=(TopRow * FRowHeight);
-    Columns[i].UpdateColumn;
+    R:=ContentLayout.LocalRect;
+    Y:= GetTopRowY;
+    for i:=0 to ColumnCount - 1 do
+    begin
+      Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R) + FVScrollBar.Value - Y);
+      Columns[i].UpdateColumn;
+      R.Left:=R.Left + Columns[i].Width;
+    end;
   end;
 end;
 
@@ -929,36 +1082,49 @@ begin
   end;
 end;
 
-function TD2CustomGrid.GetContentBounds:TD2Rect;
-var
-  Col,R:TD2Rect;
-  i{,Idx}:integer;
+procedure TD2CustomGrid.GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);
+// Возвращает левую и правую границу столбца Column. Если Column = NoColumn, то возвращается вся ширина клиетской части грида.
+// Returns the left and right bound of the given column. If Column is NoColumn then the entire client width is returned.
 begin
-  Result:=LocalRect;
+  if iColumn <= NoColumn
+     then begin
+            sLeft := 0;
+            sRight := ClientWidth;
+          end
+     else with GetColumn(iColumn).GetBoundsRect do
+          begin
+            sLeft:=Left;
+            sRight := Right;
+            //if UseRightToLeftAlignment then
+            //begin
+            //  Inc(Left, ComputeRTLOffset(True));
+            //  Inc(Right, ComputeRTLOffset(True));
+            //end;
+          end;
+end;
+
+function TD2CustomGrid.GetContentBounds:TD2Rect;
+begin
+  Result:= LocalRect;
   if FUpdating > 0 then Exit;
   if ContentLayout=nil then Exit;
-  R:=ContentLayout.LocalRect;
+  Result:= ContentLayout.LocalRect;
+  Result.Right:= Result.Left + Max(GetContentWidth, ContentLayout.Width);
+  Result.Bottom:= Result.Top + Max(GetContentHeight, ContentLayout.Height);
+end;
+
+function TD2CustomGrid.GetContentHeight: Single;
+begin
+  Result:= Max(0, FRowCount * FRowHeight);
+end;
+
+function TD2CustomGrid.GetContentWidth: Single;
+var i: integer;
+begin
+  Result:=0;
   if ColumnCount > 0 then
-  begin
-    R.Right:=R.Left;
-    R.Top:=R.Top;
     for i:=0 to ColumnCount - 1 do
-    begin
-      Col:=d2Rect(R.Right,R.Top,R.Right + Columns[i].Width,R.Bottom);
-      R.Right:=R.Right + Columns[i].Width;
-      Columns[i].SetBounds(Col.Left,(TopRow * FRowHeight),Columns[i].Width,ClientHeight);
-      Columns[i].UpdateColumn;
-    end;
-    R.Bottom:=R.Top + (FRowCount * FRowHeight);
-  end;
-  if d2RectWidth(R) < ContentLayout.Width then
-    R.Right:=R.Left + ContentLayout.Width;
-  if d2RectHeight(R) < ContentLayout.Height then
-    R.Bottom:=R.Top + ContentLayout.Height;
-  Result:=R;
-  UpdateColumns;
-  UpdateHeader;
-  UpdateSelection;
+      Result:= Result + Columns[i].Width;
 end;
 
 procedure TD2CustomGrid.HScrollChange(Sender:TObject);
@@ -988,17 +1154,11 @@ begin
       end;
 end;
 
-function TD2CustomGrid.RowByPoint(const X,Y:single):integer;
-var P: TD2Point;
+function TD2CustomGrid.RowByPoint(const X, Y:single):integer;
 begin
-  P:=LocalToAbsolute(d2Point(X,Y));
-  if FContent <> nil then
-  begin
-    P:=FContent.AbsoluteToLocal(P);
-    Result:=trunc(P.Y / FRowHeight);
-    Exit;
-  end;
-  Result:=-1;
+  if FContent <> nil
+    then Result:=trunc(Y / FRowHeight)
+    else Result:=-1;
 end;
 
 function TD2CustomGrid.ColumnByIndex(const Idx:integer):TD2Column;
@@ -1041,6 +1201,19 @@ begin
   Result:=nil;
 end;
 
+procedure TD2CustomGrid.Realign;
+begin
+  if csDestroying in ComponentState then Exit;
+  if csLoading in ComponentState then Exit;
+  if ContentLayout=nil then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
+  inherited;
+  UpdateColumns;
+  UpdateHeader;
+  UpdateSelection;
+end;
+
 function TD2CustomGrid.CanEditModify: Boolean;
 begin
   Result:=not ReadOnly;
@@ -1059,37 +1232,35 @@ begin
   begin
     if IsOneRowSelected then
     begin
-      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then
+      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
-        if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
+        if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
         begin
-          Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
-          Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-          Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-          TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
+          Columns[FocusedColumn].CellSetFocus(Selected);
+          TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
         end;
       end;
       case Key of
         VK_F2:
           begin
-            if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-            begin
-              HitTest:=true;
-              Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-              Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-            end;
+            if Columns[FocusedColumn] <> nil
+               then Columns[FocusedColumn].CellSetFocus(Selected);
           end;
         VK_LEFT:
           begin
-            if (Shift = []) and (ColumnIndex > 0) then ColumnIndex := ColumnIndex - 1;
-            if (Shift = [ssCtrl]) and (ColumnIndex <> 0) then ColumnIndex := 0;
+            if (Shift = []) and (FocusedColumn > 0)
+              then FocusedColumn := FocusedColumn - 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
+              then FocusedColumn := 0;
+            Key:=0;
           end;
         VK_RIGHT:
           begin
-            if (Shift = []) and (ColumnIndex < ColumnCount - 1)
-              then ColumnIndex := ColumnIndex + 1;
-            if (Shift = [ssCtrl]) and (ColumnIndex <> ColumnCount - 1)
-               then ColumnIndex := ColumnCount - 1;
+            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
+              then FocusedColumn := FocusedColumn + 1;
+            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
+               then FocusedColumn := ColumnCount - 1;
+            Key:=0;
           end;
       end;
     end;
@@ -1151,28 +1322,53 @@ begin
           if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
           if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
         end;
-		{Block End added by GoldenFox}
       else Exit;
     end;
     Key:=0;
   end;
 end;
 
-procedure TD2CustomGrid.MouseDown(Button:TMouseButton; Shift:TShiftState; X,
-  Y:single);
+procedure TD2CustomGrid.MouseDown(Button:TMouseButton; Shift:TShiftState; X, Y:single);
 var
   Column:TD2Column;
+  P: TD2Point;
 begin
   inherited;
+  if FContent = nil then exit;
+  P:=LocalToAbsolute(d2Point(X,Y));
+  P:=FContent.AbsoluteToLocal(P);
+
   if Button=mbLeft then
   begin
-    if Shift = [ssLeft] then Selected := RowByPoint(X, Y);                  //нажата только ЛКМ
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRow(RowByPoint(X, Y)); //если нажаты ЛКМ + Shift
-    if Shift = [ssLeft, ssCtrl] then ChangeSelectionRow(RowByPoint(X, Y));  //если нажаты ЛКМ + Ctrl
-    Column:=ColumnByPoint(X,Y);
+    if (Shift = [ssLeft]) and not IsSelected(P.X, P.Y) //если нажата только ЛКМ и строка еще не выбрана
+      then SetSelectedByPoint(P.X, P.Y);                 //то выбрать эту строку
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y);          //если нажаты ЛКМ + Shift
+    if Shift = [ssLeft, ssShift, ssCtrl] then SetSelectedExtraRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift + Ctrl
+    //if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl
+    Column:=ColumnByPoint(X, Y);
     if Column <> nil then
-      ColumnIndex:=Column.Index;
+      FocusedColumn:=Column.Index;
   end;
+end;
+
+procedure TD2CustomGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+//обработка отпускания кнопок мыши
+var
+  P: TD2Point;
+begin
+  inherited;
+  if FContent = nil then exit;
+  P:=LocalToAbsolute(d2Point(X,Y));
+  P:=FContent.AbsoluteToLocal(P);
+
+  if Button=mbLeft then     //отпущена ЛКМ
+  begin
+    if (Shift = []) and IsSelected(P.X, P.Y) //больше ни чего не нажато и строка уже выбрана
+      then SetSelectedByPoint(P.X, P.Y);
+    if Shift = [ssCtrl]
+      then ChangeSelectionRowByPoint(P.X, P.Y);//если отпущена ЛКМ и нажат Ctrl
+  end;
+
 end;
 
 procedure TD2CustomGrid.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
@@ -1184,11 +1380,12 @@ begin
   begin
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
-      ColumnIndex:=Column.Index;
+      FocusedColumn:=Column.Index;
   end;
 end;
 
-function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean; //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена //Added by GoldenFox
+function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean;  //Added by GoldenFox
+//Инвертировать выделение строки c индексом Idx. Результат: true - строка выделена, false - развыделена
 var L, M, R: integer; //левая граница, середина, правая граница
     b: boolean;       //
 
@@ -1318,6 +1515,11 @@ begin
   UpdateSelection;
 end;
 
+function TD2CustomGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;
+begin
+  Result:=ChangeSelectionRow(RowByPoint(X, Y));
+end;
+
 procedure TD2CustomGrid.SetSelectedMoreRow(Idx: integer);  //добавить выделенных строк procedure added by GoldenFox
 begin
   if FMultiSelect then
@@ -1363,6 +1565,24 @@ begin
       UpdateSelection;
     end
     else SetSelected(Idx);
+end;
+
+procedure TD2CustomGrid.SetSelectedExtraRow(Idx: integer);
+//добавить к выбранным строки начиная с текущей до Idx без очистки ранее выбранных строк
+begin
+  SetSelectedMoreRow(Idx);
+end;
+
+procedure TD2CustomGrid.SetSelectedMoreRowByPoint(const X, Y: single);
+//добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
+begin
+  SetSelectedMoreRow(RowByPoint(X, Y));
+end;
+
+procedure TD2CustomGrid.SetSelectedExtraRowByPoint(const X, Y: single);
+//добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+begin
+  SetSelectedExtraRow(RowByPoint(X, Y));
 end;
 
 procedure TD2CustomGrid.AddObject(AObject:TD2Object);
@@ -1430,13 +1650,6 @@ begin
   end;
 end;
 
-function TD2CustomGrid.GetTopRow:integer;
-begin
-  if FVScrollBar = nil
-    then Result:=0
-    else Result:=trunc(FVScrollBar.Value / FRowHeight);
-end;
-
 function TD2CustomGrid.GetVisibleRows:integer;
 begin
   Result:=trunc(ClientHeight / FRowHeight) + 2;
@@ -1453,6 +1666,12 @@ procedure TD2CustomGrid.SetValue(Col,Row:integer; const Value:Variant);
 begin
   if Assigned(FOnSetValue) then
     FOnSetValue(Self,Col,Row,Value);
+end;
+
+procedure TD2CustomGrid.SortGrid;
+//отсортировать грид в соответствии со значениями SortColumn и SortDirection
+begin
+  Realign;
 end;
 
 procedure TD2CustomGrid.SetPreSelected(const Value: integer);
@@ -1478,6 +1697,7 @@ begin
 end;
 
 procedure TD2CustomGrid.SetSelected(const Value:integer);
+//сделать выбранной строку с номером Value
 begin
   if (FSelected <> Value) or
      (FSelectedRows[0] <> 2) or
@@ -1496,6 +1716,12 @@ begin
   end;
 end;
 
+procedure TD2CustomGrid.SetSelectedByPoint(const X, Y: single);
+//сделать выбранной строку по координатам X, Y
+begin
+  SetSelected(RowByPoint(X, Y)); //выбрать строку
+end;
+
 function TD2CustomGrid.IsSelected(Row:integer):boolean; //проверить выбрана строка или нет
 var i: integer;
 begin
@@ -1511,6 +1737,11 @@ begin
       then exit
       else i:=i+2;
   Result := false;
+end;
+
+function TD2CustomGrid.IsSelected(const X, Y: single): boolean;
+begin
+  Result:=IsSelected(RowByPoint(X, Y));
 end;
 
 function TD2CustomGrid.IsOneRowSelected: boolean;
@@ -1558,12 +1789,8 @@ end;
 procedure TD2CustomGrid.DblClick;
 begin
   inherited DblClick;
-  if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then
-  begin
-    Columns[ColumnIndex].CellControlByRow(Selected).HitTest:=true;
-    Columns[ColumnIndex].CellControlByRow(Selected).CanFocused:=true;
-    Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;
-  end;
+  if Columns[FocusedColumn] <> nil
+    then Columns[FocusedColumn].CellSetFocus(Selected);
 end;
 
 procedure TD2CustomGrid.ContentRemoveObject(AObject: TD2Object);
@@ -1590,16 +1817,32 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.SetColumnIndex(const Value:integer);
+procedure TD2CustomGrid.SetSortColumn(AValue: integer);
 begin
-  if FColumnIndex <> Value then
+  if AValue > ColumnCount-1 then AValue:=ColumnCount-1;
+  if AValue < 0 then  AValue:=NoColumn;
+  if FSortColumn=AValue then Exit;
+  FSortColumn:=AValue;
+  SortGrid;
+end;
+
+procedure TD2CustomGrid.SetSortDirection(AValue: TD2SortDirection);
+begin
+  if FSortDirection=AValue then Exit;
+  FSortDirection:=AValue;
+  SortGrid;
+end;
+
+procedure TD2CustomGrid.SetFocusedColumn(const Value:integer);
+begin
+  if FFocusedColumn <> Value then
   begin
-    FColumnIndex:=Value;
+    FFocusedColumn:=Value;
     UpdateSelection;
-    if Columns[FColumnIndex].Position.X < HScrollBar.Value then
-      HScrollBar.Value:=Columns[FColumnIndex].Position.X;
-    if Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width > HScrollBar.Value + ClientWidth then
-      HScrollBar.Value:=Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width - ClientWidth;
+    if Columns[FFocusedColumn].Position.X < HScrollBar.Value then
+      HScrollBar.Value:=Columns[FFocusedColumn].Position.X;
+    if Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width > HScrollBar.Value + ClientWidth then
+      HScrollBar.Value:=Columns[FFocusedColumn].Position.X + Columns[FFocusedColumn].Width - ClientWidth;
   end;
 end;
 

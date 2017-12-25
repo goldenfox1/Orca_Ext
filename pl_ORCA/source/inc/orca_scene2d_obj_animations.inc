@@ -25,11 +25,6 @@ begin
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);
-begin
-  OneStep;
-end;
-
-procedure TD2AniThread.OneStep;
 var
   i:integer;
   NewTime:single;
@@ -38,29 +33,23 @@ begin
   if NewTime <= FTime then Exit;
   FDeltaTime:=NewTime - FTime;
   FTime:=NewTime;
-  if FAniList.Count > 0 then
+  i := 0;
+  while i < FAniList.Count do
   begin
-    i:=FAniList.Count - 1;
-    while i >= 0 do
+    if TD2Animation(FAniList[i]).FRunning then
     begin
-      if TD2Animation(FAniList[i]).FRunning then
-      begin
-        if (TD2Animation(FAniList[i]).BindingName <> '') and
-           (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0) then
-        begin
-          TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
-          if TD2Animation(FAniList[i]).Tag mod 3=0 then
-          begin
-            TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
-          end;
-        end
-        else
-          TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
-      end;
-      Dec(i);
-      if i >= FAniList.Count then
-        i:=FAniList.Count - 1;
+      if (TD2Animation(FAniList[i]).BindingName <> '') and
+         (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0)
+        then  begin
+                TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
+                if TD2Animation(FAniList[i]).Tag mod 3=0 then
+                begin
+                  TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
+                end;
+              end
+        else TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
     end;
+    Inc(i);
   end;
 end;
 
@@ -451,7 +440,7 @@ begin
   FStopColor:=d2StrToColor(Value);
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2GradientAnimation ===================================================================}
 
 constructor TD2GradientAnimation.Create(AOwner:TComponent);
 begin
@@ -529,7 +518,7 @@ begin
   FStopGradient.Assign(Value);
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2FloatAnimation ===================================================================}
 
 constructor TD2FloatAnimation.Create(AOwner:TComponent);
 begin
@@ -591,7 +580,7 @@ begin
   end;
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2RectAnimation ===================================================================}
 
 constructor TD2RectAnimation.Create(AOwner:TComponent);
 begin
@@ -664,7 +653,7 @@ begin
   end;
 end;
 
-{ TD2Animation ===================================================================}
+{ TD2BitmapAnimation ===================================================================}
 
 constructor TD2BitmapAnimation.Create(AOwner:TComponent);
 begin
@@ -745,7 +734,7 @@ begin
   end;
 end;
 
-{ TD2BitmapListAnimation }
+{ TD2BitmapListAnimation ===================================================================}
 
 constructor TD2BitmapListAnimation.Create(AOwner:TComponent);
 begin
@@ -972,7 +961,7 @@ begin
   end;
 end;
 
-{ TD2PathAnimation }
+{ TD2PathAnimation ========================================================}
 
 constructor TD2PathAnimation.Create(AOwner:TComponent);
 begin
@@ -1052,21 +1041,6 @@ constructor TD2PathSwitcher.Create(AOwner:TComponent);
 begin
   inherited;
   Duration:=0.001;
-end;
-
-destructor TD2PathSwitcher.Destroy;
-begin
-  inherited;
-end;
-
-procedure TD2PathSwitcher.Start;
-begin
-  inherited;
-end;
-
-procedure TD2PathSwitcher.ProcessAnimation;
-begin
-  inherited;
 end;
 
 procedure TD2PathSwitcher.SetPathFalse(const Value:string);

@@ -77,10 +77,8 @@ begin
   begin
     FPressing:=false;
     FIsPressed:=false;
-    if d2PtInRect(d2Point(X,Y),LocalRect) then
-    begin
-      IsChecked:=not IsChecked;
-    end
+    if d2PtInRect(d2Point(X,Y),LocalRect)
+      then DoCheckChange;
   end;
 end;
 
@@ -88,10 +86,8 @@ procedure TD2CheckBox.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
   inherited;
-  if (Key=VK_RETURN) or (Key=VK_SPACE) then
-  begin
-    IsChecked:=not IsChecked;
-  end;
+  if (Key=VK_RETURN) or (Key=VK_SPACE)
+    then DoCheckChange;
 end;
 
 procedure TD2CheckBox.SetIsChecked(const Value:boolean);
@@ -99,12 +95,49 @@ begin
   if FIsChecked <> Value then
   begin
     FIsChecked:=Value;
+    if Value then IsGrayed:=false;
     StartTriggerAnimation(Self,'IsChecked');
     if Assigned(FOnChange) then
     begin
       FOnChange(Self);
     end;
   end;
+end;
+
+procedure TD2CheckBox.SetIsGrayed(const Value: boolean);
+begin
+  if FIsGrayed <> Value then
+  begin
+    FIsGrayed:=Value and FAllowGrayed;
+    if (Value and FAllowGrayed) then IsChecked:=false;
+    StartTriggerAnimation(Self,'IsGrayed');
+    if Assigned(FOnChange) then
+    begin
+      FOnChange(Self);
+    end;
+  end;
+end;
+
+procedure TD2CheckBox.SetAllowGrayed(const Value: boolean);
+begin
+  if FAllowGrayed <> Value then
+  begin
+    FAllowGrayed:=Value;
+    if not Value then IsGrayed:=false;
+  end;
+end;
+
+procedure TD2CheckBox.DoCheckChange;
+begin
+  if AllowGrayed then
+    begin
+      if IsChecked                    //если стоит галка,
+        then IsChecked:=not IsChecked  //то снимаем отметку
+        else if IsGrayed               //иначе если серый,
+               then IsChecked:=true      //то ставим галку
+               else IsGrayed:=true;      //иначе нет отметки ставим серый
+    end
+    else IsChecked:=not IsChecked;
 end;
 
 //=============== TD2PathCheckBox =============================================

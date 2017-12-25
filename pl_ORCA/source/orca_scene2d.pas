@@ -35,6 +35,10 @@ uses
 
   {$ENDIF}
 
+  {$ifdef USE_DELPHICOMPAT}
+  DelphiCompat,
+  //LclExt,
+  {$endif}
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
   StdCtrls, DB, {DBCtrls,} DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList,
@@ -472,7 +476,7 @@ type
   TD2PathPointKind = (d2PathPointMoveTo, d2PathPointLineTo, d2PathPointCurveTo, d2PathPointClose);
   TD2StrokeCap = (d2CapFlat, d2CapRound);
   TD2StrokeJoin = (d2JoinMiter, d2JoinRound, d2JoinBevel);
-  TD2StrokeDash = (d2DashSolid, d2DashDash, d2DashDot, d2DashDashDot, d2DashDashDotDot, d2DashCustom);
+  TD2StrokeDash = (d2DashSolid, d2DashDash, d2DashDot, d2DashDotDash, d2DashDashDot, d2DashDashDotDot, d2DashCustom);
   TD2AnimationType = (d2AnimationIn, d2AnimationOut, d2AnimationInOut);
 
   TD2InterpolationType = (d2InterpolationLinear, d2InterpolationQuadratic, d2InterpolationCubic, d2InterpolationQuartic,
@@ -644,7 +648,6 @@ TD2AniThread = class(TD2Timer)
     FStartTime:single;
     FTime     :single;
     FDeltaTime:single;
-    procedure OneStep;
     procedure DoSyncTimer(Sender: TObject);
   protected
   public
@@ -1423,6 +1426,8 @@ TD2Canvas = class(TPersistent)
   end;
   TD2CanvasClass = class of TD2Canvas;
 
+{ TD2Object }
+
 TD2Object = class(TComponent)
   private
     FStored:boolean;
@@ -1443,6 +1448,8 @@ TD2Object = class(TComponent)
     procedure SetBindingName(const Value:string);
     function  GetIndex:integer;
     procedure SetIndex(Idx: integer);
+    function GetTagString: string; virtual;
+    procedure SetTagString(const Value:string); virtual;
   protected
     FIsVisual:boolean;
     FVisual: TD2VisualObject;
@@ -1509,7 +1516,7 @@ TD2Object = class(TComponent)
     property Stored: boolean read FStored write SetStored;
     property TagObject: TObject read FTagObject write FTagObject;
     property TagFloat:single read FTagFloat write FTagFloat;
-    property TagString: string read FTagString write FTagString;
+    property TagString: string read GetTagString write SetTagString;
     property ChildrenCount: integer read GetChildrenCount;
     property Children[Index: integer]: TD2Object read GetChild;
     function FindBinding(const ABinding: string): TD2Object;
@@ -1522,6 +1529,7 @@ TD2Object = class(TComponent)
     property ResourceName: string read FResourceName write SetResourceName;
   end;
 
+//Базовый класс анимации
   TD2Animation = class(TD2Object)
   private
     FDuration:single;
@@ -1596,7 +1604,7 @@ TD2Effect = class(TD2Object)
 
 
   TD2DragEnterEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
-  TD2DragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean) of object;
+  TD2DragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean) of object;
   TD2DragDropEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
 
   TD2CanFocusedEvent = procedure(Sender: TObject; var ACanFocused: boolean) of object;
@@ -1648,7 +1656,7 @@ TD2VisualObject = class(TD2Object)
     FCanClipped:boolean;
     FCursor: TCursor;
     FDragMode: TD2DragMode;
-    FDragDisableHighlight:boolean;
+    FDragDisableHighlight:boolean;      //true - запретить подсветку целевого объекта при перетаскивании
     FOnDragEnter: TD2DragEnterEvent;
     FOnDragDrop: TD2DragDropEvent;
     FOnDragLeave:TNotifyEvent;
@@ -1763,7 +1771,7 @@ TD2VisualObject = class(TD2Object)
     procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  virtual;	//установить флаг нахождения указателя мыши над дочерним объектом у родителя //Added by GoldenFox
     procedure ContextMenu(const ScreenPosition: TD2Point);  virtual;
     procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  virtual;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  virtual;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  virtual;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  virtual;
     procedure DragLeave;  virtual;
     procedure DragEnd;  virtual;
@@ -1797,7 +1805,7 @@ TD2VisualObject = class(TD2Object)
     procedure SetSizeWithoutChange(AWidth, AHeight:single);
     function  CheckParentVisible:boolean;  virtual;
     function  MakeScreenshot: TD2Bitmap;
-    function  FindTarget(const APoint: TD2Point; const Data: TD2DragObject): TD2VisualObject;
+    function  FindTarget(Shift: TShiftState; const APoint: TD2Point; const Data: TD2DragObject): TD2VisualObject;
     procedure ShowCaretProc;
     procedure SetCaretPos(const APoint: TD2Point);
     procedure SetCaretSize(const ASize: TD2Point);
@@ -1834,16 +1842,16 @@ TD2VisualObject = class(TD2Object)
     property DisableFocusEffect: boolean read FDisableFocusEffect write FDisableFocusEffect  default false; //true - отключить анимацию и эффекты при получении фокуса
     property DisableDefaultAlign: boolean read FDisableDefaultAlign write FDisableDefaultAlign;
     property TabOrder: TTabOrder read GetTabOrder write SetTabOrder  default -1;
+  published
     property IsMouseOver: boolean read FIsMouseOver;
     property IsMouseOverChildren:boolean read FIsMouseOverChildren; //флаг указатель мыши находится над дочерним объектом //Added by GoldenFox
     property IsDragOver: boolean read FIsDragOver;
     property IsFocused: boolean read FIsFocused;
     property IsVisible: boolean read FVisible;
- published
     property Align: TD2Align read FAlign write SetAlign  default vaNone;
     property Cursor: TCursor read FCursor write SetCursor  default crDefault;
     property DragMode: TD2DragMode read FDragMode write FDragMode  default d2DragManual;
-    property DragDisableHighlight: boolean read FDragDisableHighlight write FDragDisableHighlight  default false;
+    property DragDisableHighlight: boolean read FDragDisableHighlight write FDragDisableHighlight  default false; //true - запретить подсветку целевого объекта при перетаскивании
     property Enabled: boolean read FEnabled write SetEnabled  default true;
     property Position: TD2Position read FPosition write SetPosition;
     property RotateAngle:single read FRotateAngle write SetRotateAngle;
@@ -1997,16 +2005,16 @@ TD2Background = class(TD2Control)
   end;
 
 TD2Content = class(TD2VisualObject)
-  private
+  //private
   protected
     FParentAligning:boolean;
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function GetParentComponent: TComponent;  override;
+    //constructor Create(AOwner: TComponent);  override;
+    //destructor Destroy;  override;
+    //function GetParentComponent: TComponent;  override;
     procedure Realign;  override;
-    procedure Paint;  override;
-  published
+    //procedure Paint;  override;
+  //published
   end;
 
 TD2Resources = class(TComponent)
@@ -2119,6 +2127,8 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     FDisableUpdate:boolean;
     FChildren: TList;
     FDesignRoot, FSelected, FCaptured, FHovered, FFocused: TD2VisualObject;
+    FDragged: TD2VisualObject; //объект ожидающий перетаскивания
+    FDragStartPos: TD2Point;         //начальная позиция курсора после нажатия кл.мыши
     FSelection: array of TD2Object;
     FDesignPlaceObject: TD2VisualObject;
     FDesignGridLines: array of TD2VisualObject;
@@ -2447,6 +2457,7 @@ type
 
 TD2CustomTranslateProc = function (AText: WideString): WideString;
 
+//Анимация цвета
 TD2ColorAnimation = class(TD2Animation)
   private
     FStartColor: TD2Color;
@@ -2471,6 +2482,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+//Анимация цветового градиента
   TD2GradientAnimation = class(TD2Animation)
   private
     FStartGradient: TD2Gradient;
@@ -2493,6 +2505,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+//Анимация парамеров типа Float
   TD2FloatAnimation = class(TD2Animation)
   private
     FStartFloat:single;
@@ -2514,6 +2527,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+  //Анимация прямоугольников
   TD2RectAnimation = class(TD2Animation)
   private
     FStartRect: TD2Bounds;
@@ -2535,6 +2549,7 @@ TD2ColorAnimation = class(TD2Animation)
     property PropertyName: AnsiString read FPropertyName write FPropertyName;
   end;
 
+  //Анимация картинок
   TD2BitmapAnimation = class(TD2Animation)
   private
     FPropertyName: AnsiString;
@@ -2643,7 +2658,7 @@ TD2FloatKeyAnimation = class(TD2Animation)
     property StartFromCurrent: boolean read FStartFromCurrent write FStartFromCurrent;
   end;
 
-
+//Анимация пути (перемещение вдоль линии)
 TD2PathAnimation = class(TD2Animation)
   private
     FPath: TD2PathData;
@@ -2667,17 +2682,12 @@ TD2PathAnimation = class(TD2Animation)
 TD2PathSwitcher = class(TD2Animation)
   private
     FPath, FPropertyName: AnsiString;
-    //FInstance: TObject;
     FPathTrue: string;
     FPathFalse: string;
     procedure SetPathFalse(const Value:string);
     procedure SetPathTrue(const Value:string);
-  protected
-    procedure ProcessAnimation;  override;
   public
     constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    procedure Start;  override;
   published
     property PathTrue: string read FPathTrue write SetPathTrue;
     property PathFalse: string read FPathFalse write SetPathFalse;
@@ -3648,13 +3658,20 @@ TD2CornerButton = class(TD2CustomButton)
     property Sides: TD2Sides read FSides write SetSides stored IsSidesStored;
   end;
 
+{ TD2CheckBox }
+
 TD2CheckBox = class(TD2TextControl)
   private
     FPressing:boolean;
     FOnChange:TNotifyEvent;
     FIsPressed:boolean;
     FIsChecked:boolean;
+    FIsGrayed:boolean;
+    FAllowGrayed:boolean;  //true - разрешено третье состояние отметки (grayed)
     procedure SetIsChecked(const Value:boolean);
+    procedure SetIsGrayed(const Value:boolean);
+    procedure SetAllowGrayed(const Value:boolean);
+    procedure DoCheckChange;
   protected
     procedure ApplyStyle;  override;
   public
@@ -3669,7 +3686,9 @@ TD2CheckBox = class(TD2TextControl)
   published
     property IsPressed: boolean read FIsPressed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;
-    property AutoTranslate  default true;
+    property IsGrayed: boolean read FIsGrayed write SetIsGrayed;
+    property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
+    property AutoTranslate default true;
     property BindingSource;
     property CanFocused  default true;
     property DisableFocusEffect;  //true - отключить анимацию и эффекты при получении фокуса
@@ -4186,7 +4205,7 @@ TD2ImageControl = class(TD2Control)
     procedure ApplyStyle;  override;
     procedure FreeStyle;  override;
     procedure Click;  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     procedure DoBitmapChanged(Sender: TObject);  virtual;
     function  GetData: Variant;  override;
@@ -4383,6 +4402,11 @@ TD2ScrollContent = class(TD2Content)
     procedure RemoveObject(AObject: TD2Object);  override;
   end;
 
+TD2CustomScrollBox = class;
+TD2ScrollEvent = procedure(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single) of object;
+
+{ TD2CustomScrollBox }
+
 TD2CustomScrollBox = class(TD2Control)
   private
     FScrollDuration: single;
@@ -4396,6 +4420,7 @@ TD2CustomScrollBox = class(TD2Control)
     FShowSizeGrip:boolean;
     FMouseTracking:boolean;
     FUseSmallScrollBars:boolean;
+    FOnScroll: TD2ScrollEvent;                   // Called when one or both paint offsets changed.
     procedure SetShowScrollBars(const Value:boolean);
     procedure SetShowSizeGrip(const Value:boolean);
     procedure SetUseSmallScrollBars(const Value:boolean);
@@ -4408,6 +4433,7 @@ TD2CustomScrollBox = class(TD2Control)
     FDownPos, FLastDelta, FCurrentPos: TD2Point;
     procedure Loaded;  override;
     procedure DefineProperties(Filer: TFiler);  override;
+    procedure DoScroll(DeltaX, DeltaY: single); virtual;
     procedure ReadScrollDesign(Reader:TReader);
     procedure WriteScrollDesign(Writer:TWriter);
     procedure ContentAddObject(AObject: TD2Object);  virtual;
@@ -4437,7 +4463,7 @@ TD2CustomScrollBox = class(TD2Control)
     procedure Realign;  override;
     procedure Centre;
     procedure ScrollTo(const Dx, Dy:single);
-    procedure InViewRect(const Rect: TD2Rect);
+    //procedure InViewRect(const Rect: TD2Rect);
     function  ClientWidth:single;
     function  ClientHeight:single;
     property  HScrollBar: TD2ScrollBar read FHScrollBar;
@@ -4450,6 +4476,7 @@ TD2CustomScrollBox = class(TD2Control)
     property ShowScrollBars: boolean read FShowScrollBars write SetShowScrollBars  default true;
     property ShowSizeGrip: boolean read FShowSizeGrip write SetShowSizeGrip  default false;
     property UseSmallScrollBars: boolean read FUseSmallScrollBars write SetUseSmallScrollBars  default false;
+    property OnScroll: TD2ScrollEvent read FOnScroll write FOnScroll;
   end;
 
 TD2ScrollBox = class(TD2CustomScrollBox)
@@ -4462,6 +4489,7 @@ TD2ScrollBox = class(TD2CustomScrollBox)
     property ShowScrollBars;
     property ShowSizeGrip;
     property UseSmallScrollBars;
+    property OnScroll;
 end;
 
 TD2VertScrollBox = class(TD2ScrollBox)
@@ -4616,7 +4644,7 @@ type
     procedure SetItemIndex(const Value:integer);  virtual;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     procedure ApplyStyle;  override;
     procedure FreeStyle;  override;
@@ -5040,7 +5068,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
     property Count: integer read GetCount;
     property GlobalCount: integer read FGlobalCount;
@@ -5993,7 +6021,7 @@ TD2DropTarget = class(TD2TextControl)
     FOnDrop: TD2DragDropEvent;
     FFilter: string;
   protected
-    procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
     procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -6710,9 +6738,296 @@ TD2StyleDesigner = class(TForm)
   end;
 
 type
+ TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop); //набор мест присоединения панелей
+ TD2DockingAllowAligns = set of TD2DockingAlign;                         //набор разрешеных мест присоединения панелей
+ TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,             //набор разрешений на изменение размера панели мышью
+                            dmsBottom,dmsBottomLeft,dmsBottomRight,
+                            dmsLeft, dmsRight, dmsNone);
+
+TD2DockingTab = class(TD2TextControl)     //закладка площадки перемещаемых панелей
+private
+  FAutoWidth:boolean;       //флаг автоматического подбора ширины
+  FIsSelected:boolean;      //флаг выделения закладки
+  FLastPosition: TD2Point;  //последняя позиция закладки
+  FMouseDownPos: TD2Point;  //положение мыши при нажатии
+  FOldIndex: integer;       //индекс закладки до начала перемещения
+  FPanel: TD2VisualObject;  //ссылка на панель
+  FDisableSetText:boolean;  //флаг изменения текста закладки
+  FTextControl: TD2Text;    //ссылка на текст
+  FTimer: TD2Timer;         //ссылка на таймер закрытия
+  FIsShowPanel:boolean;     //флаг видимости панели: true - панель выдвинута; false - скрыта
+
+            //получить данные выравнивания
+  function GetAlign: TD2DockingAlign;
+            //задать выравнивание
+  procedure SetAlign(const Value:TD2DockingAlign);
+            //задать флаг автоматического подбора ширины
+  procedure SetAutoWidth(const Value:boolean);
+protected
+            //применить стиль
+  procedure ApplyStyle;  override;
+            //выбор закладки в дизайн-моде (показать/скрыть панель)
+  procedure DesignSelect;  override;
+            //обрабока нажатий клавиш мыши
+  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+            //обрабока перемещения мыши
+  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
+            //обрабока отпускания клавиш мыши
+  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+            //обработка входа указателя мыши в видимую область объекта
+  procedure MouseEnter;  override;
+            //обработка выхода указателя мыши за видимую область объекта
+  procedure MouseLeave;  override;
+            //очистка FLayout при его удалении
+  procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+            //установка отображаемого на закладке текста
+  procedure SetText(const Value:WideString);  override;
+public
+              //создать объект
+  constructor Create(AOwner: TComponent);  override;
+             //уничтожить объект
+  destructor Destroy;  override;
+            //выполнить автоматический подбор ширины
+  procedure DoAutoWidth(AMinWidth:single);
+            //обработка события таймера скрытия панели
+  procedure DoTimer(Sender: TObject);
+            //перерисовать объект
+  procedure Realign;  override;
+            //выделение закладки
+  procedure Select(ASelected:boolean);
+            //ture - показать (выдвинуть панель) false - скрыть
+  procedure ShowPanel(const Value:boolean);
+
+  property IsSelected:boolean read FIsSelected;  //флаг выделения закладки
+  property IsShowPanel:boolean read FIsShowPanel; //флаг видимости панели: true - панель выдвинута; false - скрыта
+published
+  property Align: TD2DockingAlign read GetAlign write SetAlign; //выравнивание
+  property AutoTranslate default true;              //флаг автоматического перевода текста на закладке
+  property AutoWidth:boolean read FAutoWidth write SetAutoWidth default true;  //установка автоматического подбора ширины
+  property Font;                                   //имя шрифта
+  property Panel: TD2VisualObject read FPanel write FPanel; //указатель на связанную панель
+  property TextAlign;        //горизонтальное выравнивание текста на закладке
+  property VertTextAlign;    //вертикальное выравнивание текста на закладке
+  property Text;             //текст на закладке
+  property Resource;         //имя ресурса
+end;
+
+TD2DockingPanel = class(TD2TextControl)  //перемещаемая панель
+  private
+    FTSplitter: TD2SplitLayout;   //ссылка на верхний сплиттер
+    FTLSplitter: TD2SplitLayout;  //ссылка на верхний-левый сплиттер
+    FTRSplitter: TD2SplitLayout;  //ссылка на верхний-правый сплиттер
+    FBSplitter: TD2SplitLayout;   //ссылка на нижний сплиттер
+    FBLSplitter: TD2SplitLayout;  //ссылка на нижний-левый сплиттер
+    FBRSplitter: TD2SplitLayout;  //ссылка на нижний-правый сплиттер
+    FLSplitter: TD2SplitLayout;   //ссылка на левый сплиттер
+    FRSplitter: TD2SplitLayout;   //ссылка на правый сплиттер
+    FCloseButton: TD2CloseButton; //ссылка на кнопку закрытия
+    FContent: TD2Content;         //ссылка на клиентскую область
+    FDisableFixed:boolean;        //флаг запрета обрабтки изменения фиксации
+    FDisableSetText:boolean;      //флаг изменения текста закладки
+    FDragDistance: TD2Point;      //расстояние от мыши до точки 0,0 панели при перемещении
+    FDragMousePos: TD2Point;      //последнее положение мыши при перемещении панели
+    FDragTarget: TD2VisualObject; //ссылка на целевой объект при перемещении панели
+    FIsNotDraged:boolean;         //флаг отсуствия перемещения панели
+    FFixedCheckBox: TD2CheckBox;  //ссылка на кнопку фисации
+    FFreeOnClose:boolean;         //true - уничтожить панель при закрытии; false - делать невидимой вместо закрытия
+    FHeader: TD2Rectangle;        //ссылка на заголовок
+    FShadow: TD2ShadowEffect;     //ссылка на тень
+    FTab: TD2VisualObject;        //ссылка на закладку
+    FTabAutoWidth:boolean;        //флаг автоматический подбор ширины закладок
+    FAlign: TD2DockingAlign;      //расположение панели
+    FAllowDock: TD2DockingAllowAligns;  //разрешения на расположение панели
+    FIsDockable:boolean;          //разрешено изменять положение
+    FIsExpanded:boolean;          //панель развернута двойным щелчком
+    FIsFixed:boolean;             //панель зафиксирована
+    FMinHeight:single;            //минимальная высота окна
+    FMinWidth:single;             //минимальная ширина окна
+    FMouseDownSide: TD2DockingMouseDownSide; //активный сплитер
+    FMouseDownPos: TD2Point;      //стартовые координаты мыши в активном сплиттере (нажатие мыши)
+    FOldAlign: TD2DockingAlign;   //расположение панели до раскрытия на все окно
+    FOldFixed:boolean;            //фиксация панели до распрытия на все окно
+    FOldPos: TD2Point;            //положение неприкрепленного окна
+    FOldSize: TD2Point;           //размеры неприкрепленного окна
+    FOnAlignChange:TNotifyEvent;  //прерывание при изменении расположения
+    FOnFixedChange:TNotifyEvent;  //прерывание при нажатии на кнопку фикасации
+    FOnCloseClick:TNotifyEvent;   //прерывание при нажатии на кнопку закрытия
+    FShowCloseButton:boolean;     //показать кнопку закрытия
+    FShowFixedCheckBox:boolean;   //показать чек бокс фиксации окна
+    FShowHeader:boolean;          //показать заголовок
+              //нажатие на кнопку закрытия панели
+    procedure DoCloseClick(Sender: TObject);
+              //нажатие на кнопку фикасации панели
+    procedure DoFixedChange(Sender: TObject);
+              //двойной щелчок на заголовке панели
+    procedure DoHeaderDblClick(Sender: TObject);
+              //конец перемещения панели
+    procedure DoHeaderDragEnd(Sender: TObject);
+              //нажатие ЛКМ на сплиттере
+    procedure DoSplitterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);
+              //отпускание ЛКМ на сплиттере
+    procedure DoSplitterMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);
+              //перемещение мыши на сплиттере
+    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
+              //установить расположение панели
+    procedure SetAlign(const Value:TD2DockingAlign);
+              //установить разрешения на расположение панели
+    procedure SetAllowDock(Value:TD2DockingAllowAligns);
+              //установить режим перетаскивания панели
+    procedure SetDragMode (const Value:TD2DragMode);
+              //установить/снять разрешение изменять положение
+    procedure SetIsDockable (const Value:boolean);
+              //установить/снять фиксацию панели
+    procedure SetIsFixed(const Value:boolean);
+              //установка минимальной высоты панели
+    procedure SetMinHeight(const Value:Single);
+              //установка минимальной ширины панели
+    procedure SetMinWidth(const Value:Single);
+              //показать/скрыть кнопку закрытия панели
+    procedure SetShowCloseButton(const Value:boolean);
+              //показать/скрыть чек бокс фиксации панели
+    procedure SetShowFixedCheck(const Value:boolean);
+              //показать/скрыть заголовок панели
+    procedure SetShowHeader(const Value:boolean);
+              //установить/снять автоматического подбора ширины закладки
+    procedure SetTabAutoWidth (const Value:boolean);
+  protected
+              //применить размещение
+    procedure ApplyAlign;  virtual;
+              //применить стиль
+    procedure ApplyStyle;  override;
+              //удалить стиль
+    procedure FreeStyle;  override;
+              //двойной щелчок по панели в дизайн-моде (изменение фиксации)
+    procedure DesignClick;  override;
+              //вставка в дизайн-моде
+    procedure DesignInsert;  override;
+              //одиночный щелчок щелчок по закладке в дизайн-моде (показать/скрыть панель)
+    procedure DesignSelect;  override;
+              //вставить закладку на связанном DockingPlace
+    procedure TabInsert;
+              //удалить закладку со связанного DockingPlace
+    procedure TabDelete;
+              //очистка FLayout при его удалении
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+              //установить высоту панели
+    procedure SetHeight(const Value:single);  override;
+              //установка отображаемого в заголовке текста
+    procedure SetText(const Value:WideString);  override; overload;
+              //установить ширину панели
+    procedure SetWidth(const Value:single);  override;
+              //установить видимость панели
+    procedure SetVisible(const Value:boolean);  override;
+              //установить флаг нахождения указателя мыши над дочерним объектом у родителя; остановить /запустить таймер скрытия панели
+    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override;
+  public
+                //создать объект
+    constructor Create(AOwner: TComponent);  override;
+               //разрушить объект
+    destructor Destroy;  override;
+              //добавить объект в окно
+    procedure AddObject(AObject: TD2Object);  override;
+              //перестроить клиентскую область
+    procedure Realign;  override;
+              //сместить панель
+    procedure DragMove(Sender: TD2VisualObject; Point: TD2Point);  virtual;
+  published
+    property Font;          //имя шрифта
+    property TextAlign;     //выравнивание текста заголовка
+    property Text;          //текст заголовка
+    property Resource;      //имя ресурса
+    property AutoTranslate default true;   //флаг автоматического перевода текста на закладке
+    property Align: TD2DockingAlign read FAlign write SetAlign default daNone;  //выравнивание панели относительно
+    property AllowDock: TD2DockingAllowAligns read FAllowDock write SetAllowDock default [daNone, daClient, daBottom, daLeft, daRight, daTop]; //разрешения на пристыковку панели
+    property DragMode write SetDragMode default d2DragManual;                       //режим перетаскивания панели
+    property FreeOnClose:boolean read FFreeOnClose write FFreeOnClose default true; //true - уничтожать панель при закрытии; false - скрывать при закрытии
+    property IsDockable:boolean read FIsDockable write SetIsDockable default true;  //true - разрешено изменять положение
+    property IsFixed:boolean read FIsFixed write SetIsFixed default true;           //true - панель зафиксирвоана
+    property MinHeight:single read FMinHeight write SetMinHeight;                   //минимальная высота панели
+    property MinWidth:single read FMinWidth write SetMinWidth;                      //минимальная ширина панели
+    property ShowCloseButton:boolean read FShowCloseButton write SetShowCloseButton default true;    //true - показывать кнопку закрытия панели
+    property ShowFixedCheckBox:boolean read FShowFixedCheckBox write SetShowFixedCheck default true; //true - показывать кнопку фиксации панели
+    property ShowHeader:boolean read FShowHeader write SetShowHeader default true;                   //true - показывать заголовок панели
+    property Tab: TD2VisualObject read FTab write FTab;                                              //указатель на связанную закладку
+    property TabAutoWidth:boolean read FTabAutoWidth write SetTabAutoWidth default true;             //true - автоматически подбирать ширину закладки
+    property OnAlignChange:TNotifyEvent read FOnAlignChange write FOnAlignChange;  //прерывание измения положения
+    property OnCloseClick:TNotifyEvent read FOnCloseClick write FOnCloseClick;     //прерывание нажатия кнопки закрытия
+    property OnFixedChange:TNotifyEvent read FOnFixedChange write FOnFixedChange;  //прерывание измения фиксации
+  end;
+
+TD2DockingPlace = class(TD2Control)   //площадка для размещения перемещаемых панелей
+  private
+    FAllowDockChildren: TD2DockingAllowAligns; //разрешения на расположение панелей
+    FContent: TD2Content;         //ссылка на клиентскую область
+    FDragPanel: TD2DockingPanel;  //ссылка на перемещаемую панель
+    FDragRectLeft: TD2Rect;       //область для размещения панели слева
+    FDragRectTop: TD2Rect;        //область для размещения панели сверху
+    FDragRectRight: TD2Rect;      //область для размещения панели справа
+    FDragRectBottom: TD2Rect;     //область для размещения панели снизу
+    FDragRectClient: TD2Rect;     //область для размещения панели как клиента
+    FIndexMaxLeft: integer;       //индекс последней левой закладки
+    FIndexMaxTop: integer;        //индекс последнейверхней закладки
+    FIndexMaxRight: integer;      //индекс последней правой закладки
+    FIndexMaxBottom: integer;     //индекс последней нижней закладки
+    FTabHeight:single;            //высота закладок (или ширина для вертикальных)
+    FBackground: TD2VisualObject; //ссылка на фон
+
+              //установить разрешения на расположение панелей
+    procedure SetAllowDockChildren(Value:TD2DockingAllowAligns);
+              //установить высоту закладки
+    procedure SetTabHeight(const Value:single);
+              //обработка выхода перемещаемой панели за видимую область площадки
+    procedure DoContentDragLeave(Sender: TObject);
+              //обработка входа перемещаемой панели в видимую область площадки
+    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point);
+              //обработка нахождения перемещаемой панели над видимой областю площадки
+    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept:boolean);
+
+  protected
+              // применить стиль
+    procedure ApplyStyle;  override;
+              // удалить стиль
+    procedure FreeStyle;  override;
+  public
+                //создать объект
+    constructor Create(AOwner: TComponent);  override;
+               //уничтожить объект
+    destructor Destroy;  override;
+              //скрыть все открытые панели кроме указанной в параметре
+    procedure HideAllPanels(ANotHide: TD2DockingTab);
+             //возвращает класс дочерних элементов
+    function ItemClass: string;  override;
+              //перестроить объект
+    procedure Realign;  override;
+              //добавить дочерний объект
+    procedure AddObject(AObject: TD2Object);  override;
+              //переопределить области присоединения панелей
+    procedure SetDragRects;
+  published
+    property Resource;                                  //имя ресурса
+    property AllowDockChildren: TD2DockingAllowAligns   //разрешеные места присоединения панелей
+               read FAllowDockChildren
+               write SetAllowDockChildren default [daNone, daClient, daBottom, daLeft, daRight, daTop];
+    property TabHeight:single read FTabHeight write SetTabHeight;  //высота закладок
+  end;
+
+const
+//Специальные идентификаторы столбцов. Special identifiers for columns.
+
+    NoColumn = -1;      //Нет колонки
+    InvalidColumn = -2; //Недействительная колонка
+
+type
+//Направления сортировки
+  TD2SortDirection = (
+      sdAscending,   //сортировка по возрастанию
+      sdDescending   //сортировка по убыванию
+    );
 
 TD2CustomGrid = class;
 TD2Header = class;
+
+{ TD2HeaderItem }
 
 TD2HeaderItem = class(TD2CornerButton)
   private
@@ -6721,11 +7036,18 @@ TD2HeaderItem = class(TD2CornerButton)
     FOldIndex: integer;          //индекс элемента до начала перемещения
     FNewIndex: integer;          //индекс элемента после начала перемещения
     FSplitter: TD2VisualObject;  //указатель на сплиттер
+    FIsPositioning: boolean;     //true - идет процесс изменения позиции
+    FIsSortedUp: boolean;        //true - сортировка от меньшего к большему
+    FIsSortedDown: boolean;      //true - сортировка от большего к меньшему
+    procedure SetIsSortedDown(AValue: boolean);
+    procedure SetIsSortedUp(AValue: boolean);
   protected
     procedure ApplyStyle;  override; //применить стиль
     procedure FreeStyle;  override;	 //освободить стиль
     procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
     function Header: TD2Header;
+    procedure Click;  override;
+    procedure DblClick;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
@@ -6735,6 +7057,8 @@ TD2HeaderItem = class(TD2CornerButton)
     property CanFocused  default false;
     property TextAlign  default d2TextAlignNear;
     property DragMode  default d2DragAutomatic;
+    property IsSortedUp: boolean read FIsSortedUp write SetIsSortedUp;
+    property IsSortedDown: boolean read FIsSortedDown write SetIsSortedDown;
   end;
 
 TD2OnRealignItemEvent = procedure (Sender: TObject; OldIndex, NewIndex: integer) of object;
@@ -6770,28 +7094,19 @@ TD2Header = class(TD2Control)
   end;
 
 TD2TextCell = class(TD2TextBox)
-  private
-  end;
+end;
 
 TD2CheckCell = class(TD2CheckBox)
-  private
-  public
-  end;
+end;
 
 TD2ProgressCell = class(TD2ProgressBar)
-  private
-  public
-  end;
+end;
 
 TD2PopupCell = class(TD2PopupBox)
-  private
-  public
-  end;
+end;
 
 TD2ImageCell = class(TD2ImageControl)
-  private
-  public
-  end;
+end;
 
 { TD2Column }
 
@@ -6802,24 +7117,28 @@ TD2Column = class(TD2Control)
     procedure SetHeader(const Value:String);
     function GetGrid: TD2CustomGrid;
   protected
-    FCellControls: array of TD2Control;
+    //FCellControls: array of TD2Control;
+    FCellControls: TList;
     FUpdateColumn:boolean;
     FHeader: String;
     FSaveData: Variant;
     FDisableChange:boolean;
     procedure UpdateColumn;  virtual;
-    procedure UpdateSelected;
+    procedure UpdateSelected; virtual;
     procedure ClearColumn;
+              //создать специфическую ячейку столбца
     function CreateCellControl: TD2Control;  virtual;
-    procedure DoTextChanged(Sender: TObject);
-    procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);
-    procedure DoEnterFocus(Sender: TObject);
-    procedure DoKillFocus(Sender: TObject);
-    procedure DoDblClick(Sender: TObject);
-    procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);
+             //инициализировать специфическую ячейку столбца
+    procedure InitCellControl(ACellControl: TD2Control); virtual;
+    procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
+    procedure DoEnterFocus(Sender: TObject); virtual;
+    procedure DoKillFocus(Sender: TObject);  virtual;
+    procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState); virtual;
+    procedure CellSetFocus(ARow: integer);  virtual;
     procedure SetWidth(const Value:single);  override;
   public
     constructor Create(AOwner: TComponent);  override;
+    destructor Destroy; override;
     function CellControlByPoint(X, Y:single): TD2Control;
     function CellControlByRow(Row: integer): TD2Control;
     property Grid: TD2CustomGrid read FGrid;
@@ -6828,18 +7147,32 @@ TD2Column = class(TD2Control)
     property Resource;
     property Header: String read FHeader write SetHeader;
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
+    property ClipChildren default true;
   end;
 
+{ TD2TextColumn }
+
 TD2TextColumn = class(TD2Column)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
+    procedure DoTextChanged(Sender: TObject);
+    procedure DoEnterFocus(Sender: TObject); override;
+    procedure DoKillFocus(Sender: TObject); override;
+    procedure CellSetFocus(ARow: integer);  override;
   end;
+
+{ TD2CheckColumn }
 
 TD2CheckColumn = class(TD2Column)
   private
     procedure DoCheckChanged(Sender: TObject);
   public
-    constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   end;
+
+{ TD2ProgressColumn }
 
 TD2ProgressColumn = class(TD2Column)
   private
@@ -6847,6 +7180,7 @@ TD2ProgressColumn = class(TD2Column)
     FMax:single;
   protected
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   public
     constructor Create(AOwner: TComponent);  override;
   published
@@ -6854,25 +7188,29 @@ TD2ProgressColumn = class(TD2Column)
     property Max:single read FMax write FMax;
   end;
 
+{ TD2PopupColumn }
+
 TD2PopupColumn = class(TD2Column)
   private
     FItems: TD2WideStrings;
     procedure SetItems(const Value:TD2WideStrings);
   protected
     function CreateCellControl: TD2Control;  override;
+    procedure InitCellControl(ACellControl: TD2Control); override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
   published
     property Items: TD2WideStrings read FItems write SetItems;
-  end;
+end;
+
+{ TD2ImageColumn }
 
 TD2ImageColumn = class(TD2Column)
-  private
   public
-    constructor Create(AOwner: TComponent);  override;
     function CreateCellControl: TD2Control;  override;
-  end;
+    procedure InitCellControl(ACellControl: TD2Control); override;
+end;
 
   TOnGetValue = procedure (Sender: TObject; const Col, Row:integer; var Value:Variant) of object;
   TOnSetValue = procedure (Sender: TObject; const Col, Row:integer; const Value:Variant) of object;
@@ -6880,109 +7218,200 @@ TD2ImageColumn = class(TD2Column)
 
 { TD2CustomGrid }
 
+//базовый класс сетки описывающий все поля и свойства
 TD2CustomGrid = class(TD2CustomScrollBox)
   private
-    FFocus: TD2VisualObject;           //указатель на маркер выбранной ячейки
-    FMultiSelect:boolean;              //флаг разрешения множественного выбора
-    FOldSelected:integer;              //№ предыдущей выбранной строки
-    FSelected:integer;                 //№ выбранной строки
-    FSelectedRows: array of integer;   //массив №-ов выбранных строк
-    FSelection: TD2VisualObject;       //указатель на эталонный маркер выбора строки
-    FSelections: TList;                //указатель на набор маркеров выбора строк
-    FPreSelection: TD2VisualObject;    //указатель на маркер пред.выбора строки
-    FIsPreSelected:boolean;            //флаг показа пред.выбора строки
-    FRowCount:integer;                 //кол-во строк
-    FRowHeight:single;                 //высота строк
-    FAlternatingRowBackground:boolean; //флаг режима разных фонов для четных и нечетных строк
-    FOddFill: TD2Brush;                //указатель на альтернативный фон нечетных строк
-    FLineFill: TD2Brush;               //указатель на фон строк
-    FReadOnly:boolean;          //флаг только чтение (редактирование не возможно)
-    FColumnIndex:integer;       //№ выбранной колонки
-    FHeader: TD2Header;         //указатель на строку заголовка
-    FShowHeader:boolean;        //флаг показывать заголовки колонок
-    FShowSelectedCell:boolean;  //флаг выделять выбранную ячейку
-    FShowHorzLines:boolean;     //флаг рисовать горизонтальные линии
-    FShowVertLines:boolean;     //флаг рисовать вертикальные линии
-    FOnEdititingDone: TOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
-    FOnGetValue:TOnGetValue;             //указатель на процедуру прерывания при получении значения ячейки
-    FOnSetValue:TOnSetValue;             //указатель на процедуру прерывания при записи значения ячейки
-    function GetColumnCount:integer;                    //получить кол-во колонок
-    function GetColumn(Index: integer): TD2Column;      //получить указатель на колонку по ее индексу
-    procedure SetRowCount(const Value:integer);         //установить кол-во строк
-    procedure SetRowHeight(const Value:single);         //установить высоту строки
-    function GetVisibleRows:integer;                    //получить кол-во видимых строк
-    procedure SetAlternatingRowBackground(const Value:boolean); //установить режим разных фонов для четных и нечетных строк
-    procedure SetShowHorzLines(const Value:boolean);    //установить режим отрисовки горизонтальных линий
-    procedure SetShowVertLines(const Value:boolean);    //установить режим отрисовки вертикальных линий
-    procedure SetColumnIndex(const Value:integer);      //установить выбранную колонку по ее номеру
-    procedure SetMultiSelect (const Value:boolean);     //установить режим множественного выбора
-    procedure SetShowHeader(const Value:boolean);       //установить режим отображения заголовков колонок
-    procedure SetShowSelectedCell(const Value:boolean); //установить режим отображения выбранной ячейки
+    FAlternatingRowBackground:boolean;  //флаг режима разных фонов для четных и нечетных строк
+    FFocus: TD2VisualObject;            //указатель на маркер выбранной ячейки
+    FFocusedColumn:integer;             //№ выбранной колонки
+    FHeader: TD2Header;                 //указатель на строку заголовка
+    FMultiSelect:boolean;               //флаг разрешения множественного выбора
+    FOldSelected:integer;               //№ предыдущей выбранной строки
+    FOnHeaderClick: TNotifyEvent;       //указатель на процедуру прерывания при клике на заголовок
+    FOnHeaderDblClick: TNotifyEvent;    //указатель на процедуру прерывания при двойном клике на заголовок
+    FPreSelection: TD2VisualObject;     //указатель на маркер пред.выбора строки
+    FRowCount:integer;                  //общее кол-во строк в гриде
+    FRowHeight:single;                  //высота строк
+    FSelected:integer;                  //№ выбранной строки
+    FSelectedRows: array of integer;    //массив №-ов выбранных строк
+    FSelection: TD2VisualObject;        //указатель на эталонный маркер выбора строки
+    FSelections: TList;                 //указатель на набор маркеров выбора строк
+    FIsPreSelected:boolean;             //флаг показа пред.выбора строки
+    FLineFill: TD2Brush;                //указатель на фон строк
+    FOddFill: TD2Brush;                 //указатель на альтернативный фон нечетных строк
+    FOnEdititingDone: TOnEdititingDone; //указатель на процедуру прерывания после окончания записи в DataSet
+    FOnGetValue:TOnGetValue;            //указатель на процедуру прерывания при получении значения ячейки
+    FOnSetValue:TOnSetValue;            //указатель на процедуру прерывания при записи значения ячейки
+    FReadOnly:boolean;                  //флаг только чтение (редактирование не возможно)
+    FShowHeader:boolean;                //флаг показывать заголовки колонок
+    FShowHorzLines:boolean;             //флаг рисовать горизонтальные линии
+    FShowSelectedCell:boolean;          //флаг выделять выбранную ячейку
+    FShowVertLines:boolean;             //флаг рисовать вертикальные линии
+    FSortColumn: integer;               //Индекс колонки, в которой происходит сортировка строк
+    FSortDirection: TD2SortDirection;   //Нарпвление сортировки
+
+              //получить указатель на колонку по ее индексу
+    function  GetColumn(Index: integer): TD2Column;
+              //получить кол-во колонок
+    function  GetColumnCount:integer;
+              //получить кол-во видимых строк
+    function  GetVisibleRows:integer; virtual;
+              //установить кол-во строк
+    procedure SetRowCount(const Value:integer);
+              //установить высоту строки
+    procedure SetRowHeight(const Value:single);
+              //установить режим разных фонов для четных и нечетных строк
+    procedure SetAlternatingRowBackground(const Value:boolean);
+              //установить выбранную колонку по ее номеру
+    procedure SetFocusedColumn(const Value:integer);
+              //установить режим множественного выбора
+    procedure SetMultiSelect (const Value:boolean);
+              //установить режим отображения заголовков колонок
+    procedure SetShowHeader(const Value:boolean);
+              //установить режим отрисовки горизонтальных линий
+    procedure SetShowHorzLines(const Value:boolean);
+              //установить режим отображения выбранной ячейки
+    procedure SetShowSelectedCell(const Value:boolean);
+              //установить режим отрисовки вертикальных линий
+    procedure SetShowVertLines(const Value:boolean);
+    procedure SetSortColumn(AValue: integer);
+    procedure SetSortDirection(AValue: TD2SortDirection);
+
   protected
+              //применить стиль
+    procedure ApplyStyle; override;
+              //проверка ввода с клавиатуры на соответствие
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;
+              //true - если данные можно редактировать
+    function  CanEditModify: Boolean;  virtual;
+              //Инвертировать выделение строки c индексом Idx. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRow(Idx: integer):boolean; virtual;
+              //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRowByPoint(const X, Y: single): boolean; virtual;
+              //удаление дочерних объектов
+    procedure ContentRemoveObject(AObject: TD2Object); override;
+              //двойной клик ЛКМ
     procedure DblClick;  override;
-    procedure ContentRemoveObject(AObject: TD2Object); override; //удаление дочерних объектов
-    procedure ApplyStyle; override; //применить стиль
-    procedure FreeStyle; override;  //освободить стиль
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;  //обработка нажатий клавиатуры
-    procedure HScrollChange(Sender: TObject);  override; //обработка перемещения горизонтального скроллера
-    procedure VScrollChange(Sender: TObject);  override; //обработка перемещения вертикального скроллера
-    function  GetContentBounds: TD2Rect;  override;      //получить клиентскую область грида
-    procedure UpdateColumns;  virtual;  //обновить колоноки
-    procedure UpdateHeader;             //обновить заголовки колонок
-    procedure UpdateSelection; virtual; //обновить маркеры выбора строк
-    procedure Reset;  virtual;          //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
-    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect);  //отрисовка альтернативного фона нечетных строк
-    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); //отрисовка горизонтальных и вертикальных линий
-    function  GetTopRow:integer;  virtual;                                //получить № вехней видимой строки
-    function  GetValue(Col, Row: integer): Variant; virtual;              //получить значение ячейки в колонке Col строке Row
-    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;  //сохранить значение ячейки в колонке Col строке Row
-    function  IsSelected(Row: integer):boolean;              //true - если строка Row выбрана
-    function  IsOneRowSelected:boolean;                      //true - если выбрана 1 стока
-    procedure SetPreSelected(const Value: integer); virtual; //установить маркер предвыбора на выбранную строку
-    procedure SetSelected(const Value: integer); virtual;    //установить выбранную строку
-    procedure SetSelectedMoreRow(Idx: integer); virtual;     //добавить к выбранным строки начиная с текущей до Idx
-    function  ChangeSelectionRow(Idx: integer):boolean; virtual;           //Инвертировать выделение строки Idx. Результат: true - строка выделена, false - развыделена
-    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  virtual;   //проверка ввода с клавиатуры на соответствие
-    function  CanEditModify: Boolean;  virtual;                            //true - если данные можно редактировать
-    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer); //изменить позицию колонки
-    procedure DoResizeItem(Sender: TObject; var NewSize:single);           //изменить ширину колонки
+              //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
+              //отрисовка горизонтальных и вертикальных линий
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); virtual;
+              //изменить позицию колонки
+    procedure DoRealignItem(Sender: TObject; OldIndex, NewIndex: integer);
+              //изменить ширину колонки
+    procedure DoResizeItem(Sender: TObject; var NewSize:single);
+              //освободить стиль
+    procedure FreeStyle; override;
+              // Возвращает левую и правую границу столбца Column. Если Column = NoColumn, то возвращается вся ширина клиетской части грида.
+    procedure GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);
+              //получить № вехней видимой строки
+    function GetTopRow:integer; virtual;
+             //получить координату Y вехней видимой строки
+    function GetTopRowY: single; virtual;
+              //получить значение ячейки в колонке Col строке Row
+    function  GetValue(Col, Row: integer): Variant; virtual;
+              //обработка перемещения горизонтального скроллера
+    procedure HScrollChange(Sender: TObject);  override;
+              //получить размеры виртуальной клиентской области грида
+    function  GetContentBounds: TD2Rect;  override;
+              //получить высоту виртуальной клиентской область грида
+    function  GetContentHeight: Single;  virtual;
+              //получить ширину виртуальной клиентской области грида
+    function  GetContentWidth: Single;  virtual;
+              //true - если выбрана 1 стока
+    function  IsOneRowSelected:boolean; virtual;
+              //true - если строка c номером Row выбрана
+    function  IsSelected(Row: integer):boolean; virtual; overload;
+              //true - если строка по координатам X,Y выбрана
+    function  IsSelected(const X, Y: single):boolean; virtual; overload;
+               //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
+    procedure Reset;  virtual;
+              //установить маркер предвыбора на выбранную строку
+    procedure SetPreSelected(const Value: integer); virtual;
+              //сделать выбранной строку с номером Value
+    procedure SetSelected(const Value: integer); virtual;
+              //сделать выбранной строку по координатам X, Y
+    procedure SetSelectedByPoint(const X, Y:single); virtual;
+              //добавить к выбранным строки начиная с текущей до Idx
+    procedure SetSelectedMoreRow(Idx: integer); virtual;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
+    procedure SetSelectedMoreRowByPoint(const X, Y: single); virtual;
+              //добавить к выбранным строки начиная с текущей до Idx без очистки ранее выбранных строк
+    procedure SetSelectedExtraRow(Idx: integer); virtual;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+    procedure SetSelectedExtraRowByPoint(const X, Y: single); virtual;
+              //сохранить значение ячейки в колонке Col строке Row
+    procedure SetValue(Col, Row:integer; const Value:Variant);  virtual;
+              //отсортировать грид в соответствии со значениями SortColumn и SortDirection
+    procedure SortGrid; virtual;
+              //обновить колоноки
+    procedure UpdateColumns;  virtual;
+              //обновить заголовки колонок
+    procedure UpdateHeader;
+              //обновить маркеры выбора строк
+    procedure UpdateSelection; virtual;
+              //обработка перемещения вертикального скроллера
+    procedure VScrollChange(Sender: TObject);  override;
+
   public
-    constructor Create(AOwner: TComponent);  override;     //создать грид
-    destructor Destroy;  override;                         //уничтожить грид
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обработка нажатий кнопок мыши
-    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;                 //обработка перемещения мыши
-    function ItemClass: string;  override;                 //список классов колонок для дизайнера
-    function ColumnByIndex(const Idx: integer): TD2Column; //получить указатель на колонку по индексу
-    function ColumnByPoint(const X, Y:single): TD2Column;  //получить указатель на колонку по координатам
-    function RowByPoint(const X, Y:single):integer;        //получить № стоки по координатам
-    procedure AddObject(AObject: TD2Object);  override;    //добавить дочерний объект
-    procedure ApplyResource;  override;	                   //применить ресурс
-    procedure ScrollToRow(ARow: integer);                  //прокрутить грид до строки
-    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false; //рисовать другой фон для нечетных колонок
-    property CanFocused  default true;                                    //флаг возможности получать фокус
-    property ColumnCount: integer read GetColumnCount;                    //кол-во колонок
-    property ColumnIndex: integer read FColumnIndex write SetColumnIndex; //№ выбранной колонки
-    property Columns[Index: integer]: TD2Column read GetColumn;           //указатель на колонку по индексу
-    property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false; //Разрешить множественный выбор
-    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;  //флаг только чтение
-    property RowCount: integer read FRowCount write SetRowCount;  //кол-во строк
-    property RowHeight:single read FRowHeight write SetRowHeight; //высота строк
-    property Selected: integer read FSelected write SetSelected;  //№ выбранной строки
-    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true; //показывать заголовки колонок
-    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true;          //рисовать горизонтальные линии
+              //добавить дочерний объект
+    procedure AddObject(AObject: TD2Object);  override;
+              //применить ресурс
+    procedure ApplyResource;  override;
+              //получить указатель на колонку по индексу
+    function ColumnByIndex(const Idx: integer): TD2Column;
+              //получить указатель на колонку по координатам
+    function ColumnByPoint(const X, Y:single): TD2Column;
+              //создать грид
+    constructor Create(AOwner: TComponent);  override;
+              //уничтожить грид
+    destructor Destroy;  override;
+              //список классов колонок для дизайнера
+    function ItemClass: string;  override;
+              //обработка нажатий кнопок мыши
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+              //обработка отпускания кнопок мыши
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+              //обработка перемещения мыши
+    procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;
+              //перестроить грид
+    procedure Realign;  override;
+              //получить № стоки по координатам
+    function RowByPoint(const X, Y:single):integer;
+              //прокрутить грид до строки
+    procedure ScrollToRow(ARow: integer);
+
+    property AlternatingRowBackground: boolean read FAlternatingRowBackground write SetAlternatingRowBackground  default false; //рисовать другой фон для нечетных строк
+    property Animated;                                           //true - включить анимацию
+    property AutoHide;                                           //true - автоматически скрывать скроллеры
+    property CanFocused  default true;                           //флаг возможности получать фокус
+    property ColumnCount: integer read GetColumnCount;           //кол-во колонок
+    property Columns[Index: integer]: TD2Column read GetColumn;  //указатель на колонку по индексу
+    property DisableMouseWheel;                                  //true - запретить реакцию на колесо мыши
+    property FocusedColumn: integer read FFocusedColumn write SetFocusedColumn;               //№ выбранной колонки
+    property MultiSelect:boolean read FMultiSelect write SetMultiSelect default false;        //Разрешить множественный выбор
+    property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;                       //указатель на процедуру прерывания при получении данных из DataSet
+    property OnHeaderClick:TNotifyEvent read FOnHeaderClick write FOnHeaderClick;             //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick:TNotifyEvent read FOnHeaderDblClick write FOnHeaderDblClick;    //указатель на процедуру прерывания при двойном клике на заголовок
+    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;                       //указатель на процедуру прерывания при записи данных в DataSet
+    property ReadOnly: boolean read FReadOnly write FReadOnly  default false;                 //флаг только чтение
+    property RowCount: integer read FRowCount write SetRowCount;                              //кол-во строк
+    property RowHeight:single read FRowHeight write SetRowHeight;                             //высота строк
+    property ScrollDuration;                                                                  //скорость перемещения скроллеров
+    property Selected: integer read FSelected write SetSelected;                              //№ выбранной строки
+    property ShowHeader: boolean read FShowHeader write SetShowHeader  default true;          //показывать заголовки колонок
+    property ShowHorzLines: boolean read FShowHorzLines write SetShowHorzLines  default true; //рисовать горизонтальные линии
+    property ShowScrollBars;                                                                  //true - показывать скроллеры
     property ShowSelectedCell: boolean read FShowSelectedCell write SetShowSelectedCell  default true; //выделять выбранную ячейку
     property ShowVertLines: boolean read FShowVertLines write SetShowVertLines  default true;          //рисовать вертикальные линии
+    property SortColumn: integer read FSortColumn write SetSortColumn default NoColumn;                       //индекс колонки в которой происходит сортировка
+    property SortDirection: TD2SortDirection read FSortDirection write SetSortDirection default sdAscending;  //направление сортировки
     property TopRow: integer read GetTopRow;           //№ верхней видимой строки
     property VisibleRows: integer read GetVisibleRows; //кол-во видимых строк
-    property AutoHide;           //true - автоматически скрывать скроллеры
-    property Animated;           //true - включить анимацию
-    property ScrollDuration;     //скорость перемещения скроллеров
-    property DisableMouseWheel;  //true - запретить реакцию на колесо мыши
-    property ShowScrollBars;     //true - показывать скроллеры
-    property UseSmallScrollBars; //true - использовать узкие скроллеры
-    property OnEdititingDone: TOnEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
-    property OnGetValue:TOnGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
-    property OnSetValue:TOnSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
+    property UseSmallScrollBars;                       //true - использовать узкие скроллеры
 end;
 
 TD2Grid = class(TD2CustomGrid)
@@ -7004,11 +7433,16 @@ TD2Grid = class(TD2CustomGrid)
     property ShowVertLines;              //рисовать вертикальные линии
     property UseSmallScrollBars;         //использовать узкие скроллеры
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnScroll;
 end;
 
-TD2StringColumn = class(TD2Column)
+{ TD2StringColumn }
+
+TD2StringColumn = class(TD2TextColumn)
   private
     FCells: array of WideString;
   published
@@ -7029,6 +7463,7 @@ private
     property Cells[ACol, ARow: Integer]: WideString read GetCells write SetCells;
   published
     property RowCount;
+    property OnScroll;
   end;
 
 type
@@ -7406,7 +7841,9 @@ TD2CustomDBGrid = class(TD2CustomGrid)   //заказной класс сетк�
     property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
-TD2DBGrid = class(TD2CustomDBGrid)       //класс сетки для отображения данных из базы данных
+{ TD2DBGrid }
+
+TD2DBGrid = class(TD2CustomDBGrid)       //заказной класс сетки для отображения данных из базы данных
   published
     property DataController;             //указатель на DataController
     property AutoHide;                   //автоматически скрывать скроллеры
@@ -7427,212 +7864,10 @@ TD2DBGrid = class(TD2CustomDBGrid)       //класс сетки для отоб
     property OnGetValue;                 //указатель на процедуру прерывания при получении данных из DataSet
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnScroll;
 end;
 
-type
- TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop); //набор мест присоединения панелей
- TD2DockingAllowAligns = set of TD2DockingAlign;                         //набор разрешеных мест присоединения панелей
- TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,             //набор разрешений на изменение размера панели мышью
-                            dmsBottom,dmsBottomLeft,dmsBottomRight,
-                            dmsLeft, dmsRight, dmsNone);
-
-TD2DockingTab = class(TD2TextControl)     //закладка площадки перемещаемых панелей
-private
-  FAutoWidth:boolean;       //флаг автоматического подбора ширины
-  FIsSelected:boolean;      //флаг выделения закладки
-  FLastPosition: TD2Point;  //последняя позиция закладки
-  FMouseDownPos: TD2Point;  //положение мыши при нажатии
-  FOldIndex: integer;       //индекс закладки до начала перемещения
-  FPanel: TD2VisualObject;  //ссылка на панель
-  FDisableSetText:boolean;  //флаг изменения текста закладки
-  FTextControl: TD2Text;    //ссылка на текст
-  FTimer: TD2Timer;         //ссылка на таймер закрытия
-  FIsShowPanel:boolean;     //флаг видимости панели: true - панель выдвинута; false - скрыта
-  function  GetAlign: TD2DockingAlign;              //получить данные выравнивания
-  procedure SetAlign(const Value:TD2DockingAlign);  //задать выравнивание
-  procedure SetAutoWidth(const Value:boolean);      //задать флаг автоматического подбора ширины
-protected
-  procedure ApplyStyle;  override;   //применить стиль
-  procedure DesignSelect;  override; //выбор закладки в дизайн-моде (показать/скрыть панель)
-  procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override; //обрабока нажатий клавиш мыши
-  procedure MouseMove(Shift: TShiftState; X, Y, Dx, Dy:single);  override;               //обрабока перемещения мыши
-  procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;   //обрабока отпускания клавиш мыши
-  procedure MouseEnter;  override;   //обработка входа указателя мыши в видимую область объекта
-  procedure MouseLeave;  override;   //обработка выхода указателя мыши за видимую область объекта
-  procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
-  procedure SetText(const Value:WideString);  override; //установка отображаемого на закладке текста
-public
-  constructor Create(AOwner: TComponent);  override;  //создать объект
-  destructor Destroy;  override;                      //уничтожить объект
-  procedure DoAutoWidth(AMinWidth:single);  //выполнить автоматический подбор ширины
-  procedure DoTimer(Sender: TObject);       //обработка события таймера скрытия панели
-  procedure Realign;  override;             //перерисовать объект
-  procedure Select(ASelected:boolean);      //выделение закладки
-  procedure ShowPanel(const Value:boolean); //ture - показать (выдвинуть панель) false - скрыть
-  property IsSelected:boolean read FIsSelected;    //флаг выделения закладки
-  property IsShowPanel:boolean read FIsShowPanel;  //флаг видимости панели: true - панель выдвинута; false - скрыта
-published
-  property Align: TD2DockingAlign read GetAlign write SetAlign; //выравнивание
-  property AutoTranslate default true;              //флаг автоматического перевода текста на закладке
-  property AutoWidth:boolean read FAutoWidth write SetAutoWidth default true;  //установка автоматического подбора ширины
-  property Font;                                   //имя шрифта
-  property Panel: TD2VisualObject read FPanel write FPanel; //указатель на связанную панель
-  property TextAlign;        //горизонтальное выравнивание текста на закладке
-  property VertTextAlign;    //вертикальное выравнивание текста на закладке
-  property Text;             //текст на закладке
-  property Resource;         //имя ресурса
-end;
-
-TD2DockingPanel = class(TD2TextControl)  //перемещаемая панель
-  private
-    FTSplitter: TD2SplitLayout;   //ссылка на верхний сплиттер
-    FTLSplitter: TD2SplitLayout;  //ссылка на верхний-левый сплиттер
-    FTRSplitter: TD2SplitLayout;  //ссылка на верхний-правый сплиттер
-    FBSplitter: TD2SplitLayout;   //ссылка на нижний сплиттер
-    FBLSplitter: TD2SplitLayout;  //ссылка на нижний-левый сплиттер
-    FBRSplitter: TD2SplitLayout;  //ссылка на нижний-правый сплиттер
-    FLSplitter: TD2SplitLayout;   //ссылка на левый сплиттер
-    FRSplitter: TD2SplitLayout;   //ссылка на правый сплиттер
-    FCloseButton: TD2CloseButton; //ссылка на кнопку закрытия
-    FContent: TD2Content;         //ссылка на клиентскую область
-    FDisableFixed:boolean;        //флаг запрета обрабтки изменения фиксации
-    FDisableSetText:boolean;      //флаг изменения текста закладки
-    FDragDistance: TD2Point;      //расстояние от мыши до точки 0,0 панели при перемещении
-    FDragMousePos: TD2Point;      //последнее положение мыши при перемещении панели
-    FDragTarget: TD2VisualObject; //ссылка на целевой объект при перемещении панели
-    FIsNotDraged:boolean;         //флаг отсуствия перемещения панели
-    FFixedCheckBox: TD2CheckBox;  //ссылка на кнопку фисации
-    FFreeOnClose:boolean;         //true - уничтожить панель при закрытии; false - делать невидимой вместо закрытия
-    FHeader: TD2Rectangle;        //ссылка на заголовок
-    FShadow: TD2ShadowEffect;     //ссылка на тень
-    FTab: TD2VisualObject;        //ссылка на закладку
-    FTabAutoWidth:boolean;        //флаг автоматический подбор ширины закладок
-    FAlign: TD2DockingAlign;      //расположение панели
-    FAllowDock: TD2DockingAllowAligns;  //разрешения на расположение панели
-    FIsDockable:boolean;          //разрешено изменять положение
-    FIsExpanded:boolean;          //панель развернута двойным щелчком
-    FIsFixed:boolean;             //панель зафиксирована
-    FMinHeight:single;            //минимальная высота окна
-    FMinWidth:single;             //минимальная ширина окна
-    FMouseDownSide: TD2DockingMouseDownSide; //активный сплитер
-    FMouseDownPos: TD2Point;      //стартовые координаты мыши в активном сплиттере (нажатие мыши)
-    FOldAlign: TD2DockingAlign;   //расположение панели до раскрытия на все окно
-    FOldFixed:boolean;            //фиксация панели до распрытия на все окно
-    FOldPos: TD2Point;            //положение неприкрепленного окна
-    FOldSize: TD2Point;           //размеры неприкрепленного окна
-    FOnAlignChange:TNotifyEvent;  //прерывание при изменении расположения
-    FOnFixedChange:TNotifyEvent;  //прерывание при нажатии на кнопку фикасации
-    FOnCloseClick:TNotifyEvent;   //прерывание при нажатии на кнопку закрытия
-    FShowCloseButton:boolean;     //показать кнопку закрытия
-    FShowFixedCheckBox:boolean;   //показать чек бокс фиксации окна
-    FShowHeader:boolean;          //показать заголовок
-    procedure DoCloseClick(Sender: TObject);     //нажатие на кнопку закрытия панели
-    procedure DoFixedChange(Sender: TObject);    //нажатие на кнопку фикасации панели
-    procedure DoHeaderDblClick(Sender: TObject); //двойной щелчок на заголовке панели
-    procedure DoHeaderDragEnd(Sender: TObject);  //конец перемещения панели
-    procedure DoSplitterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single); //нажатие ЛКМ на сплиттере
-    procedure DoSplitterMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y:single);   //отпускание ЛКМ на сплиттере
-    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);               //перемещение мыши на сплиттере
-    procedure SetAlign(const Value:TD2DockingAlign);     //установить расположение панели
-    procedure SetAllowDock(Value:TD2DockingAllowAligns); //установить разрешения на расположение панели
-    procedure SetDragMode (const Value:TD2DragMode);     //установить режим перетаскивания панели
-    procedure SetIsDockable (const Value:boolean);       //установить/снять разрешение изменять положение
-    procedure SetIsFixed(const Value:boolean);           //установить/снять фиксацию панели
-    procedure SetMinHeight(const Value:Single);          //установка минимальной высоты панели
-    procedure SetMinWidth(const Value:Single);           //установка минимальной ширины панели
-    procedure SetShowCloseButton(const Value:boolean);   //показать/скрыть кнопку закрытия панели
-    procedure SetShowFixedCheck(const Value:boolean);    //показать/скрыть чек бокс фиксации панели
-    procedure SetShowHeader(const Value:boolean);        //показать/скрыть заголовок панели
-    procedure SetTabAutoWidth (const Value:boolean);     //установить/снять автоматического подбора ширины закладки
-  protected
-    procedure ApplyAlign;  virtual;     //применить размещение
-    procedure ApplyStyle;  override;    //применить стиль
-    procedure FreeStyle;  override;     //удалить стиль
-    procedure DesignClick;  override;   //двойной щелчок по панели в дизайн-моде (изменение фиксации)
-    procedure DesignInsert;  override;  //вставка в дизайн-моде
-    procedure DesignSelect;  override;  //одиночный щелчок щелчок по закладке в дизайн-моде (показать/скрыть панель)
-    procedure TabInsert;                //вставить закладку на связанном DockingPlace
-    procedure TabDelete;                //удалить закладку со связанного DockingPlace
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override; //очистка FLayout при его удалении
-    procedure SetHeight(const Value:single);  override;   //установить высоту панели
-    procedure SetText(const Value:WideString);  override; overload;  //установка отображаемого в заголовке текста
-    procedure SetWidth(const Value:single);  override;    //установить ширину панели
-    procedure SetVisible(const Value:boolean);  override; //установить видимость панели
-    procedure SetMouseOverChildren(Sender: TObject; Value:Boolean);  override; //установить флаг нахождения указателя мыши над дочерним объектом у родителя; остановить /запустить таймер скрытия панели //Added by GoldenFox
-  public
-    constructor Create(AOwner: TComponent);  override;  //создать объект
-    destructor Destroy;  override;                      //разрушить объект
-    procedure AddObject(AObject: TD2Object);  override; //добавить объект в окно
-    procedure Realign;  override;                       //перестроить клиентскую область
-    procedure DragMove(Sender: TD2VisualObject; Point: TD2Point);  virtual; //сместить панель
-  published
-    property Font;          //имя шрифта
-    property TextAlign;     //выравнивание текста заголовка
-    property Text;          //текст заголовка
-    property Resource;      //имя ресурса
-    property AutoTranslate default true;   //флаг автоматического перевода текста на закладке
-    property Align: TD2DockingAlign read FAlign write SetAlign default daNone;  //выравнивание панели относительно
-    property AllowDock: TD2DockingAllowAligns read FAllowDock write SetAllowDock default [daNone, daClient, daBottom, daLeft, daRight, daTop]; //разрешения на пристыковку панели
-    property DragMode write SetDragMode default d2DragManual;                       //режим перетаскивания панели
-    property FreeOnClose:boolean read FFreeOnClose write FFreeOnClose default true; //true - уничтожать панель при закрытии; false - скрывать при закрытии
-    property IsDockable:boolean read FIsDockable write SetIsDockable default true;  //true - разрешено изменять положение
-    property IsFixed:boolean read FIsFixed write SetIsFixed default true;           //true - панель зафиксирвоана
-    property MinHeight:single read FMinHeight write SetMinHeight;                   //минимальная высота панели
-    property MinWidth:single read FMinWidth write SetMinWidth;                      //минимальная ширина панели
-    property ShowCloseButton:boolean read FShowCloseButton write SetShowCloseButton default true;    //true - показывать кнопку закрытия панели
-    property ShowFixedCheckBox:boolean read FShowFixedCheckBox write SetShowFixedCheck default true; //true - показывать кнопку фиксации панели
-    property ShowHeader:boolean read FShowHeader write SetShowHeader default true;                   //true - показывать заголовок панели
-    property Tab: TD2VisualObject read FTab write FTab;                                              //указатель на связанную закладку
-    property TabAutoWidth:boolean read FTabAutoWidth write SetTabAutoWidth default true;             //true - автоматически подбирать ширину закладки
-    property OnAlignChange:TNotifyEvent read FOnAlignChange write FOnAlignChange;  //прерывание измения положения
-    property OnCloseClick:TNotifyEvent read FOnCloseClick write FOnCloseClick;     //прерывание нажатия кнопки закрытия
-    property OnFixedChange:TNotifyEvent read FOnFixedChange write FOnFixedChange;  //прерывание измения фиксации
-  end;
-
-TD2DockingPlace = class(TD2Control)   //площадка для размещения перемещаемых панелей
-  private
-    FAllowDockChildren: TD2DockingAllowAligns; //разрешения на расположение панелей
-    FContent: TD2Content;         //ссылка на клиентскую область
-    FDragPanel: TD2DockingPanel;  //ссылка на перемещаемую панель
-    FDragRectLeft: TD2Rect;       //область для размещения панели слева
-    FDragRectTop: TD2Rect;        //область для размещения панели сверху
-    FDragRectRight: TD2Rect;      //область для размещения панели справа
-    FDragRectBottom: TD2Rect;     //область для размещения панели снизу
-    FDragRectClient: TD2Rect;     //область для размещения панели как клиента
-    FIndexMaxLeft: integer;       //индекс последней левой закладки
-    FIndexMaxTop: integer;        //индекс последнейверхней закладки
-    FIndexMaxRight: integer;      //индекс последней правой закладки
-    FIndexMaxBottom: integer;     //индекс последней нижней закладки
-    FTabHeight:single;            //высота закладок (или ширина для вертикальных)
-    FBackground: TD2VisualObject; //ссылка на фон
-    procedure SetAllowDockChildren(Value:TD2DockingAllowAligns); //установить разрешения на расположение панелей
-    procedure SetTabHeight(const Value:single);                  //установить высоту закладки
-    procedure DoContentDragLeave(Sender: TObject);                            //обработка выхода перемещаемой панели за видимую область площадки
-    procedure DoContentDragEnter(Sender: TObject; const Data: TD2DragObject;  //обработка входа перемещаемой панели в видимую область площадки
-                                 const Point: TD2Point);
-    procedure DoContentDragOver(Sender: TObject; const Data: TD2DragObject;   //обработка нахождения перемещаемой панели над видимой областю площадки
-                                const Point: TD2Point; var Accept:boolean);
-  protected
-    procedure ApplyStyle;  override;       // применить стиль
-    procedure FreeStyle;  override;        // удалить стиль
-  public
-    constructor Create(AOwner: TComponent);  override;  //создать объект
-    destructor Destroy;  override;                      //уничтожить объект
-    procedure HideAllPanels(ANotHide: TD2DockingTab);   //скрыть все открытые панели кроме указанной в параметре
-    function ItemClass: string;  override;              //возвращает класс дочерних элементов
-    procedure Realign;  override;                       //перестроить объект
-    procedure AddObject(AObject: TD2Object);  override; //добавить дочерний объект
-    procedure SetDragRects;                             //переопределить области присоединения панелей
-  published
-    property Resource;                                  //имя ресурса
-    property AllowDockChildren: TD2DockingAllowAligns   //разрешеные места присоединения панелей
-               read FAllowDockChildren
-               write SetAllowDockChildren default [daNone, daClient, daBottom, daLeft, daRight, daTop];
-    property TabHeight:single read FTabHeight write SetTabHeight;  //высота закладок
-  end;
-
-
-{ --------------------- TD2VirtualTreeView ---------------------- }
+{ --------------------- TD2TreeNode ---------------------- }
 
 // Cостояния отметки включают переходные и текучие (временные) состояния. Временное состояние,
 // определяемое в текуций момент является состоянием нажатия отметки.
@@ -7664,7 +7899,7 @@ TD2CheckType = (
   in turn changes the alignment in the node record as well as the stream chunks.
   Do not reorder the states and always add new states at the end of this enumeration
   in order to avoid breaking existing code.}
-TD2VirtualNodeState = (
+TD2TreeNodeState = (
     vsInitialized,           //Узел прошёл событие OnInitNode. Set after the node has been initialized.
     vsChecking,              //Пользователь зажал отметку и ещё не отпустил кнопку мыши. Node's check state is changing, avoid propagation.
     vsCutOrCopy,             //Узел был определён для копирования или вставки. Node is selected as cut or copy and paste source.
@@ -7684,11 +7919,11 @@ TD2VirtualNodeState = (
   );
 
 //Набор состояний узла
-TD2VirtualNodeStates = set of TD2VirtualNodeState;
+TD2treeNodeStates = set of TD2TreeNodeState;
 
 // Состояния, используемые в InitNode для индикации состояния узла которое он будет изначально иметь.
 // States used in InitNode to indicate states a node shall initially have.
-TD2VirtualNodeInitState = (
+TD2TreeNodeInitState = (
     ivsDisabled,    //отключен
     ivsExpanded,    //развернут
     ivsHasChildren, //имеет дочерние узлы
@@ -7698,24 +7933,35 @@ TD2VirtualNodeInitState = (
     ivsReInit       //переинициализация
   );
 //Набор начальных состояний узла для InitNode
-TD2VirtualNodeInitStates = set of TD2VirtualNodeInitState;
+TD2TreeNodeInitStates = set of TD2TreeNodeInitState;
 
 // Указатель на узел дерева TVirtualNode
-PD2VirtualNode = ^TD2VirtualNode;
+PD2TreeNode = ^TD2TreeNode;
+
+// Эта запись уже должна быть определена здесь, а не позже, поскольку в противном случае пользователи BCB не смогут
+// компилировать (преобразование, сделанное BCB, неверно).
+// This record must already be defined here and not later because otherwise BCB users will not be able
+// to compile (conversion done by BCB is wrong).
+ TD2CacheEntry = record
+   Node: PD2TreeNode;
+   AbsoluteTop: Single;
+ end;
+
+ TD2Cache = array of TD2CacheEntry;
 
 // Массив указателей на узлы дерева TVirtualNode
-TD2NodeArray = array of PD2VirtualNode;
+TD2NodeArray = array of PD2TreeNode;
 
 //Узел дерева
-TD2VirtualNode = record
-  Index: Cardinal;             // Индекс узла относительно его родителя. index of node with regard to its parent
-  ChildCount: Cardinal;        // Кол-во дочерних узлов. number of child nodes
-  NodeHeight: Single;          // Высота строки в пикселях. height in pixels
-  States: TD2VirtualNodeStates;// Статус узла, описывающий его состояние (развернут, инициализирован и т.п.). states describing various properties of the node (expanded, initialized etc.)
-  Align: Single;               // Смещение кнопки сворачивания/разворачивания и отметки по вертикали. line/button alignment
+TD2TreeNode = record
+  Index: Cardinal;             // 4 Индекс узла относительно его родителя. index of node with regard to its parent
+  ChildCount: Cardinal;        // 4 Кол-во дочерних узлов. number of child nodes
+  NodeHeight: Single;          // 4 Высота узла в пикселях. height in pixels
+  States: TD2TreeNodeStates;// Статус узла, описывающий его состояние (развернут, инициализирован и т.п.). states describing various properties of the node (expanded, initialized etc.)
+  Align: Single;               // 4 Смещение кнопки сворачивания/разворачивания и отметки по вертикали. line/button alignment
   CheckState: TD2CheckState;   // Статус отметки узла (например отмечен, нажат и т.п.) indicates the current check state (e.g. checked, pressed etc.)
   CheckType: TD2CheckType;     // Тип отметки узла indicates which check type shall be used for this node
-  //Dummy: Byte;                 // Фиктивныое поле для выравнивания  размера структуры узла до четырёх байтов (DWORD). dummy value to fill DWORD boundary
+  //Dummy: Byte;               // 1 Фиктивныое поле для выравнивания  размера структуры узла до четырёх байтов (DWORD). dummy value to fill DWORD boundary
   TotalCount: Cardinal;        // Общее кол-во узлов: сумма узла и всех его дочерних узлов и их дочерних узлов и т.д. sum of this node, all of its child nodes and their child nodes etc
   TotalHeight: Single;         // Высота узела в пикселях включая высоту всех его детей. height in pixels this node covers on screen including the height of all of its children
   //Внимание! Некоторые подпрограммы копирования требуют, чтобы все указатели (а также область данных) узла
@@ -7724,177 +7970,37 @@ TD2VirtualNode = record
   //    Note: Some copy routines require that all pointers (as well as the data area) in a node are located
   //          at the end of the node! Hence if you want to add new member fields (except pointers to internal
   //          data) then put them before field Parent.
-  Parent: PD2VirtualNode;      // Указатель на узел родителя для данного узла (для Root указатель на treeview).reference to the node's parent (for the root this contains the treeview)
-  PrevSibling: PD2VirtualNode; // Указатель на предыдущий узел того же уровня. Nil - для первого узла в списке. link to the node's previous sibling or nil if it is the first node
-  NextSibling: PD2VirtualNode; // Указатель на следующий узел того же уровня. Nil - для последнего узла в списке. link to the node's next sibling or nil if it is the last node
-  FirstChild: PD2VirtualNode;  // Указатель на первый дочерний узел. link to the node's first child...
-  LastChild: PD2VirtualNode;   // Указатель на последний дочерний узел. link to the node's last child...
+  Parent: PD2TreeNode;      // Указатель на узел родителя для данного узла (для Root указатель на treeview).reference to the node's parent (for the root this contains the treeview)
+  PrevSibling: PD2TreeNode; // Указатель на предыдущий узел того же уровня. Nil - для первого узла в списке. link to the node's previous sibling or nil if it is the first node
+  NextSibling: PD2TreeNode; // Указатель на следующий узел того же уровня. Nil - для последнего узла в списке. link to the node's next sibling or nil if it is the last node
+  FirstChild: PD2TreeNode;  // Указатель на первый дочерний узел. link to the node's first child...
+  LastChild: PD2TreeNode;   // Указатель на последний дочерний узел. link to the node's last child...
   Data: record end;            // Заполнитель. Каждый узел получает дополнительные данные, размером определяемым полем NodeDataSize. this is a placeholder, each node gets extra data determined by NodeDataSize
 end;
 
+// Поддержка стимминга. streaming support
+
+TD2MagicID = array[0..5] of Char;
 
 
-//Позиции добавляемого узла для функции InsertNode относительно Node (свойство Mode).
-// mode to describe a move action
-TD2VTNodeAttachMode = (
-    amNoWhere,        //узел не добавляется (для упрощения тестирования). just for simplified tests, means to ignore the Add/Insert command
-    amInsertBefore,   //узел добавляется перед Node. insert node just before destination (as sibling of destination)
-    amInsertAfter,    //узел добавляется после Node. insert node just after destionation (as sibling of destination)
-    amAddChildFirst,  //узел добавляется первым дочерним элементом к Node. add node as first child of destination
-    amAddChildLast    //узел добавляется последним дочерним элементом в Node. add node as last child of destination
-  );
+// Описывает действия в событии изменения структуры.
+// desribes what made a structure change event happen
+TD2ChangeReason = (
+  crIgnore,       //Используется в качестве заполнителя. used as placeholder
+  crAccumulated,  //Используется для отсроченных изменений. used for delayed changes
+  crChildAdded,   //Добавлен один или более дочерних узлов.  one or more child nodes have been added
+  crChildDeleted, //Удален один или более дочерних узлов. one or more child nodes have been deleted
+  crNodeAdded,    //Узел добавлен. a node has been added
+  crNodeCopied,   //Узел дублирован. a node has been duplicated
+  crNodeMoved     //Узел перемещен на новое место. a node has been moved to a new place
+);
 
-//Имеется масса переключателей поведения дерева. Поскольку published свойство
-//не может превышать 4 байта, то это ограничивает наборы не более чем 32 зачениями.
-//Также, для лучшего обзора вариантов поведения дерева опции разделены на
-//под-опции и определены в общем классе опций.
-// There is a heap of switchable behavior in the tree. Since published properties may never exceed 4 bytes,
-// which limits sets to at most 32 members, and because for better overview tree options are splitted
-// in various sub-options and are held in a commom options class.
-
-  // Опции настройки внешнего вида дерева. Options to customize tree appearance:
-TD2VTPaintOption = (
-    toHideFocusRect,         //Не отображать пунктирный прямоугольник фокуса по границам узла. Avoid drawing the dotted rectangle around the currently focused node.
-    toHideSelection,         //Не отображать прямоугольник выделения для выделенных узлов, когда дерево не имеет фокуса. Selected nodes are drawn as unselected nodes if the tree is unfocused.
-    toHotTrack,              //Включить подсветку узла, находящегося под курсором. Track which node is under the mouse cursor.
-    toPopupMode,             //Отображать дерево, как будто бы оно всегда имеет фокус (полезно для дерева с Комбобоксами и т.д.). Paint tree as would it always have the focus (useful for tree combo boxes etc.)
-    toShowBackground,        //Отображать фоновую картинку, если есть (параметр Background). Use the background image if there's one.
-    toShowButtons,           //Отображать кнопки развёртывания/свёртывания слева от узлов. Display collapse/expand buttons left to a node.
-    toShowDropmark,          //Показывать положение вставки узла при операциях drag&drop. Show the dropmark during drag'n drop operations.
-    toShowHorzGridLines,     //Отображать горизонтальные линии сетки. Display horizontal lines to simulate a grid.
-    toShowRoot,              //Отображать соединительные линии для самых верхних узлов первого уровня вложенности (дочерних узлов RootNode). Show lines also at top level (does not show the hidden/internal root node).
-    toShowTreeLines,         //Отображать соединительные линии для узлов. Display tree lines to show hierarchy of nodes.
-    toShowVertGridLines,     //Отображать вертикальные линии сетки.  Display vertical lines (depending on columns) to simulate a grid.
-    toThemeAware,            //Отображать все элементы управления дерева (кнопоки, отметоки и т.д.) в соответствии с текущей темой оформления Windows XP.
-                             //(только для Windows XP) Приложение должно поддерживать визуальные темы оформления.
-                             //Draw UI elements (header, tree buttons etc.) according to the current theme if enabled (Windows XP+ only, application must be themed).
-    toUseBlendedImages,      //Включить прозрачность для ghosted-узлов и для узлов, участвующих на данный момент в копировании/вырезании. Enable alpha blending for ghosted nodes or those which are being cut/copied.
-    toGhostedIfUnfocused,    //Картинки будут отображаться прозрачными до тех пор, пока узел не будет выделен. Ghosted images are still shown as ghosted if unfocused (otherwise the become non-ghosted images).
-    toFullVertGridLines,     //Отображать вертикальные линии сетки до конца дерева (при включенном toShowVertGridLines). Если отключено, то линии закончатся на последнем видимом узле. Display vertical lines over the full client area, not only the space occupied by nodes. This option only has an effect if toShowVertGridLines is enabled too.
-    toAlwaysHideSelection,   //Отображать узлы как невыделенные независимо от их состояния. Do not draw node selection, regardless of focused state.
-    toUseBlendedSelection,   //Отображать выделенные узлы прозрачными. Enable alpha blending for node selections.
-    toStaticBackground,      //Отображать статическую картинку вместо одной плитки. Show simple static background instead of a tiled one.
-    toChildrenAbove,         //Показать дочерние узлы выше родителя. Display child nodes above their parent.
-    toFixedIndent,           //Отображать дерево с фиксированным отступом. Draw the tree with a fixed indent.
-    toUseExplorerTheme,      //Использовать тему проводника под Windows Vista (или выше). Use the explorer theme if run under Windows Vista (or above).
-    toHideTreeLinesIfThemed, //Не показывать линии дерева, если используется тема. Do not show tree lines if theming is used.
-    toShowFilteredNodes      //Отображать узлы, даже если они будут отфильтрованы. Draw nodes even if they are filtered out.
-  );
-TD2VTPaintOptions = set of TD2VTPaintOption;
-
-  //Опиции анимации. Options to toggle animation support:
-TD2VTAnimationOption = (
-    toAnimatedToggle,          //Анимация при свёртывании/развёртывании узла. Expanding and collapsing a node is animated (quick window scroll).
-    toAdvancedAnimatedToggle   //Дополнительные эффекты анимации при свёртывании/развёртывании узла. Do some advanced animation effects when toggling a node.
-  );
-TD2VTAnimationOptions = set of TD2VTAnimationOption;
-
-  //Опиции автоматической обработки определенных ситуаций. Options which toggle automatic handling of certain situations:
-TD2VTAutoOption = (
-    toAutoDropExpand,           //Развернуть узел, если он будет оставаться целью drag&drop (DropTargetNode) дольше времени, заданного параметром AutoExpandDelay. Expand node if it is the drop target for more than a certain time.
-    toAutoExpand,               //Автоматически раскрывать/сворачивать узел при получении им фокуса. Nodes are expanded (collapsed) when getting (losing) the focus.
-    toAutoScroll,               //Прокрутка дерева если мышь находится вблизи границы во время перетаскивания или выбора. Scroll if mouse is near the border while dragging or selecting.
-    toAutoScrollOnExpand,       //Прокрутка дерева при разворачивании узла на кол-во дочерних узлов в поле зрения. Scroll as many child nodes in view as possible after expanding a node.
-    toAutoSort,                 //Сортировать дерево при изменении параметра Header.SortDirection, или Header.SortColumn, или при добавлении нового узла. Sort tree when Header.SortColumn or Header.SortDirection change or sort node if child nodes are added.
-    toAutoSpanColumns,          //Переносить текст, не помещающийся в ячейке в  соседнюю колонке, если она пуста (не содержит текста). Large entries continue into next column(s) if there's no text in them (no clipping).
-    toAutoTristateTracking,     //Автоматическое отслеживание grayed-состояния для узлов с типом отметки ctTriStateCheckBox. Checkstates are automatically propagated for tri state check boxes.
-    toAutoHideButtons,          //Скрывать кнопку развёртывания/свёртывания для узла, если все его дочерние будут спрятаны (vsVisible). Node buttons are hidden when there are child nodes, but all are invisible.
-    toAutoDeleteMovedNodes,     //Удаляться источники перемещённых узлов после операций drag&drop. Delete nodes which where moved in a drag operation (if not directed otherwise).
-    toDisableAutoscrollOnFocus, //Отключить автоматическую прокрутку колонки к видимой области при получении фокуса. Disable scrolling a node or column into view if it gets focused.
-    toAutoChangeScale,          //Изменять высоту узлов в соответствии с настройками размера шрифтов Windows. Change default node height automatically if the system's font scale is set to big fonts.
-    toAutoFreeOnCollapse,       //Удалить все его дочерние узлы при сворачивании, при этом опция vsHasChildren для узла сохраняется. Frees any child node after a node has been collapsed (HasChildren flag stays there).
-    toDisableAutoscrollOnEdit,  //Не центровать узел по горизонали при его редактировании. Do not center a node horizontally when it is edited.
-    toAutoBidiColumnOrdering    //Если установлен, то столбцы (если есть) сортируются от наименьшего индекса к наибольшему индексу и наоборот при отсутствии. When set then columns (if any exist) will be reordered from lowest index to highest index and vice versa when the tree's bidi mode is changed.
-  );
-TD2VTAutoOptions = set of TD2VTAutoOption;
-
-//Опиции, определяющие поведение дерева при выборе узлов. Options which determine the tree's behavior when selecting nodes:
-TD2VTSelectionOption = (
-    toDisableDrawSelection,    //Запретить добавление в текущее выделение узлов с помощью прямоугольника выделения. Prevent user from selecting with the selection rectangle in multiselect mode.
-    toExtendedFocus,           //Разрешить выделять ячейки и редактировать текст во всех колонках, а не только в MainColumn. Entries other than in the main column can be selected, edited etc.
-    toFullRowSelect,           //Выбор узла нажатием мыши в любую область дерева, а не только по тексту . Hit test as well as selection highlight are not constrained to the text of a node.
-    toLevelSelectConstraint,   //Выбрать узлы только того же уровня, что и уже выбранный. Constrain selection to the same level as the selection anchor.
-    toMiddleClickSelect,       //Разрешить выбор узлов, перетаскивание и т.п.средней кнопкой мыши. Опция взаимоисключающая с toWheelPanning. Allow selection, dragging etc. with the middle mouse button. This and toWheelPanning are mutual exclusive.
-    toMultiSelect,             //Разрешить выделение более чем одного узла. Allow more than one node to be selected.
-    toRightClickSelect,        //Разрешить выделение узлов правой кнопкой мыши. Allow selection, dragging etc. with the right mouse button.
-    toSiblingSelectConstraint, //Ограничить выделение только узлами одного родителя. Constrain selection to nodes with same parent.
-    toCenterScrollIntoView,    //Прокручить дерево для центровки по вертикали узла получившего фокус. Center nodes vertically in the client area when scrolling into view.
-    toSimpleDrawSelection,     //Разрешить выделение узлов прямоугольником без пересечения с текстом MainColumn колонки. Simplifies draw selection, so a node's caption does not need to intersect with the selection rectangle.
-    toAlwaysSelectNode,        //Всегда иметь как минимум 1 выделенный узел. If this flag is set to true, the tree view tries to always have a node selected.
-                               // This behavior is closer to the Windows TreeView and useful in Windows Explorer style applications.
-    toRestoreSelection         //Установите, если при дополнении предварительно выбранные узлы должны быть выбраны снова. Узлы будут определены только по надписи. Set to true if upon refill the previously selected nodes should be selected again. The nodes will be identified by its caption only.
-  );
-TD2VTSelectionOptions = set of TD2VTSelectionOption;  //Набор опций поведения дерева при выборе узлов
-
-//Прочие опиции, которые не вписываются ни в одну из других групп.
-//Options which do not fit into any of the other groups:
-TD2VTMiscOption = (
-    toAcceptOLEDrop,            // Зарегестрировать дерево, как возможную цель для OLE drag&drop. Register tree as OLE accepting drop target
-    toCheckSupport,             // Показывать отметоки для узлов. Show checkboxes/radio buttons.
-    toEditable,                 // Включить режим редактирования для узлов. Node captions can be edited.
-    toFullRepaintOnResize,      // Перерисовывать дерево при любом изменении его размеров. Fully invalidate the tree when its window is resized (CS_HREDRAW/CS_VREDRAW).
-    toGridExtensions,           // Включить поддержку некоторых расширений для симуляции элемента управления сетки (а-ля TDBGrid). Use some special enhancements to simulate and support grid behavior.
-    toInitOnSave,               // Инициализировать узлы при сохранении в поток или файл. Initialize nodes when saving a tree to a stream.
-    toReportMode,               // Дерево ведёт себя как TTListView с поддержкой report mode. Tree behaves like TListView in report mode.
-    toToggleOnDblClick,         // Сворачивать/разворачивать узел при двойном клике на нём. Toggle node expansion state when it is double clicked.
-    toWheelPanning,             // Навигация по дереву с помощью движений мыши (panning) при нажатии на среднюю кнопку мыши. Опция взаимоисключающая с toMiddleClickSelect. Support for mouse panning (wheel mice only). This option and toMiddleClickSelect are mutal exclusive, where panning has precedence.
-    toReadOnly,                 // Запрещается любое изменение дерева, в том числе взаимодействие с узлами и их редактирование. The tree does not allow to be modified in any way. No action is executed and node editing is not possible.
-    toVariableNodeHeight,       // Разрешить переменную высоту узлов. Высота узла определяется в событии OnMeasureItem. When set then GetNodeHeight will trigger OnMeasureItem to allow variable node heights.
-    toFullRowDrag,              // Разрешить перетаскивание узла при нажатии мышью в любую его область, а не только по тексту или картинке. Используется совместно с опцией toDisableDrawSelection. Start node dragging by clicking anywhere in it instead only on the caption or image. Must be used together with toDisableDrawSelection.
-    toNodeHeightResize,         // Разрешить изменять высоту узла с помощью мыши. Allows changing a node's height via mouse.
-    toNodeHeightDblClickResize, // Сброс высоты узлов к FDefaultNodeHeight двойным щелчком мыши. Allows to reset a node's height to FDefaultNodeHeight via a double click.
-    toEditOnClick,              // Переход в режим редактирования однарным щелчком кнопки мыши. Editing mode can be entered with a single click
-    toEditOnDblClick,           // Переход в режим редактирования двойным щелчком кнопки мыши. Editing mode can be entered with a double click
-    toReverseFullExpandHotKey   // Использовать Ctrl+'+' вместо Ctrl+Shift+'+' для разворачивани узла и наоборот для сворачивания. Used to define Ctrl+'+' instead of Ctrl+Shift+'+' for full expand (and similar for collapsing)
-  );
-TD2VTMiscOptions = set of TD2VTMiscOption;
-
-//Опиции экспорта данных. Options to control data export
-TD2VTExportMode = (
-    emAll,                   //Экспортировать все узлы (независимо от состояние отметки). export all records (regardless checked state)
-    emChecked,               //Экспортировать только отмеченные узлы. export checked records only
-    emUnchecked,             //Экспортировать только не отмеченные узлы. export unchecked records only
-    emVisibleDueToExpansion, //Не экспортировать узлы, которые не видны, потому что их родители не развернуты. Do not export nodes that are not visible because their parent is not expanded
-    emSelected               //Экспортировать только выделенные узлы. export selected nodes only
-  );
-
-// Options per column.
-  TD2VTColumnOption = (
-    coAllowClick,            // Column can be clicked (must be enabled too).
-    coDraggable,             // Column can be dragged.
-    coEnabled,               // Column is enabled.
-    coParentBidiMode,        // Column uses the parent's bidi mode.
-    coParentColor,           // Column uses the parent's background color.
-    coResizable,             // Column can be resized.
-    coShowDropMark,          // Column shows the drop mark if it is currently the drop target.
-    coVisible,               // Column is shown.
-    coAutoSpring,            // Column takes part in the auto spring feature of the header (must be resizable too).
-    coFixed,                 // Column is fixed and can not be selected or scrolled etc.
-    coSmartResize,           // Column is resized to its largest entry which is in view (instead of its largest
-                             // visible entry).
-    coAllowFocus,            // Column can be focused.
-    coDisableAnimatedResize, // Column resizing is not animated.
-    coWrapCaption,           // Caption could be wrapped across several header lines to fit columns width.
-    coUseCaptionAlignment,   // Column's caption has its own aligment.
-    coEditable               // Column can be edited
-  );
-  TD2VTColumnOptions = set of TD2VTColumnOption;
-
-//Типы экспорта. Export type
-TD2VTExportType = (
-    etRTF,   //Контент в RTF. contentToRTF
-    etHTML,  //Контент в HTML. contentToHTML
-    etText,  //Контент в Text. contentToText
-    etExcel, //Поддержка внешним сервисом. supported by external tools
-    etWord,  //Поддержка внешним сервисом. supported by external tools
-    etCustom //Поддержка внешним сервисом. supported by external tools
-  );
 
 //Набор состояний дерева, обработка которых производится не там, где они возникли
 //или нуждающихся в сохранении пока не будут сброшены.
 // Various events must be handled at different places than they were initiated
 // or need a persistent storage until they are reset.
-TD2VirtualTreeStates = set of (
+TD2TreeStates = set of (
   tsCancelHintAnimation,    //Новая подсказка готова к показу, но старая еще анимируется. Set when a new hint is about to show but an old hint is still being animated.
   tsChangePending,          //Ожидается изменение выбра узлов. A selection change is pending.
   tsCheckPropagation,       //Идет автоматическая проверка распространения??? Set during automatic check state propagation.
@@ -7958,30 +8064,161 @@ TD2VirtualTreeStates = set of (
   tsUseExplorerTheme        //Дерево запущено в WinVista+ и работает с темой эксплорера. The tree runs under WinVista+ and is using the explorer theme
 );
 
-// Поддержка стимминга. streaming support
+//Позиции добавляемого узла для функции InsertNode относительно Node (свойство Mode).
+// mode to describe a move action
+TD2TreeNodeAttachMode = (
+    amNoWhere,        //узел не добавляется (для упрощения тестирования). just for simplified tests, means to ignore the Add/Insert command
+    amInsertBefore,   //узел добавляется перед Node. insert node just before destination (as sibling of destination)
+    amInsertAfter,    //узел добавляется после Node. insert node just after destionation (as sibling of destination)
+    amAddChildFirst,  //узел добавляется первым дочерним элементом к Node. add node as first child of destination
+    amAddChildLast    //узел добавляется последним дочерним элементом в Node. add node as last child of destination
+  );
 
-TD2MagicID = array[0..5] of Char;
+//Имеется масса переключателей поведения дерева. Поскольку published свойство
+//не может превышать 4 байта, то это ограничивает наборы не более чем 32 зачениями.
+//Также, для лучшего обзора вариантов поведения дерева опции разделены на
+//под-опции и определены в общем классе опций.
+// There is a heap of switchable behavior in the tree. Since published properties may never exceed 4 bytes,
+// which limits sets to at most 32 members, and because for better overview tree options are splitted
+// in various sub-options and are held in a commom options class.
 
-TD2ChunkHeader = record
-  ChunkType,               //Тип блока
-  ChunkSize: Integer;      //Размер блока без учета заголовка. contains the size of the chunk excluding the header
-end;
+  // Опции настройки внешнего вида дерева. Options to customize tree appearance:
+TD2TreePaintOption = (
+    toHideFocusRect,         //Не отображать прямоугольник фокуса узла. Avoid drawing the dotted rectangle around the currently focused node.
+    toHideSelection,         //Не отображать прямоугольник выделения для выделенных узлов, когда дерево не имеет фокуса. Selected nodes are drawn as unselected nodes if the tree is unfocused.
+    toHotTrack,              //Включить подсветку узла, находящегося под курсором. Track which node is under the mouse cursor.
+    toPopupMode,             //Отображать дерево, как будто бы оно всегда имеет фокус (полезно для дерева с Комбобоксами и т.д.). Paint tree as would it always have the focus (useful for tree combo boxes etc.)
+    toShowBackground,        //Отображать фоновую картинку, если она есть (параметр Background). Use the background image if there's one.
+    toShowButtons,           //Отображать кнопки развёртывания/свёртывания. Display collapse/expand buttons left to a node.
+    toShowDropmark,          //Показывать положение вставки узла при операциях drag&drop. Show the dropmark during drag'n drop operations.
+    toShowHorzGridLines,     //Отображать горизонтальные линии сетки. Display horizontal lines to simulate a grid.
+    toShowRoot,              //Показать служебный корневой узел Root (корневой узел является служебным и требуется для работы дерева). Show lines also at top level (does not show the hidden/internal root node).
+    toShowTreeLines,         //Отображать соединительные линии для узлов. Display tree lines to show hierarchy of nodes.
+    toShowVertGridLines,     //Отображать вертикальные линии сетки.  Display vertical lines (depending on columns) to simulate a grid.
+    {toThemeAware,           {Отображать все элементы управления дерева (кнопоки, отметоки и т.д.) в соответствии с текущей темой оформления Windows XP.
+                              (только для Windows XP) Приложение должно поддерживать визуальные темы оформления.
+                              Draw UI elements (header, tree buttons etc.) according to the current theme if enabled (Windows XP+ only, application must be themed).}
+    toUseBlendedImages,      //Включить прозрачность для ghosted-узлов и для узлов, участвующих на данный момент в копировании/вырезании. Enable alpha blending for ghosted nodes or those which are being cut/copied.
+    toGhostedIfUnfocused,    //Картинки будут отображаться прозрачными до тех пор, пока узел не будет выделен. Ghosted images are still shown as ghosted if unfocused (otherwise the become non-ghosted images).
+    toFullVertGridLines,     //Отображать вертикальные линии сетки до конца дерева (при включенном toShowVertGridLines). Если отключено, то линии закончатся на последнем видимом узле. Display vertical lines over the full client area, not only the space occupied by nodes. This option only has an effect if toShowVertGridLines is enabled too.
+    toAlwaysHideSelection,   //Отображать узлы как невыделенные независимо от их состояния. Do not draw node selection, regardless of focused state.
+    toUseBlendedSelection,   //Отображать выделенные узлы прозрачными. Enable alpha blending for node selections.
+    toStaticBackground,      //Отображать статическую картинку вместо одной плитки. Show simple static background instead of a tiled one.
+    toChildrenAbove,         //Показать дочерние узлы выше родителя. Display child nodes above their parent.
+    toFixedIndent,           //Отображать дерево с фиксированным отступом. Draw the tree with a fixed indent.
+    //toUseExplorerTheme,      //Использовать тему проводника под Windows Vista (или выше). Use the explorer theme if run under Windows Vista (or above).
+    //toHideTreeLinesIfThemed, //Не показывать линии дерева, если используется тема. Do not show tree lines if theming is used.
+    toShowFilteredNodes,     //Отображать узлы, даже если они будут отфильтрованы. Draw nodes even if they are filtered out.
+    toOtherBackgroundOddRow  //Отображать альтернативный фон для нечетных строк
+  );
+TD2TreePaintOptions = set of TD2TreePaintOption;
 
-  // Базовая информация об узле. base information about a node
-  TD2BaseChunkBody = packed record
-    ChildCount: Cardinal;
-    NodeHeight: Single;
-    States: TD2VirtualNodeStates;
-    Align: Single;
-    CheckState: TD2CheckState;
-    CheckType: TD2CheckType;
-    Reserved: Cardinal;
-  end;
+  //Опиции анимации. Options to toggle animation support:
+TD2TreeAnimationOption = (
+    toAnimatedToggle,          //Анимация при свёртывании/развёртывании узла. Expanding and collapsing a node is animated (quick window scroll).
+    toAdvancedAnimatedToggle   //Дополнительные эффекты анимации при свёртывании/развёртывании узла. Do some advanced animation effects when toggling a node.
+  );
+TD2TreeAnimationOptions = set of TD2TreeAnimationOption;
 
-  TD2BaseChunk = packed record
-    Header: TD2ChunkHeader;
-    Body: TD2BaseChunkBody;
-  end;
+  //Опиции автоматической обработки определенных ситуаций. Options which toggle automatic handling of certain situations:
+TD2TreeAutoOption = (
+    toAutoDropExpand,           //Развернуть узел, если он будет оставаться целью drag&drop (DropTargetNode) дольше времени, заданного параметром AutoExpandDelay. Expand node if it is the drop target for more than a certain time.
+    toAutoExpand,               //Автоматически раскрывать (сворачивать) узел при получении (потере) им фокуса. Nodes are expanded (collapsed) when getting (losing) the focus.
+    toAutoScroll,               //Прокрутка дерева если мышь находится вблизи границы во время перетаскивания или выбора. Scroll if mouse is near the border while dragging or selecting.
+    toAutoScrollOnExpand,       //Прокрутка дерева при разворачивании узла на кол-во дочерних узлов в поле зрения. Scroll as many child nodes in view as possible after expanding a node.
+    toAutoSort,                 //Сортировать дерево при изменении параметра SortDirection, или SortColumn, или при добавлении нового узла. Sort tree when SortColumn or SortDirection change or sort node if child nodes are added.
+    toAutoSpanColumns,          //Переносить текст, не помещающийся в ячейке в  соседнюю колонке, если она пуста (не содержит текста). Large entries continue into next column(s) if there's no text in them (no clipping).
+    toAutoTristateTracking,     //Автоматическое отслеживание grayed-состояния для узлов с типом отметки ctTriStateCheckBox. Checkstates are automatically propagated for tri state check boxes.
+    toAutoHideButtons,          //Скрывать кнопку развёртывания/свёртывания для узла, если все его дочерние будут спрятаны (vsVisible). Node buttons are hidden when there are child nodes, but all are invisible.
+    toAutoDeleteMovedNodes,     //Удалять источники перемещённых узлов после операций drag&drop. Delete nodes which where moved in a drag operation (if not directed otherwise).
+    toDisableAutoscrollOnFocus, //Отключить автоматическую прокрутку колонки к видимой области при получении фокуса. Disable scrolling a node or column into view if it gets focused.
+    toAutoChangeScale,          //Изменять высоту узлов в соответствии с настройками размера шрифтов Windows. Change default node height automatically if the system's font scale is set to big fonts.
+    toAutoFreeOnCollapse,       //Удалить все дочерние узлы при сворачивании родителя, при этом опция vsHasChildren для узла сохраняется. Frees any child node after a node has been collapsed (HasChildren flag stays there).
+    toDisableAutoscrollOnEdit,  //Не центровать узел по горизонали при его редактировании. Do not center a node horizontally when it is edited.
+    toAutoBidiColumnOrdering    //Если установлен, то столбцы (если есть) сортируются от наименьшего индекса к наибольшему индексу и наоборот при отсутствии. When set then columns (if any exist) will be reordered from lowest index to highest index and vice versa when the tree's bidi mode is changed.
+  );
+TD2TreeAutoOptions = set of TD2TreeAutoOption;
+
+//Опиции, определяющие поведение дерева при выборе узлов. Options which determine the tree's behavior when selecting nodes:
+TD2TreeSelectionOption = (
+    toDisableDrawSelection,    //Запретить добавление в текущее выделение узлов с помощью прямоугольника выделения. Prevent user from selecting with the selection rectangle in multiselect mode.
+    toExtendedFocus,           //Разрешить выделять ячейки и редактировать текст во всех колонках, а не только в MainColumn. Entries other than in the main column can be selected, edited etc.
+    toFullRowSelect,           //Выбор узла нажатием мыши в любую область дерева, а не только по тексту . Hit test as well as selection highlight are not constrained to the text of a node.
+    toLevelSelectConstraint,   //Выбрать узлы только того же уровня, что и уже выбранный. Constrain selection to the same level as the selection anchor.
+    toMiddleClickSelect,       //Разрешить выбор узлов, перетаскивание и т.п.средней кнопкой мыши. Опция взаимоисключающая с toWheelPanning. Allow selection, dragging etc. with the middle mouse button. This and toWheelPanning are mutual exclusive.
+    toMultiSelect,             //Разрешить выделение более чем одного узла. Allow more than one node to be selected.
+    toRightClickSelect,        //Разрешить выделение узлов правой кнопкой мыши. Allow selection, dragging etc. with the right mouse button.
+    toSiblingSelectConstraint, //Ограничить выделение только узлами одного родителя. Constrain selection to nodes with same parent.
+    toCenterScrollIntoView,    //Прокручить дерево для центровки по вертикали узла получившего фокус. Center nodes vertically in the client area when scrolling into view.
+    toSimpleDrawSelection,     //Разрешить выделение узлов прямоугольником без пересечения с текстом MainColumn колонки. Simplifies draw selection, so a node's caption does not need to intersect with the selection rectangle.
+    toAlwaysSelectNode,        //Всегда иметь как минимум 1 выделенный узел. If this flag is set to true, the tree view tries to always have a node selected.
+                               // This behavior is closer to the Windows TreeView and useful in Windows Explorer style applications.
+    toRestoreSelection         //Установите, если при дополнении предварительно выбранные узлы должны быть выбраны снова. Узлы будут определены только по надписи. Set to true if upon refill the previously selected nodes should be selected again. The nodes will be identified by its caption only.
+  );
+TD2TreeSelectionOptions = set of TD2TreeSelectionOption;  //Набор опций поведения дерева при выборе узлов
+
+//Прочие опиции, которые не вписываются ни в одну из других групп.
+//Options which do not fit into any of the other groups:
+TD2TreeMiscOption = (
+    toAcceptOLEDrop,            // Зарегестрировать дерево, как возможную цель для OLE drag&drop. Register tree as OLE accepting drop target
+    toCheckSupport,             // Показывать отметки для узлов. Show checkboxes/radio buttons.
+    toEditable,                 // Включить режим редактирования для узлов. Node captions can be edited.
+    toFullRepaintOnResize,      // Перерисовывать дерево при любом изменении его размеров. Fully invalidate the tree when its window is resized (CS_HREDRAW/CS_VREDRAW).
+    toGridExtensions,           // Включить поддержку некоторых расширений для симуляции элемента управления сетки (а-ля TDBGrid). Use some special enhancements to simulate and support grid behavior.
+    toInitOnSave,               // Инициализировать узлы при сохранении в поток или файл. Initialize nodes when saving a tree to a stream.
+    toReportMode,               // Дерево ведёт себя как TTListView с поддержкой report mode. Tree behaves like TListView in report mode.
+    toToggleOnDblClick,         // Сворачивать/разворачивать узел при двойном клике на нём. Toggle node expansion state when it is double clicked.
+    toWheelPanning,             // Навигация по дереву с помощью движений мыши (panning) при нажатии на среднюю кнопку мыши. Опция взаимоисключающая с toMiddleClickSelect. Support for mouse panning (wheel mice only). This option and toMiddleClickSelect are mutal exclusive, where panning has precedence.
+    toReadOnly,                 // Запрещается любое изменение дерева, в том числе взаимодействие с узлами и их редактирование. The tree does not allow to be modified in any way. No action is executed and node editing is not possible.
+    toVariableNodeHeight,       // Разрешить переменную высоту узлов. Высота узла определяется в событии OnMeasureItem. When set then GetNodeHeight will trigger OnMeasureItem to allow variable node heights.
+    toFullRowDrag,              // Разрешить перетаскивание узла при нажатии мышью в любую его область, а не только по тексту или картинке. Используется совместно с опцией toDisableDrawSelection. Start node dragging by clicking anywhere in it instead only on the caption or image. Must be used together with toDisableDrawSelection.
+    toNodeHeightResize,         // Разрешить изменять высоту узла с помощью мыши. Allows changing a node's height via mouse.
+    toNodeHeightDblClickResize, // Сброс высоты узлов к FDefaultNodeHeight двойным щелчком мыши. Allows to reset a node's height to FDefaultNodeHeight via a double click.
+    toEditOnClick,              // Переход в режим редактирования однарным щелчком кнопки мыши. Editing mode can be entered with a single click
+    toEditOnDblClick,           // Переход в режим редактирования двойным щелчком кнопки мыши. Editing mode can be entered with a double click
+    toReverseFullExpandHotKey   // Использовать Ctrl+'+' вместо Ctrl+Shift+'+' для разворачивани узла и наоборот для сворачивания. Used to define Ctrl+'+' instead of Ctrl+Shift+'+' for full expand (and similar for collapsing)
+  );
+TD2TreeMiscOptions = set of TD2TreeMiscOption;
+
+//Опиции экспорта данных. Options to control data export
+TD2TreeExportMode = (
+    emAll,                   //Экспортировать все узлы (независимо от состояние отметки). export all records (regardless checked state)
+    emChecked,               //Экспортировать только отмеченные узлы. export checked records only
+    emUnchecked,             //Экспортировать только не отмеченные узлы. export unchecked records only
+    emVisibleDueToExpansion, //Не экспортировать узлы, которые не видны, потому что их родители не развернуты. Do not export nodes that are not visible because their parent is not expanded
+    emSelected               //Экспортировать только выделенные узлы. export selected nodes only
+  );
+
+// Параметры, используемые при изменении положения скроллеров прокрутки.
+// Options which are used when modifying the scroll offsets.
+TD2ScrollUpdateOptions = set of (
+  suoRepaintHeader,        // Если установлен suoUpdateNCArea, то перерисовать заголовок. if suoUpdateNCArea is also set then invalidate the header
+  suoRepaintScrollBars,    // Если установлен suoUpdateNCArea, то перерисовать все скроллеры после их обновления. if suoUpdateNCArea is also set then repaint both scrollbars after updating them
+  suoScrollClientArea,     // Прокрутить и перерисовать клиентскую область. scroll and invalidate the proper part of the client area
+  suoUpdateNCArea          // Обновить неклиентскую область (полосы прокрутки, заголовок). update non-client area (scrollbars, header)
+);
+
+//// Options per column.
+//  TD2TreeColumnOption = (
+//    coAllowClick,            // Column can be clicked (must be enabled too).
+//    coDraggable,             // Column can be dragged.
+//    coEnabled,               // Column is enabled.
+//    coParentBidiMode,        // Column uses the parent's bidi mode.
+//    coParentColor,           // Column uses the parent's background color.
+//    coResizable,             // Column can be resized.
+//    coShowDropMark,          // Column shows the drop mark if it is currently the drop target.
+//    coVisible,               // Column is shown.
+//    coAutoSpring,            // Column takes part in the auto spring feature of the header (must be resizable too).
+//    coFixed,                 // Column is fixed and can not be selected or scrolled etc.
+//    coSmartResize,           // Column is resized to its largest entry which is in view (instead of its largest visible entry).
+//    coAllowFocus,            // Column can be focused.
+//    coDisableAnimatedResize, // Column resizing is not animated.
+//    coWrapCaption,           // Caption could be wrapped across several header lines to fit columns width.
+//    coUseCaptionAlignment,   // Column's caption has its own aligment.
+//    coEditable               // Column can be edited
+//  );
+//  TD2TreeColumnOptions = set of TD2TreeColumnOption;
+//
 
 resourcestring
   // Localizable strings.
@@ -7996,10 +8233,10 @@ resourcestring
 
 const
 
-  VTTreeStreamVersion = 2;
-  VTHeaderStreamVersion = 6; { Заголовок нуждается в собственной версии потока, характеризующую изменения, относящиеся только к заголовку.
+  TreeStreamVersion = 2;
+  TreeHeaderStreamVersion = 6; { Заголовок нуждается в собственной версии потока, характеризующие изменения, относящиеся только к заголовку.
                                 The header needs an own stream version to indicate changes only relevant to the header. }
-  MagicID: TD2MagicID = (#$45, 'V', 'T', Char(VTTreeStreamVersion), ' ', #$46);
+  MagicID: TD2MagicID = (#$45, 'V', 'T', Char(TreeStreamVersion), ' ', #$46);
 
   //Идентификаторы справки по исключениям. Разработчики приложений ответственны, чтобы связать их с фактическими разделами справки.
   // Help identifiers for exceptions. Application developers are responsible to link them with actual help topics.
@@ -8015,7 +8252,7 @@ const
   hcTFCannotSetUserData  = 2008;  //Отсутствуют данные пользователя
 
   //Используется для выделения памяти для узла и доступа к его внутренним данным. used for node allocation and access to internal data
-  TreeNodeSize = (SizeOf(TD2VirtualNode) + (SizeOf(Pointer) - 1)) and not (SizeOf(Pointer) - 1);
+  TreeNodeSize = (SizeOf(TD2TreeNode) + (SizeOf(Pointer) - 1)) and not (SizeOf(Pointer) - 1);
 
   //Флаги нажатия кнопок мыши
   MouseButtonDown = [tsLeftButtonDown, tsMiddleButtonDown, tsRightButtonDown];
@@ -8039,6 +8276,8 @@ const
 
   // Используется для быстрого преобразования состояний отметки
   // Lookup to quickly convert a specific check state into its pressed counterpart and vice versa.
+
+//состояния зажатия кнопки над отметкой узла для быстрого преобразования состояний отметки
 PressedState: array[TD2CheckState] of TD2CheckState = (
     csUncheckedPressed,
     csUncheckedPressed,
@@ -8047,6 +8286,7 @@ PressedState: array[TD2CheckState] of TD2CheckState = (
     csMixedPressed,
     csMixedPressed
   );
+//состояния отсутствия зажатия кнопки над отметкой узла для быстрого преобразования состояний отметки
 UnpressedState: array[TD2CheckState] of TD2CheckState = (
       csUncheckedNormal,
       csUncheckedNormal,
@@ -8058,49 +8298,323 @@ UnpressedState: array[TD2CheckState] of TD2CheckState = (
 
 // Идентификаторы блоков для стримминга. chunk IDs
 
- NodeChunk = 1;
- BaseChunk = 2;        { Блок, содержащий состояние узела, проверка состояния, кол-во дочерних узлов и т.д.
-                         этот блок следует сразу после всех дочерних узлов
-                          chunk containing node state, check state, child node count etc.
-                          this chunk is immediately followed by all child nodes }
- CaptionChunk = 3;     //использованы строки дерева для хранения заголовка узла. used by the string tree to store a node's caption
- UserChunk = 4;        //используется для данных приложения.  used for data supplied by the application
+NodeChunk = 1;     //Блок узла дерева
+ BaseChunk = 2;     { Блок, содержащий состояние узела, проверка состояния, кол-во дочерних узлов и т.д.
+                      этот блок следует сразу после всех дочерних узлов
+                      chunk containing node state, check state, child node count etc.
+                      this chunk is immediately followed by all child nodes }
+ CaptionChunk = 3;  //использованы строки дерева для хранения заголовка узла. used by the string tree to store a node's caption
+ UserChunk = 4;     //используется для данных приложения.  used for data supplied by the application
 
-  //Специальные идентификаторы столбцов. Special identifiers for columns.
 
-  NoColumn = -1;      //Нет колонки
-  InvalidColumn = -2; //Недействительная колонка
-
-  DefaultPaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowRoot,
-                         toThemeAware, toUseBlendedImages];
-  DefaultAnimationOptions = [];
-  DefaultAutoOptions = [toAutoDropExpand, toAutoTristateTracking, toAutoScrollOnExpand,
-                        toAutoDeleteMovedNodes, toAutoChangeScale, toAutoSort];
-  DefaultSelectionOptions = [];
-  DefaultMiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave,
+  // Опции настройки внешнего вида дерева по умолчанию
+  DefaultTreePaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowRoot, {toThemeAware,} toUseBlendedImages];
+  //Опиции анимации по умолчанию
+  DefaultTreeAnimationOptions = [];
+  //Опиции автоматической обработки определенных ситуаций по умолчанию
+  DefaultTreeAutoOptions = [toAutoDropExpand, toAutoTristateTracking, toAutoScrollOnExpand,
+                        toAutoDeleteMovedNodes, {toAutoChangeScale,} toAutoSort];
+  //Опиции, определяющие поведение дерева при выборе узлов по умолчанию
+  DefaultTreeSelectionOptions = [];
+  //Прочие опиции дерева, не вошедшие в другие группы по умолчанию.
+  DefaultTreeMiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave,
                         toToggleOnDblClick, toWheelPanning, toEditOnClick];
+  // Параметры, используемые при изменении положения скроллеров прокрутки. По умолчанию обновляется заголовок, скроллеры и клиентскую область
+  DefaultScrollUpdateFlags = [suoRepaintHeader, suoRepaintScrollBars, suoScrollClientArea, suoUpdateNCArea];
 
-  DefaultColumnOptions = [coAllowClick, coDraggable, coEnabled, coParentColor,
-                          coParentBidiMode, coResizable, coShowDropmark,
-                          coVisible, coAllowFocus, coEditable];
-
-
+  //DefaultTreeColumnOptions = [coAllowClick, coDraggable, coEnabled, coParentColor,
+  //                        coParentBidiMode, coResizable, coShowDropmark,
+  //                        coVisible, coAllowFocus, coEditable];
+  //
 type
-//Описания действий в событии изменения структуры
-TD2ChangeReason = (
-  crIgnore,       //Используется в качестве заполнителя. used as placeholder
-  crAccumulated,  //Используется для отсроченных изменений. used for delayed changes
-  crChildAdded,   //Добавлен один или более дочерних узлов.  one or more child nodes have been added
-  crChildDeleted, //Удален один или более дочерних узлов. one or more child nodes have been deleted
-  crNodeAdded,    //Узел добавлен. a node has been added
-  crNodeCopied,   //Узел дублирован. a node has been duplicated
-  crNodeMoved     //Узел перемещен на новое место. a node has been moved to a new place
-); // Описывает действия в событии изменения структуры. desribes what made a structure change event happen
 
-TD2ColumnIndex = type Integer;
-TD2BaseVirtualTree = class;
+{ TD2TreeGridCell }
+TD2CustomTreeGrid = class;
 
-TD2VTImageKind = (
+
+//TOnChangeCheck = procedure(Sender: TObject) of object;
+//TOnChangeExpander = procedure(Sender: TObject) of object;
+TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
+
+// Определяет внешний вид линий дерева. Determines the look of a tree's lines.
+  TD2TreeLineStyle = (
+    lsCustomStyle,           // Приложение предоставляет шаблон строки. application provides a line pattern
+    lsDotted,                // Обычные пунктирные линии (по умолчанию). usual dotted lines (default)
+    lsSolid                  // Простые сплошные линии. simple solid lines
+  );
+
+  // Типы линий, используемых при рисовании дерева. TD2TreeLineType is used during painting a tree
+  TD2TreeLineType = (
+    ltNone,          // Нет линии вообще. no line at all
+    ltBottomRight,   // Линия снизу до центра и вправо. a line from bottom to the center and from there to the right
+    ltTopDown,       // Вертикальная линия. a line from top to bottom
+    ltTopDownRight,  // Вертикальная линия и от центра вправо. a line from top to bottom and from center to the right
+    ltRight,         // Линия от центра вправо. a line from center to the right
+    ltTopRight,      // Линия сверху до центра и вправо. a line from bottom to center and from there to the right
+
+    // Специальные стили линий для альтернативных деревьев. special styles for alternative drawings of tree lines
+
+    ltLeft,          // Вертикальная линия cлева. a line from top to bottom at the left
+    ltLeftBottom     // Вертикальная линия слева и горизонтальная снизу. a combination of ltLeft and a line at the bottom from left to right
+  );
+
+  // Определяет, как рисовать линии дерева. Determines how to draw tree lines.
+  TD2TreeLineMode = (
+    lmNormal,        // Обычные линии дерева (как в TTreeview). usual tree lines (as in TTreeview)
+    lmBands          // Линии дерева как диаграмма Насси-Шнейдермана. looks similar to a Nassi-Schneidermann diagram
+  );
+
+  // Массив идентификаторов типа линии, которая используется при рисовании узла. A collection of line type IDs which is used while painting a node.
+  TD2TreeLineArray = array of TD2TreeLineType;
+
+{ TD2TreeCell }
+
+TD2TreeCell = class(TD2Control)
+  private
+    FAllowGrayed: boolean;
+    FCheck: TD2CustomButton;          //указатель на чекбокс
+    FGrid: TD2CustomTreeGrid;     //указатель на грид
+    FColumnIndex: integer;        //индекс связанной колонки
+    FControl: TD2Control;         //указатель на контрл, отображающий и редактирующий данные
+    FContent: TD2Layout;          //указатель на клиентскую область
+    FExpander: TD2CustomButton;   //указатель на кнопку разворачивания узла
+    FIndent: TD2Path;             //указатель на отступ
+    FIsChecked: boolean;          //true - чекбокс отмечен
+    FIsGrayed: boolean;           //true - чекбокс в среднем состоянии
+    FIsExpanded: boolean;         //true - узел развернут
+    FLineArray: TD2TreeLineArray; //массив линий дерева
+    FMinus: TD2Path;            //указатель на кнопку "-" экспандера
+    FNode: PD2TreeNode;           //указатель на связанный узел дерева
+    FPlus: TD2Path;             //указатель на кнопку "+" экспандера
+    FRadio: TD2CustomButton;       //указатель на радиокнопку
+    FSplitter: TD2SplitLayout;    //указатель на сплиттер
+    FVAlign: single;              //сдвиг горизонтальной линии дерева
+    FTreeLineStrokeColor: TD2Color;     //цвет линий дерева из стиля
+    FTreeLineStrokeDash: TD2StrokeDash; //тип пунктира линий дерева
+
+              //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
+              //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
+    procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
+              //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
+    procedure PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
+              //обработчик нажатия на экспандер
+    procedure DoExpanderClick(Sender: TObject);
+              //обработчик нажатия кнопок мыши над отметкой узла
+    procedure DoCheckMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+              //обработчик отпускания кнопок мыши над отметкой узла
+    procedure DoCheckMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+             //получить альтернативный массив линий дерева для режима LineMode=lmBands
+    function GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
+              //установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса
+    procedure SetAllowGrayed(Value: boolean);
+              //установить флаг IsChecked (отметка узла) в состояние Value
+    procedure SetIsChecked(const Value:boolean);
+              //установить флаг IsGrayed (серая (промежуточная) отметка узла) для 3-х позиционного чек-бокса в состояние Value
+    procedure SetIsGrayed(Value: boolean);
+              //установить флаг IsExpanded (узел развернут/свернут) в состояние Value
+    procedure SetIsExpanded(const Value:boolean);
+
+  protected
+              //рассчитать отступ експандера и/или отметки узла и нарисовать линии дерева
+    procedure CalculateIndent;
+              // Рисует (в зависимости от стиля) один из 5 типов линий дерева.
+              // Если Reverse = True, то столбец рисуется справа налево, и горизонтальные линии должны быть зеркалированы.
+    procedure DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
+              //получить данные из ячейки
+    function  GetData: Variant;  override;
+              //установить данные ячейки в Value
+    procedure SetData(const Value:Variant);  override;
+              //применить стиль
+    procedure ApplyStyle;  override;
+              //освободить стиль
+    procedure FreeStyle;  override;
+              //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
+    function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
+  public
+              //создать экземпляр объекта
+    constructor Create(AOwner: TComponent);  override;
+              //уничтожить экземпляр объекта
+    destructor Destroy;  override;
+              //изменение размеров ячейки
+    procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
+              //перестроить объект
+    procedure Realign; override;
+  published
+    property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
+    property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
+    property IsGrayed: boolean read FIsGrayed write SetIsGrayed;       //true - у узла установлено среднее состояние
+    property IsExpanded: boolean read FIsExpanded write SetIsExpanded; //true - узел развернут
+end;
+
+{ TD2TreeColumn }
+
+TD2TreeColumn = class(TD2Column)
+
+  protected
+              //обработчик изменения состояния разворачивания узла
+    procedure DoChangeExpander(Sender: TObject);
+
+              //обработчик потери фокуса ячейкой
+    //procedure DoKillFocus(Sender: TObject);  override;
+
+                //True - колонка является главной (содержит дерево)
+    function GetIsMainColumn: boolean;
+                //создание ячейки
+    function CreateCellControl: TD2Control;  override;
+             //инициализация ячейки
+    procedure InitCellControl(ACellControl: TD2Control); override;
+              //обновить колонку
+    procedure UpdateColumn; override;
+
+    //procedure PaintColumn; virtual;
+
+              //Нарисовать прямоугольник целевого узла перетаскивания
+    procedure PaintDropMark(const Cell: TD2TreeCell);
+              // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
+    procedure NodeSetFocus(Node: PD2TreeNode);  virtual;
+
+  public
+              //Получить видимую ячейку дерева, соответствующую узлу Node
+    function CellControlByNode(Node: PD2TreeNode): TD2Control;
+    property IsMainColumn: boolean read GetIsMainColumn; //True - колонка является главной (содержит дерево)
+  published
+
+end;
+
+
+{ TD2TreeTextColumn }
+
+TD2TreeTextColumn = class(TD2TreeColumn)
+  protected
+             //Создает текстовую ячейку
+    function CreateCellControl: TD2Control;  override;
+
+    procedure InitCellControl(ACellControl: TD2Control); override;
+
+                 //обработка изменения текста в ячейке
+    procedure DoTextChanged(Sender: TObject);
+              //обработчик двойного клика по ячейке. используется из грида
+    procedure NodeSetFocus(Node: PD2TreeNode);  override;
+
+end;
+
+TD2TreeCheckColumn = class(TD2TreeColumn)
+end;
+
+TD2TreeProgressColumn = class(TD2TreeColumn)
+end;
+
+TD2TreePopupColumn = class(TD2TreeColumn)
+end;
+
+TD2TreeImageColumn = class(TD2TreeColumn)
+end;
+
+
+
+
+//Прерывания узлов. node events
+
+  TD2VTChangingEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var Allowed: Boolean) of object;
+  TD2VTCheckChangingEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var NewState: TD2CheckState;
+    var Allowed: Boolean) of object;
+  TD2VTChangeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTStructureChangeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Reason: TD2ChangeReason) of object;
+  TD2VTEditCancelEvent = procedure(Sender: TD2CustomTreeGrid; Column: Integer) of object;
+  TD2VTEditChangingEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Column: Integer;
+    var Allowed: Boolean) of object;
+  TD2VTEditChangeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Column: Integer) of object;
+  TD2VTFreeNodeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTFocusChangingEvent = procedure(Sender: TD2CustomTreeGrid; OldNode, NewNode: PD2TreeNode; OldColumn,
+    NewColumn: Integer; var Allowed: Boolean) of object;
+  TD2VTFocusChangeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Column: Integer) of object;
+  TD2VTAddToSelectionEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTRemoveFromSelectionEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTInitChildrenEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var ChildCount: Cardinal) of object;
+  TD2VTInitNodeEvent = procedure(Sender: TD2CustomTreeGrid; ParentNode, Node: PD2TreeNode;
+    var InitialStates: TD2TreeNodeInitStates) of object;
+  TD2VTSaveTreeEvent = procedure(Sender: TD2CustomTreeGrid; Stream: TStream) of object;
+  TD2VTSaveNodeEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Stream: TStream) of object;
+
+  // move, copy and node tracking events
+  TD2VTNodeMovedEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTNodeMovingEvent = procedure(Sender: TD2CustomTreeGrid; Node, Target: PD2TreeNode;
+    var Allowed: Boolean) of object;
+  TD2VTNodeCopiedEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode) of object;
+  TD2VTNodeCopyingEvent = procedure(Sender: TD2CustomTreeGrid; Node, Target: PD2TreeNode;
+    var Allowed: Boolean) of object;
+  TD2VTGetNodeDataSizeEvent = procedure(Sender: TD2CustomTreeGrid; var NodeDataSize: Integer) of object;
+  TD2VTStateChangeEvent = procedure(Sender: TD2CustomTreeGrid; Enter, Leave: TD2TreeStates) of object;
+
+  TD2VTGetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer; var Value:Variant) of object;
+  TD2VTSetValue = procedure (Sender: TObject; Node:PD2TreeNode; const Column:integer; const Value:Variant) of object;
+  TD2VTEdititingDone = procedure (Sender: TObject; Node:PD2TreeNode; const Column: integer) of object;
+
+  TD2VTBeforeDrawTreeLineEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Level: integer; var PosX: single) of object;
+
+// paint events
+TD2VTMeasureItemEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; var NodeHeight: Single) of object;
+
+// Поиск, сортировка. search, sort
+
+TD2VTCompareEvent = procedure(Sender: TD2CustomTreeGrid; Node1, Node2: PD2TreeNode; Column: Integer;
+    var Result: Integer) of object;
+TD2VTIncrementalSearchEvent = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; const SearchText: String;
+    var Result: Integer) of object;
+
+//Drag & Drop
+
+// Режимы для определения положения падения в операциях Drag & Drop. modes to determine drop position further
+TD2DropMode = (
+  dmNowhere,   //никуда
+  dmAbove,     //Выше узла
+  dmOnNode,    //На узел
+  dmBelow      //Ниже узла
+);
+
+//Drag & Drop Прерывание при перетаскивании над объектом
+TD2VTDragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState;
+                               const Point: TD2Point; var TargetNode: PD2TreeNode;
+                               var Mode: TD2DropMode; var Accept: Boolean) of object;
+
+//Типы экспорта. Export type
+TD2TreeExportType = (
+    etRTF,   //Контент в RTF. contentToRTF
+    etHTML,  //Контент в HTML. contentToHTML
+    etText,  //Контент в Text. contentToText
+    etExcel, //Поддержка внешним сервисом. supported by external tools
+    etWord,  //Поддержка внешним сервисом. supported by external tools
+    etCustom //Поддержка внешним сервисом. supported by external tools
+  );
+
+
+
+// Поддержка стимминга. streaming support
+
+TD2ChunkHeader = record
+  ChunkType,               //Тип блока
+  ChunkSize: Integer;      //Размер блока без учета заголовка. contains the size of the chunk excluding the header
+end;
+
+  // Базовая информация об узле. base information about a node
+  TD2BaseChunkBody = packed record
+    ChildCount: Cardinal;
+    NodeHeight: Single;
+    States: TD2TreeNodeStates;
+    Align: Single;
+    CheckState: TD2CheckState;
+    CheckType: TD2CheckType;
+    Reserved: Cardinal;
+  end;
+
+  TD2BaseChunk = packed record
+    Header: TD2ChunkHeader;
+    Body: TD2BaseChunkBody;
+  end;
+
+  TD2TreeImageKind = (
   ikNormal,
   ikSelected,
   ikState,
@@ -8131,15 +8645,15 @@ TD2HitPositions = set of TD2HitPosition;
 
 // Structure used when info about a certain position in the tree is needed.
 TD2HitInfo = record
-  HitNode: PD2VirtualNode;
+  HitNode: PD2TreeNode;
   HitPositions: TD2HitPositions;
-  HitColumn: TD2ColumnIndex;
+  HitColumn: Integer;
   HitPoint: TPoint;
 end;
 
 // Статус текущего состояния дерева для прерывания OnUpdating.
 // Indicates in the OnUpdating event what state the tree is currently in.
-TD2VTUpdateState = (
+TD2TreeUpdateState = (
   usBegin,       //Дерево вошло в состояние обновления (первый вызов BeginUpdate). The tree just entered the update state (BeginUpdate call for the first time).
   usBeginSynch,  //Дерево вошло в состояние синхронизации (первый вызов BeginSynch). The tree just entered the synch update state (BeginSynch call for the first time).
   usSynch,       //Вызван BeginSynch/EndSynch но состояние дерева не изменилось. Begin/EndSynch has been called but the tree did not change the update state.
@@ -8148,288 +8662,205 @@ TD2VTUpdateState = (
   usEndSynch     //Дерево вышло из состояния синхронизации (вызван Synch последнего уровня). The tree just left the synch update state (EndSynch called for the last level).
 );
 
-//Класс, описывающий опции поведения дерева
-TD2CustomVirtualTreeOptions = class(TPersistent)
-private
-  FOwner: TD2BaseVirtualTree;
-  FPaintOptions: TD2VTPaintOptions;
-  FAnimationOptions: TD2VTAnimationOptions;
-  FAutoOptions: TD2VTAutoOptions;
-  FSelectionOptions: TD2VTSelectionOptions;
-  FMiscOptions: TD2VTMiscOptions;
-  FExportMode: TD2VTExportMode;
-  procedure SetAnimationOptions(const Value: TD2VTAnimationOptions);
-  procedure SetAutoOptions(const Value: TD2VTAutoOptions);
-  procedure SetMiscOptions(const Value: TD2VTMiscOptions);
-  procedure SetPaintOptions(const Value: TD2VTPaintOptions);
-  procedure SetSelectionOptions(const Value: TD2VTSelectionOptions);
-protected
-  property AnimationOptions: TD2VTAnimationOptions read FAnimationOptions write SetAnimationOptions
-    default DefaultAnimationOptions;
-  property AutoOptions: TD2VTAutoOptions read FAutoOptions write SetAutoOptions default DefaultAutoOptions;
-  property ExportMode: TD2VTExportMode read FExportMode write FExportMode default emAll;
-  property MiscOptions: TD2VTMiscOptions read FMiscOptions write SetMiscOptions default DefaultMiscOptions;
-  property PaintOptions: TD2VTPaintOptions read FPaintOptions write SetPaintOptions default DefaultPaintOptions;
-  property SelectionOptions: TD2VTSelectionOptions read FSelectionOptions write SetSelectionOptions
-    default DefaultSelectionOptions;
-public
-  constructor Create(AOwner: TD2BaseVirtualTree); virtual;
-  procedure AssignTo(Dest: TPersistent); override;
-  property Owner: TD2BaseVirtualTree read FOwner;
-end;
-
-
-// Communication interface between a tree editor and the tree itself (declared as using stdcall in case it
-// is implemented in a (C/C++) DLL). The GUID is not nessecary in Delphi but important for BCB users
-// to allow QueryInterface and _uuidof calls.
-ID2VTEditLink = interface
-  ['{2BE3EAFA-5ACB-45B4-9D9A-B58BCC496E17}']
-  function BeginEdit: Boolean; stdcall;                  // Called when editing actually starts.
-  function CancelEdit: Boolean; stdcall;                 // Called when editing has been cancelled by the tree.
-  function EndEdit: Boolean; stdcall;                    // Called when editing has been finished by the tree.
-  function PrepareEdit(Tree: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex): Boolean; stdcall;
-                                                         // Called after creation to allow a setup.
-  function GetBounds: TRect; stdcall;                    // Called to get the current size of the edit window
-                                                         // (only important if the edit resizes itself).
-  procedure ProcessMessage(var Message: TLMessage); stdcall;
-                                                         // Used to forward messages to the edit window(s)-
-  procedure SetBounds(R: TRect); stdcall;                // Called to place the editor.
-end;
-
 //Класс исключения используется деревом. The exception used by the trees.
-ED2VirtualTreeError = class(Exception);
+ED2TreeError = class(Exception);
 
-// Kinds of operations
- TD2VTOperationKind = (
-   okAutoFitColumns,
-   okGetMaxColumnWidth,
-   okSortNode,
-   okSortTree
+//Виды длительных операций. Kinds of operations
+ TD2TreeOperationKind = (
+   okAutoFitColumns,     //Автоматический подбор ширины колонок
+   okGetMaxColumnWidth,  //Получение максимальной ширины колонки
+   okSortNode,           //Сортировка узла
+   okSortTree            //Сортировка дерева
  );
- TD2VTOperationKinds = set of TD2VTOperationKind;
+ //Набор видов длительных операций
+ TD2TreeOperationKinds = set of TD2TreeOperationKind;
 
-// ----- Прототипы прерываний Event prototypes:
+ // ----- Прототипы прерываний Event prototypes:
 
 //Перечиление узлов. node enumeration
-TD2VTGetNodeProc = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Data: Pointer; var Abort: Boolean) of object;
+TD2TreeGetNodeProc = procedure(Sender: TD2CustomTreeGrid; Node: PD2TreeNode; Data: Pointer; var Abort: Boolean) of object;
 
-//Прерывания узлов. node events
-
-  TD2VTChangingEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; var Allowed: Boolean) of object;
-  TD2VTCheckChangingEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; var NewState: TD2CheckState;
-    var Allowed: Boolean) of object;
-  TD2VTChangeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-  TD2VTStructureChangeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Reason: TD2ChangeReason) of object;
-  TD2VTEditCancelEvent = procedure(Sender: TD2BaseVirtualTree; Column: TD2ColumnIndex) of object;
-  TD2VTEditChangingEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex;
-    var Allowed: Boolean) of object;
-  TD2VTEditChangeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex) of object;
-  TD2VTFreeNodeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-  TD2VTFocusChangingEvent = procedure(Sender: TD2BaseVirtualTree; OldNode, NewNode: PD2VirtualNode; OldColumn,
-    NewColumn: TD2ColumnIndex; var Allowed: Boolean) of object;
-  TD2VTFocusChangeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex) of object;
-  TD2VTAddToSelectionEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-  TD2VTRemoveFromSelectionEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-//  TD2VTGetImageEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Kind: TD2VTImageKind; Column: TD2ColumnIndex;
-//    var Ghosted: Boolean; var ImageIndex: Integer) of object;
-//  TD2VTGetImageExEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Kind: TD2VTImageKind; Column: TD2ColumnIndex;
-//    var Ghosted: Boolean; var ImageIndex: Integer; var ImageList: TCustomImageList) of object;
-//  TD2VTGetImageTextEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Kind: TD2VTImageKind; Column: TD2ColumnIndex;
-//    var ImageText: String) of object;
-//  TD2VTHotNodeChangeEvent = procedure(Sender: TD2BaseVirtualTree; OldNode, NewNode: PD2VirtualNode) of object;
-  TD2VTInitChildrenEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; var ChildCount: Cardinal) of object;
-  TD2VTInitNodeEvent = procedure(Sender: TD2BaseVirtualTree; ParentNode, Node: PD2VirtualNode;
-    var InitialStates: TD2VirtualNodeInitStates) of object;
-//  TD2VTPopupEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex; const P: TPoint;
-//    var AskParent: Boolean; var PopupMenu: TPopupMenu) of object;
-//  TD2VTHelpContextEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex;
-//    var HelpContext: Integer) of object;
-  TD2VTCreateEditorEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex;
-    out EditLink: ID2VTEditLink) of object;
-  TD2VTSaveTreeEvent = procedure(Sender: TD2BaseVirtualTree; Stream: TStream) of object;
-  TD2VTSaveNodeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Stream: TStream) of object;
-
-  // move, copy and node tracking events
-  TD2VTNodeMovedEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-  TD2VTNodeMovingEvent = procedure(Sender: TD2BaseVirtualTree; Node, Target: PD2VirtualNode;
-    var Allowed: Boolean) of object;
-  TD2VTNodeCopiedEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode) of object;
-  TD2VTNodeCopyingEvent = procedure(Sender: TD2BaseVirtualTree; Node, Target: PD2VirtualNode;
-    var Allowed: Boolean) of object;
-//  TD2VTNodeClickEvent = procedure(Sender: TD2BaseVirtualTree; const HitInfo: TD2HitInfo) of object;
-//  TD2VTNodeHeightTrackingEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex; Shift: TShiftState;
-//    var TrackPoint: TPoint; P: TPoint; var Allowed: Boolean) of object;
-//  TD2VTNodeHeightDblClickResizeEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex;
-//    Shift: TShiftState; P: TPoint; var Allowed: Boolean) of object;
-//  TD2VTCanSplitterResizeNodeEvent = procedure(Sender: TD2BaseVirtualTree; P: TPoint; Node: PD2VirtualNode;
-//    Column: TD2ColumnIndex; var Allowed: Boolean) of object;
-//
-//  // miscellaneous
-//  TD2VTBeforeDrawLineImageEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Level: Integer; var PosX: Integer) of object;
-  TD2VTGetNodeDataSizeEvent = procedure(Sender: TD2BaseVirtualTree; var NodeDataSize: Integer) of object;
-//  TD2VTKeyActionEvent = procedure(Sender: TD2BaseVirtualTree; var CharCode: Word; var Shift: TShiftState;
-//    var DoDefault: Boolean) of object;
-//  TD2VTScrollEvent = procedure(Sender: TD2BaseVirtualTree; DeltaX, DeltaY: Integer) of object;
-//  TD2VTUpdatingEvent = procedure(Sender: TD2BaseVirtualTree; State: TD2VTUpdateState) of object;
-//  TD2VTGetCursorEvent = procedure(Sender: TD2BaseVirtualTree; var Cursor: TCursor) of object;
-  TD2VTStateChangeEvent = procedure(Sender: TD2BaseVirtualTree; Enter, Leave: TD2VirtualTreeStates) of object;
-//  TD2VTGetCellIsEmptyEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; Column: TD2ColumnIndex;
-//    var IsEmpty: Boolean) of object;
-//  TD2VTScrollBarShowEvent = procedure(Sender: TD2BaseVirtualTree; Bar: Integer; Show: Boolean) of object;
-
-// paint events
-TD2VTMeasureItemEvent = procedure(Sender: TD2BaseVirtualTree; TargetCanvas: TD2Canvas;
-    Node: PD2VirtualNode; var NodeHeight: Single) of object;
-
-// search, sort
-TD2VTCompareEvent = procedure(Sender: TD2BaseVirtualTree; Node1, Node2: PD2VirtualNode; Column: TD2ColumnIndex;
-    var Result: Integer) of object;
-// TD2VTIncrementalSearchEvent = procedure(Sender: TD2BaseVirtualTree; Node: PD2VirtualNode; const SearchText: String;
-//    var Result: Integer) of object;
 
 // Helper types for node iterations.
 //  TD2GetFirstNodeProc = function: PD2VirtualNode of object;
-  TD2GetNextNodeProc = function(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode of object;
+  TD2GetNextNodeProc = function(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode of object;
 
 // operations
-TD2VTOperationEvent = procedure(Sender: TD2BaseVirtualTree; OperationKind: TD2VTOperationKind) of object;
+TD2VTOperationEvent = procedure(Sender: TD2CustomTreeGrid; OperationKind: TD2TreeOperationKind) of object;
 
 //Функция вызывается процедурой Animate для каждого шага анимации. Method called by the Animate routine for each animation step.
 TD2VTAnimationCallback = function(Step, StepSize: Integer; Data: Pointer): Boolean of object;
 
-//Направления сортировки
-TD2SortDirection = (
-    sdAscending,
-    sdDescending
-  );
+//Определяет, как использовать выравнивание (Align) узла. Determines how to use the align member of a node.
+TD2TreeNodeAlignment = (
+  naFromBottom,            //Align указывает смещение от верхней границы узла. the align member specifies amount of units (usually pixels) from top border of the node
+  naFromTop,               //Align указывает смещение от нижней границы узла.
+  naProportional           //Align измеряется в процентах от всей высоты узла от верхней границы узла. align is to be measure in percent of the entire node height and relative to top
+);
 
-// Options which are used when modifying the scroll offsets.
-  TD2ScrollUpdateOptions = set of (
-    suoRepaintHeader,        // if suoUpdateNCArea is also set then invalidate the header
-    suoRepaintScrollBars,    // if suoUpdateNCArea is also set then repaint both scrollbars after updating them
-    suoScrollClientArea,     // scroll and invalidate the proper part of the client area
-    suoUpdateNCArea          // update non-client area (scrollbars, header)
-  );
 
-  // Toggle animation modes.
-  TD2ToggleAnimationMode = (
-    tamScrollUp,
-    tamScrollDown,
-    tamNoScroll
-  );
+// направления авто прокрутки auto scroll directions
+TD2ScrollDirections = (
+  sdLeft,  //влево
+  sdUp,    //вверх
+  sdRight, //вправо
+  sdDown   //вниз
+);
 
-  // Internally used data for animations.
-  TD2ToggleAnimationData = record
-    Window: HWND;                 // copy of the tree's window handle
-    DC: HDC;                      // the DC of the window to erase uncovered parts
-    Brush: HBRUSH;                // the brush to be used to erase uncovered parts
-    R1,
-    R2: TD2Rect;                    // animation rectangles
-    Mode1,
-    Mode2: TD2ToggleAnimationMode;  // animation modes
-    ScaleFactor: Double;          // the factor between the missing step size when doing two animations
-    MissedSteps: Double;
-  end;
+//Режимы анимации при сворачивании/разворачивании узлов. Toggle animation modes.
+TD2ToggleAnimationMode = (
+  tamScrollUp,
+  tamScrollDown,
+  tamNoScroll
+);
 
-{ TD2VirtualTreeColumn }
-
-TD2VirtualTreeColumn = class(TCollectionItem)
-  private
-    FOptions: TD2VTColumnOptions;
-    procedure SetOptions(Value: TD2VTColumnOptions);
-  published
-    property Options: TD2VTColumnOptions read FOptions write SetOptions default DefaultColumnOptions;
+// Internally used data for animations.
+TD2ToggleAnimationData = record
+  Window: HWND;                 // copy of the tree's window handle
+  DC: HDC;                      // the DC of the window to erase uncovered parts
+  Brush: HBRUSH;                // the brush to be used to erase uncovered parts
+  R1,
+  R2: TD2Rect;                    // animation rectangles
+  Mode1,
+  Mode2: TD2ToggleAnimationMode;  // animation modes
+  ScaleFactor: Double;          // the factor between the missing step size when doing two animations
+  MissedSteps: Double;
 end;
 
-{ TD2VirtualTreeColumns }
-
-TD2VirtualTreeColumns=class(TCollection)
-  private
-
-    function GetItem(Index: TD2ColumnIndex): TD2VirtualTreeColumn;
-    procedure SetItem(Index: TD2ColumnIndex; Value: TD2VirtualTreeColumn);
-  public
-    function IsValidColumn(Column: TD2ColumnIndex): Boolean;
-  published
-    function GetFirstVisibleColumn(ConsiderAllowFocus: Boolean = False): TD2ColumnIndex;
-    property Items[Index: TD2ColumnIndex]: TD2VirtualTreeColumn read GetItem write SetItem; default;
-
+//Класс, описывающий опции поведения дерева
+TD2CustomTreeOptions = class(TPersistent)
+private
+  FOwner: TD2CustomTreeGrid;
+  FPaintOptions: TD2TreePaintOptions;
+  FAnimationOptions: TD2TreeAnimationOptions;
+  FAutoOptions: TD2TreeAutoOptions;
+  FSelectionOptions: TD2TreeSelectionOptions;
+  FMiscOptions: TD2TreeMiscOptions;
+  FExportMode: TD2TreeExportMode;
+  procedure SetAnimationOptions(const Value: TD2TreeAnimationOptions);
+  procedure SetAutoOptions(const Value: TD2TreeAutoOptions);
+  procedure SetMiscOptions(const Value: TD2TreeMiscOptions);
+  procedure SetPaintOptions(const Value: TD2TreePaintOptions);
+  procedure SetSelectionOptions(const Value: TD2TreeSelectionOptions);
+protected
+  property AnimationOptions: TD2TreeAnimationOptions read FAnimationOptions write SetAnimationOptions
+    default DefaultTreeAnimationOptions;
+  property AutoOptions: TD2TreeAutoOptions read FAutoOptions write SetAutoOptions default DefaultTreeAutoOptions;
+  property ExportMode: TD2TreeExportMode read FExportMode write FExportMode default emAll;
+  property MiscOptions: TD2TreeMiscOptions read FMiscOptions write SetMiscOptions default DefaultTreeMiscOptions;
+  property PaintOptions: TD2TreePaintOptions read FPaintOptions write SetPaintOptions default DefaultTreePaintOptions;
+  property SelectionOptions: TD2TreeSelectionOptions read FSelectionOptions write SetSelectionOptions
+    default DefaultTreeSelectionOptions;
+public
+  constructor Create(AOwner: TD2CustomTreeGrid); virtual;
+  procedure AssignTo(Dest: TPersistent); override;
+  property Owner: TD2CustomTreeGrid read FOwner;
 end;
 
-{ TD2VTHeader }
+TD2TreeOptionsClass = class of TD2CustomTreeOptions;
 
-TD2VTHeader = class
+TD2TreeOptions = class(TD2CustomTreeOptions)
+published
+  property AnimationOptions; //Опиции анимации
+  property AutoOptions;      //Опиции автоматической обработки определенных ситуаций
+  property ExportMode;       //Опиции экспорта данных
+  property MiscOptions;      //Прочие опиции, которые не вписываются ни в одну из других групп
+  property PaintOptions;     //Опции настройки внешнего вида дерева
+  property SelectionOptions; //Опиции, определяющие поведение дерева при выборе узлов
+end;
+
+
+{ TD2CustomTreeGrid }
+//Базовый класс дерева описывающий все поля и свойства
+TD2CustomTreeGrid = class(TD2CustomGrid)
   private
-    FColumns: TD2VirtualTreeColumns;
-    FSortColumn: TD2ColumnIndex;
-    FSortDirection: TD2SortDirection;
-    function GetUseColumns: Boolean;
-    procedure SetColumns(Value: TD2VirtualTreeColumns);
-    function GetMainColumn: TD2ColumnIndex;
-    procedure SetMainColumn(Value: TD2ColumnIndex);
-  public
-    function AllowFocus(ColumnIndex: TD2ColumnIndex): Boolean;
-    property UseColumns: Boolean read GetUseColumns;
-  published
-    property Columns: TD2VirtualTreeColumns read FColumns write SetColumns;
-    property MainColumn: TD2ColumnIndex read GetMainColumn write SetMainColumn default 0;
-  end;
+    FAutoExpandDelay: Cardinal;
+    FAutoScrollDelay: Cardinal;
+    const
+      CacheThreshold = 2000;        // Number of nodes a tree must at least have to start caching and at the same
+                                    // time the maximum number of nodes between two cache entries.
+    var
+    FAutoScrollUp: boolean;                      //true - если нужно выполнить автоматический скроллинг вверх
+    FCheckNode: PD2TreeNode;                     //Узел, который «захватывает» событие проверки. node which "captures" a check event
+    FCheckPropagationCount: Cardinal;            //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
 
-{ TD2BaseVirtualTree }
-
-TD2BaseVirtualTree = class(TD2ScrollBox)
-  private
-    FAnimationDuration: Cardinal;               //Определяет, как долго происходит анимация (раскрытие, подсказка). specifies how long an animation shall take (expanding, hint)
-    {FChangeDelay: Cardinal; }                  //Используется для задержки прерывания OnChange. used to delay OnChange event
-
-    FCheckNode: PD2VirtualNode;                 //Узел, который "захватывает" событие отметки. node which "captures" a check event
-    FCheckPropagationCount: Cardinal;           //Уровень вложенности распространения отметки nesting level of check propagation (WL, 05.02.2004)
-    FCurrentHotNode: PD2VirtualNode;            //Узел, над которым располагается указатель мыши. Node over which the mouse is hovering.
-    FBottomSpace: Single;                       //Дополнительное место ниже последнего узла. Extra space below the last node.
-    FDefaultNodeHeight: Single;                 //Высота узла по умолчанию
-    FDropTargetNode: PD2VirtualNode;            //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
-    FEditColumn: TD2ColumnIndex;                //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
-    FEditLink: ID2VTEditLink;                   //Используется для связи с каким-либо приложением редактора. used to comunicate with an application defined editor
-    FFocusedColumn: TD2ColumnIndex;             //NoColumn если столбцы не активны, иначе столбец в котором находится узел имеющий фокус в данный момент. NoColumn if no columns are active otherwise the last hit column of the currently focused node
-    FFocusedNode: PD2VirtualNode;
-    FHeader: TD2VTHeader;                       //Указатель на заголовки колонок
-    FLastChangedNode: PD2VirtualNode;           //используется для прерывания с задержкой изменения? used for delayed change event
-    FLastSearchNode: PD2VirtualNode;              //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
-    FLastSelected: PD2VirtualNode;
-    FLastVCLDragTarget: PD2VirtualNode;            // A node cache for VCL drag'n drop (keywords: DragLeave on DragDrop).
-    FNextNodeToSelect: PD2VirtualNode;          //Следующий узел, который должен быть выбрать, если текущий выбранный узел удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted or looses selection for other reasons.
-    FLastSelectionLevel: Integer;               //Содержит уровень последнего выбранного узла для ограниченного мультивыбора. keeps the last node level for constrained multiselection
-    FLastStructureChangeNode: PD2VirtualNode;   // dito?
+    FBottomSpace: Single;                        //Дополнительное место ниже последнего узла. Extra space below the last node.
+    FDefaultNodeHeight: Single;                  //Высота узла по умолчанию
+    FDefaultPasteMode: TD2TreeNodeAttachMode;    //Используется для определения, где добавить вставляемый узел. Used to determine where to add pasted nodes to.
+    FDropTargetNode: PD2TreeNode;                //Узел выбраный в качестве целевого объекта перетаскивания. node currently selected as drop target
+    FEditColumn: Integer;                        //Индекс колонки в которой идет редактирование (узел имеет фокус). column to be edited (focused node)
+    FExpandTimer: TD2Timer;                      //Таймер авторазворачивания узла при удержании мыши над експандером при перетаскивании
+    FFocusedNode: PD2TreeNode;                   //Узел, имеющий фокус в настоящее время
+    FIndentWidth: Single;                        //Отступ границы вложенного узла от границы родителя (по умолчанию 18)
+    FLastChangedNode: PD2TreeNode;               //используется для прерывания с задержкой изменения? used for delayed change event
+    FLastDropMode: TD2DropMode;                  //Pежим вставки после падения в операциях drag & drop. set while dragging and used to track changes
+    FLastSearchNode: PD2TreeNode;                //Ссылка на узел, который был найден последним при поиске. Reference to node which was last found as search fit.
+    FLastSelected: PD2TreeNode;                  //Ссылка на узел, который был выбран последним???
+    FLastVCLDragTarget: PD2TreeNode;             //Ссылка на узел, который был последней целью при операции VCL drag'n drop??? A node cache for VCL drag'n drop (keywords: DragLeave on DragDrop).
+    FLastSelectionLevel: Integer;                //Содержит уровень последнего выбранного узла для ограниченного мультивыбора. keeps the last node level for constrained multiselection
+    FLastStructureChangeNode: PD2TreeNode;       //Ссылка на узел, в котором быле последнее изменение структуры??? dito?
     FLastStructureChangeReason: TD2ChangeReason; //Используется для задержки события изменения структуры. Used for delayed structure change event.
+    FLineMode: TD2TreeLineMode;                  //Тип линий деревьева: дерево или полосы и т.д. tree lines or bands etc.
+    FMainColumn: Integer;                        //Колонка, отображающая структуру дерева  the column which holds the tree
+    FNextNodeToSelect: PD2TreeNode;              //Следующий узел, который должен быть выбрать, если текущий выбранный узел удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted or looses selection for other reasons.
+    FNodeAlignment: TD2TreeNodeAlignment;        //Определяет, как интерпретировать выравние элементов узла. determines how to interpret the align member of a node
     FNodeDataSize: Integer;                      {Количество байт для распределения с каждым узлом (в дополнение к
                                                   основной структуре и внутренним данным), если -1, то делать обратный вызов.
                                                    number of bytes to allocate with each node (in addition to its base
                                                    structure and the internal data), if -1 then do callback  }
-    FEffectiveOffsetX: Single;                 //Фактическое положение горизонтальной полосы прокрутки (изменяется в зависимости от двунаправленного режима). Actual position of the horizontal scroll bar (varies depending on bidi mode).
-    FOffsetX: Single;                          //Определяет смещение прокрутки слева. Determines left scroll offset.
-    FOffsetY: Single;                          //Определяет смещение прокрутки свехру. Determines left and top scroll offset.
 
-    //------Ссылки на обработчики прерываний
+    FOperationCanceled: Boolean;       //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
+    FOperationCount: Cardinal;         //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
+    FOptions: TD2CustomTreeOptions;    //Текущие опции поведения дерева
+    FPendingCheckState: TD2CheckState; //Новое состояние отметки, которое получит текущий узел, если все пойдет нормально. the new state the check node will get if all went fine
+    FPositionCache: TD2Cache;          //Массив, хранящий ссылки на узлы, упорядоченные по вертикальным позициям. array which stores node references ordered by vertical positions
+    FRangeAnchor: PD2TreeNode;         //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
+    FRangeX: Single;                   //Текущая виртуальная ширина дерева. current virtual width of the tree
+    FRangeY: Single;                   //Текущая виртуальная высота дерева. current virtual height of the tree
+    FRoot: PD2TreeNode;                //Корневой узел дерева.
+    FScrollTimer: TD2Timer;            //Таймер автосроллера (используется базовый класс анимации)
+    FSelectionNodes: TD2NodeArray;     //Массив выделенных узлов. list of currently selected nodes
+    FSelectionCount: Integer;          //Кол-во выбранных узлов (может отличаться от FSelectionNodes). number of currently selected nodes (size of FSelectionNodes might differ)
+    FSelectionLocked: Boolean;         //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
+    FShowCheckboxes: boolean;          //True - Показывать чек-боксы ???
+    FSingletonNodeArray: TD2NodeArray; //Содержит только один элемент для быстрого добавления отдельных узлов. Contains only one element for quick addition of single nodes
+    FStartIndex: Cardinal;             //Индекс для начала проверки кэша. index to start validating cache from
+    FStates: TD2TreeStates;            //Различные активные или ожидающие обработки состояния дерева. various active/pending states the tree needs to consider
+    FTempNodeCache: TD2NodeArray;      //Массив временных узлов. Используется в различных местах. used at various places to hold temporarily a bunch of node refs.
+    FTempNodeCount: Cardinal;          //Кол-во узлов в массиве временных узлов. number of nodes in FTempNodeCache
+    FTopRow: integer;                  //№ по порядку верхней видимой строки
+    FTopRowY: single;                  //Координата Y верхнего видимого в окне узла в абсолютных координатах
+    FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
+                                         Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
+    FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
+    FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
+    FVisibleRowsList: TList;   //Массив видимых в окне узлов.
+
+     //------Ссылки на обработчики прерываний
 
     FOnAddToSelection: TD2VTAddToSelectionEvent;   //Вызывается когда узел добавляется к выборанным. called when a node is added to the selection
+    FOnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent; //Вызывается для изменения сдвига линий дерева. Called to allow adjusting the indention of treelines.
+
     FOnChange: TD2VTChangeEvent;                   //Вызывается при изменении выбранных узлов. selection change
     FOnChecked: TD2VTChangeEvent;                  //Вызывается после изменения состояния отметки узла. called after a node's check state has been changed
     FOnChecking: TD2VTCheckChangingEvent;          //вызывается перед изменением состояния отметки узла. called just before a node's check state is changed
     FOnCollapsed: TD2VTChangeEvent;                //Вызывается после сворачивания узла. called after a node has been collapsed
     FOnCollapsing: TD2VTChangingEvent;             //Вызывается перед сворачиванием узла. called just before a node is collapsed
-    FOnCompareNodes: TD2VTCompareEvent;            //Используется для сортировки. рода used during sort
-    FOnCreateEditor: TD2VTCreateEditorEvent;       { Вызывается, когда узел переходит в режим редактирования, это позволяет приложению предоставить свой собственный редактор
-                                                     called when a node goes into edit mode, this allows applications to supply their own editor }
+    FOnCompareNodes: TD2VTCompareEvent;            //Используется для сортировки. used during sort
+    FOnDragOver: TD2VTDragOverEvent;               //Вызывается при перетаскивании над объектом
     FOnEditCancelled: TD2VTEditCancelEvent;        //Вызывается при отмене редактирования. called when editing has been cancelled
     FOnEdited: TD2VTEditChangeEvent;               //Вызывается после успешного окончания редактирования. called when editing has successfully been finished
     FOnEditing: TD2VTEditChangingEvent;            //Вызывается непосредственно перед переходом узла в режим редактирования. called just before a node goes into edit mode
-    FOnEndOperation: TD2VTOperationEvent;
+    FOnEdititingDone: TD2VTEdititingDone;          //указатель на процедуру прерывания после окончания записи в DataSet
+    FOnEndOperation: TD2VTOperationEvent;          //Вызывается при окончании длительной операции
     FOnExpanded: TD2VTChangeEvent;                 //Вызывается после раскрытия узла. called after a node has been expanded
     FOnExpanding: TD2VTChangingEvent;              //Вызывается перед раскрытием узла. called just before a node is expanded
     FOnFocusChanging: TD2VTFocusChangingEvent;     //Вызывается перед переходом фокуса на новый узел и/или столбец (может быть отменено). called when the focus is about to go to a new node and/or column (can be cancelled)
     FOnFocusChanged: TD2VTFocusChangeEvent;        //Вызывается когда фокус переходит на новый узел и/или столбца. called when the focus goes to a new node and/or column
     FOnFreeNode: TD2VTFreeNodeEvent;               //Вызывается когда узел должен быть уничтожены, при этом пользовательские данные могут и должны быть освобождены. called when a node is about to be destroyed, user data can and should be freed in this event
     FOnGetNodeDataSize: TD2VTGetNodeDataSizeEvent; //Вызывается если NodeDataSize = -1. Called if NodeDataSize is -1.
+    FOnGetValue: TD2VTGetValue;
+    FOnIncrementalSearch: TD2VTIncrementalSearchEvent; //Вызывается при каждом событии нажатия клавиши KeyPress (не путать с KeyDown). triggered on every key press (not key down)
     FOnInitChildren: TD2VTInitChildrenEvent;       //Вызывается когда будут необходимы дочерние узлы (разворачивание и т.д.). called when a node's children are needed (expanding etc.)
     FOnInitNode: TD2VTInitNodeEvent;               //Вызывается когда узел должен быть инициализирован (изменено кол-во детей и т.д.). called when a node needs to be initialized (child count etc.)
     FOnLoadNode: TD2VTSaveNodeEvent;               { Вызывается после загрузки узла из потока (файла, буфера обмена, OLE перетаскивание),
@@ -8449,7 +8880,7 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
     FOnNodeMoving: TD2VTNodeMovingEvent;           //Вызывается перед перемещением узла от одного родителя к другому (может быть отменено). called just before a node is moved from one parent node to another (this can be cancelled)
     FOnNodeMoved: TD2VTNodeMovedEvent;             //Вызывается после перемещением узла и его детей к другму родителю (в т.ч. в другое дерево, но в пределах одного приложения). called after a node and its children have been moved to another parent node (probably another tree, but within the same application)
     FOnRemoveFromSelection: TD2VTRemoveFromSelectionEvent; //Вызывается когда узел удаляется из выбранных. called when a node is removed from the selection
-    FOnResetNode: TD2VTChangeEvent;                // called when a node is set to be uninitialized
+    FOnResetNode: TD2VTChangeEvent;                // Вызывается, когда узел устанавливается как неинициализированный. called when a node is set to be uninitialized
     FOnSaveNode: TD2VTSaveNodeEvent;               { Вызывается, когда узел должен быть сериализован в поток (см OnLoadNode) и дать
                                                      приложению возможность сохранить специфические узлы,и собственные данные
                                                      (Внимание! не сохраняйте ссылки на память)
@@ -8457,100 +8888,109 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
                                                       to give the application the opportunity to save their node specific,
                                                       persistent data (note: never save memory references) }
     FOnSaveTree: TD2VTSaveTreeEvent;               //Вызывается после сохранея дерева в потоке, чтобы приложение смогло сохранить свои данные. called after the tree has been saved to a stream to allow an application to save its own data
-    FOnStartOperation: TD2VTOperationEvent;
+    FOnSetValue: TD2VTSetValue;
+    FOnStartOperation: TD2VTOperationEvent;        //вызывается при начале длительной операции
     FOnStateChange: TD2VTStateChangeEvent;         //Вызывается когда изменяется состояние дерева. Called whenever a state in the tree changes.
     FOnStructureChange: TD2VTStructureChangeEvent;   //Вызывается при изменении структуры дерева, таких как добавление узла и т.д. structural change like adding nodes etc.
 
     // -----------
 
-    FOperationCanceled: Boolean;             //Используется для указания того, что длительная операция должна быть отменена. Used to indicate that a long-running operation should be canceled.
-    FOperationCount: Cardinal;               //Кол-во продолжаются продолжительных вложенных операций. Counts how many nested long-running operations are in progress.
-    FOptions: TD2CustomVirtualTreeOptions;   //Текущие опции поведения дерева
-    FRangeAnchor: PD2VirtualNode;            //Якорь узла для выбора с клавиатуры, определяет начало диапазона выбора. anchor node for selection with the keyboard, determines start of a selection range
-    FRangeX: Single;                         //Текущая виртуальная ширина дерева. current virtual width of the tree
-    FRangeY: Single;                         //Текущая виртуальная высота дерева. current virtual height of the tree
-    FRoot: PD2VirtualNode;                   //Корневой узел дерева.
-    FSelection: TD2NodeArray;                //Массив выделенных узлов. list of currently selected nodes
-    FSelectionCount: Integer;                //Кол-во выбранных узлов (может отличаться от FSelection). number of currently selected nodes (size of FSelection might differ)
-    FSelectionLocked: Boolean;               //True - Запрещает изменения выбора узлов в дереве. prevents the tree from changing the selection
-    FSingletonNodeArray: TD2NodeArray;       //Содержит только один элемент для быстрого добавления отдельных узлов. Contains only one element for quick addition of single nodes
-    FStartIndex: Cardinal;                   //Индекс для начала проверки кэша. index to start validating cache from
-    FStates: TD2VirtualTreeStates;           //Различные активные или ожидающие обработки состояния дерева. various active/pending states the tree needs to consider
-    FTempNodeCache: TD2NodeArray;            //Массив временных узлов. Используется в различных местах. used at various places to hold temporarily a bunch of node refs.
-    FTempNodeCount: Cardinal;                //Кол-во узлов в массиве временных узлов. number of nodes in FTempNodeCache
-    FTotalInternalDataSize: Cardinal;         {Хранит размер необходимого объема внутренних данных для всех классов
-                                               дерева, производных от этого базового класса.
-                                                Cache of the sum of the necessary internal data size for all tree
-                                                classes derived from this base class. }
-    FUpdateCount: Cardinal;                  //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
-    FVisibleCount: Cardinal;                 //Текущее количество видимых узлов. number of currently visible nodes
-
               //Изменяет общее кол-во узлов (TotalCount) узла Node и всех его родителей в соответствии со значеним Value.
               //При Relative = true - Value = величина изменения, иначе Value = абсолютное значение
-    procedure AdjustTotalCount(Node: PD2VirtualNode; Value: Integer; Relative: Boolean = False);
+    procedure AdjustTotalCount(Node: PD2TreeNode; Value: Integer; Relative: Boolean = False);
               //Устанавливает общую высоту узла и изменяет общую высоту всех его родителей.
-    procedure AdjustTotalHeight(Node: PD2VirtualNode; Value: Single; Relative: Boolean = False);
+              //если Relative=true то Value - дельта высоты, иначе непосредственно значение высоты
+    procedure AdjustTotalHeight(Node: PD2TreeNode; Value: Single; Relative: Boolean = False);
+             // Вычисляет размер кэша позиции.
+    function CalculateCacheEntryCount: Integer;
 
-    function ChangeCheckState(Node: PD2VirtualNode; Value: TD2CheckState): Boolean;
+               //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
+               //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
+    //procedure CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; Node: PD2TreeNode; out VAlign, VButtonAlign: Single);
 
-    function CompareNodePositions(Node1, Node2: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): Integer;
+             //Устанавливает состояние проверки узла в соответствии с заданным значением и типом проверки узла.
+             //Если состояние проверки должно распространяться на родительские узлы, и один из них отказывается
+             //изменяться, то ничего не происходит и возвращается False, иначе True.
+    function ChangeCheckState(Node: PD2TreeNode; Value: TD2CheckState): Boolean;
+             //Определяет находится ли позиция Node1 до позиции Node2 в дереве.
+             //Если ConsiderChildrenAbove = True позиции узлов сравниватся в их визуальном порядке.
+             //Возвращает 0, если Node1 = Node2, < 0, если Node1 расположен перед Node2, иначе > 0.
+    function CompareNodePositions(Node1, Node2: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): Integer;
+             // Просматривает кеш позиции и возвращает узел, ближайший к Node (позиция меньше или равна заданной)
+             // CurrentPos - положение найденного узла
+    function FindInPositionCache(Node: PD2TreeNode; var CurrentPos: Single): PD2TreeNode; overload;
+             // Просматривает кеш позиции и возвращает ближайший к заданной Position позиции узел
+             // (позиция меньше или равна заданной). CurrentPos - позиция найденного узла
+    function FindInPositionCache(Position: Single; var CurrentPos: Single): PD2TreeNode; overload;
               //Пересчитать общую сумму узла Node и его детей
-    procedure FixupTotalCount(Node: PD2VirtualNode);
+    procedure FixupTotalCount(Node: PD2TreeNode);
               // Пересчитать общую высоту узла Node
-    procedure FixupTotalHeight(Node: PD2VirtualNode);
-
-    function GetBottomNode: PD2VirtualNode;
-    function GetCheckedCount: Integer;
-    function GetCheckState(Node: PD2VirtualNode): TD2CheckState;
-    function GetCheckType(Node: PD2VirtualNode): TD2CheckType;
-    function GetChildCount(Node: PD2VirtualNode): Cardinal;
-    function GetChildrenInitialized(Node: PD2VirtualNode): Boolean;
-    function GetCutCopyCount: Integer;
-    function GetDisabled(Node: PD2VirtualNode): Boolean;
-    //function GetDragManager: IVTDragManager;
-    function GetExpanded(Node: PD2VirtualNode): Boolean;
-    function GetFiltered(Node: PD2VirtualNode): Boolean;
+    procedure FixupTotalHeight(Node: PD2TreeNode);
+              //получить ссылку на нижний видимый узел
+    function GetBottomNode: PD2TreeNode;
+             //Получить количество отмеченных узлов в дереве
+    function GetCheckedCount: Cardinal;
+             //Получить состояние отметки узла Node
+    function GetCheckState(Node: PD2TreeNode): TD2CheckState;
+             //Получить тип отметки узла Node
+    function GetCheckType(Node: PD2TreeNode): TD2CheckType;
+             //Получить кол-во детей узла Node
+    function GetChildCount(Node: PD2TreeNode): Cardinal;
+             //true - установлено наличие детей для узла
+    function GetChildrenInitialized(Node: PD2TreeNode): Boolean;
+             //Получить кол-во копируемых узлов
+    function GetCutCopyCount: Cardinal;
+             //true - узел отключен
+    function GetDisabled(Node: PD2TreeNode): Boolean;
+             //true - узел развернут
+    function GetExpanded(Node: PD2TreeNode): Boolean;
+             //true - узел отфильтрован
+    function GetFiltered(Node: PD2TreeNode): Boolean;
              //True - узел видим и все его родители развернуты.
-    function GetFullyVisible(Node: PD2VirtualNode): Boolean;
-
-    function GetHasChildren(Node: PD2VirtualNode): Boolean;
-
-    function GetMultiline(Node: PD2VirtualNode): Boolean;
+    function GetFullyVisible(Node: PD2TreeNode): Boolean;
+             //true - узел имеет дочерние узлы
+    function GetHasChildren(Node: PD2TreeNode): Boolean;
+    function GetHasExpander(Node: PD2TreeNode): Boolean;
+             //Получить колонку, отображающая структуру дерева
+    function GetMainColumn: integer;
+             //true - текст узла Node многострочный
+    function GetMultiline(Node: PD2TreeNode): Boolean;
              //Получить высоту узла Node
-    function GetNodeHeight(Node: PD2VirtualNode): Single;
+    function GetNodeHeight(Node: PD2TreeNode): Single;
              //Получить родителя узла Node
-    function GetNodeParent(Node: PD2VirtualNode): PD2VirtualNode;
-
+    function GetNodeParent(Node: PD2TreeNode): PD2TreeNode;
+             //Получить смещение прокрутки слева и сверху
     function GetOffsetXY: TD2Point;
+             //Получить текущую виртуальную ширину дерева
     function GetRangeX: Single;
-
+             //Получить кол-во детей узла Root
     function GetRootNodeCount: Cardinal;
              //True - узел Node выбран
-    function GetSelected(Node: PD2VirtualNode): Boolean;
-
-    function GetTopNode: PD2VirtualNode;
-
+    function GetSelected(Node: PD2TreeNode): Boolean;
+             //Получить верхний видимый узел
+    function GetTopNode: PD2TreeNode;
+             //Получить общее кол-во узлов в дереве (не считая узел Root)
     function GetTotalCount: Cardinal;
-
-    function GetVerticalAlignment(Node: PD2VirtualNode): Single;
+             //Получить вертикальное смещение кнопки открытия/сворачивания узла Node
+    function GetVerticalAlignment(Node: PD2TreeNode): Single;
              //True - узел Node видим.
-    function GetVisible(Node: PD2VirtualNode): Boolean;
+    function GetVisible(Node: PD2TreeNode): Boolean;
              //True - все родители узла Node развернуты и видимы.
-    function GetVisiblePath(Node: PD2VirtualNode): Boolean;
+    function GetVisiblePath(Node: PD2TreeNode): Boolean;
              //True - если следующий за узлом Node одноуровневый узел видимый.
-    function HasVisibleNextSibling(Node: PD2VirtualNode): Boolean;
+    function HasVisibleNextSibling(Node: PD2TreeNode): Boolean;
              //True - если предыдущий перед узлом Node одноуровневый узел видимый.
-    function HasVisiblePreviousSibling(Node: PD2VirtualNode): Boolean;
-
+    function HasVisiblePreviousSibling(Node: PD2TreeNode): Boolean;
+              //прервать валидацию???
     procedure InterruptValidation;
               //Реинициализирует корневой узел.
     procedure InitRootNode(OldSize: Cardinal = 0);
              //True - если узел Node является первым видимым ребенком узла Parent.
-    function IsFirstVisibleChild(Parent, Node: PD2VirtualNode): Boolean;
+    function IsFirstVisibleChild(Parent, Node: PD2TreeNode): Boolean;
              //True - если узел Node является последним видимым ребенком узла Parent.
-    function IsLastVisibleChild(Parent, Node: PD2VirtualNode): Boolean;
+    function IsLastVisibleChild(Parent, Node: PD2TreeNode): Boolean;
              //Создает новый узел дерева и возвращает его указатель
-    function MakeNewNode: PD2VirtualNode;
+    function MakeNewNode: PD2TreeNode;
 
     {$ifdef PACKARRAYPASCAL}
             //Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов?
@@ -8560,203 +9000,273 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
     function PackArray(TheArray: TD2NodeArray; Count: Integer): Integer;
     {$endif}
 
-    procedure SetAnimationDuration(const Value: Cardinal);
-
-    procedure SetBottomNode(Node: PD2VirtualNode);
-
+              //Установить узел Node самым нижним
+    procedure SetBottomNode(Node: PD2TreeNode);
+              //Установить высоту дополнительного пространства ниже последнего видимого узла
     procedure SetBottomSpace(const Value: Single);
-
-    procedure SetCheckState(Node: PD2VirtualNode; Value: TD2CheckState);
-
-    procedure SetCheckType(Node: PD2VirtualNode; Value: TD2CheckType);
-
+              //Изменить колонку, отображающую структуру дерева
+    procedure SetMainColumn(Value: Integer);
+              //Установить видимость чек-боксов: true - показывать; false - не показывать
+    procedure SetShowCheckboxes(const Value:boolean);
+              //Установить состояние отметки для узла Node
+    procedure SetCheckState(Node: PD2TreeNode; Value: TD2CheckState);
+              //Установить тип отметки для узла Node
+    procedure SetCheckType(Node: PD2TreeNode; Value: TD2CheckType);
               //Установка кол-ва потомков узла Node в NewChildCount с изменением их структуры.
-    procedure SetChildCount(Node: PD2VirtualNode; NewChildCount: Cardinal);
+    procedure SetChildCount(Node: PD2TreeNode; NewChildCount: Cardinal);
               //Установить высоту узла по умолчанию
     procedure SetDefaultNodeHeight(Value: Single);
               //Устанавливает флаг vsDisabled (отключен) у узла Node в соответствии с Value.
-    procedure SetDisabled(Node: PD2VirtualNode; Value: Boolean);
+    procedure SetDisabled(Node: PD2TreeNode; Value: Boolean);
               //Устанавливает флаг vsExpanded (развернутый) у узла Node в соответствии с Value
-    procedure SetExpanded(Node: PD2VirtualNode; Value: Boolean);
+    procedure SetExpanded(Node: PD2TreeNode; Value: Boolean);
               //Устанавливает флаг vsFiltered (отфильтрованный) у узла Node в соответствии с Value и обновляет все зависимые статусы.
-    procedure SetFiltered(Node: PD2VirtualNode; Value: Boolean);
-
-    procedure SetFocusedColumn(Value: TD2ColumnIndex);
-
-    procedure SetFocusedNode(Value: PD2VirtualNode);
+    procedure SetFiltered(Node: PD2TreeNode; Value: Boolean);
+              //Передать фокус узлу Value
+    procedure SetFocusedNode(Value: PD2TreeNode);
               {При Value = True узел Node и все его родители становятся видимыми, а также все его родители раскрываются.
                При Value = False флаг видимости сбрасывается, без изменения состояния развернутости родительских узлов.}
-    procedure SetFullyVisible(Node: PD2VirtualNode; Value: Boolean);
+    procedure SetFullyVisible(Node: PD2TreeNode; Value: Boolean);
               //Установить флаг vsHasChildren (наличие детей) в Value у узла Node
-    procedure SetHasChildren(Node: PD2VirtualNode; Value: Boolean);
-
+    procedure SetHasChildren(Node: PD2TreeNode; Value: Boolean);
+              //установить отступ границы вложенного узла от границы родителя
+    procedure SetIndentWidth(Value: Single);
+              //Установить тип линий деревьева: дерево или полосы и т.д.
+    procedure SetLineMode(const Value: TD2TreeLineMode);
+              //Установить тип выравнивария для узлов
+    procedure SetNodeAlignment(const Value: TD2TreeNodeAlignment);
+              //Установить в Value кол-во байт для распределения с каждым узлом. Если -1 то делать обратный вызов
     procedure SetNodeDataSize(Value: Integer);
               //Установить в Value высоту узла Node
-    procedure SetNodeHeight(Node: PD2VirtualNode; Value: Single);
-              //Задать родителя AValue для узла Node
-    procedure SetNodeParent(Node: PD2VirtualNode; const Value: PD2VirtualNode);
-
-    procedure SetMultiline(Node: PD2VirtualNode; const Value: Boolean);
-
+    procedure SetNodeHeight(Node: PD2TreeNode; Value: Single);
+              //Задать родителя Value для узла Node
+    procedure SetNodeParent(Node: PD2TreeNode; const Value: PD2TreeNode);
+              //Задать многострочный режим текста в Value для узла Node
+    procedure SetMultiline(Node: PD2TreeNode; const Value: Boolean);
+              //Установить значение прокрутки слева
     procedure SetOffsetX(const Value: Single);
-
+              //Установить значение прокрутки слева и сверху
     procedure SetOffsetXY(const Value: TD2Point);
-
+              //Установить значение прокрутки сверху
     procedure SetOffsetY(const Value: Single);
               //Установить опции поведения дерева
-    procedure SetOptions(const Value: TD2CustomVirtualTreeOptions);
-
+    procedure SetOptions(const Value: TD2CustomTreeOptions);
+              //установить кол-во детей для узла Root
     procedure SetRootNodeCount(Value: Cardinal);
-              //Установить статус "выбран" узла Node в соответствие с Value
-    procedure SetSelected(Node: PD2VirtualNode; Value: Boolean);
-
-    procedure SetTopNode(Node: PD2VirtualNode);
-
-    procedure SetVerticalAlignment(Node: PD2VirtualNode; Value: Single);
+              //Установить статус "выбран" узла Node в соответствие с Value.
+    procedure SetSelected(Node: PD2TreeNode; Value: Boolean);
+              //Установить узел Node верхним видимым
+    procedure SetTopNode(Node: PD2TreeNode);
+              //Установить в Value значение вертикального смещения кнопки экспандера для узла Node
+    procedure SetVerticalAlignment(Node: PD2TreeNode; Value: Single);
               //Устанавливает статус видимости узла Node в соответствии с Value.
-    procedure SetVisible(Node: PD2VirtualNode; Value: Boolean);
+    procedure SetVisible(Node: PD2TreeNode; Value: Boolean);
               //При Value = True разворачиваются все родительские узлы для узла Node.
               //При Value = False ни какие измененя не происходят
-    procedure SetVisiblePath(Node: PD2VirtualNode; Value: Boolean);
-
-    function ToggleCallback(Step, StepSize: Integer; Data: Pointer): Boolean;
+    procedure SetVisiblePath(Node: PD2TreeNode; Value: Boolean);
 
   protected
 
               //Добавляет узел Node в массив текущего выбора.
-    procedure AddToSelection(Node: PD2VirtualNode); overload; virtual;
+    procedure AddToSelection(Node: PD2TreeNode); overload; virtual;
               //Добавляет узлы, указанные в массиве NewItems в массив текущего выбора.
     procedure AddToSelection(const NewItems: TD2NodeArray; NewLength: Integer;
                              ForceInsert: Boolean = False); overload; virtual;
               //Используется для регистрации отложенных событий изменения.
               //StructureChange = True - событие изменение структуры.
               //StructureChange = False - событие изменения выбора узлов.
-    procedure AdviseChangeEvent(StructureChange: Boolean; Node: PD2VirtualNode; Reason: TD2ChangeReason); virtual;
+    procedure AdviseChangeEvent(StructureChange: Boolean; Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
              //Смещение от начала узла до внутренней области данных вызывающего класса дерева.
     function AllocateInternalDataArea(Size: Cardinal): Cardinal; virtual;
 
-    procedure Animate(Steps, Duration: Single; Callback: TD2VTAnimationCallback; Data: Pointer); virtual;
 
-    procedure Change(Node: PD2VirtualNode); virtual;
+    procedure Change(Node: PD2TreeNode); virtual;
              //Проверяет все братья и сестры узла Node что бы определить кокое состояние отметки должен получить родитель.
-    function CheckParentCheckState(Node: PD2VirtualNode; NewCheckState: TD2CheckState): Boolean; virtual;
+    function CheckParentCheckState(Node: PD2TreeNode; NewCheckState: TD2CheckState): Boolean; virtual;
               //Обеспечивает надежное состояние кэша временного узла.
     procedure ClearTempCache; virtual;
-
-    function CountLevelDifference(Node1, Node2: PD2VirtualNode): Integer; virtual;
+             // Этот метод подсчитывает, на сколько уровней отступа узлы Node1 и Node2 отстоят
+             // друг от друга. Если оба узла имеют одного родителя, то разница 0 в противном случае -
+             // результат операции GetNodeLevel (Node2) - GetNodeLevel (Node1) со знаком.
+             // Если результат отрицательный, то уровень Node2 меньше, чем Node1.
+    function CountLevelDifference(Node1, Node2: PD2TreeNode): Integer; virtual;
              //Возвращает количество видимых дочерних узлов узла Node.
-    function CountVisibleChildren(Node: PD2VirtualNode): Cardinal; virtual;
+    function CountVisibleChildren(Node: PD2TreeNode): Cardinal; virtual;
               // Обновление флага vsAllChildrenHidden (все дети скрыты) у узла Node.
-    procedure DetermineHiddenChildrenFlag(Node: PD2VirtualNode); virtual;
+    procedure DetermineHiddenChildrenFlag(Node: PD2TreeNode); virtual;
               // Обновление флага vsAllChildrenHidden (все дети скрыты) у всех неинициализированных узлов.
     procedure DetermineHiddenChildrenFlagAllNodes; virtual;
-             //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
-    function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
+             //Функция используется во время циклов рисования и инициализирует массив LineArray идентификаторов типа линии.
+             //Эти идентификаторы используются для рисования древовидных линий перед узлом Node
+             //Возвращает уровень вложенности узла, используемый для рисования.
+    function DetermineLineArrayAndSelectLevel(Node: PD2TreeNode; var LineArray: TD2TreeLineArray): Integer; virtual;
+
+    procedure DoBeforeDrawTreeLine(Node: PD2TreeNode; Level: integer; var XPos: single); virtual;
               //Отменяет текущие действие редактирования или отложенного редактирования.
     function DoCancelEdit: Boolean; virtual;
               //Вызывает прерывание  OnEditing
-    procedure DoCanEdit(Node: PD2VirtualNode; Column: TD2ColumnIndex; var Allowed: Boolean); virtual;
+    procedure DoCanEdit(Node: PD2TreeNode; Column: Integer; var Allowed: Boolean); virtual;
               //Вызывает прерывание OnChange
-    procedure DoChange(Node: PD2VirtualNode); virtual;
-
-    procedure DoCheckClick(Node: PD2VirtualNode; NewCheckState: TD2CheckState); virtual;
-
-    procedure DoChecked(Node: PD2VirtualNode); virtual;
+    procedure DoChange(Node: PD2TreeNode); virtual;
+              //Устанавливает состояние отметки узла Node в NewCheckState
+    procedure DoCheckClick(Node: PD2TreeNode; NewCheckState: TD2CheckState); virtual;
+              //Вызывает прерывание OnChecked (вызывается после изменения состояния отметки узла)
+    procedure DoChecked(Node: PD2TreeNode); virtual;
               //Определяет может ли узел Node изменить состояние отметки проверки на NewCheckState и вызывает прерывание OnChecking
-    function DoChecking(Node: PD2VirtualNode; var NewCheckState: TD2CheckState): Boolean; virtual;
-
-    procedure DoCollapsed(Node: PD2VirtualNode); virtual;
-
-    function DoCollapsing(Node: PD2VirtualNode): Boolean; virtual;
+    function DoChecking(Node: PD2TreeNode; var NewCheckState: TD2CheckState): Boolean; virtual;
+              //Вызывает прерывание после сворачиванием узла (OnCollapsed).
+              //При установленной опции toAlwaysSelectNode выбирается узел, заданный в FNextNodeToSelect
+    procedure DoCollapsed(Node: PD2TreeNode); virtual;
+             //Вызывает прерывание перед сворачиванием узла (OnCollapsing)
+    function DoCollapsing(Node: PD2TreeNode): Boolean; virtual;
              //Вызывает прерывание сравнения узлов (OnCompareNodes)
-    function DoCompare(Node1, Node2: PD2VirtualNode; Column: TD2ColumnIndex): Integer; virtual;
-              //Вызывает прерывание OnCreateEditor
-    function DoCreateEditor(Node: PD2VirtualNode; Column: TD2ColumnIndex): ID2VTEditLink; virtual;
+    function DoCompare(Node1, Node2: PD2TreeNode; Column: Integer): Integer; virtual;
+              //отрисовка альтернативного фона нечетных строк
+    procedure DoContentPaint(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
+              //отрисовка горизонтальных и вертикальных линий
+    procedure DoContentPaint2(Sender: TObject; const Canvas: TD2Canvas; const ARect: TD2Rect); override;
               //Начать редактирование узла,имеющего фокус
     procedure DoEdit; virtual;
              //Закончить редактирование и вызвать предывание OnEdited
     function DoEndEdit: Boolean; virtual;
-
-    procedure DoEndOperation(OperationKind: TD2VTOperationKind); virtual;
-
+              //Вызывает прерывание OnEndOperation (вызывается при окончании длительной операции)
+    procedure DoEndOperation(OperationKind: TD2TreeOperationKind); virtual;
+              //Выделить узел при при получении деревом фокуса
     procedure DoEnter();
+              //Вызывает прерывание после разворачивания узла (OnExpanded)
+    procedure DoExpanded(Node: PD2TreeNode); virtual;
+              //Вызывает прерывание перед разворачиванием узла (OnExpanding)
+    function DoExpanding(Node: PD2TreeNode): Boolean; virtual;
               //Вызывает прерывание смены фокуса узла
-    procedure DoFocusChange(Node: PD2VirtualNode; Column: TD2ColumnIndex); virtual;
+    procedure DoFocusChange(Node: PD2TreeNode; Column: Integer); virtual;
               //Вызывает прерывание перед изменением фокуса узла и/или колонки
-    function DoFocusChanging(OldNode, NewNode: PD2VirtualNode; OldColumn, NewColumn: TD2ColumnIndex): Boolean;
+    function DoFocusChanging(OldNode, NewNode: PD2TreeNode; OldColumn, NewColumn: Integer): Boolean;
               //Вызывает прерывание при изменениии фокуса узла
-    procedure DoFocusNode(Node: PD2VirtualNode; Ask: Boolean); virtual;
+    procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
               //Вызывает прерывание при освобождении узла
-    procedure DoFreeNode(Node: PD2VirtualNode); virtual;
+    procedure DoFreeNode(Node: PD2TreeNode); virtual;
+             // Возвращает ширину узла. Виртуальный метод переопределяемый в потомках
+    function DoGetNodeWidth(Node: PD2TreeNode; Column: Integer; Canvas: TD2Canvas = nil): Single; virtual;
               //Вызывает OnInitChildren и возвращает истину, если обработчик события определен;
-    function DoInitChildren(Node: PD2VirtualNode; var ChildCount: Cardinal): Boolean; virtual;
+    function DoInitChildren(Node: PD2TreeNode; var ChildCount: Cardinal): Boolean; virtual;
               //Вызов прерывания инициализации узла
-    procedure DoInitNode(Parent, Node: PD2VirtualNode; var InitStates: TD2VirtualNodeInitStates); virtual;
-
-    procedure DoLoadUserData(Node: PD2VirtualNode; Stream: TStream); virtual;
-              //Вызов прерывания определения высоты узла
-    procedure DoMeasureItem(TargetCanvas: TD2Canvas; Node: PD2VirtualNode; var NodeHeight: Single); virtual;
-
-    procedure DoNodeCopied(Node: PD2VirtualNode); virtual;
-
-    function DoNodeCopying(Node, NewParent: PD2VirtualNode): Boolean; virtual;
+    procedure DoInitNode(Parent, Node: PD2TreeNode; var InitStates: TD2TreeNodeInitStates); virtual;
+              //Вызов прерывания после загрузки узла из потока (FOnLoadNode) для загрузки из потока Stream данных узла Node
+    procedure DoLoadUserData(Node: PD2TreeNode; Stream: TStream); virtual;
+              //Вызов прерывания OnMeasureItem (определение высоты узла)
+    procedure DoMeasureItem(Node: PD2TreeNode; var NodeHeight: Single); virtual;
+              //Вызов прерывания OnNodeCopied (вызывается после копирования узла)
+    procedure DoNodeCopied(Node: PD2TreeNode); virtual;
+             //Вызов прерывания OnNodeCopying (вызывается, перед копированием узла на другой родительский узел)
+    function DoNodeCopying(Node, NewParent: PD2TreeNode): Boolean; virtual;
               //Вызов прерывания OnNodeMoved после перемещения узла Node к новому родителю
-    procedure DoNodeMoved(Node: PD2VirtualNode); virtual;
+    procedure DoNodeMoved(Node: PD2TreeNode); virtual;
              //Вызов прерывания OnNodeMoving перед перемещением узла Node к новому родителю NewParent
-    function DoNodeMoving(Node, NewParent: PD2VirtualNode): Boolean; virtual;
-              //Вызов прерывания удалении узла Node из списка выделенных
-    procedure DoRemoveFromSelection(Node: PD2VirtualNode); virtual;
+    function DoNodeMoving(Node, NewParent: PD2TreeNode): Boolean; virtual;
+              //Вызов прерывание OnRemoveFromSelection (вызывается когда узел удаляется из списка выбранных)
+    procedure DoRemoveFromSelection(Node: PD2TreeNode); virtual;
+              //Вызов прерывания nResetNode (вызывается, когда узел устанавливается как неинициализированный)
+    procedure DoReset(Node: PD2TreeNode); virtual;
+              //Вызов прерывания OnSaveNode (вызывается при сериализации узла в поток) при записи узла Node в поток Stream
+    procedure DoSaveUserData(Node: PD2TreeNode; Stream: TStream); virtual;
 
-    procedure DoReset(Node: PD2VirtualNode); virtual;
-
-    procedure DoSaveUserData(Node: PD2VirtualNode; Stream: TStream); virtual;
-
-    function DoSetOffsetXY(Value: TD2Point; Options: TD2ScrollUpdateOptions;
-                             ClipRect: PRect = nil): Boolean; virtual;
-
-    procedure DoStartOperation(OperationKind: TD2VTOperationKind); virtual;
+    function DoSetOffsetXY(Value: TD2Point; Options: TD2ScrollUpdateOptions{; ClipRect: PRect}): Boolean;
+              //Вызов прерывания OnStartOperation (вызывается при начале длительной операции)
+    procedure DoStartOperation(OperationKind: TD2TreeOperationKind); virtual;
               //Изменяет текущие флаги состояния дерева: Enter - добавляемые, Leave - исключаемые
-    procedure DoStateChange(Enter: TD2VirtualTreeStates; Leave: TD2VirtualTreeStates = []); virtual;
+    procedure DoStateChange(Enter: TD2TreeStates; Leave: TD2TreeStates = []); virtual;
               //Вызов прерывания OnStructureChange при изменении структуры дерева
-    procedure DoStructureChange(Node: PD2VirtualNode; Reason: TD2ChangeReason); virtual;
+    procedure DoStructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
 
-    procedure EndOperation(OperationKind: TD2VTOperationKind);
+    function DoValidateCache: Boolean; virtual;
+
+    procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  override;
+
+    procedure DragLeave;  override;
+
+    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point); override;
+
+    procedure DoDragScroll(Sender: TObject);
+
+    procedure DoDropExpand(Sender: TObject);
+
+    procedure StartDragScroll(ScrollUp: boolean; Distance: single);
+
+    procedure StartDropExpand;
+              //остановить автосроллинг
+    procedure StopDragScroll;
+              //остановить авторазворачивание узла
+    procedure StopDropExpand;
+
+    procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean); override;
+              //Вызывается для индикации завершения длительной операции.
+    procedure EndOperation(OperationKind: TD2TreeOperationKind);
              //Поиск узла P в массиве выбора. LowBound и HighBound нижняя и верхняя границы диапазона поиска.
              //LowBound = -1 или HighBound = -1 - максимальный диапазон, иначе нужно LowBound <= HighBound.
-    function FindNodeInSelection(P: PD2VirtualNode; var Index: Integer;
+    function FindNodeInSelection(P: PD2TreeNode; var Index: Integer;
                                  LowBound, HighBound: Integer): Boolean; virtual;
               //Используется при потоковой передаче узла для завершающей записи размер блока
     procedure FinishChunkHeader(Stream: TStream; StartPos, EndPos: Integer); virtual;
-
+                  //получить высоту виртуальной клиентской область грида
+    function  GetContentHeight: Single;  override;
+              //получить ширину виртуальной клиентской области грида
+    function GetOptionsClass: TD2TreeOptionsClass; virtual;
+              //Получить состояния флага необходимости завершения длительной операции: true - операция должна быть завершена
     function GetOperationCanceled: Boolean;
+             //получить № вехней видимой строки
+    function GetTopRow: integer; override;
+              //получить координату Y вехней видимой строки
+    function GetTopRowY: single; override;
+              //получить значение ячейки в колонке Col для узла Node
+    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; overload;
+              //сохранить значение ячейки Value в колонке Col для узла Node
+    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  overload;
               //Инициализация дочерних узлов для узла Node.
-    procedure InitChildren(Node: PD2VirtualNode); virtual;
+    procedure InitChildren(Node: PD2TreeNode); virtual;
               //Инициализация узла Node
-    procedure InitNode(Node: PD2VirtualNode); virtual;
+    procedure InitNode(Node: PD2TreeNode); virtual;
               // Загружает все детали узла Node (в том числе его детей) из потока Stream.
-    procedure InternalAddFromStream(Stream: TStream; Version: Integer; Node: PD2VirtualNode); virtual;
+    procedure InternalAddFromStream(Stream: TStream; Version: Integer; Node: PD2TreeNode); virtual;
              // Внутренняя версия метода AddToSelection, не вызвающая событие OnChange
-    function InternalAddToSelection(Node: PD2VirtualNode; ForceInsert: Boolean): Boolean; overload;
+    function InternalAddToSelection(Node: PD2TreeNode; ForceInsert: Boolean): Boolean; overload;
              // Внутренняя версия метода AddToSelection, не вызвающая событие OnChange
     function InternalAddToSelection(const NewItems: TD2NodeArray; NewLength: Integer;
                                     ForceInsert: Boolean): Boolean; overload;
-
-    procedure InternalCacheNode(Node: PD2VirtualNode); virtual;
+              // Добавляет узел Node в массив временных узлов (используется при сборе возможно большого количества узлов).
+    procedure InternalCacheNode(Node: PD2TreeNode); virtual;
               //Присоединить узел Node к узлу Destination в дереве Target в зависимости от Mode.
-    procedure InternalConnectNode(Node, Destination: PD2VirtualNode; Target: TD2BaseVirtualTree;
-                                    Mode: TD2VTNodeAttachMode); virtual;
+    procedure InternalConnectNode(Node, Destination: PD2TreeNode; Target: TD2CustomTreeGrid;
+                                    Mode: TD2TreeNodeAttachMode); virtual;
               //Внутренняя процедура очистки массива выбора узлов
     procedure InternalClearSelection; virtual;
               // Отключает узел Node от его родителя и братьев и сестер. Если KeepFocus = True, то узел сохраняет фокус.
-    procedure InternalDisconnectNode(Node: PD2VirtualNode; KeepFocus: Boolean; Reindex: Boolean = True); virtual;
-             //Получить ссылку на узел по координатам
-    function InternalGetNodeAt(X, Y: Single): PD2VirtualNode; overload;
-             //Получить ссылку на узел по координатам
-    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Integer): PD2VirtualNode; overload;
+    procedure InternalDisconnectNode(Node: PD2TreeNode; KeepFocus: Boolean; Reindex: Boolean = True); virtual;
+             //Получить узел по координатам (внутренняя версия функции GetNodeAt).
+             //X и Y задаются в координатах клиентской области
+    function InternalGetNodeAt(X, Y: Single): PD2TreeNode; overload;
+             //Получить узел по координатам (внутренняя версия функции GetNodeAt).
+             //При Relative = True  X и Y задаются в координатах клиентской области ,
+             //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+             //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+    function InternalGetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single; var NodeNum: integer): PD2TreeNode; overload;
               //Внутренняя версия метода RemoveFromSelection для удаления узла Node из массива выбранных.
-    procedure InternalRemoveFromSelection(Node: PD2VirtualNode); virtual;
+    procedure InternalRemoveFromSelection(Node: PD2TreeNode); virtual;
               //Пометить кэш недействительным.
     procedure InvalidateCache;
+              //True - если выделена только одна строка
+    function  IsOneRowSelected: boolean; override;
+              //true - если строка c номером Row выбрана
+    function  IsSelected(Row: integer):boolean; override;
+              //true - если строка по координатам X,Y выбрана
+    function  IsSelected(const X, Y: single):boolean; override;
+              //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //обработка отпускания клавиатуры
+    procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+              //обработка отпускания клавиатуры
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:single);  override;
+              //Виртуальный метод, изменяемый в потомках, вызываемый при изменении колонки, отображающая структуру дерева
+    procedure MainColumnChanged; virtual;
               //Устанавливает флаг vsCutOrCopy в каждом выбранном в данный момент узле, кроме
               //недействительных чтобы указать, что они является частью операции с буфером обмена.
     procedure MarkCutCopyNodes; virtual;
@@ -8764,79 +9274,102 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
               //Возвращает True, если блок обработан, иначе false.
               //Функция обрабатывает базовый и пользовательский блоки, любой другой блок помечается как неизвестный
               //(результат будет False) и пропускается. Потомки могут переопределить этот метод.
-    function ReadChunk(Stream: TStream; Version: Integer; Node: PD2VirtualNode; ChunkType,
+    function ReadChunk(Stream: TStream; Version: Integer; Node: PD2TreeNode; ChunkType,
                        ChunkSize: Integer): Boolean; virtual;
               // Считывает якорь блока каждого узла и начинает читать подблоки узла Node из потока Stream
-    procedure ReadNode(Stream: TStream; Version: Integer; Node: PD2VirtualNode); virtual;
+    procedure ReadNode(Stream: TStream; Version: Integer; Node: PD2TreeNode); virtual;
               //Удаляет узел Node из массива выбранных узлов
-    procedure RemoveFromSelection(Node: PD2VirtualNode); virtual;
+    procedure RemoveFromSelection(Node: PD2TreeNode); virtual;
               //Вызывается, когда больше нет выбранного узла и для якоря массива выбора узлов нужно новое значение.
     procedure ResetRangeAnchor; virtual;
+              //Делает выбранным узел Node и отменяет выделение всех ранее выделенных узлов
+    procedure SelectNode(Node: PD2TreeNode);
               //Выбирает диапазон узлов от узла StartNode до узла и EndNode отменяет выделение всех
               //ранее выбранных узлов, которые не находятся в этом диапазоне, если AddOnly = false.
-    procedure SelectNodes(StartNode, EndNode: PD2VirtualNode; AddOnly: Boolean); virtual;
+    procedure SelectNodes(StartNode, EndNode: PD2TreeNode; AddOnly: Boolean); virtual;
 
-    procedure SetFocusedNodeAndColumn(Node: PD2VirtualNode; Column: TD2ColumnIndex); virtual;
+              //сделать выбранной строку по координатам X, Y
+    procedure SetSelectedByPoint(const X, Y:single); override;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
+    procedure SetSelectedMoreRowByPoint(const X, Y: single); override;
+              //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
+    procedure SetSelectedExtraRowByPoint(const X, Y: single); override;
+              //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
+    function  ChangeSelectionRowByPoint(const X, Y: single): boolean; override;
+
+              //Устанавливает фокус на узел Node и колонку Column
+    procedure SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer); virtual;
               //Игнорирует данные для следующего узла в потоке Stream (в том числе и дочерние узлы).
     procedure SkipNode(Stream: TStream); virtual;
               // Вызывается, чтобы указать, что была начата длительная операция.
-    procedure StartOperation(OperationKind: TD2VTOperationKind);
-
-    procedure StructureChange(Node: PD2VirtualNode; Reason: TD2ChangeReason); virtual;
+    procedure StartOperation(OperationKind: TD2TreeOperationKind);
+              //Изменить структуру узла Node в соответствии с параметрами Reason ???
+    procedure StructureChange(Node: PD2TreeNode; Reason: TD2ChangeReason); virtual;
               //Запуск проверки кэша
     procedure ValidateCache; virtual;
               //Определяет размер области данных узла дерева
     procedure ValidateNodeDataSize(var Size: Integer); virtual;
-              //Обновление границ редактора узла, если редактирование активно.
-    procedure UpdateEditBounds; virtual;
               //Обновить узел для последующего выбора после удаления теущего выбранного узела.
-    procedure UpdateNextNodeToSelect(Node: PD2VirtualNode); virtual;
+    procedure UpdateNextNodeToSelect(Node: PD2TreeNode); virtual;
+              //обновить маркеры выбора строк
+    procedure UpdateSelection; override;
               // Записывает основные элементы узла Node в поток Stream.
-    procedure WriteChunks(Stream: TStream; Node: PD2VirtualNode); virtual;
+    procedure WriteChunks(Stream: TStream; Node: PD2TreeNode); virtual;
               //Записывает основной элемент "обертку" узла Node в поток Stream и инициирует запись дочерних узлов и элементов.
-    procedure WriteNode(Stream: TStream; Node: PD2VirtualNode); virtual;
+    procedure WriteNode(Stream: TStream; Node: PD2TreeNode); virtual;
+              //Обновить колонки
+    procedure UpdateColumns; override;
+              // Переключает состояние выбора диапазона узлов от StartNode до EndNode
+    procedure ToggleSelection(StartNode, EndNode: PD2TreeNode); virtual;
+              //Отменяет выбор диапазона узлов от StartNode до EndNode.
+    procedure UnselectNodes(StartNode, EndNode: PD2TreeNode); virtual;
 
     //------- свойства
-             //продолжительность анимации
-    property AnimationDuration: Cardinal read FAnimationDuration write SetAnimationDuration default 200;
-             //Задержка прерывания OnChange
-    //property ChangeDelay: Cardinal read FChangeDelay write FChangeDelay default 0;
+             //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoExpandDelay: Cardinal read FAutoExpandDelay write FAutoExpandDelay default 1000;
+             //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
+    property AutoScrollDelay: Cardinal read FAutoScrollDelay write FAutoScrollDelay default 100;
              //Дополнительное место ниже последнего узла
     property BottomSpace: Single read FBottomSpace write SetBottomSpace default 0;
              //Высота узла по умолчанию
-    property DefaultNodeHeight: Single read FDefaultNodeHeight write SetDefaultNodeHeight default 18;
-
-    property EditColumn: TD2ColumnIndex read FEditColumn write FEditColumn;
-             //Фактическое положение горизонтальной полосы прокрутки
-    property EffectiveOffsetX: Single read FEffectiveOffsetX;
+    property DefaultNodeHeight: Single read FDefaultNodeHeight write SetDefaultNodeHeight default 21;
+             //Индекс колонки в которой идет редактирование данных
+    property EditColumn: integer read FEditColumn write FEditColumn;
+             //отступ границы вложенного узла от границы родителя
+    property IndentWidth: Single read FIndentWidth write SetIndentWidth default 20;
              //Следующий узел дерева, который должен быть выбран, если текущий будет удален или теряет выбор по другим причинам. Next tree node that we would like to select if the current one gets deleted
-    property NextNodeToSelect: PD2VirtualNode read FNextNodeToSelect;
-             //Количество байт для распределения с каждым узлом (в дополнение к основной структуре и внутренним данным)
-    property NodeDataSize: Integer read FNodeDataSize write SetNodeDataSize default -1;
-
+    property NextNodeToSelect: PD2TreeNode read FNextNodeToSelect;
+             //Тип выравнивания для узлов
+    property NodeAlignment: TD2TreeNodeAlignment read FNodeAlignment write SetNodeAlignment default naProportional;
+             //true - длительная операция должна быть завершена
     property OperationCanceled: Boolean read GetOperationCanceled;
-             //Текущая виртуальная ширина дерева (не ClientWidth).  Returns the width of the virtual tree in pixels, (not ClientWidth). If there are columns it returns the total width of all of them; otherwise it returns the maximum of the all the line's data widths.
-    property RangeX: Single read GetRangeX;
-             //Текущая виртуальная высота дерева
+             // Текущая виртуальная ширина дерева (не ClientWidth). Если есть столбцы, возвращает их общую ширину. В противном случае он возвращает максимум ширины данных всей строки.
+    property RangeX: Single read GetRangeX; // Returns the width of the virtual tree in pixels, (not ClientWidth). If there are columns it returns the total width of all of them; otherwise it returns the maximum of the all the line's data widths.
+             // Текущая виртуальная высота дерева
     property RangeY: Single read FRangeY;
-
+             //Кол-во детей у узла Root
     property RootNodeCount: Cardinal read GetRootNodeCount write SetRootNodeCount default 0;
-               //Опции поведения дерева
-    property TreeOptions: TD2CustomVirtualTreeOptions read FOptions write SetOptions;
+             //Последний режим падения
+    property LastDropMode: TD2DropMode read FLastDropMode write FLastDropMode;
+             //Тип линий деревьева: дерево или полосы и т.д. tree lines or bands etc.
+    property LineMode: TD2TreeLineMode read FLineMode write SetLineMode default lmNormal;
+             //Опции поведения дерева
+    property TreeOptions: TD2CustomTreeOptions read FOptions write SetOptions;
 
     //------- прерывания
 
              //Прерывание при изменении массива выбораных узлов
     property OnChange: TD2VTChangeEvent read FOnChange write FOnChange;
-
+             //Прерывание после сворачивания узла
     property OnCollapsed: TD2VTChangeEvent read FOnCollapsed write FOnCollapsed;
-
+             //Прерывание перед сворачиванием узла
     property OnCollapsing: TD2VTChangingEvent read FOnCollapsing write FOnCollapsing;
-
+             //Прерывание сортировки
     property OnCompareNodes: TD2VTCompareEvent read FOnCompareNodes write FOnCompareNodes;
+    //         //Прерывание при переходе дерева в режим редактирования для возможности вызова пользовательского редактора
+    //property OnCreateEditor: TD2VTCreateEditorEvent read FOnCreateEditor write FOnCreateEditor;
 
-    property OnCreateEditor: TD2VTCreateEditorEvent read FOnCreateEditor write FOnCreateEditor;
-
+               //Прерывание после отмены радактирования данных
     property OnEditCancelled: TD2VTEditCancelEvent read FOnEditCancelled write FOnEditCancelled;
              //Вызывается непосредственно перед переходом узла в режим редактирования
     property OnEditing: TD2VTEditChangingEvent read FOnEditing write FOnEditing;
@@ -8844,23 +9377,21 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
     property OnEdited: TD2VTEditChangeEvent read FOnEdited write FOnEdited;
 
     property OnEndOperation: TD2VTOperationEvent read FOnEndOperation write FOnEndOperation;
-
-    procedure DoExpanded(Node: PD2VirtualNode); virtual;
-
-    function DoExpanding(Node: PD2VirtualNode): Boolean; virtual;
              //Прерывание при переходе фокуса на новый узел и/или столбец
     property OnFocusChanged: TD2VTFocusChangeEvent read FOnFocusChanged write FOnFocusChanged;
              //Прерывание перед переходом фокуса на новый узел и/или столбец (может быть отменено).
     property OnFocusChanging: TD2VTFocusChangingEvent read FOnFocusChanging write FOnFocusChanging;
              //Прерывание при освовождении памяти после удаления узла
     property OnFreeNode: TD2VTFreeNodeEvent read FOnFreeNode write FOnFreeNode;
+             //Прерывание инкрементального поиска. Вызывается при каждом событии нажатия клавиши KeyPress (не путать с KeyDown)
+    property OnIncrementalSearch: TD2VTIncrementalSearchEvent read FOnIncrementalSearch write FOnIncrementalSearch;
              //Прерывание после загрузки узла из потока
     property OnLoadNode: TD2VTSaveNodeEvent read FOnLoadNode write FOnLoadNode;
              //Прерывание после загрузки дерева из потока
     property OnLoadTree: TD2VTSaveTreeEvent read FOnLoadTree write FOnLoadTree;
-
+             //Прерывание после копирования узла
     property OnNodeCopied: TD2VTNodeCopiedEvent read FOnNodeCopied write FOnNodeCopied;
-
+             //Прерывание перед копированием узла
     property OnNodeCopying: TD2VTNodeCopyingEvent read FOnNodeCopying write FOnNodeCopying;
              //Прерывание после перемещения узла и его детей к другому родителю
     property OnNodeMoved: TD2VTNodeMovedEvent read FOnNodeMoved write FOnNodeMoved;
@@ -8869,314 +9400,395 @@ TD2BaseVirtualTree = class(TD2ScrollBox)
              //Прерывание при удалении узла из массива выбораных узлов
     property OnRemoveFromSelection: TD2VTRemoveFromSelectionEvent read FOnRemoveFromSelection
                                     write FOnRemoveFromSelection;
-
+             //Прерывание при установке неинициализированного состояния узла
     property OnResetNode: TD2VTChangeEvent read FOnResetNode write FOnResetNode;
              //Прерывание после записи узла в потока ?
     property OnSaveNode: TD2VTSaveNodeEvent read FOnSaveNode write FOnSaveNode;
              //Прерывание после записи дерева в поток
     property OnSaveTree: TD2VTSaveTreeEvent read FOnSaveTree write FOnSaveTree;
-
+             //Прерывание при начале длительной операции
     property OnStartOperation: TD2VTOperationEvent read FOnStartOperation write FOnStartOperation;
              //Прерывание при изменении состояния дерева
     property OnStateChange: TD2VTStateChangeEvent read FOnStateChange write FOnStateChange;
              //Прерывание при изменении структуры дерева
     property OnStructureChange: TD2VTStructureChangeEvent read FOnStructureChange write FOnStructureChange;
 
-  public
-
+public
              //Возвращает абсолютный № узла Node в дереве
-    function AbsoluteIndex(Node: PD2VirtualNode): Cardinal;
+    function AbsoluteIndex(Node: PD2TreeNode): Cardinal;
              //Добавляет новый дочерний узел к родительскому узлу Parent
-    function AddChild(Parent: PD2VirtualNode; UserData: Pointer = nil): PD2VirtualNode; virtual;
+    function AddChild(Parent: PD2TreeNode; UserData: Pointer = nil): PD2TreeNode; virtual;
               //Загружает узлы из потока Stream и добавляет их к TargetNode.
-    procedure AddFromStream(Stream: TStream; TargetNode: PD2VirtualNode);
+    procedure AddFromStream(Stream: TStream; TargetNode: PD2TreeNode);
+              //Вызывается после создания экземпляра дерева для инициализации корневого узла
+    procedure AfterConstruction; override;
              //Вызывается приложением или текущим редактором для отмены редактирования.
     function CancelEditNode: Boolean;
              // True - если данный узел может быть отредактирован.
-    function CanEdit(Node: PD2VirtualNode; Column: TD2ColumnIndex): Boolean; virtual;
+    function CanEdit(Node: PD2TreeNode; Column: Integer): Boolean; virtual;
               //Вызывается приложением для отмены длительной операции.
     procedure CancelOperation;
-
+              //полное удаление всех узлов дерева
     procedure Clear; virtual;
-
+              //Снимает отметку у всех узлов
     procedure ClearChecked;
               //Очистить массив выборанный узлов
     procedure ClearSelection;
              //Упрощенный метод CopyTo, чтобы скопировать узел Source в корень другого дерева Tree.
-    function CopyTo(Source: PD2VirtualNode; Tree: TD2BaseVirtualTree; Mode: TD2VTNodeAttachMode;
-      ChildrenOnly: Boolean): PD2VirtualNode; overload;
+    function CopyTo(Source: PD2TreeNode; Tree: TD2CustomTreeGrid; Mode: TD2TreeNodeAttachMode;
+                    ChildrenOnly: Boolean): PD2TreeNode; overload;
              //Копирует Source и всех его детей в узел Target.
-    function CopyTo(Source, Target: PD2VirtualNode; Mode: TD2VTNodeAttachMode;
-      ChildrenOnly: Boolean): PD2VirtualNode; overload;
+    function CopyTo(Source, Target: PD2TreeNode; Mode: TD2TreeNodeAttachMode;
+                    ChildrenOnly: Boolean): PD2TreeNode; overload;
               //Удаление всех детей и их детей узла Node из памяти, не меняя флмг vsHasChildren узла.
-    procedure DeleteChild(Node: PD2VirtualNode; ResetHasChildren: Boolean = False);
+    procedure DeleteChild(Node: PD2TreeNode; ResetHasChildren: Boolean = False);
               //Удаление узла Node и всех его детей и их детей и т.д.
-    procedure DeleteNode(Node: PD2VirtualNode; Reindex: Boolean = True);
+    procedure DeleteNode(Node: PD2TreeNode; Reindex: Boolean = True);
               //Удаляет все выбранные узлы (включая их дочерние узлы).
     procedure DeleteSelectedNodes; virtual;
              //Начать редактирование узла Node в колонке Column.
              //Возвращает True, если начато редактирование иначе - False
-    function EditNode(Node: PD2VirtualNode; Column: TD2ColumnIndex): Boolean; virtual;
+    function EditNode(Node: PD2TreeNode; Column: Integer): Boolean; virtual;
              // Вызывается, чтобы закончить редактирование узла или остановить таймер ожидания редактирования.
     function EndEditNode: Boolean;
               //Обеспечить выделение узла при потере выбора текущим узлом (например при удалении)
     procedure EnsureNodeSelected(); virtual;
               //Эта процедура сворачивает все развернутые узлы в поддереве узла Node или всего дерева
-    procedure FullCollapse(Node: PD2VirtualNode = nil);  virtual;
+    procedure FullCollapse(Node: PD2TreeNode = nil);  virtual;
               //Эта процедура разворачивает все свернутые узлы в поддереве узла Node или всего дерева
-    procedure FullExpand(Node: PD2VirtualNode = nil); virtual;
-              // Определяет прямоугольник на экране, который занимает узел Node
-    function GetDisplayRect(Node: PD2VirtualNode; Column: TD2ColumnIndex; TextOnly: Boolean;
+    procedure FullExpand(Node: PD2TreeNode = nil); virtual;
+              // Определяет координаты клиентской области, которые занимает узел Node, в зависимости от положения скроллеров, развернутости узла и т.д.
+    function GetDisplayRect(Node: PD2TreeNode; Column: Integer; TextOnly: Boolean;
                             Unclipped: Boolean = False; ApplyCellContentMargin: Boolean = False): TD2Rect;
              //True -  если узел Node эффективно отфильтрован.
-    function GetEffectivelyFiltered(Node: PD2VirtualNode): Boolean;
+    function GetEffectivelyFiltered(Node: PD2TreeNode): Boolean;
              //True -  если узел Node эффективно видим.
-    function GetEffectivelyVisible(Node: PD2VirtualNode): Boolean;
-
-    function GetFirst(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstChecked(State: TD2CheckState = csCheckedNormal; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstChild(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetFirstChildNoInit(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstLeaf: PD2VirtualNode;
-    function GetFirstLevel(NodeLevel: Cardinal): PD2VirtualNode;
-    function GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetFirstVisible(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-                             IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetFirstVisibleChild(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetFirstVisibleChildNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetFirstVisibleNoInit(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-                                   IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetLast(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetLastInitialized(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetLastNoInit(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetLastChild(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetLastChildNoInit(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetLastVisible(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-                            IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetLastVisibleChild(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetLastVisibleChildNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetLastVisibleNoInit(Node: PD2VirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
-                                  IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetNext(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetNextChecked(Node: PD2VirtualNode; State: TD2CheckState = csCheckedNormal;
-                            ConsiderChildrenAbove: Boolean = False): PD2VirtualNode; overload;
-    function GetNextChecked(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean): PD2VirtualNode; overload;
-    function GetNextCutCopy(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetNextInitialized(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetNextLeaf(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetNextLevel(Node: PD2VirtualNode; NodeLevel: Cardinal): PD2VirtualNode;
-    function GetNextNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetNextSelected(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetNextSibling(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetNextSiblingNoInit(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetNextVisible(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
-    function GetNextVisibleNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
-    function GetNextVisibleSibling(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetNextVisibleSiblingNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetNodeData(Node: PD2VirtualNode): Pointer;
-    function GetNodeLevel(Node: PD2VirtualNode): Cardinal;
-    function GetPrevious(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousChecked(Node: PD2VirtualNode; State: TD2CheckState = csCheckedNormal;
-                                ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousCutCopy(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousInitialized(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousLeaf(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetPreviousLevel(Node: PD2VirtualNode; NodeLevel: Cardinal): PD2VirtualNode;
-    function GetPreviousNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousSelected(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = False): PD2VirtualNode;
-    function GetPreviousSibling(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetPreviousSiblingNoInit(Node: PD2VirtualNode): PD2VirtualNode;
-    function GetPreviousVisible(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
-    function GetPreviousVisibleNoInit(Node: PD2VirtualNode; ConsiderChildrenAbove: Boolean = True): PD2VirtualNode;
-    function GetPreviousVisibleSibling(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
-    function GetPreviousVisibleSiblingNoInit(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+    function GetEffectivelyVisible(Node: PD2TreeNode): Boolean;
+             //Возвращает первый узел в дереве, принимая во внимание опцию toChildrenAbove.
+    function GetFirst(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             //Возвращает первый узел в дереве с заданным состоянием отметки
+    function GetFirstChecked(State: TD2CheckState = csCheckedNormal; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             //Возвращает первый дочерний элемент узла Node. Узел Node и возвращаемый узел инициализируется если не инициализированы.
+    function GetFirstChild(Node: PD2TreeNode): PD2TreeNode;
+             //Возвращает первый дочерний элемент узла Node, без их инициализации.
+    function GetFirstChildNoInit(Node: PD2TreeNode): PD2TreeNode;
+             //Возвращает первый узел в дереве, который в настоящее время помечен для операции с буфером обмена.
+    function GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает первый инициализированный узел.
+    function GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает первый узел в дереве, у которого нет детей. Результат при необходимости инициализируется.
+    function GetFirstLeaf: PD2TreeNode;
+             // Возвращает первый узел в дереве на указанном уровне. Результат при необходимости инициализируется.
+    function GetFirstLevel(NodeLevel: Cardinal): PD2TreeNode;
+             //Возвращает первый узел в дереве, c учетом опции toChildrenAbove (необязательно). Инициализация не выполняется.
+    function GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает первый выбранный узел с учетом опции toChildrenAbove (необязательно).
+    function GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает первый видимый узел в дереве, с учетом опции toChildrenAbove (необязательно). Если необходимо узлы инициализируются.
+    function GetFirstVisible(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
+                             IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает первый видимый дочерний узел узла. При необходимости узлы инициализируются.
+    function GetFirstVisibleChild(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает первый видимый дочерний узел узла. Узлы не инициализируются
+    function GetFirstVisibleChildNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает первый видимый узел в дереве или заданном поддереве, с учетом опции toChildrenAbove (необязательно). Узлы не инициализируются
+    function GetFirstVisibleNoInit(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
+                                   IncludeFiltered: Boolean = False): PD2TreeNode;
+             //Возвращает самый последний узел в ветке, заданной узлом, и инициализирует узлы до конца, включая результат.
+             //Учитывается опция toChildrenAbove (необязательно). Если Node = nil, то возвращается последний узел в дереве.
+    function GetLast(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает самый последний инициализированный дочерний узел в ветке узла Node. Учитывается опция toChildrenAbove (необязательно)
+    function GetLastInitialized(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает самый последний узел в ветке узла Node. Инициализация не выполеняется. Учитывается опция toChildrenAbove (необязательно)
+    function GetLastNoInit(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             //Возвращяет последний дочерний элемент узла Node и инициализирует его, если он есть.
+    function GetLastChild(Node: PD2TreeNode): PD2TreeNode;
+             //Возвращяет последний дочерний элемент узла Node, но не инициализирует его.
+    function GetLastChildNoInit(Node: PD2TreeNode): PD2TreeNode;
+             //Возвращает самый последний видимый узел в дереве с учетом опции toChildrenAbove (необязательно).
+             //Узлы полностью инициализируются, включая узел результата.
+    function GetLastVisible(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
+                            IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Определяет последний видимый дочерний узел для узла Node и при необходимости инициализирует его.
+    function GetLastVisibleChild(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             //Возвращает последний видимый дочерний узел для узла Node без инициализации.
+    function GetLastVisibleChildNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             //Возвращает самый последний видимый узел в дереве с учетом опции toChildrenAbove (необязательно). Инициализация не выполняется.
+    function GetLastVisibleNoInit(Node: PD2TreeNode = nil; ConsiderChildrenAbove: Boolean = True;
+                                  IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает следующий узел в дереве, с учетом поции toChildrenAbove (необязательно). Результат инициализируется если нужно.
+    function GetNext(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             //Возвращает следующий узел начиная после Node с состоянием отметки State, с учетом поции toChildrenAbove (необязательно)
+    function GetNextChecked(Node: PD2TreeNode; State: TD2CheckState = csCheckedNormal;
+                            ConsiderChildrenAbove: Boolean = False): PD2TreeNode; overload;
+             //Возвращает следующий узел после Node с состоянием отметки csCheckedNormal, с учетом поции toChildrenAbove (необязательно)
+    function GetNextChecked(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean): PD2TreeNode; overload;
+             // Возвращает следующий после Node узел в дереве, который в настоящее время помечен для операции с буфером обмена.
+    function GetNextCutCopy(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает следующий инициализированный после Node узел, с учетом поции toChildrenAbove (необязательно)
+    function GetNextInitialized(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает следующий узел в дереве у которого нет детей. Результат при необходимости инициализируется.
+    function GetNextLeaf(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает следующий после Node узел в дереве определенного уровня. Результат при необходимости инициализируется.
+    function GetNextLevel(Node: PD2TreeNode; NodeLevel: Cardinal): PD2TreeNode;
+             // Возвращает следующий узел в дереве, с учетом поции toChildrenAbove (необязательно). Результаты не инициализируются.
+    function GetNextNoInit(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает следующий после Node выбранный узел в дереве с инициализацией результата.
+    function GetNextSelected(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает следующий братский узел для узла Node и при необходимости инициализирует его.
+    function GetNextSibling(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает следующий братский узел для узла Node без его инициализации.
+    function GetNextSiblingNoInit(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает следующий узел после Node, который является видимым с инициализацией всех узлов и с учетом опции toChildrenAbove.
+    function GetNextVisible(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = True): PD2TreeNode;
+             // Возвращает следующий узел после Node, который является видимым без инициализации и с учетом опции toChildrenAbove.
+    function GetNextVisibleNoInit(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = True): PD2TreeNode;
+             // Возвращает следующий видимый братский узел для Node с инициализацией
+    function GetNextVisibleSibling(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает следующий видимый братский узел для Node без инициализацией
+    function GetNextVisibleSiblingNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             //Получить узел по координатам X и Y.
+             //При Relative = True  X и Y задаются в координатах клиентской области ,
+             //иначе в абсолютных координатах всего виртуального дерева (без смещения в окне дерева).
+             //NodeTop получает значение Position.Y возвращаемого узла или не изменняется если узел не найден
+    function GetNodeAt(X, Y: Single; Relative: Boolean; var NodeTop: Single; var NodeNum: integer): PD2TreeNode; overload;
+             //Получить узел по координатам X и Y клиентской области (перегруженный вариант  функции GetNodeAt)
+    function GetNodeAt(X, Y: Single): PD2TreeNode; overload;
+             //Получить узел по координатам P.X и P.Y клиентской области(Перегруженный вариант  функции GetNodeAt).
+    function GetNodeAt(const P: TD2Point): PD2TreeNode; overload; inline;
+             //Получить узел по координатам X и Y (перегруженный вариант  функции GetNodeAt).
+             //X и Y задаются в координатах дерева
+    function GetNodeAtTree(X, Y: Single): PD2TreeNode; overload;
+             //Получить узел по номеру Row видимой строки (перегруженный вариант  функции GetNodeAtTree).
+    function GetNodeAtTree(Row: integer): PD2TreeNode; overload;
+             // Возвращает адрес определяемой пользователем области данных для узла Node
+    function GetNodeData(Node: PD2TreeNode): Pointer;
+             // Возвращает уровень узла Node
+    function GetNodeLevel(Node: PD2TreeNode): Cardinal;
+             // Возвращает предыдущий перед Node узел в дереве с учетом опции toChildrenAbove (необязательно) и с инициализацией узлов
+    function GetPrevious(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             //Возвращает предыдущий узел перед Node с состоянием отметки State, с учетом поции toChildrenAbove (необязательно)
+    function GetPreviousChecked(Node: PD2TreeNode; State: TD2CheckState = csCheckedNormal;
+                                ConsiderChildrenAbove: Boolean = False): PD2TreeNode;     overload;
+             //Возвращает предыдущий узел перед Node с состоянием отметки csCheckedNormal, с учетом поции toChildrenAbove (необязательно)
+    function GetPreviousChecked(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean): PD2TreeNode; overload;
+             //Возвращает предыдущий перед Node узел в дереве, который в настоящее время помечен для операции с буфером обмена.
+    function GetPreviousCutCopy(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает предыдущий инициализированный перед Node узел, с учетом поции toChildrenAbove (необязательно)
+    function GetPreviousInitialized(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает предыдущий перед Node узел у которого нет детей. Результат при необходимости инициализируется.
+    function GetPreviousLeaf(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает предыдущий перед Node узел NodeLevel уровня. Результат при необходимости инициализируется.
+    function GetPreviousLevel(Node: PD2TreeNode; NodeLevel: Cardinal): PD2TreeNode;
+             // Возвращает предыдущий перед Node узел с учетом поции toChildrenAbove (необязательно) без инициализации.
+    function GetPreviousNoInit(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает предыдущий перед Node выбранный узел с учетом поции toChildrenAbove (необязательно) с инициализацией результата
+    function GetPreviousSelected(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = False): PD2TreeNode;
+             // Возвращает предыдущий перед Node братский узел и при необходимости инициализирует его.
+    function GetPreviousSibling(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает предыдущий перед Node братский узел без инициализации.
+    function GetPreviousSiblingNoInit(Node: PD2TreeNode): PD2TreeNode;
+             // Возвращает предыдущий перед Node, который является видимым с инициализацией всех узлов и с учетом опции toChildrenAbove.
+    function GetPreviousVisible(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = True): PD2TreeNode;
+             // Возвращает предыдущий перед Node, который является видимым без инициализации и с учетом опции toChildrenAbove.
+    function GetPreviousVisibleNoInit(Node: PD2TreeNode; ConsiderChildrenAbove: Boolean = True): PD2TreeNode;
+             // Возвращает предыдущий видимый братский узел перед Node с инициализацией
+    function GetPreviousVisibleSibling(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает предыдущий видимый братский узел перед Node без инициализации
+    function GetPreviousVisibleSiblingNoInit(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
+             // Возвращает список вырезаемых/копируемых узлов, отсортированных в порядке их появления в дереве.
+             // Если Resolve=True, то узлы, являющиеся дочерними элементами других копируемых узлов, в массив не помещаются.
     function GetSortedCutCopySet(Resolve: Boolean): TD2NodeArray;
+             // Возвращает список выбранных узлов, отсортированных в порядке их появления в дереве.
+             // Если Resolve=True, то узлы, являющиеся дочерними элементами других выбранных узлов, массив не помещаются.
     function GetSortedSelection(Resolve: Boolean): TD2NodeArray;
-
-
+             // Определяет горизонтальное пространство, которое занимают все видимые {(todo) и фиксированные} столбцы.
+    function GetVisibleFixedWidth: Single;
              //Возвращает первого (ближайшего) видимого родителя для узла Node.
-    function GetVisibleParent(Node: PD2VirtualNode; IncludeFiltered: Boolean = False): PD2VirtualNode;
+    function GetVisibleParent(Node: PD2TreeNode; IncludeFiltered: Boolean = False): PD2TreeNode;
              //True - если PotentialParent является родителем любого уровня для узла Node
-    function HasAsParent(Node, PotentialParent: PD2VirtualNode): Boolean;
+    function HasAsParent(Node, PotentialParent: PD2TreeNode): Boolean;
              //Вставить узел Node в позицию определяемую Mode
-    function InsertNode(Node: PD2VirtualNode; Mode: TD2VTNodeAttachMode;
-                        UserData: Pointer = nil): PD2VirtualNode;
-
-    procedure InvalidateChildren(Node: PD2VirtualNode; Recursive: Boolean);
+    function InsertNode(Node: PD2TreeNode; Mode: TD2TreeNodeAttachMode;
+                        UserData: Pointer = nil): PD2TreeNode;
+              //Инициирует перерисовку узла и его непосредственных потомков.
+              //Если Recursive = True, то все внуки также перерисовываются.
+              //При необходимости узел инициализируется и его дочерние узлы создаются
+              //(и также инициализируется, если Recursive is True).
+    procedure InvalidateChildren(Node: PD2TreeNode; Recursive: Boolean);
               //Инициирует перерисовку видимой области колоннки Column.
-    procedure InvalidateColumn(Column: TD2ColumnIndex);
+    procedure InvalidateColumn(Column: Integer);
              //Инициирует перерисовку данного узла. Возвращает аннулированый прямоугольник.
-    function InvalidateNode(Node: PD2VirtualNode): TRect; virtual;
+    function InvalidateNode(Node: PD2TreeNode): TD2Rect; virtual;
               //Инициирует перерисовку клиентской области, начиная с узла Node.
-    procedure InvalidateToBottom(Node: PD2VirtualNode);
+    procedure InvalidateToBottom(Node: PD2TreeNode);
               //Инвертировать текущий выбор (узлы, которые выбраны становятся невыделенными и наоборот).
               //Если VisibleOnly = True, то рассматриваются только видимые узлы.
     procedure InvertSelection(VisibleOnly: Boolean);
-
+             //true - идет редактирование данных дерева
     function IsEditing: Boolean;
-
+             //true - производится выделение прямоугольником
     function IsMouseSelecting: Boolean;
-
+             //true - дерево пустое
     function IsEmpty: Boolean;
+             // Определяет, является ли столбец Column действительным, то есть является ли он одним из текущих столбцов.
+    function IsValidColumn(Column: Integer): Boolean;
              //Перебирает всех детей и внуков и т.д. узла Node (все дерево при Node = nil) и
              //вызывает для каждого узла метод Callback.
-    function IterateSubtree(Node: PD2VirtualNode; Callback: TD2VTGetNodeProc; Data: Pointer;
-                            Filter: TD2VirtualNodeStates = []; DoInit: Boolean = False;
-                            ChildNodesOnly: Boolean = False): PD2VirtualNode;
-
+    function IterateSubtree(Node: PD2TreeNode; Callback: TD2TreeGetNodeProc; Data: Pointer;
+                            Filter: TD2TreeNodeStates = []; DoInit: Boolean = False;
+                            ChildNodesOnly: Boolean = False): PD2TreeNode;
+              // Очищает текущее содержимое дерева и загружает новую структуру из файла с именем FileName.
     procedure LoadFromFile(const FileName: TFileName); virtual;
               // Очищает текущее содержимое дерева и загружает новую структуру из потока Stream.
     procedure LoadFromStream(Stream: TStream); virtual;
               //Опредяет высоту узла Node если это до сих пор не сделайте.
-    procedure MeasureItemHeight(const Canvas: TD2Canvas; Node: PD2VirtualNode); virtual;
+    procedure MeasureItemHeight(Node: PD2TreeNode); virtual;
               //Упрощенный метод перемещения узла к корню другого дерева.
-    procedure MoveTo(Node: PD2VirtualNode; Tree: TD2BaseVirtualTree; Mode: TD2VTNodeAttachMode;
+    procedure MoveTo(Node: PD2TreeNode; Tree: TD2CustomTreeGrid; Mode: TD2TreeNodeAttachMode;
                      ChildrenOnly: Boolean); overload;
               //Перемещение узла Source и всех его детей к узлу Target. Mode - режим подключения.
-    procedure MoveTo(Source, Target: PD2VirtualNode; Mode: TD2VTNodeAttachMode;
+    procedure MoveTo(Source, Target: PD2TreeNode; Mode: TD2TreeNodeAttachMode;
                      ChildrenOnly: Boolean); overload;
+                 //Количество байт для распределения с каждым узлом (в дополнение к основной структуре и внутренним данным)
+    property NodeDataSize: Integer read FNodeDataSize write SetNodeDataSize default -1;
               //Принудительная переинициализация всех детей узла Node, при Recursive=true в том числе и внуки.
-    procedure ReinitChildren(Node: PD2VirtualNode; Recursive: Boolean); virtual;
+    procedure ReinitChildren(Node: PD2TreeNode; Recursive: Boolean); virtual;
               //Принудительная переинициализация узла Node и всех его потомков (при Recursive=True) без изменения данных и удаления детей
-    procedure ReinitNode(Node: PD2VirtualNode; Recursive: Boolean); virtual;
+    procedure ReinitNode(Node: PD2TreeNode; Recursive: Boolean); virtual;
               //Удаление всех детей узла Node и его пометка не инициализированным.
-    procedure ResetNode(Node: PD2VirtualNode); virtual;
+    procedure ResetNode(Node: PD2TreeNode); virtual;
               //Сохраняет все содержимое дерева в файл (см дополнительные примечания в SaveToStream).
     procedure SaveToFile(const FileName: TFileName);
               // Сохраняет узел и всех его потомков в поток.
-    procedure SaveToStream(Stream: TStream; Node: PD2VirtualNode = nil); virtual;
+    procedure SaveToStream(Stream: TStream; Node: PD2TreeNode = nil); virtual;
              //Прокручивает дерево чтобы столбец Column был видимым. Возвращает True, если столбцы были прокручены
-    function ScrollIntoView(Column: TD2ColumnIndex; Center: Boolean): Boolean; overload;
+    function ScrollIntoView(Column: Integer; Center: Boolean): Boolean; overload;
              //Прокручивает дерево чтобы узел Node был видимым. Возвращает True, если дерево было прокручено
-    function ScrollIntoView(Node: PD2VirtualNode; Center: Boolean; Horizontally: Boolean = False):
-                            Boolean; overload;
+    function ScrollIntoView(Node: PD2TreeNode; Center: Boolean; Horizontally: Boolean = False): Boolean; overload;
               //Показать сообщение ошибки
     procedure ShowError(const Msg: String; HelpContext: Integer);
               //Выбрать все узлы в дереве. При VisibleOnly = true - выбираются только видимые узлы.
     procedure SelectAll(VisibleOnly: Boolean);
-              //Сортировка узла Node по колонке Column в направлении Direction.
-    procedure Sort(Node: PD2VirtualNode; Column: TD2ColumnIndex; Direction: TD2SortDirection;
-                     DoInit: Boolean = True); virtual;
-
-    procedure SortTree(Column: TD2ColumnIndex; Direction: TD2SortDirection; DoInit: Boolean = True); virtual;
+              //Сортировка дерева заданного узлом Node по колонке Column в направлении Direction.
+    procedure Sort(Node: PD2TreeNode; Column: Integer; Direction: TD2SortDirection;
+                     DoInit: Boolean = True);
+              //Сортировка всего дерева по колонке Column в направлении Direction с инициализацией узлов при необходимости.
+    procedure SortTree(Column: Integer; Direction: TD2SortDirection; DoInit: Boolean = True); virtual;
+              //отсортировать грид в соответствии со значениями SortColumn и SortDirection
+    procedure SortGrid; override;
               //Быстрая сортировка массива TheArray в диапазоне индексов от L до R
     procedure QuickSort(const TheArray: TD2NodeArray; L, R: Integer);
              //Изменение развернутого/свернутого состояния узла на противоположное.
-    procedure ToggleNode(Node: PD2VirtualNode);
-             // Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
-    function TreeFromNode(Node: PD2VirtualNode): TD2BaseVirtualTree;
+    procedure ToggleNode(Node: PD2TreeNode);
               //Обновить общую витруальную ширину дерева
     procedure UpdateHorizontalRange;
-              //Обновляет горизонтальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateHorizontalScrollBar(DoRepaint: Boolean);
               //Обновить общие витруальные высоту и ширину дерева
     procedure UpdateRanges;
-              //Обновляет полосы прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateScrollBars(DoRepaint: Boolean); virtual;
-              //Обновить общую витруальную высоту дерева
+               //Обновить общую витруальную высоту дерева
     procedure UpdateVerticalRange;
-              //Обновляет вертикальную полосу прокрутки, чтобы отразить текущий размер и смещение дерева
-    procedure UpdateVerticalScrollBar(DoRepaint: Boolean);
               //Обеспечивает инициализацию всех детей (и всех их детей, если Recursive = True) узла Node.
-    procedure ValidateChildren(Node: PD2VirtualNode; Recursive: Boolean);
+    procedure ValidateChildren(Node: PD2TreeNode; Recursive: Boolean);
               //Обеспечивает инициализацию узла Node (и всех его детей и их детей, если Recursive = True)
-    procedure ValidateNode(Node: PD2VirtualNode; Recursive: Boolean);
+    procedure ValidateNode(Node: PD2TreeNode; Recursive: Boolean);
 
     //------ свойства ----------
 
-    property BottomNode: PD2VirtualNode read GetBottomNode write SetBottomNode;
 
-    property CheckedCount: Integer read GetCheckedCount;
-
-    property CheckState[Node: PD2VirtualNode]: TD2CheckState read GetCheckState write SetCheckState;
-
-    property CheckType[Node: PD2VirtualNode]: TD2CheckType read GetCheckType write SetCheckType;
-
-    property ChildCount[Node: PD2VirtualNode]: Cardinal read GetChildCount write SetChildCount;
-
-    property ChildrenInitialized[Node: PD2VirtualNode]: Boolean read GetChildrenInitialized;
-
-    property CutCopyCount: Integer read GetCutCopyCount;
-             //Узел выбранный в качестве целевого при операции перетаскивания
-    property DropTargetNode: PD2VirtualNode read FDropTargetNode write FDropTargetNode;
-
-    property Expanded[Node: PD2VirtualNode]: Boolean read GetExpanded write SetExpanded;
-
-    property FocusedColumn: TD2ColumnIndex read FFocusedColumn write SetFocusedColumn default InvalidColumn;
-
-    property FocusedNode: PD2VirtualNode read FFocusedNode write SetFocusedNode;
-             //True - узел видим и все его родители развернуты.
-    property FullyVisible[Node: PD2VirtualNode]: Boolean read GetFullyVisible write SetFullyVisible;
-
-    property HasChildren[Node: PD2VirtualNode]: Boolean read GetHasChildren write SetHasChildren;
-
-    property HotNode: PD2VirtualNode read FCurrentHotNode;
-
-    property OffsetX: Single read FOffsetX write SetOffsetX;
-
-    property OffsetXY: TD2Point read GetOffsetXY write SetOffsetXY;
-
-    property OffsetY: Single read FOffsetY write SetOffsetY;
-
-    property OperationCount: Cardinal read FOperationCount;
-
-    property IsDisabled[Node: PD2VirtualNode]: Boolean read GetDisabled write SetDisabled;
-             //True -  если узел Node эффективно отфильтрован
-    property IsEffectivelyFiltered[Node: PD2VirtualNode]: Boolean read GetEffectivelyFiltered;
-             //True -  если узел Node эффективно видим
-    property IsEffectivelyVisible[Node: PD2VirtualNode]: Boolean read GetEffectivelyVisible;
-
-    property IsFiltered[Node: PD2VirtualNode]: Boolean read GetFiltered write SetFiltered;
-             //True - узел Node видимый
-    property IsVisible[Node: PD2VirtualNode]: Boolean read GetVisible write SetVisible;
-
-    property MultiLine[Node: PD2VirtualNode]: Boolean read GetMultiline write SetMultiline;
-             //Высота узла Node
-    property NodeHeight[Node: PD2VirtualNode]: Single read GetNodeHeight write SetNodeHeight;
-             //Получить/установить родителя узла Node
-    property NodeParent[Node: PD2VirtualNode]: PD2VirtualNode read GetNodeParent write SetNodeParent;
-             //Указатель на корневой узел дерева
-    property RootNode: PD2VirtualNode read FRoot;
-             //True - узел Node выбран
-    property Selected[Node: PD2VirtualNode]: Boolean read GetSelected write SetSelected;
-             //Кол-во выбранных узлов
-    property SelectedCount: Integer read FSelectionCount;
-             //True - Запрещает изменения выбора узлов в дереве.
-    property SelectionLocked: Boolean read FSelectionLocked write FSelectionLocked;
-
-    property TopNode: PD2VirtualNode read GetTopNode write SetTopNode;
-
-    property TotalCount: Cardinal read GetTotalCount;
-             //Текущее состояние дерева
-    property TreeStates: TD2VirtualTreeStates read FStates write FStates;
-
-    property VerticalAlignment[Node: PD2VirtualNode]: Single read GetVerticalAlignment
-                                    write SetVerticalAlignment;
-             //Текущее кол-во видимых узлов
-    property VisibleCount: Cardinal read FVisibleCount;
-             //True - все родители узла Node развернуты и видимы.
-    property VisiblePath[Node: PD2VirtualNode]: Boolean read GetVisiblePath write SetVisiblePath;
-             //Осталоcь до конца обновения. Если 0 то обновление выполнено.
-    property UpdateCount: Cardinal read FUpdateCount;
+    property BottomNode: PD2TreeNode read GetBottomNode write SetBottomNode; //Нижный видимый узел
+    property CheckedCount: Cardinal read GetCheckedCount; //Кол-во отмеченный узлов
+    property CheckState[Node: PD2TreeNode]: TD2CheckState read GetCheckState write SetCheckState;  //Состояние отметки узла Node
+    property CheckType[Node: PD2TreeNode]: TD2CheckType read GetCheckType write SetCheckType; //Тип отметки узла Node
+    property ChildCount[Node: PD2TreeNode]: Cardinal read GetChildCount write SetChildCount; //Кол-вод детей узла Node
+    property ChildrenInitialized[Node: PD2TreeNode]: Boolean read GetChildrenInitialized; //true - установлено наличие детей для узла Node
+    property CutCopyCount: Cardinal read GetCutCopyCount;  //Кол-во копируемых узлов в дереве
+    property DropTargetNode: PD2TreeNode read FDropTargetNode write FDropTargetNode; //Узел выбранный в качестве целевого при операции перетаскивания
+    property Expanded[Node: PD2TreeNode]: Boolean read GetExpanded write SetExpanded; //true - узел развернут; false - свернут
+    property HasExpander[Node: PD2TreeNode]: Boolean read GetHasExpander; //true - узел имеет кнопку разворачивания/сворачивания узла
+    property FocusedNode: PD2TreeNode read FFocusedNode write SetFocusedNode; //Узел имееющий фокус
+    property FullyVisible[Node: PD2TreeNode]: Boolean read GetFullyVisible write SetFullyVisible;  //True - узел видим и все его родители развернуты.
+    property HasChildren[Node: PD2TreeNode]: Boolean read GetHasChildren write SetHasChildren;  //Наличие детей у узла Node: true - есть дети; false - нет детей
+    property OffsetX: Single read HScrollBarValue write SetOffsetX; //Смещение прокрутки слева
+    property OffsetXY: TD2Point read GetOffsetXY write SetOffsetXY; //Смещение прокрутки слева и сверху
+    property OffsetY: Single read VScrollBarValue write SetOffsetY; //Смещение прокрутки сверху
+    property OperationCount: Cardinal read FOperationCount; //Кол-во продолжительных вложенных операций
+    property IsDisabled[Node: PD2TreeNode]: Boolean read GetDisabled write SetDisabled; //True -  узел Node отключен
+    property IsEffectivelyFiltered[Node: PD2TreeNode]: Boolean read GetEffectivelyFiltered; //True -  узел Node эффективно отфильтрован
+    property IsEffectivelyVisible[Node: PD2TreeNode]: Boolean read GetEffectivelyVisible; //True -  узел Node эффективно видим
+    property IsFiltered[Node: PD2TreeNode]: Boolean read GetFiltered write SetFiltered;  //True -  узел Node Отфильтрован
+    property IsVisible[Node: PD2TreeNode]: Boolean read GetVisible write SetVisible; //True - узел Node видимый
+    property MainColumn: Integer read GetMainColumn write SetMainColumn default 0; //Колонка, отображающая структуру дерева
+    property MultiLine[Node: PD2TreeNode]: Boolean read GetMultiline write SetMultiline; //true - многострочный текст для узла Node
+    property NodeHeight[Node: PD2TreeNode]: Single read GetNodeHeight write SetNodeHeight; //Высота узла Node
+    property NodeParent[Node: PD2TreeNode]: PD2TreeNode read GetNodeParent write SetNodeParent; //Получить/установить родителя узла Node
+    property RootNode: PD2TreeNode read FRoot; //Указатель на корневой узел дерева
+    //property RowCount: Cardinal read FVisibleCount; //Текущее кол-во видимых узлов (для совместимости
+    property Selected[Node: PD2TreeNode]: Boolean read GetSelected write SetSelected; //получить/установить состояние узела Node "выбран": True - выбран; False - не выбран
+    property SelectedCount: Integer read FSelectionCount; //Кол-во выбранных узлов
+    property SelectionLocked: Boolean read FSelectionLocked write FSelectionLocked; //True - Запрещает изменения выбора узлов в дереве.
+    property ShowCheckboxes: boolean read FShowCheckboxes write SetShowCheckboxes  default false; //Видимость чек-боксов: true - показывать; false - не показывать
+    property TopNode: PD2TreeNode read GetTopNode write SetTopNode; //Верхний видимый узел дерева
+    property TotalCount: Cardinal read GetTotalCount; //Общее кол-во узлов дерева
+    property TreeStates: TD2TreeStates read FStates write FStates; //Текущее состояние дерева
+    property VerticalAlignment[Node: PD2TreeNode]: Single read GetVerticalAlignment write SetVerticalAlignment; //Вертикальное смещение кнопки разворачивания/сворачивания узла Node
+    property VisibleCount: Cardinal read FVisibleCount; //Текущее кол-во видимых узлов
+    property VisiblePath[Node: PD2TreeNode]: Boolean read GetVisiblePath write SetVisiblePath; //True - все родители узла Node развернуты и видимы.
+    property UpdateCount: Cardinal read FUpdateCount; //Осталоcь до конца обновения. Если 0 то обновление выполнено.
 
     //------ прерывания----------
 
-             //Прерывание при добавлении узла к выбранным
-    property OnAddToSelection: TD2VTAddToSelectionEvent read FOnAddToSelection write FOnAddToSelection;
-             //Прерывание при NodeDataSize = -1
-    property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize;
-             //Прерывание инициализации дочерних узлов
-    property OnInitChildren: TD2VTInitChildrenEvent read FOnInitChildren write FOnInitChildren;
-             //Прерывание инициализации узла
-    property OnInitNode: TD2VTInitNodeEvent read FOnInitNode write FOnInitNode;
-             //Прерывание определения высоты узла
-    property OnMeasureItem: TD2VTMeasureItemEvent read FOnMeasureItem write FOnMeasureItem;
+    property OnAddToSelection: TD2VTAddToSelectionEvent read FOnAddToSelection write FOnAddToSelection; //Прерывание при добавлении узла к выбранным
+    property OnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent read FOnBeforeDrawTreeLine write FOnBeforeDrawTreeLine;
+    property OnChecked: TD2VTChangeEvent read FOnChecked write FOnChecked;            //Прерывание после изменения состояния отметки узла.
+    property OnChecking: TD2VTCheckChangingEvent read FOnChecking write FOnChecking;  //Прерывание перед изменением состояния отметки узла.
+    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
+    property OnEdititingDone: TD2VTEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
+    property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize; //Прерывание при NodeDataSize = -1
+    property OnGetValue:TD2VTGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
+    property OnInitChildren: TD2VTInitChildrenEvent read FOnInitChildren write FOnInitChildren; //Прерывание инициализации дочерних узлов
+    property OnInitNode: TD2VTInitNodeEvent read FOnInitNode write FOnInitNode; //Прерывание инициализации узла
+    property OnMeasureItem: TD2VTMeasureItemEvent read FOnMeasureItem write FOnMeasureItem; //Прерывание определения высоты узла
+    property OnSetValue:TD2VTSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
 
-  published
+             //создать экземпляр объекта
+    constructor Create(AOwner: TComponent);  override;
+               //уничтожить экземпляр объекта
+    destructor Destroy;  override;
+             //список классов колонок для дизайнера
+    function ItemClass: string;  override;
+
 end;
+
+{ TD2TreeGrid }
+
+//Класс дерева
+TD2TreeGrid = class(TD2CustomTreeGrid)
+  public
+    property VScrollBar;
+    property HScrollBar;
+  published
+    property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
+    property LineMode;
+    property MainColumn;     //индекс главной колонки
+    property SortColumn;     //индекс колонки в которой происходит сортировка
+    property SortDirection;  //направление сортировки
+    property TreeOptions;
+
+    property OnBeforeDrawTreeLine;
+    property OnGetValue;
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
+    property OnScroll;
+    property OnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
+
+    property OnChecked;     //Прерывание после изменения состояния отметки узла.
+    property OnChecking;    //Прерывание перед измененем состояния отметки узла.
+
+    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
+
+end;
+
 
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
@@ -9429,6 +10041,10 @@ function  ShowColorDialog(const Color: string): string;
 procedure ShowDsgnImageList(ImgList: TD2ImageList);
 procedure ShowDsgnLang(Lang: TD2Lang);
 
+// Trees
+// Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
+function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
+
 //=============================================================================
 //=============== GLobal Variables ============================================
 //=============================================================================
@@ -9516,6 +10132,22 @@ var
 
 //==============================================================
 //==============================================================
+
+function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
+// Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
+// Returns the tree the node currently belongs to or nil if the node is not attached to a tree.
+
+begin
+  Assert(Assigned(Node), 'Node must not be nil.');
+
+  // The root node is marked by having its NextSibling (and PrevSibling) pointing to itself.
+  while Assigned(Node) and (Node.NextSibling <> Node) do
+    Node := Node.Parent;
+  if Assigned(Node) then
+    Result := TD2CustomTreeGrid(Node.Parent)
+  else
+    Result := nil;
+end;
 
 procedure CloseAllPopups;
   var
@@ -10464,7 +11096,7 @@ end;
 {$I orca_scene2d_obj_tree.inc}
 {$I orca_scene2d_obj_database.inc}
 {$I orca_scene2d_obj_docking.inc} //Added by GoldenFox
-{$I orca_scene2d_obj_virtualtrees.inc} //Added by GoldenFox
+{$I orca_scene2d_obj_treegrid.inc}     //Added by GoldenFox
 
 //==============================================================
 //==============================================================
@@ -10497,7 +11129,10 @@ initialization
                        This part make by GoldenFox
 ***************************************************************************************************}
                    TD2DBTextColumn, TD2DockingTab, TD2Column,
-                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn
+                   TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
+                   TD2TreeCell, TD2TreeColumn,
+                   TD2TreeTextColumn, TD2TreeCheckColumn, TD2TreeProgressColumn, TD2TreePopupColumn,
+                   TD2TreeImageColumn
 //======================= End part of make by GoldenFox =======================
 
                    ]);
@@ -10553,7 +11188,7 @@ initialization
   Registerd2Objects('Items', [TD2ListBoxItem, TD2ImageListBoxItem,TD2TreeViewItem,
                               TD2TabItem, TD2HudTabItem, TD2HeaderItem]);
 
-  Registerd2Objects('Trees', [TD2TreeView]);
+  Registerd2Objects('Trees', [TD2TreeView, TD2TreeGrid]);
 
 
   Registerd2Objects('Text Edits', [TD2TextBox, TD2RoundTextBox, TD2NumberBox, TD2SpinBox, TD2ComboTextBox, TD2ComboTrackBar, TD2TextBoxClearBtn]);

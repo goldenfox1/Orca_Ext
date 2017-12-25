@@ -1,0 +1,206 @@
+object Form1: TForm1
+  Left = 315
+  Height = 552
+  Top = 117
+  Width = 876
+  Caption = 'Form1'
+  ClientHeight = 552
+  ClientWidth = 876
+  OnCreate = FormCreate
+  LCLVersion = '1.6.4.0'
+  object D2Scene1: TD2Scene
+    Left = 0
+    Height = 552
+    Top = 0
+    Width = 600
+    Align = alLeft
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 600
+      Height = 552
+      object Grid1: TD2Grid
+        DragMode = d2DragAutomatic
+        Position.Point = '(312,15)'
+        RotateAngle = 0
+        Width = 269
+        Height = 243
+        OnDragOver = Grid1DragOver
+        Resource = 'Grid1Style1'
+        TabOrder = 0
+        AlternatingRowBackground = True
+        MultiSelect = True
+        RowCount = 100
+        RowHeight = 21
+        ScrollDuration = 0.300000011920929
+        object CheckColumn1: TD2CheckColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 202
+          HitTest = False
+          TabOrder = 0
+        end
+        object TextColumn1: TD2TextColumn
+          Position.Point = '(100,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 202
+          HitTest = False
+          TabOrder = 1
+        end
+        object TextColumn2: TD2TextColumn
+          Position.Point = '(200,0)'
+          RotateAngle = 0
+          Width = 100
+          Height = 202
+          HitTest = False
+          TabOrder = 2
+        end
+      end
+      object Label1: TD2Label
+        Position.Point = '(360,272)'
+        RotateAngle = 0
+        Width = 120
+        Height = 15
+        TabOrder = 2
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'X='
+      end
+      object Label2: TD2Label
+        Position.Point = '(360,289)'
+        RotateAngle = 0
+        Width = 120
+        Height = 15
+        TabOrder = 1
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Y='
+      end
+      object Label3: TD2Label
+        Position.Point = '(360,305)'
+        RotateAngle = 0
+        Width = 120
+        Height = 15
+        TabOrder = 3
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+        Text = 'Z='
+      end
+      object GradientAnimation1: TD2GradientAnimation
+        Delay = 0
+        Duration = 0.200000002980232
+        StartValue.Points = <        
+          item
+            Color = '#FF000000'
+            Offset = 0
+          end        
+          item
+            Color = '#FFFFFFFF'
+            Offset = 1
+          end>
+        StartValue.Style = d2LinearGradient
+        StopValue.Points = <        
+          item
+            Color = '#FF000000'
+            Offset = 0
+          end        
+          item
+            Color = '#FFFFFFFF'
+            Offset = 1
+          end>
+        StopValue.Style = d2LinearGradient
+      end
+      object SpinBox1: TD2SpinBox
+        Position.Point = '(293,320)'
+        RotateAngle = 0
+        Width = 100
+        Height = 22
+        TabOrder = 4
+        ReadOnly = False
+        OnChange = SpinBox1Change
+        Min = 0
+        Max = 10
+        Increment = 1
+        Value = 0
+        ValueType = d2ValueInteger
+      end
+      object Rectangle1: TD2Rectangle
+        Position.Point = '(112,306)'
+        RotateAngle = 0
+        Width = 84
+        Height = 92
+        xRadius = 0
+        yRadius = 0
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object ColorAnimation1: TD2ColorAnimation
+          Delay = 0
+          Duration = 0.200000002980232
+          Trigger = 'IsMouseOver=true'
+          TriggerInverse = 'IsMouseOver=false'
+          StartValue = '#FFE0E0E0'
+          StopValue = '#FFD92424'
+          PropertyName = 'Fill.Color'
+        end
+      end
+      object TreeGrid1: TD2TreeGrid
+        Position.Point = '(11,15)'
+        RotateAngle = 0
+        Width = 289
+        Height = 243
+        Margins.Rect = '(0,3,3,0)'
+        OnDragOver = TreeGrid1DragOver
+        Resource = 'gridstyle'
+        TabOrder = 6
+        SortColumn = 1
+        OnGetValue = TreeGrid1GetValue
+        OnHeaderClick = TreeGrid1HeaderClick
+        OnSetValue = TreeGrid1SetValue
+        object TreeTextColumn1: TD2TreeTextColumn
+          RotateAngle = 0
+          Width = 140
+          Height = 218
+          HitTest = False
+          TabOrder = 0
+        end
+        object TreeTextColumn2: TD2TreeTextColumn
+          Position.Point = '(140,0)'
+          RotateAngle = 0
+          Width = 89
+          Height = 218
+          HitTest = False
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object VT: TVirtualStringTree
+    Left = 634
+    Height = 323
+    Top = 61
+    Width = 224
+    DefaultText = 'Node'
+    DragMode = dmAutomatic
+    Header.AutoSizeIndex = 0
+    Header.Columns = <    
+      item
+        Position = 0
+        Width = 100
+      end    
+      item
+        Position = 1
+        Width = 100
+      end>
+    Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
+    Header.SortColumn = 0
+    ParentBiDiMode = False
+    TabOrder = 1
+    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
+    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
+    TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
+    OnDragOver = VTDragOver
+    OnGetText = VTGetText
+  end
+end

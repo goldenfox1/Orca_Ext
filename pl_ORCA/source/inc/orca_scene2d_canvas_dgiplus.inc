@@ -137,13 +137,18 @@ type
     destructor Destroy;  override;
     function Read(pv :Pointer;cb :DWORD;pcbRead :PDWORD) :HRESULT; virtual; stdcall;
     function Write(pv :Pointer;cb :DWORD;pcbWritten :PDWORD):HRESULT; virtual; stdcall;
-    function Seek(dlibMove:Largeint; dwOrigin:Longint; out libNewPosition:Largeint):HResult; virtual; stdcall;
-    function SetSize(libNewSize:Largeint):HResult; virtual; stdcall;
-    function CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult; virtual; stdcall;
+    //function Seek(dlibMove:Largeint; dwOrigin:Longint; out libNewPosition:Largeint):HResult; virtual; stdcall;
+    function Seek(dlibMove:QWord; dwOrigin:Longint; out libNewPosition:QWord):HResult; virtual; stdcall;
+    //function SetSize(libNewSize:Largeint):HResult; virtual; stdcall;
+    function SetSize(libNewSize:QWord):HResult; virtual; stdcall;
+    //function CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult; virtual; stdcall;
+    function CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult; virtual; stdcall;
     function Commit(grfCommitFlags:Longint):HResult; virtual; stdcall;
     function Revert:HResult; virtual; stdcall;
-    function LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
-    function UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
+    //function LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
+    function LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
+    //function UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
+    function UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
     function Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult; virtual; stdcall;
     function Clone(out stm:IStream):HResult; virtual; stdcall;
     property Stream:TStream read FStream;
@@ -169,7 +174,8 @@ begin
   inherited Destroy;
 end;
 
-function TMyStreamAdapter.SetSize(libNewSize:Largeint):HResult;
+//function TMyStreamAdapter.SetSize(libNewSize:Largeint):HResult;
+function TMyStreamAdapter.SetSize(libNewSize:QWord):HResult;
 begin
   try
     FStream.Size:=libNewSize;
@@ -225,17 +231,20 @@ begin
   Result:=S_OK;
 end;
 
-function TMyStreamAdapter.LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
+//function TMyStreamAdapter.LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
+function TMyStreamAdapter.LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
-function TMyStreamAdapter.UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
+//function TMyStreamAdapter.UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
+function TMyStreamAdapter.UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
-function TMyStreamAdapter.Seek(dlibMove:Largeint; dwOrigin:longint; out libNewPosition:Largeint):HResult;
+//function TMyStreamAdapter.Seek(dlibMove:Largeint; dwOrigin:longint; out libNewPosition:Largeint):HResult;
+function TMyStreamAdapter.Seek(dlibMove:QWord; dwOrigin:longint; out libNewPosition:QWord):HResult;
 var
   xNPos:LargeInt;
 begin
@@ -254,7 +263,8 @@ begin
 end;
 
 
-function TMyStreamAdapter.CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult;
+//function TMyStreamAdapter.CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult;
+function TMyStreamAdapter.CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult;
 const
   MaxBufSize=1024 * 1024;
 var

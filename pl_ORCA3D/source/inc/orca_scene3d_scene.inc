@@ -550,9 +550,9 @@ begin
 
   P:=d3Point(X,Y,0);
   Distance:=$FFFF;
-  NewTarget:=Root.Visual.FindTarget(P,d3ProjectionScreen,Data,Distance);
+  NewTarget:=Root.Visual.FindTarget(FShift, P,d3ProjectionScreen,Data,Distance);
   if NewTarget=nil then
-    NewTarget:=Root.Visual.FindTarget(P,d3ProjectionCamera,Data,Distance);
+    NewTarget:=Root.Visual.FindTarget(FShift, P,d3ProjectionCamera,Data,Distance);
 
   if (VCLDragSource <> nil) and (NewTarget=TD3Object(VCLDragSource.Tag)) then
   begin
@@ -562,7 +562,7 @@ begin
 
   if VarD3SceneTarget <> nil then
   begin
-    VarD3SceneTarget.DragOver(Data,VarD3SceneTarget.AbsoluteToLocal(P),Accept);
+    VarD3SceneTarget.DragOver(Data,FShift, VarD3SceneTarget.AbsoluteToLocal(P),Accept);
   end;
   if (NewTarget <> VarD3SceneTarget) then
   begin
@@ -2696,9 +2696,9 @@ begin
     with ScreenToClient(pt) do
       P:=d3Point(X,Y,0);
     Distance:=$FFFF;
-    NewTarget:=Root.Visual.FindTarget(P,d3ProjectionScreen,GetDataObject,Distance);
+    NewTarget:=Root.Visual.FindTarget(FShift,P,d3ProjectionScreen,GetDataObject,Distance);
     if NewTarget=nil then
-      NewTarget:=Root.Visual.FindTarget(P,d3ProjectionCamera,GetDataObject,Distance);
+      NewTarget:=Root.Visual.FindTarget(FShift,P,d3ProjectionCamera,GetDataObject,Distance);
     if (NewTarget <> VarD3SceneTarget) then
     begin
       if VarD3SceneTarget <> nil then

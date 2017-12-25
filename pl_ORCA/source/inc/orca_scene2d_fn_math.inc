@@ -12,6 +12,21 @@ const
   Z=2;
   W=3;
 
+function d2MulDiv(A1, A2, A3:single):single;
+begin
+  Result:=A1 * A2 / A3;
+end;
+
+procedure d2IncFloat(var A1:single; A2:single = 1.0);
+begin
+  A1:= A1 + A2;
+end;
+
+procedure d2DecFloat(var A1:single; A2:single = 1.0);
+begin
+  A1:= A1 - A2;
+end;
+
 function d2MaxFloat(A1,A2:single):single;
 begin
   if A1 > A2 then

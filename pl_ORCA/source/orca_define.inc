@@ -23,6 +23,19 @@
 {$X+} // Extended syntax
 {$J+} // Enable writeable const
 
+{$define USE_DELPHICOMPAT} //использовать библиотеку DELPHICOMPAT из пакета lclextensions
+{$if not defined(USE_DELPHICOMPAT) and not defined(LCLWin)}
+  {$define INCOMPLETE_WINAPI}
+{$endif}
+
+//{$ifdef WINDOWS}
+//  {$define EnableThreadSupport}
+//{$endif}
+
+{$define DEBUG_Orca}             //включить отладочную информацию
+{$if defined(DEBUG_Orca)}
+  {$define DEBUG_TreeGrid}   //отладка дерева
+{$endif}
 
 
 

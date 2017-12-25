@@ -612,7 +612,7 @@ var
   TmpS:WideString;
   OldCaretPosition:integer;
 begin
-  inherited ;
+  inherited;
   OldCaretPosition:=CaretPosition;
   FLastChar:=KeyChar;
   FLastKey:=Key;
@@ -621,118 +621,110 @@ begin
     VK_END:CaretPosition:=Length(TextW);
     VK_HOME:CaretPosition:=0;
     VK_LEFT:
-      if ssCtrl in Shift then
-        CaretPosition:=GetPrivWordBeging(CaretPosition)
-      else
-        CaretPosition:=CaretPosition - 1;
+      if ssCtrl in Shift
+        then CaretPosition:=GetPrivWordBeging(CaretPosition)
+        else CaretPosition:=CaretPosition - 1;
     VK_RIGHT:
-      if ssCtrl in Shift then
-        CaretPosition:=GetNextWordBeging(CaretPosition)
-      else
-        CaretPosition:=CaretPosition + 1;
-    VK_DELETE,8:{Delete or BackSpace key was pressed}
+      if ssCtrl in Shift
+        then CaretPosition:=GetNextWordBeging(CaretPosition)
+        else CaretPosition:=CaretPosition + 1;
+    VK_DELETE, VK_BACK:{Delete or BackSpace key was pressed}
       if not ReadOnly then
       begin
-        if SelLength <> 0 then
-        begin
-          if Shift=[ssShift] then
-            CutToClipboard
-          else
-            ClearSelection;
-        end
-        else
-        begin
-          TmpS:=TextW;
-          if TmpS <> '' then
-            if Key=VK_DELETE then
-            begin
-//              FActionStack.FragmentDeleted(CaretPosition + 1,TmpS[CaretPosition + 1]);
-              Delete(TmpS,CaretPosition + 1,1);
-            end
-            else
-            begin {BackSpace key was pressed}
-{              if CaretPosition > 0 then
-                FActionStack.FragmentDeleted(CaretPosition,TmpS[CaretPosition]);}
-              Delete(TmpS,CaretPosition,1);
-              CaretPosition:=CaretPosition - 1;
-            end;
-          TextW:=TmpS;
-          if Assigned(FOnTyping) then FOnTyping(Self);
-        end;
+        if SelLength <> 0
+          then  begin
+                  if Shift=[ssShift]
+                    then CutToClipboard
+                    else ClearSelection;
+                end
+          else  begin
+                  TmpS:=TextW;
+                  if TmpS <> ''
+                    then  if Key=VK_DELETE
+                            then  begin
+                                    //FActionStack.FragmentDeleted(CaretPosition + 1,TmpS[CaretPosition + 1]);
+                                    Delete(TmpS,CaretPosition + 1,1);
+                                  end
+                            else  begin {BackSpace key was pressed}
+                                    //if CaretPosition > 0 then
+                                    //  FActionStack.FragmentDeleted(CaretPosition,TmpS[CaretPosition]);
+                                    Delete(TmpS,CaretPosition,1);
+                                    CaretPosition:=CaretPosition - 1;
+                                  end;
+                  TextW:=TmpS;
+                  if Assigned(FOnTyping) then FOnTyping(Self);
+                end;
       end;
     VK_INSERT:
-      if Shift=[ssCtrl] then
-      begin
-        CopyToClipboard;
-      end
-      else
-        if Shift=[ssShift] then
-        begin
-          PasteFromClipboard;
-          if Assigned(FOnTyping) then FOnTyping(Self);
-        end;
+      Begin
+        if Shift=[ssCtrl] then CopyToClipboard;
+        if Shift=[ssShift]
+          then  begin
+                  PasteFromClipboard;
+                  if Assigned(FOnTyping) then FOnTyping(Self);
+                end;
+      end;
   end;
 
-  if (KeyChar <> #0) and (FFilterChar <> '') and (Pos(KeyChar,FFilterChar)=0) then
-  begin
-    KeyChar:=#0;
-  end;
+  if (KeyChar <> #0) and (FFilterChar <> '') and (Pos(KeyChar,FFilterChar)=0)
+    then KeyChar:=#0;
   case KeyChar of
     'a','A':
-      if Shift=[ssCtrl] then
-      begin
-        SelectAll;
-        KeyChar:=#0;
-      end;
+      if Shift=[ssCtrl]
+        then  begin
+                SelectAll;
+                KeyChar:=#0;
+              end;
     'c','C':
-      if Shift=[ssCtrl] then
-      begin
-        CopyToClipboard;
-        KeyChar:=#0;
-      end;
+      if Shift=[ssCtrl]
+        then  begin
+                CopyToClipboard;
+                KeyChar:=#0;
+              end;
     'v','V':
-      if Shift=[ssCtrl] then
-      begin
-        PasteFromClipboard;
-        if Assigned(FOnTyping) then FOnTyping(Self);
-        KeyChar:=#0;
-      end;
+      if Shift=[ssCtrl]
+        then  begin
+                PasteFromClipboard;
+                if Assigned(FOnTyping) then FOnTyping(Self);
+                KeyChar:=#0;
+              end;
     'x','X':
-      if Shift=[ssCtrl] then
-      begin
-        CutToClipboard;
-        KeyChar:=#0;
-      end;
+      if Shift=[ssCtrl]
+        then  begin
+                CutToClipboard;
+                KeyChar:=#0;
+              end;
     'z','Z':
-      if Shift=[ssCtrl] then
-      begin
-        {UnDo};
-        KeyChar:=#0;
-      end;
+      if Shift=[ssCtrl]
+        then begin
+              {UnDo};
+              KeyChar:=#0;
+            end;
   end;
 
-  if Key in [VK_END,VK_HOME,VK_LEFT,VK_RIGHT] then
-  begin
-    if ssShift in Shift then
-    begin
-      if SelLength=0 then
-        FSelStart:=OldCaretPosition;
-      FSelStart:=CaretPosition;
-      FSelLength:=FSelLength - (CaretPosition - OldCaretPosition);
-    end
-    else
-      FSelLength:=0;
-    Repaint;
-  end;
+  if Key in [VK_END,VK_HOME,VK_LEFT,VK_RIGHT]
+    then  begin
+            if ssShift in Shift
+              then  begin
+                      if SelLength=0 then
+                        FSelStart:=OldCaretPosition;
+                      FSelStart:=CaretPosition;
+                      FSelLength:=FSelLength - (CaretPosition - OldCaretPosition);
+                    end
+              else FSelLength:=0;
+            Repaint;
+            Key:=0;
+          end;
 
-  if (Ord(KeyChar) >= 32) and not ReadOnly then
-  begin
-    S:=KeyChar;
-    InsertText(S);
-    if Assigned(FOnTyping) then FOnTyping(Self);
-  end;
-  if FResourceLink <> nil then
-    FResourceLink.Visual.UpdateEffects;
+  if (Ord(KeyChar) >= 32) and not ReadOnly
+    then  begin
+            S:=KeyChar;
+            InsertText(S);
+            if Assigned(FOnTyping) then FOnTyping(Self);
+            Key:=0;
+          end;
+  if FResourceLink <> nil
+    then FResourceLink.Visual.UpdateEffects;
   UpdateCaretePosition;
 end;
 
@@ -862,7 +854,7 @@ procedure TD2CustomTextBox.SetText(const Value:String);
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
-  SetText(ss);
+  SetTextW(ss);
 end;
 
 Function TD2CustomTextBox.GetTextW:WideString;

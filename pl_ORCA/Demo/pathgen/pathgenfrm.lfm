@@ -1,7 +1,7 @@
 object Form16: TForm16
-  Left = 374
+  Left = 282
   Height = 566
-  Top = 218
+  Top = 155
   Width = 870
   Caption = 'ORCA 2D Char to Path'
   ClientHeight = 566
@@ -12,7 +12,7 @@ object Form16: TForm16
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.6.4.0'
   object d2Scene1: TD2Scene
     Left = 0
     Height = 566
@@ -117,6 +117,18 @@ object Form16: TForm16
         TextAlign = d2TextAlignCenter
         Text = 'Copy to Clipboard'
       end
+      object HudButton3: TD2HudButton
+        Position.Point = '(584,5)'
+        RotateAngle = 0
+        Width = 72
+        Height = 28
+        OnClick = HudButton3Click
+        TabOrder = 7
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+        Text = 'Refresh'
+      end
     end
   end
   object FontDialog1: TFontDialog
@@ -125,7 +137,7 @@ object Form16: TForm16
     Font.Name = 'MS Sans Serif'
     MinFontSize = 0
     MaxFontSize = 0
-    left = 584
+    left = 808
     top = 14
   end
 end

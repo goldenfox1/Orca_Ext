@@ -107,8 +107,8 @@ begin
   Name:='';
 end;
 
-procedure TD2Object.ReaderError(Reader:TReader; const Message:string;
-  var Handled:boolean);
+procedure TD2Object.ReaderError(Reader: TReader; const Message: string;
+  var Handled: Boolean);
 begin
   Handled:=true;
 end;
@@ -345,8 +345,9 @@ end;
 
 { Property animation }
 
-procedure TD2Object.AnimateColor(const APropertyName,NewValue:string;
-  Duration:single=0.2; AType:TD2AnimationType=d2AnimationIn; AInterpolation:TD2InterpolationType=d2InterpolationLinear);
+procedure TD2Object.AnimateColor(const APropertyName: string;
+  const NewValue: string; Duration: single; AType: TD2AnimationType;
+  AInterpolation: TD2InterpolationType);
 var
   A:TD2ColorAnimation;
 begin
@@ -462,7 +463,10 @@ end;
 procedure TD2Object.StartTriggerAnimation(AInstance:TD2Object; ATrigger:string);
 var
   i:integer;
+  //c:integer;
 begin
+  //if FChildren <> nil then
+  //  c:= FChildren.Count;
   StopTriggerAnimation(AInstance);
   if FChildren <> nil then
     for i:=0 to FChildren.Count - 1 do
@@ -649,7 +653,7 @@ begin
     Result:=FScene.GetComponent;
 end;
 
-function TD2Object.HasParent:boolean;
+function TD2Object.HasParent: Boolean;
 begin
   Result:=true;
 end;
@@ -903,6 +907,16 @@ begin
     if IsVisual and not (csLoading in ComponentState) and (Parent.IsVisual) then
       Parent.Visual.Realign;
   end;
+end;
+
+function TD2Object.GetTagString: string;
+begin
+  Result:= FTagString;
+end;
+
+procedure TD2Object.SetTagString(const Value: string);
+begin
+  FTagString:=Value;
 end;
 
 procedure TD2Object.Exchange(AObject1,AObject2:TD2Object);
