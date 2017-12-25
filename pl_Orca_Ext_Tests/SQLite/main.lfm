@@ -1,0 +1,70 @@
+object Form1: TForm1
+  Left = 315
+  Height = 325
+  Top = 128
+  Width = 526
+  Caption = 'ОАО Devlaz.ru'
+  ClientHeight = 325
+  ClientWidth = 526
+  LCLVersion = '1.6.4.0'
+  object DBGrid: TDBGrid
+    Left = 0
+    Height = 232
+    Top = 0
+    Width = 521
+    Color = clWindow
+    Columns = <>
+    DataSource = DataSource
+    TabOrder = 0
+  end
+  object EditFIO: TEdit
+    Left = 104
+    Height = 23
+    Top = 248
+    Width = 248
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    TextHint = 'Фамилия'
+  end
+  object EditTel: TEdit
+    Left = 359
+    Height = 23
+    Top = 248
+    Width = 153
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+    TextHint = 'Телефон'
+  end
+  object EditID: TEdit
+    Left = 16
+    Height = 23
+    Top = 248
+    Width = 80
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+    TextHint = 'ID'
+  end
+  object DataSource: TDataSource
+    DataSet = ZTable1
+    left = 400
+    top = 80
+  end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF8
+    AutoEncodeStrings = False
+    Connected = True
+    Port = 0
+    Protocol = 'sqlite-3'
+    left = 280
+    top = 80
+  end
+  object ZTable1: TZTable
+    Connection = ZConnection1
+    TableName = 'devlaz'
+    left = 336
+    top = 80
+  end
+end
