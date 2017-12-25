@@ -4,6 +4,18 @@
  Package pl_ORCA.pkg
  This unit is extension part of Package pl_ORCA.pkg make by GoldenFox
  for CodeTyphon Studio  (http://www.pilotlogic.com/)
+
+ Class TD2CustomTreeGrid based on the VirtualTreeView package. Author: Mike Lishke
+ http://www.soft-gems.net/index.php/controls/virtual-treeview
+ Port for Lazarus LCL VirtualTreeView-Lazarus. Author: Luis Americo
+ https://github.com/blikblum/VirtualTreeView-Lazarus
+
+ Базовый класс дерева TD2CustomTreeGrid основан на компоненте VirtualTreeView
+ (автор: Mike Lischke http://www.soft-gems.net/index.php/controls/virtual-treeview),
+ Адаптация для Lazarus (VirtualTreeView-Lazarus автор: Luiz Américo
+ https://github.com/blikblum/VirtualTreeView-Lazarus)
+
+
 ***********************************************************************}
 
 { TD2TreeCell }

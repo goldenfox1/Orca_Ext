@@ -539,7 +539,9 @@ begin
                           This part make by GoldenFox
     **********************************************************************}
     TD2DBColumn, TD2DBTextColumn, TD2DBProgressColumn, TD2DBImageColumn,  TD2DBPopupColumn, TD2DBCheckColumn,
-    TD2DockingPlace, TD2DockingPanel, TD2DockingTab ]);
+    TD2DockingPlace, TD2DockingPanel, TD2DockingTab,
+    TD2TreeGrid, TD2TreeColumn,
+    TD2TreeTextColumn, TD2TreeProgressColumn, TD2TreeImageColumn,  TD2TreePopupColumn, TD2TreeCheckColumn ]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TD2FieldDataController, 'FieldName', TFieldProperty);
