@@ -127,24 +127,6 @@ object Form1: TForm1
         Value = 0
         ValueType = d2ValueInteger
       end
-      object Rectangle1: TD2Rectangle
-        Position.Point = '(112,306)'
-        RotateAngle = 0
-        Width = 84
-        Height = 92
-        xRadius = 0
-        yRadius = 0
-        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-        object ColorAnimation1: TD2ColorAnimation
-          Delay = 0
-          Duration = 0.200000002980232
-          Trigger = 'IsMouseOver=true'
-          TriggerInverse = 'IsMouseOver=false'
-          StartValue = '#FFE0E0E0'
-          StopValue = '#FFD92424'
-          PropertyName = 'Fill.Color'
-        end
-      end
       object TreeGrid1: TD2TreeGrid
         Position.Point = '(11,15)'
         RotateAngle = 0
@@ -153,8 +135,7 @@ object Form1: TForm1
         Margins.Rect = '(0,3,3,0)'
         OnDragOver = TreeGrid1DragOver
         Resource = 'gridstyle'
-        TabOrder = 6
-        SortColumn = 1
+        TabOrder = 5
         OnGetValue = TreeGrid1GetValue
         OnHeaderClick = TreeGrid1HeaderClick
         OnSetValue = TreeGrid1SetValue
@@ -173,6 +154,15 @@ object Form1: TForm1
           HitTest = False
           TabOrder = 1
         end
+      end
+      object TreeGrid2: TD2TreeGrid
+        Position.Point = '(128,409)'
+        RotateAngle = 0
+        Width = 200
+        Height = 100
+        Resource = 'gridstyle'
+        TabOrder = 7
+        MainColumn = -1
       end
     end
   end

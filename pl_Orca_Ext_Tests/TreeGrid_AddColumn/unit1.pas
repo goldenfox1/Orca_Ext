@@ -17,22 +17,21 @@ type
 
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
-    ColorAnimation1: TD2ColorAnimation;
     D2Scene1: TD2Scene;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
-    Rectangle1: TD2Rectangle;
     Root1: TD2Background;
     SpinBox1: TD2SpinBox;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
+    TreeGrid1: TD2TreeGrid;
+    TreeGrid2: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
     VT: TVirtualStringTree;
-    TreeGrid1: TD2TreeGrid;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);

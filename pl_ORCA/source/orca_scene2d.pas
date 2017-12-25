@@ -8772,6 +8772,14 @@ end;
 
 { TD2CustomTreeGrid }
 //Базовый класс дерева описывающий все поля и свойства
+// Основан на компоненте VirtualTreeView (автор: Mike Lischke
+// http://www.soft-gems.net/index.php/controls/virtual-treeview),
+// Адаптация для Lazarus (VirtualTreeView-Lazarus автор: Luiz Américo
+// https://github.com/blikblum/VirtualTreeView-Lazarus)
+// Based on the VirtualTreeView package. Author: Mike Lishke
+// http://www.soft-gems.net/index.php/controls/virtual-treeview
+// Port for Lazarus LCL VirtualTreeView-Lazarus. Author: Luis Americo
+// https://github.com/blikblum/VirtualTreeView-Lazarus
 TD2CustomTreeGrid = class(TD2CustomGrid)
   private
     FAutoExpandDelay: Cardinal;
@@ -11188,7 +11196,7 @@ initialization
   Registerd2Objects('Items', [TD2ListBoxItem, TD2ImageListBoxItem,TD2TreeViewItem,
                               TD2TabItem, TD2HudTabItem, TD2HeaderItem]);
 
-  Registerd2Objects('Trees', [TD2TreeView, TD2TreeGrid]);
+  Registerd2Objects('Trees', [TD2TreeGrid, TD2TreeView]);
 
 
   Registerd2Objects('Text Edits', [TD2TextBox, TD2RoundTextBox, TD2NumberBox, TD2SpinBox, TD2ComboTextBox, TD2ComboTrackBar, TD2TextBoxClearBtn]);
