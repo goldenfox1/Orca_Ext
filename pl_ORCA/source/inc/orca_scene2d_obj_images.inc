@@ -69,7 +69,7 @@ begin
     (Data.Source is TD2Image);
 end;
 
-procedure TD2ImageControl.DragDrop(const Data:TD2DragObject;
+procedure TD2ImageControl.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point);
 begin
   inherited;

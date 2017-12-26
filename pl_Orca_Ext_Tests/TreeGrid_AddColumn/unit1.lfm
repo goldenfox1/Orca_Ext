@@ -113,29 +113,19 @@ object Form1: TForm1
           end>
         StopValue.Style = d2LinearGradient
       end
-      object SpinBox1: TD2SpinBox
-        Position.Point = '(293,320)'
-        RotateAngle = 0
-        Width = 100
-        Height = 22
-        TabOrder = 4
-        ReadOnly = False
-        OnChange = SpinBox1Change
-        Min = 0
-        Max = 10
-        Increment = 1
-        Value = 0
-        ValueType = d2ValueInteger
-      end
       object TreeGrid1: TD2TreeGrid
+        DragMode = d2DragAutomatic
         Position.Point = '(11,15)'
         RotateAngle = 0
         Width = 289
         Height = 243
         Margins.Rect = '(0,3,3,0)'
         OnDragOver = TreeGrid1DragOver
+        OnDragDrop = TreeGrid1DragDrop
         Resource = 'gridstyle'
-        TabOrder = 5
+        TabOrder = 4
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
+        TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
         OnHeaderClick = TreeGrid1HeaderClick
         OnSetValue = TreeGrid1SetValue
@@ -161,36 +151,21 @@ object Form1: TForm1
         Width = 200
         Height = 100
         Resource = 'gridstyle'
-        TabOrder = 7
+        TabOrder = 5
         MainColumn = -1
       end
     end
   end
-  object VT: TVirtualStringTree
-    Left = 634
-    Height = 323
-    Top = 61
-    Width = 224
+  object DBStringTree1: TDBStringTree
+    Left = 632
+    Height = 296
+    Top = 96
+    Width = 200
     DefaultText = 'Node'
-    DragMode = dmAutomatic
     Header.AutoSizeIndex = 0
-    Header.Columns = <    
-      item
-        Position = 0
-        Width = 100
-      end    
-      item
-        Position = 1
-        Width = 100
-      end>
-    Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
-    Header.SortColumn = 0
-    ParentBiDiMode = False
+    Header.Columns = <>
+    Header.MainColumn = -1
+    NodeDataSize = 4
     TabOrder = 1
-    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight, toEditOnClick]
-    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
-    OnDragOver = VTDragOver
-    OnGetText = VTGetText
   end
 end

@@ -1489,15 +1489,15 @@ end;
 
 { events }
 
-procedure TD3VisualObject.KeyDown(var Key:Word; var KeyChar:System.WideChar;
-  Shift:TShiftState);
+procedure TD3VisualObject.KeyDown(var Key: word; var KeyChar: System.widechar;
+  Shift: TShiftState);
 begin
   if Assigned(FOnKeyDown) then
     FOnKeyDown(Key,KeyChar,Shift);
 end;
 
-procedure TD3VisualObject.KeyUp(var Key:Word; var KeyChar:System.WideChar;
-  Shift:TShiftState);
+procedure TD3VisualObject.KeyUp(var Key: word; var KeyChar: System.widechar;
+  Shift: TShiftState);
 begin
   if Assigned(FOnKeyUp) then
     FOnKeyUp(Key,KeyChar,Shift);
@@ -1699,7 +1699,8 @@ begin
     OnDragOver(Self,Data,Shift,Point,Accept);
 end;
 
-procedure TD3VisualObject.DragDrop(const Data:TD3DragObject; const Point:TD3Point);
+procedure TD3VisualObject.DragDrop(const Data: TD3DragObject;
+  Shift: TShiftState; const Point: TD3Point);
 begin
   FIsDragOver:=false;
   Repaint;
@@ -1908,12 +1909,12 @@ begin
   end;
 end;
 
-Function TD3VisualObject.GetHint:string;  // 7777
+function TD3VisualObject.GetHint: string;  // 7777
 begin
  Result:=UTF8Encode(FHint);
 end;
 
-procedure TD3VisualObject.SetHint(const Value:String);  // 7777
+procedure TD3VisualObject.SetHint(const Value: string);  // 7777
  var ss:WideString;
 begin
  ss:=UTF8Decode(Value);

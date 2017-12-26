@@ -590,7 +590,7 @@ begin
       Data.Source:=TD3Object(VCLDragSource.Tag)
     else
       Data.Source:=Source;
-    VarD3SceneTarget.DragDrop(Data,VarD3SceneTarget.AbsoluteToLocal(d3Point(X,Y,0)));
+    VarD3SceneTarget.DragDrop(Data,FShift,VarD3SceneTarget.AbsoluteToLocal(d3Point(X,Y,0)));
   end;
   VarD3SceneTarget:=nil;
 end;
@@ -2742,7 +2742,7 @@ begin
     begin
       with ScreenToClient(pt) do
         P:=d3Point(X,Y,0);
-      VarD3SceneTarget.DragDrop(GetDataObject,VarD3SceneTarget.AbsoluteToLocal(P));
+      VarD3SceneTarget.DragDrop(GetDataObject,FShift,VarD3SceneTarget.AbsoluteToLocal(P));
     end;
     if (FDropTargetHelper <> nil) then
       FDropTargetHelper.Drop(DataObj,pt,dwEffect)

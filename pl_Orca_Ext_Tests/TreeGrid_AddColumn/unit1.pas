@@ -18,31 +18,31 @@ type
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
+    DBStringTree1: TDBStringTree;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
     Label2: TD2Label;
     Label3: TD2Label;
     Root1: TD2Background;
-    SpinBox1: TD2SpinBox;
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
     TreeGrid2: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
-    VT: TVirtualStringTree;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);
-    procedure SpinBox1Change(Sender: TObject);
+    procedure TreeGrid1DragDrop(Sender: TObject; const Data: TD2DragObject;
+      Shift: TShiftState; const Pt: TD2Point; var TargetNode: PD2TreeNode;
+      var Mode: TD2DropMode);
     procedure TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
       Shift: TShiftState; const Point: TD2Point; var TargetNode: PD2TreeNode;
       var Mode: TD2DropMode; var Accept: Boolean);
     procedure TreeGrid1GetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; var Value: Variant);
     procedure CreateTreeGreed;
-    procedure CreateVT;
     procedure TreeGrid1HeaderClick(Sender: TObject);
     procedure TreeGrid1SetValue(Sender: TObject; Node: PD2TreeNode;
       const Column: integer; const Value: Variant);
@@ -92,7 +92,6 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   CreateTreeGreed;
-  CreateVT;
 end;
 
 procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
@@ -101,9 +100,20 @@ begin
   Accept:=true;
 end;
 
-procedure TForm1.SpinBox1Change(Sender: TObject);
+procedure TForm1.TreeGrid1DragDrop(Sender: TObject; const Data: TD2DragObject;
+  Shift: TShiftState; const Pt: TD2Point; var TargetNode: PD2TreeNode;
+  var Mode: TD2DropMode);
+var
+  Node: PD2TreeNode;
+  //NodeTitle: String;
 begin
-  TreeGrid1.SortColumn:=integer(SpinBox1.Value);
+  if (Data.Source = Sender) then
+    case Mode of
+       dmAbove: TD2TreeGrid(Sender).MoveTo(TD2TreeGrid(Data.Source).FocusedNode, TargetNode, amInsertBefore, False);
+       dmBelow: TD2TreeGrid(Sender).MoveTo(TD2TreeGrid(Data.Source).FocusedNode, TargetNode, amInsertAfter, False);
+      dmOnNode: TD2TreeGrid(Sender).MoveTo(TD2TreeGrid(Data.Source).FocusedNode, TargetNode, amAddChildLast, False);
+      else Exit; //dmNowhere
+    end;
 end;
 
 procedure TForm1.TreeGrid1DragOver(Sender: TObject; const Data: TD2DragObject;
@@ -234,58 +244,6 @@ begin
   end;
   //TreeGrid1.FullExpand;
   TreeGrid1.EndUpdate;
-end;
-
-procedure TForm1.CreateVT;
-var
-  NewNode,NewNode1, NewNode2: PVirtualNode;
-  NewPhone: PPhoneNode;
-  i,t,k: integer;
-begin
-  //VT.Header.Columns.Items[0].CaptionText:='Имя';
-  //VT.Header.Columns.Items[0].Tag:= 0;
-  //VT.Header.Columns.Items[0].CaptionText:='Телефон';
-  //VT.Header.Columns.Items[0].Tag:= 1;
-  VT.NodeDataSize:= SizeOf(TPhoneNode);
-  VT.BeginUpdate;
-  for i:=0 to High(Names) do
-  begin
-    NewNode := VT.AddChild(nil);
-    NewPhone := VT.GetNodeData(NewNode);
-    if Assigned(NewPhone) then
-      with NewPhone^ do
-      begin
-        Name := Names[i];
-        Phone := IntToStr(i+1) + IntToStr(i+1) + Phones[i];
-      end;
-    for t:=0 to High(Names) do
-    begin
-      NewNode1 := VT.AddChild(NewNode);
-      NewNode1^.CheckType:=VirtualTrees.ctRadioButton;
-      NewPhone := VT.GetNodeData(NewNode1);
-      if Assigned(NewPhone) then
-        with NewPhone^ do
-        begin
-          Name := Names[t];
-          Phone := IntToStr(t+1) + Phones[t];
-        end;
-      if t<=1 then
-        for k:=0 to High(Names) do
-        begin
-          NewNode2 := VT.AddChild(NewNode1);
-          NewNode2^.CheckType:=VirtualTrees.ctTriStateCheckBox;
-          NewPhone := VT.GetNodeData(NewNode2);
-          if Assigned(NewPhone) then
-            with NewPhone^ do
-            begin
-              Name := Names[k];
-              Phone := Phones[k];
-            end;
-        end
-    end;
-    if i=0 then VT.ToggleNode(NewNode);
-  end;
-  VT.EndUpdate;
 end;
 
 procedure TForm1.TreeGrid1HeaderClick(Sender: TObject);

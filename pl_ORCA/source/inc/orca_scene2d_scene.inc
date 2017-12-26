@@ -1003,7 +1003,7 @@ begin
       Data.Source:=TD2Object(VCLDragSource.Tag)
     else
       Data.Source:=Source;
-    TD2VisualObject(varD2FTarget).DragDrop(Data,d2Point(X,Y));
+    TD2VisualObject(varD2FTarget).DragDrop(Data, FShift, d2Point(X,Y));
   end;
   varD2FTarget:=nil;
 end;
@@ -3723,7 +3723,7 @@ begin
     begin
       with ScreenToClient(pt) do
         P:=d2Point(X,Y);
-      TD2VisualObject(varD2FTarget).DragDrop(GetDataObject,P);
+      TD2VisualObject(varD2FTarget).DragDrop(GetDataObject, FShift, P);
     end;
     if (FDropTargetHelper <> nil) then
       FDropTargetHelper.Drop(DataObj,pt,dwEffect)

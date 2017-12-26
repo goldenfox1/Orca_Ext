@@ -1177,8 +1177,8 @@ begin
   end;
 end;
 
-procedure TD3CustomObjectLayer.KeyDown(var Key:Word; var Char:System.WideChar;
-  Shift:TShiftState);
+procedure TD3CustomObjectLayer.KeyDown(var Key: word;
+  var char: System.widechar; Shift: TShiftState);
 begin
   if FFocused <> nil then
   begin
@@ -1186,8 +1186,8 @@ begin
   end;
 end;
 
-procedure TD3CustomObjectLayer.KeyUp(var Key:Word; var Char:System.WideChar;
-  Shift:TShiftState);
+procedure TD3CustomObjectLayer.KeyUp(var Key: word; var char: System.widechar;
+  Shift: TShiftState);
 begin
   if FDesignTime or (FDesignTime) then
   begin
@@ -3213,8 +3213,8 @@ begin
   Accept:=NewTarget <> nil;
 end;
 
-procedure TD3CustomObjectLayer.DragDrop(const Data:TD3DragObject;
-  const Point:TD3Point);
+procedure TD3CustomObjectLayer.DragDrop(const Data: TD3DragObject;
+  Shift: TShiftState; const Point: TD3Point);
 var
   P:TD2Point;
   i:integer;
@@ -3261,7 +3261,7 @@ begin
   if (FTarget <> nil) then
   begin
     TD2HackVisualObject(FTarget).DragLeave;
-    TD2HackVisualObject(FTarget).DragDrop(d2Data,P);
+    TD2HackVisualObject(FTarget).DragDrop(d2Data,Shift,P);
   end;
   FTarget:=nil;
 end;
