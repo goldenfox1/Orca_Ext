@@ -3706,7 +3706,7 @@ begin
     if (FPreSelection <> nil) and             //если маркер предвыбора имеется и
        ( ((toShowDropmark in FOptions.FPaintOptions) and                                //разрешено выделять целевой узел при перетаскивании и
            FIsDragOver and (FDropTargetNode=PD2TreeNode(FVisibleRowsList[i]))) or     //осуществляется перетаскивание и целевой узел равен текущему или
-          (not FIsDragOver and FIsPreSelected and (FLastSelected=PD2TreeNode(FVisibleRowsList[i]))) )  //нет перетаскивания и маркер предвыбора влючен и предвыбранный узел равен текущему
+          (not FIsDragOver and FIsPreSelected and (FFocusedNode=PD2TreeNode(FVisibleRowsList[i]))) )  //нет перетаскивания и маркер предвыбора влючен и предвыбранный узел равен текущему
       then  begin
               P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
               if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
@@ -5601,31 +5601,31 @@ procedure TD2CustomTreeGrid.SetSelectedByPoint(const X, Y: single);
 //сделать выбранной строку по координатам X, Y
 begin
   //InternalClearSelection;
-  FLastSelected:=GetNodeAtTree(X, Y);
-  SelectNode(FLastSelected);
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  SelectNode(FFocusedNode);
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedMoreRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, FLastSelected, false)
-        else SelectNode(FLastSelected);
+        then SelectNodes(FRangeAnchor, FFocusedNode, false)
+        else SelectNode(FFocusedNode);
     end;
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedExtraRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, FLastSelected, true)
-        else Selected[FLastSelected]:= true;
+        then SelectNodes(FRangeAnchor, FFocusedNode, true)
+        else Selected[FFocusedNode]:= true;
     end;
 end;
 
@@ -5633,13 +5633,13 @@ function TD2CustomTreeGrid.ChangeSelectionRowByPoint(const X, Y: single): boolea
 //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
 var s: boolean;
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
   begin
-    s:= not GetSelected(FLastSelected);
-    Selected[FLastSelected]:= s;
+    s:= not GetSelected(FFocusedNode);
+    Selected[FFocusedNode]:= s;
     if SelectedCount > 0
-      then FRangeAnchor:=FLastSelected
+      then FRangeAnchor:=FFocusedNode
       else FRangeAnchor:=nil;
     Result:=s;
   end;
@@ -5654,39 +5654,50 @@ begin
   if FVisibleCount > 0 then
   begin
     MultiSelect:= (toMultiSelect in FOptions.FSelectionOptions);
+    //очистка указателя на узел ожидающий изменения состояния отметки
+    if (tsKeyCheckPending in FStates) and (Key <> VK_SPACE) then  //если есть флаг изменения отметки с клавиатуры и нажат не пробел
+    begin
+      DoStateChange([], [tskeyCheckPending]);                         //удалим флаг
+      FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState]; //снимем отметку у ожидающего узла
+      //RepaintNode(FCheckNode);
+      FCheckNode := nil;                                              //очистим указатель
+    end;
+
     if IsOneRowSelected then
     begin
+      //передача управления в обработчик ячейки
       if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
         if (Columns[FocusedColumn] <> nil) and
-           (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
+           (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FFocusedNode) <> nil) then
         begin
           if (KeyChar = ' ')
             then  if (FocusedColumn = FMainColumn)
                     then Key:=VK_SPACE
                     else KeyChar:= #0
-            else TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
-          TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected)).KeyDown(Key,KeyChar,Shift);
+            else TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FFocusedNode);
+          TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FFocusedNode)).KeyDown(Key,KeyChar,Shift);
           Key:=0;
         end;
       end;
+
       case Key of
         VK_F2:
           begin
             if Columns[FocusedColumn] <> nil
-               then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
+               then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FFocusedNode);
             Key:=0;
           end;
         VK_LEFT:
           begin
             if (Shift = []) then                    //нажата только влево
             begin
-              if Assigned(FLastSelected) then //если есть выделенная ячейка
+              if Assigned(FFocusedNode) then //если есть выделенная ячейка
               begin
                 if (FFocusedColumn = FMainColumn) and          // если это главная колонка и
-                       (HasChildren[FLastSelected]) and             // есть дети и
-                            (Expanded[FLastSelected])               // узел разсвернут
-                  then Expanded[FLastSelected]:=false            // то свернуть узел
+                       (HasChildren[FFocusedNode]) and             // есть дети и
+                            (Expanded[FFocusedNode])               // узел разсвернут
+                  then Expanded[FFocusedNode]:=false            // то свернуть узел
                   else begin                                     // иначе
                           if (FocusedColumn > 0)                   // если это не первая колонка
                             then FocusedColumn := FocusedColumn - 1; // то выделить предыдущую ячейку строки
@@ -5701,12 +5712,12 @@ begin
           begin
             if (Shift = []) then                     //нажата только вправо
             begin
-              if Assigned(FLastSelected) then              // если есть выделенная ячейка
+              if Assigned(FFocusedNode) then              // если есть выделенная ячейка
               begin
                 if (FFocusedColumn = FMainColumn) and        // если это главная колонка и
-                       (HasChildren[FLastSelected]) and           // есть дети и узел свернут и
-                            (not Expanded[FLastSelected])         // узел свернут
-                  then Expanded[FLastSelected]:=true           // то развернуть узел
+                       (HasChildren[FFocusedNode]) and           // есть дети и узел свернут и
+                            (not Expanded[FFocusedNode])         // узел свернут
+                  then Expanded[FFocusedNode]:=true           // то развернуть узел
                   else begin                                     // иначе
                           if (FocusedColumn < ColumnCount - 1)     //если это не последняя колонка
                             then FocusedColumn := FocusedColumn + 1; //то выделить следующую ячейку строки
@@ -5723,8 +5734,8 @@ begin
       VK_SPACE:
         if (Shift = [ssCtrl]) and MultiSelect then   //Ctrl + пробел
         begin
-          FIsPreSelected := Selected[FLastSelected];
-          Selected[FLastSelected]:= not FIsPreSelected;
+          FIsPreSelected := Selected[FFocusedNode];
+          Selected[FFocusedNode]:= not FIsPreSelected;
           Key:=0;
         end;
       VK_A:
@@ -5739,35 +5750,35 @@ begin
           if Shift = [] then  //нажата только вверх
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + ввех
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                 then FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                 then FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + ввех
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5776,35 +5787,35 @@ begin
           if Shift = [] then  //нажата только вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5813,29 +5824,29 @@ begin
           if Shift = [] then  //нажата только Home
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + Home
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl] then //Ctrl + Home и выбрана не первая строка
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5844,34 +5855,34 @@ begin
           if Shift = [] then  //нажата только End
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + End
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:=true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:=true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + End и выбрана не последняя строка
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
     end;
-    ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+    ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
 
     case Key of
       VK_PRIOR:
@@ -5880,19 +5891,19 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
 
@@ -5900,21 +5911,21 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
 
@@ -5922,24 +5933,24 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5950,19 +5961,19 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
 
               Key:=0;
             end;
@@ -5971,22 +5982,22 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
 
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
 
@@ -5994,24 +6005,24 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -6032,7 +6043,7 @@ begin
             DoStateChange([], [tskeyCheckPending]);
             if (FCheckNode <> nil) then
             begin
-              if (FCheckNode = FLastSelected)
+              if (FCheckNode = FFocusedNode)
                 then DoCheckClick(FCheckNode, FPendingCheckState)
                 else FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState];
               FCheckNode := nil;
@@ -6699,7 +6710,7 @@ begin
       end;
       ClearSelection;
       FFocusedNode := nil;
-      FLastSelected := nil;
+      FFocusedNode := nil;
       //FCurrentHotNode := nil;
       FDropTargetNode := nil;
       FLastChangedNode := nil;

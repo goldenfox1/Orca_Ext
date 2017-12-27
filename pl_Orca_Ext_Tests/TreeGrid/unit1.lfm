@@ -113,48 +113,20 @@ object Form1: TForm1
           end>
         StopValue.Style = d2LinearGradient
       end
-      object SpinBox1: TD2SpinBox
-        Position.Point = '(293,320)'
-        RotateAngle = 0
-        Width = 100
-        Height = 22
-        TabOrder = 4
-        ReadOnly = False
-        OnChange = SpinBox1Change
-        Min = 0
-        Max = 10
-        Increment = 1
-        Value = 0
-        ValueType = d2ValueInteger
-      end
-      object Rectangle1: TD2Rectangle
-        Position.Point = '(112,306)'
-        RotateAngle = 0
-        Width = 84
-        Height = 92
-        xRadius = 0
-        yRadius = 0
-        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-        object ColorAnimation1: TD2ColorAnimation
-          Delay = 0
-          Duration = 0.200000002980232
-          Trigger = 'IsMouseOver=true'
-          TriggerInverse = 'IsMouseOver=false'
-          StartValue = '#FFE0E0E0'
-          StopValue = '#FFD92424'
-          PropertyName = 'Fill.Color'
-        end
-      end
       object TreeGrid1: TD2TreeGrid
+        DragMode = d2DragAutomatic
         Position.Point = '(11,15)'
         RotateAngle = 0
         Width = 289
         Height = 243
         Margins.Rect = '(0,3,3,0)'
         OnDragOver = TreeGrid1DragOver
+        OnDragDrop = TreeGrid1DragDrop
         Resource = 'gridstyle'
-        TabOrder = 6
-        SortColumn = 1
+        TabOrder = 4
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
         OnHeaderClick = TreeGrid1HeaderClick
         OnSetValue = TreeGrid1SetValue
@@ -179,7 +151,7 @@ object Form1: TForm1
   object VT: TVirtualStringTree
     Left = 634
     Height = 323
-    Top = 61
+    Top = 24
     Width = 224
     DefaultText = 'Node'
     DragMode = dmAutomatic
@@ -202,5 +174,17 @@ object Form1: TForm1
     TreeOptions.SelectionOptions = [toMultiSelect, toAlwaysSelectNode]
     OnDragOver = VTDragOver
     OnGetText = VTGetText
+  end
+  object DBStringTree1: TDBStringTree
+    Left = 640
+    Height = 100
+    Top = 376
+    Width = 200
+    DefaultText = 'Node'
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.MainColumn = -1
+    NodeDataSize = 4
+    TabOrder = 2
   end
 end
