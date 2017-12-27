@@ -572,7 +572,6 @@ end;
 //=============== TD2TextColumn ================================================
 function TD2TextColumn.CreateCellControl:TD2Control;
 begin
-  //Result:=TD2TextCell.Create(Self);
   Result:=inherited;
   TD2TextCell(Result).OnChange:=DoTextChanged;
 end;
@@ -580,19 +579,6 @@ end;
 function TD2TextColumn.GetCellClass: TD2CellClass;
 begin
   Result:=TD2TextCell;
-end;
-
-procedure TD2TextColumn.DoTextChanged(Sender:TObject);
-begin
-  if Grid=nil then Exit;
-  if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
-  begin
-    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(Grid.FOnEdititingDone) then
-      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
-  end;
 end;
 
 procedure TD2TextColumn.DoEnterFocus(Sender: TObject);
@@ -627,11 +613,23 @@ begin
   end;
 end;
 
+procedure TD2TextColumn.DoTextChanged(Sender:TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
 //=============== TD2CheckColumn ================================================
 
 function TD2CheckColumn.CreateCellControl:TD2Control;
 begin
-  //Result:=TD2CheckCell.Create(Self);
   Result:=inherited;
   TD2CheckCell(Result).OnChange:=DoCheckChanged;
 end;
@@ -640,6 +638,7 @@ procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
 begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
@@ -663,7 +662,6 @@ end;
 
 function TD2ProgressColumn.CreateCellControl:TD2Control;
 begin
-  //Result:=TD2ProgressCell.Create(Self);
   Result:=inherited;
   TD2ProgressCell(Result).Min:=FMin;
   TD2ProgressCell(Result).Max:=FMax;
@@ -690,7 +688,6 @@ end;
 
 function TD2PopupColumn.CreateCellControl:TD2Control;
 begin
-  //Result:=TD2PopupCell.Create(Self);
   Result:=inherited;
   TD2PopupCell(Result).Items.Assign(FItems);
 end;
@@ -709,7 +706,6 @@ end;
 
 function TD2ImageColumn.CreateCellControl:TD2Control;
 begin
-  //Result:=TD2ImageCell.Create(Self);
   Result:=inherited;
   TD2ImageCell(Result).EnableOpenDialog:=false;
 end;

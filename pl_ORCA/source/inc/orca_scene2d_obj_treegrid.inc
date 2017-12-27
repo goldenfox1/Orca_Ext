@@ -749,7 +749,7 @@ begin
   end;
 end;
 
-{ TD2TreeColumn }
+//=============== TD2TreeColumn =============================================
 
 procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
 begin
@@ -878,7 +878,7 @@ begin
       end;
 end;
 
-{ TD2TreeTextColumn }
+//=============== TD2TreeTextColumn =============================================
 
 function TD2TreeTextColumn.CreateCellControl: TD2Control;
 begin
@@ -923,7 +923,100 @@ begin
   end;
 end;
 
-{ TD2CustomTreeGrid }
+
+//=============== TD2TreeCheckColumn =============================================
+
+procedure TD2TreeCheckColumn.DoCheckChanged(Sender: TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with TD2TreeCellControl(TD2TextCell(Sender).Owner) do
+  begin
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
+    if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
+      TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
+  end;
+end;
+
+function TD2TreeCheckColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2CheckCell(TD2TreeCellControl(Result).FControl).OnChange:=DoCheckChanged;
+end;
+
+function TD2TreeCheckColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2CheckCell;
+end;
+
+//=============== TD2TreeProgressColumn =============================================
+
+function TD2TreeProgressColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  with TD2ProgressCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    Min:=FMin;
+    Max:=FMax;
+  end;
+end;
+
+function TD2TreeProgressColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ProgressCell;
+end;
+
+constructor TD2TreeProgressColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FMax:=100;
+end;
+
+//=============== TD2TreePopupColumn =============================================
+
+procedure TD2TreePopupColumn.SetItems(const Value: TD2WideStrings);
+begin
+  FItems.Assign(Value);
+end;
+
+function TD2TreePopupColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2PopupCell(TD2TreeCellControl(Result).FControl).Items.Assign(FItems);
+end;
+
+function TD2TreePopupColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2PopupCell;
+end;
+
+constructor TD2TreePopupColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FItems:=TD2WideStringList.Create;
+end;
+
+destructor TD2TreePopupColumn.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+
+//===============  TD2TreeImageColumn =============================================
+
+function TD2TreeImageColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2ImageCell(TD2TreeCellControl(Result).FControl).EnableOpenDialog:=false;
+end;
+
+function TD2TreeImageColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ImageCell;
+end;
+
+//=============== TD2CustomTreeGrid =============================================
 
 constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
 begin

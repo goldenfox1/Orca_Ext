@@ -8503,17 +8503,14 @@ end;
 TD2TreeColumn = class(TD2Column)
 
   protected
-              //обработчик изменения состояния разворачивания узла
+             //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
-                //True - колонка является главной (содержит дерево)
+             //True - колонка является главной (содержит дерево)
     function GetIsMainColumn: boolean;
-                //создание ячейки
+             //создание ячейки
     function CreateCellControl: TD2Control;  override;
-
+             //получить класс ячеек для данного типа колонки
     function GetCellClass: TD2CellClass; override;
-             //инициализация ячейки
-    //procedure InitCellControl(ACellControl: TD2Control); override;
-
               //обновить колонку
     procedure UpdateColumn; override;
               // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
@@ -8534,28 +8531,63 @@ TD2TreeTextColumn = class(TD2TreeColumn)
   protected
              //Создает текстовую ячейку
     function CreateCellControl: TD2Control;  override;
-
+             //получить класс ячеек для данного типа колонки
     function GetCellClass: TD2CellClass; override;
-
-    //procedure InitCellControl(ACellControl: TD2Control); override;
-
-                 //обработка изменения текста в ячейке
+              //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
               //обработчик двойного клика по ячейке. используется из грида
     procedure NodeSetFocus(Node: PD2TreeNode);  override;
 
 end;
 
+{ TD2TreeCheckColumn }
+
 TD2TreeCheckColumn = class(TD2TreeColumn)
+  private
+    procedure DoCheckChanged(Sender: TObject);
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
 end;
+
+{ TD2TreeProgressColumn }
 
 TD2TreeProgressColumn = class(TD2TreeColumn)
+  private
+    FMin:single;
+    FMax:single;
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+  published
+    property Min:single read FMin write FMin;
+    property Max:single read FMax write FMax;
 end;
+
+{ TD2TreePopupColumn }
 
 TD2TreePopupColumn = class(TD2TreeColumn)
+  private
+    FItems: TD2WideStrings;
+    procedure SetItems(const Value:TD2WideStrings);
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Items: TD2WideStrings read FItems write SetItems;
 end;
 
+{ TD2TreeImageColumn }
+
 TD2TreeImageColumn = class(TD2TreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
 end;
 
 
