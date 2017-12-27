@@ -1460,7 +1460,7 @@ begin
     FResource:='ListBoxStyle';
 end;
 
-procedure TD2ListBox.DragDrop(const Data:TD2DragObject;
+procedure TD2ListBox.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point);
 var
   Obj:TD2ListBoxItem;

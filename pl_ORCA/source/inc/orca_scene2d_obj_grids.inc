@@ -325,22 +325,32 @@ end;
 
 function TD2Column.CreateCellControl:TD2Control;
 begin
-  Result:=nil;
+  Result:=GetCellClass.Create(Self);
+  Result.Parent:=Self;
+  Result.HitTest:=false;
+  Result.Visible:=false;
+  Result.Locked:=true;
+  Result.Stored:=false;
+  Result.CanFocused:=false;
+  Result.OnCanFocused:=DoCanFocused;
+  Result.OnEnterFocus:=DoEnterFocus;
+  Result.OnKillFocus:=DoKillFocus;
+  Result.OnKeyDown:=DoKeyDown;
 end;
 
-procedure TD2Column.InitCellControl(ACellControl: TD2Control);
-begin
-  ACellControl.Parent:=Self;
-  ACellControl.HitTest:=false;
-  ACellControl.Visible:=false;
-  ACellControl.Locked:=true;
-  ACellControl.Stored:=false;
-  ACellControl.CanFocused:=false;
-  ACellControl.OnCanFocused:=DoCanFocused;
-  ACellControl.OnEnterFocus:=DoEnterFocus;
-  ACellControl.OnKillFocus:=DoKillFocus;
-  ACellControl.OnKeyDown:=DoKeyDown;
-end;
+//procedure TD2Column.InitCellControl(ACellControl: TD2Control);
+//begin
+//  ACellControl.Parent:=Self;
+//  ACellControl.HitTest:=false;
+//  ACellControl.Visible:=false;
+//  ACellControl.Locked:=true;
+//  ACellControl.Stored:=false;
+//  ACellControl.CanFocused:=false;
+//  ACellControl.OnCanFocused:=DoCanFocused;
+//  ACellControl.OnEnterFocus:=DoEnterFocus;
+//  ACellControl.OnKillFocus:=DoKillFocus;
+//  ACellControl.OnKeyDown:=DoKeyDown;
+//end;
 
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
 begin
@@ -404,6 +414,11 @@ procedure TD2Column.SetWidth(const Value: single);
 begin
   inherited SetWidth(Value);
   if Grid<>nil then Grid.Realign;
+end;
+
+function TD2Column.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2Control;
 end;
 
 function TD2Column.GetGrid: TD2CustomGrid;
@@ -486,8 +501,8 @@ end;
 procedure TD2Column.UpdateColumn;
 var
   i,C,m:integer;
-  V:Variant;
-  cc: TD2Control;
+  //V:Variant;
+  //cc: TD2Control;
 begin
   if Grid=nil then Exit;
   FUpdateColumn:=true;
@@ -498,11 +513,12 @@ begin
     if C < m
        then begin
               for i:= C to m - 1 do
-              begin
-                cc:=CreateCellControl;
-                InitCellControl(cc);
-                FCellControls.Add(cc);
-              end;
+              //begin
+              //  cc:=CreateCellControl;
+              //  InitCellControl(cc);
+              //  FCellControls.Add(cc);
+              //end;
+                FCellControls.Add(CreateCellControl);
             end
     else
     { Hide if need }
@@ -516,8 +532,9 @@ begin
       TD2Control(FCellControls.Items[i]).Visible:=true;
       TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
       TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
-      V:=Grid.GetValue(Index,Grid.TopRow + i);
-      TD2Control(FCellControls.Items[i]).Data:=V;
+      //V:=Grid.GetValue(Index,Grid.TopRow + i);
+      //TD2Control(FCellControls.Items[i]).Data:=V;
+      TD2Control(FCellControls.Items[i]).Data:=Grid.GetValue(Index,Grid.TopRow + i);
     end;
     UpdateSelected;
   finally
@@ -555,26 +572,13 @@ end;
 //=============== TD2TextColumn ================================================
 function TD2TextColumn.CreateCellControl:TD2Control;
 begin
-  Result:=TD2TextCell.Create(Self);
+  Result:=inherited;
+  TD2TextCell(Result).OnChange:=DoTextChanged;
 end;
 
-procedure TD2TextColumn.InitCellControl(ACellControl: TD2Control);
+function TD2TextColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  TD2TextCell(ACellControl).OnChange:=DoTextChanged;
-end;
-
-procedure TD2TextColumn.DoTextChanged(Sender:TObject);
-begin
-  if Grid=nil then Exit;
-  if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
-  with d2StringToPoint(TD2Object(Sender).TagString) do
-  begin
-    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
-    if Assigned(Grid.FOnEdititingDone) then
-      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
-  end;
+  Result:=TD2TextCell;
 end;
 
 procedure TD2TextColumn.DoEnterFocus(Sender: TObject);
@@ -609,30 +613,43 @@ begin
   end;
 end;
 
-//=============== TD2CheckColumn ================================================
-
-function TD2CheckColumn.CreateCellControl:TD2Control;
-begin
-  Result:=TD2CheckCell.Create(Self);
-
-end;
-
-procedure TD2CheckColumn.InitCellControl(ACellControl: TD2Control);
-begin
-  inherited;
-  TD2CheckCell(ACellControl).OnChange:=DoCheckChanged;
-end;
-
-procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
+procedure TD2TextColumn.DoTextChanged(Sender:TObject);
 begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
     if Assigned(Grid.FOnEdititingDone) then
       Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
   end;
+end;
+
+//=============== TD2CheckColumn ================================================
+
+function TD2CheckColumn.CreateCellControl:TD2Control;
+begin
+  Result:=inherited;
+  TD2CheckCell(Result).OnChange:=DoCheckChanged;
+end;
+
+procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
+function TD2CheckColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2CheckCell;
 end;
 
 //=============== TD2ProgressColumn ============================================
@@ -645,14 +662,14 @@ end;
 
 function TD2ProgressColumn.CreateCellControl:TD2Control;
 begin
-  Result:=TD2ProgressCell.Create(Self);
+  Result:=inherited;
+  TD2ProgressCell(Result).Min:=FMin;
+  TD2ProgressCell(Result).Max:=FMax;
 end;
 
-procedure TD2ProgressColumn.InitCellControl(ACellControl: TD2Control);
+function TD2ProgressColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  TD2ProgressCell(ACellControl).Min:=FMin;
-  TD2ProgressCell(ACellControl).Max:=FMax;
+  Result:=TD2ProgressCell;
 end;
 
 //=============== TD2PopupColumn ==============================================
@@ -671,13 +688,13 @@ end;
 
 function TD2PopupColumn.CreateCellControl:TD2Control;
 begin
-  Result:=TD2PopupCell.Create(Self);
+  Result:=inherited;
+  TD2PopupCell(Result).Items.Assign(FItems);
 end;
 
-procedure TD2PopupColumn.InitCellControl(ACellControl: TD2Control);
+function TD2PopupColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  TD2PopupCell(ACellControl).Items.Assign(FItems);
+  Result:=TD2PopupCell;
 end;
 
 procedure TD2PopupColumn.SetItems(const Value:TD2WideStrings);
@@ -689,15 +706,15 @@ end;
 
 function TD2ImageColumn.CreateCellControl:TD2Control;
 begin
-  Result:=TD2ImageCell.Create(Self);
+  Result:=inherited;
+  TD2ImageCell(Result).EnableOpenDialog:=false;
 end;
 
-procedure TD2ImageColumn.InitCellControl(ACellControl: TD2Control);
+function TD2ImageColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  TD2ImageCell(ACellControl).EnableOpenDialog:=false;
+  Result:=TD2ImageCell;
 end;
-         
+
 //=============== TD2CustomGrid ==============================================
 
 constructor TD2CustomGrid.Create(AOwner:TComponent);

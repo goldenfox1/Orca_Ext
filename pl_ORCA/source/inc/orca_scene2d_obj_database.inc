@@ -1249,145 +1249,103 @@ begin
   //end;
 end;
 
-//{ TD2GridDataLink }
-//
-//type
-//  EInvalidGridOperation=class(Exception);
-//
-//procedure RaiseGridError(const S:string);
-//begin
-//  raise EInvalidGridOperation.Create(S);
-//end;
-//
-//type
-//  TIntArraydb=array[0..MaxMapSize] of Integer;
-//  PIntArraydb=^TIntArraydb;
-//
-//constructor TD2GridDataLink.Create(AGrid:TD2DBGrid);
-//begin
-//  inherited Create;
-//  FGrid:=AGrid;
-//  VisualControl:=True;
-//end;
-//
-//destructor TD2GridDataLink.Destroy;
-//begin
-//  inherited Destroy;
-//end;
-//
-//function TD2GridDataLink.GetDefaultFields:boolean;
-//var
-//  I:integer;
-//begin
-//  Result:=True;
-//  if DataSet <> nil then Result:=DataSet.DefaultFields;
-//  if Result and SparseMap then
-//  for I:=0 to FFieldCount-1 do
-//    if FFieldMap[I] < 0 then
-//    begin
-//      Result:=False;
-//      Exit;
-//    end;
-//end;
-//
-//function TD2GridDataLink.GetFields(I:integer):TField;
-//begin
-//  if (0 <= I) and (I < FFieldCount) and (FFieldMap[I] >= 0) then
-//    Result:=DataSet.Fields[FFieldMap[I]]
-//  else
-//    Result:=nil;
-//end;
-//
-//procedure TD2GridDataLink.ActiveChanged;
-//begin
-//  if Active and Assigned(DataSource) then
-//    if Assigned(DataSource.DataSet) then
-//      if DataSource.DataSet.IsUnidirectional then
-//        DatabaseError('Operation not allowed on a unidirectional dataset');
-//  FGrid.LinkActive(Active);
-//  FModified:=False;
-//end;
-//
-//procedure TD2GridDataLink.Modified;
-//begin
-//  FModified:=True;
-//end;
-//
-//procedure TD2GridDataLink.DataSetChanged;
-//begin
-//  FGrid.DataSetChanged;
-//  FModified:=False;
-//end;
-//
-//procedure TD2GridDataLink.DataSetScrolled(Distance:integer);
-//begin
-//  FGrid.DataChanged;
-//end;
-//
-//procedure TD2GridDataLink.LayoutChanged;
-//begin
-//  inherited LayoutChanged;
-//end;
-//
-//procedure TD2GridDataLink.FocusControl(Field:TFieldRef);
-//begin
-//  if Assigned(Field) and Assigned(Field^) then
-//  begin
-//    FGrid.SelectedField:=Field^;
-//  end;
-//end;
-//
-//procedure TD2GridDataLink.EditingChanged;
-//begin
-//  FGrid.EditingChanged;
-//end;
-//
-//procedure TD2GridDataLink.RecordChanged(Field:TField);
-//begin
-//  FGrid.RecordChanged(Field);
-//  FModified:=False;
-//end;
-//
-//procedure TD2GridDataLink.UpdateData;
-//begin
-//  FInUpdateData:=True;
-//  try
-//    if FModified then FGrid.UpdateData;
-//    FModified:=False;
-//  finally
-//    FInUpdateData:=False;
-//  end;
-//end;
-//
-//function TD2GridDataLink.GetMappedIndex(ColIndex:integer):integer;
-//begin
-//  if (0 <= ColIndex) and (ColIndex < FFieldCount) then
-//    Result:=FFieldMap[ColIndex]
-//  else
-//    Result:=-1;
-//end;
-//
-//procedure TD2GridDataLink.Reset;
-//begin
-//  if FModified then RecordChanged(nil) else Dataset.Cancel;
-//end;
-//
-//function TD2GridDataLink.IsAggRow(Value:integer):boolean;
-//begin
-//  Result:=False;
-//end;
-//
-//procedure TD2GridDataLink.BuildAggMap;
-//begin
-//end;
+{ TD2TreeDataController }
+
+procedure TD2TreeDataController.ActiveChanged;
+//вызывается при изменении состояния открыт/закрыт DataSet-a
+begin
+  if Active
+    then begin
+           FDataSet := DataSet;
+           if DataSetName <> fDataSetName
+             then begin
+                    fDataSetName := DataSetName;
+                    UpdateKeyField;
+                    UpdateParentField;
+                    if Assigned(OnNewDataSet) then OnNewDataSet(DataSet);
+                  end
+             else if Assigned(OnDataSetOpen) then OnDataSetOpen(DataSet);
+         end
+    else begin
+           BufferCount := 0;
+           if (DataSource = nil)
+             then begin
+                    if Assigned(OnInvalidDataSource) then OnInvalidDataSource(fDataSet);
+                    fDataSet := nil;
+                    fDataSetName := '[???]';
+                  end
+             else begin
+                    if (DataSet=nil)or(csDestroying in DataSet.ComponentState)
+                      then begin
+                             if Assigned(OnInvalidDataSet) then OnInvalidDataSet(fDataSet);
+                             fDataSet := nil;
+                             fDataSetName := '[???]';
+                           end
+                      else begin
+                             if Assigned(OnDataSetClose) then OnDataSetClose(DataSet);
+                             if DataSet <> nil then FDataSetName := DataSetName;
+                           end;
+                  end;
+         end;
+end;
+
+procedure TD2TreeDataController.SetKeyFieldName(const AValue: string);
+//установить ключевое поле в соответствии c его имемем AValue
+begin
+  if FKeyFieldName <> AValue then
+  begin
+    FKeyFieldName := AValue;
+    UpdateKeyField;
+  end;
+end;
+
+procedure TD2TreeDataController.SetParentFieldName(const AValue: string);
+//установить родительское поле в соответствии c его имемем AValue
+begin
+  if FParentFieldName <> AValue then
+  begin
+    FParentFieldName := AValue;
+    UpdateParentField;
+  end;
+end;
+
+procedure TD2TreeDataController.UpdateKeyField;
+//обновить ключевое поле в соответствии с его именем заданным параметром FKeyFieldName
+begin
+  if Active and
+     DataSet.Active and
+     (FKeyFieldName <> '')
+    then FKeyField := DataSet.FieldByName(FKeyFieldName)
+    else FKeyField := nil;
+  KeyChanged;
+end;
+
+procedure TD2TreeDataController.UpdateParentField;
+//обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
+begin
+  if Active and
+     DataSet.Active and
+     (FParentFieldName <> '')
+    then FParentField := DataSet.FieldByName(FParentFieldName)
+    else FParentField := nil;
+  ParentChanged;
+end;
+
+procedure TD2TreeDataController.KeyChanged;
+//вызывается при изменении ключевого поля таблицы
+begin
+  if Assigned(FOnKeyChanged) then
+    FOnKeyChanged(FKeyField);
+end;
+
+procedure TD2TreeDataController.ParentChanged;
+//вызывается при изменении родительское поля таблицы
+begin
+  if Assigned(FOnParentChanged) then
+    FOnParentChanged(FParentField);
+end;
 
 { TD2DBColumn }
-
-//Deleted by GoldenFox
-//constructor TD2DBColumn.Create(AOwner:TComponent);
-//begin
-//  inherited;
-//end;
 
 destructor TD2DBColumn.Destroy;
 begin

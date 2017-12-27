@@ -623,8 +623,8 @@ begin
   inherited ;
 end;
 
-procedure TD2TreeView.DragOver(const Data:TD2DragObject; Shift: TShiftState;
-  const Point:TD2Point; var Accept:boolean);
+procedure TD2TreeView.DragOver(const Data: TD2DragObject; Shift: TShiftState;
+  const Point: TD2Point; var Accept: Boolean);
 var
   Obj:TD2TreeViewItem;
 begin
@@ -655,8 +655,8 @@ begin
     Accept:=false;
 end;
 
-procedure TD2TreeView.DragDrop(const Data:TD2DragObject;
-  const Point:TD2Point);
+procedure TD2TreeView.DragDrop(const Data: TD2DragObject; Shift: TShiftState;
+  const Point: TD2Point);
 var
   Obj:TD2TreeViewItem;
   Allow:boolean;

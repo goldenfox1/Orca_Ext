@@ -1762,20 +1762,22 @@ begin
     OnDragLeave(Self);
 end;
 
-procedure TD2VisualObject.DragOver(const Data:TD2DragObject; Shift: TShiftState; const Point:TD2Point; var Accept:boolean);
+procedure TD2VisualObject.DragOver(const Data: TD2DragObject;
+  Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
 begin
   if Assigned(OnDragOver) then
     OnDragOver(Self,Data,Shift,Point,Accept);
 end;
 
-procedure TD2VisualObject.DragDrop(const Data:TD2DragObject; const Point:TD2Point);
+procedure TD2VisualObject.DragDrop(const Data: TD2DragObject;
+  Shift: TShiftState; const Point: TD2Point);
 begin
   FIsDragOver:=false;
   Repaint;
   StartTriggerAnimation(Self,'IsDragOver');
   ApplyTriggerEffect(Self,'IsDragOver');
   if Assigned(OnDragDrop) then
-    OnDragDrop(Self,Data,Point);
+    OnDragDrop(Self,Data,Shift,Point);
 end;
 
 procedure TD2VisualObject.DragEnd;
@@ -2023,7 +2025,7 @@ begin
   end;
 end;
 
-function TD2VisualObject.isOpacityStored:boolean;
+function TD2VisualObject.isOpacityStored: Boolean;
 begin
   Result:=FOpacity <> 1;
 end;
@@ -2150,7 +2152,7 @@ begin
     UpdateTabOrder(Value);
 end;
 
-Function TD2VisualObject.GetHint:string;  // 7777
+function TD2VisualObject.GetHint: String;  // 7777
 begin
   Result:=UTF8Encode(FHint);
 end;

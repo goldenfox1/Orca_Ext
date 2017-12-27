@@ -498,12 +498,12 @@ begin
   Height:=120;
 end;
 
-procedure TD2DropTarget.DragDrop(const Data:TD2DragObject;
+procedure TD2DropTarget.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
   const Point:TD2Point);
 begin
   inherited;
   if Assigned(FOnDrop) then
-    FOnDrop(Self,Data,Point);
+    FOnDrop(Self,Data,Shift,Point);
 end;
 
 procedure TD2DropTarget.DragOver(const Data:TD2DragObject; Shift: TShiftState;

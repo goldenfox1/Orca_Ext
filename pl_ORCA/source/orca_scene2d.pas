@@ -1603,14 +1603,16 @@ TD2Effect = class(TD2Object)
   end;
 
 
-  TD2DragEnterEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
+  TD2DragEnterEvent =procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
   TD2DragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean) of object;
-  TD2DragDropEvent = procedure(Sender: TObject; const Data: TD2DragObject; const Point: TD2Point) of object;
+  TD2DragDropEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point) of object;
 
   TD2CanFocusedEvent = procedure(Sender: TObject; var ACanFocused: boolean) of object;
 
 
   TD2Popup = class;
+
+{ TD2VisualObject }
 
 TD2VisualObject = class(TD2Object)
   private
@@ -1772,7 +1774,7 @@ TD2VisualObject = class(TD2Object)
     procedure ContextMenu(const ScreenPosition: TD2Point);  virtual;
     procedure DragEnter(const Data: TD2DragObject; const Point: TD2Point);  virtual;
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  virtual;
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  virtual;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point);  virtual;
     procedure DragLeave;  virtual;
     procedure DragEnd;  virtual;
     function  EnterFocusChildren(AObject: TD2VisualObject):boolean;  virtual;
@@ -4206,7 +4208,7 @@ TD2ImageControl = class(TD2Control)
     procedure FreeStyle;  override;
     procedure Click;  override;
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point);  override;
     procedure DoBitmapChanged(Sender: TObject);  virtual;
     function  GetData: Variant;  override;
     procedure SetData(const Value:Variant);  override;
@@ -4645,7 +4647,7 @@ type
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point);  override;
     procedure ApplyStyle;  override;
     procedure FreeStyle;  override;
     procedure EnterFocus;  override;
@@ -5004,6 +5006,8 @@ type
   TOnCompareTreeViewItemEvent = function(Item1, Item2: TD2TreeViewItem): integer of object;
   TOnTreeViewDragChange = procedure (SourceItem, DestItem: TD2TreeViewItem; Allow: boolean) of object;
 
+  { TD2TreeView }
+
   TD2TreeView = class(TD2ScrollBox)
   private
     FMouseSelecting:boolean;
@@ -5069,7 +5073,7 @@ type
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure KeyUp(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point);  override;
     property Count: integer read GetCount;
     property GlobalCount: integer read FGlobalCount;
     property CountExpanded: integer read FCountExpanded;
@@ -6022,7 +6026,7 @@ TD2DropTarget = class(TD2TextControl)
     FFilter: string;
   protected
     procedure DragOver(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);  override;
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point);  override;
   public
     constructor Create(AOwner: TComponent);  override;
   published
@@ -7108,6 +7112,8 @@ end;
 TD2ImageCell = class(TD2ImageControl)
 end;
 
+TD2CellClass = class of TD2Control;
+
 { TD2Column }
 
 TD2Column = class(TD2Control)
@@ -7129,13 +7135,14 @@ TD2Column = class(TD2Control)
               //создать специфическую ячейку столбца
     function CreateCellControl: TD2Control;  virtual;
              //инициализировать специфическую ячейку столбца
-    procedure InitCellControl(ACellControl: TD2Control); virtual;
+    //procedure InitCellControl(ACellControl: TD2Control); virtual;
     procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
     procedure DoEnterFocus(Sender: TObject); virtual;
     procedure DoKillFocus(Sender: TObject);  virtual;
     procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState); virtual;
     procedure CellSetFocus(ARow: integer);  virtual;
     procedure SetWidth(const Value:single);  override;
+    function GetCellClass: TD2CellClass; virtual;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy; override;
@@ -7155,7 +7162,7 @@ TD2Column = class(TD2Control)
 TD2TextColumn = class(TD2Column)
   protected
     function CreateCellControl: TD2Control;  override;
-    procedure InitCellControl(ACellControl: TD2Control); override;
+    function GetCellClass: TD2CellClass; override;
     procedure DoTextChanged(Sender: TObject);
     procedure DoEnterFocus(Sender: TObject); override;
     procedure DoKillFocus(Sender: TObject); override;
@@ -7167,9 +7174,9 @@ TD2TextColumn = class(TD2Column)
 TD2CheckColumn = class(TD2Column)
   private
     procedure DoCheckChanged(Sender: TObject);
-  public
+  protected
     function CreateCellControl: TD2Control;  override;
-    procedure InitCellControl(ACellControl: TD2Control); override;
+    function GetCellClass: TD2CellClass; override;
   end;
 
 { TD2ProgressColumn }
@@ -7180,7 +7187,7 @@ TD2ProgressColumn = class(TD2Column)
     FMax:single;
   protected
     function CreateCellControl: TD2Control;  override;
-    procedure InitCellControl(ACellControl: TD2Control); override;
+    function GetCellClass: TD2CellClass; override;
   public
     constructor Create(AOwner: TComponent);  override;
   published
@@ -7196,7 +7203,7 @@ TD2PopupColumn = class(TD2Column)
     procedure SetItems(const Value:TD2WideStrings);
   protected
     function CreateCellControl: TD2Control;  override;
-    procedure InitCellControl(ACellControl: TD2Control); override;
+    function GetCellClass: TD2CellClass; override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
@@ -7207,9 +7214,9 @@ end;
 { TD2ImageColumn }
 
 TD2ImageColumn = class(TD2Column)
-  public
+  protected
     function CreateCellControl: TD2Control;  override;
-    procedure InitCellControl(ACellControl: TD2Control); override;
+    function GetCellClass: TD2CellClass; override;
 end;
 
   TOnGetValue = procedure (Sender: TObject; const Col, Row:integer; var Value:Variant) of object;
@@ -7437,7 +7444,7 @@ TD2Grid = class(TD2CustomGrid)
     property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
     property OnSetValue;                 //указатель на процедуру прерывания при записи данных в DataSet
     property OnEdititingDone;            //указатель на процедуру прерывания после окончания записи в DataSet
-    property OnScroll;
+    property OnScroll;                   //указатель на процедуру прерывания после изменения положения скроллера
 end;
 
 { TD2StringColumn }
@@ -7788,6 +7795,47 @@ TD2GridDataController=class(TComponentDataLink)   //невизуальный к�
     function  GetRecordCount: Integer; override;
   published
     property DataSource;   //указатель на DataSource
+  end;
+
+
+{ TD2TreeDataController }
+
+TD2TreeDataController=class(TD2GridDataController)
+  private
+    FDataSet: TDataSet;       //указатель на DataSet
+    FDataSetName: string;     //имя DataSet-а
+    FKeyField: TField;        //указатель на ключевое поле таблицы
+    FKeyFieldName: string;    //имя ключевого поля таблицы
+    FParentField: TField;     //указатель на родительское поле таблицы
+    FParentFieldName: string; //имя родительского поля таблицы
+    FOnKeyChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения ключевого поля
+    FOnParentChanged: TFieldNotifyEvent;   //указатель на обрабочик прерывания изменения родительского поля
+
+              //установить ключевое поле в соответствии c его имемем AValue
+    procedure SetKeyFieldName(const AValue: string);
+              //установить родительское поле в соответствии c его имемем AValue
+    procedure SetParentFieldName(const AValue: string);
+              //обновить ключевое поле в соответствии с его именем заданным параметром FKeyFieldName
+    procedure UpdateKeyField;
+              //обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
+    procedure UpdateParentField;
+
+  protected
+              //вызывается при изменении состояния открыт/закрыт DataSet-a
+    procedure ActiveChanged; override;
+              //вызывается при изменении ключевого поля таблицы
+    procedure KeyChanged; virtual;
+              //вызывается при изменении родительское поля таблицы
+    procedure ParentChanged; virtual;
+  public
+    property KeyField: TField read FKeyField;        //указатель на ключевое поле таблицы
+    property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
+    property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
+    property OnParentChanged: TFieldNotifyEvent read FOnParentChanged write FOnParentChanged; //обрабочик прерывания изменения родительского поля
+  published
+    property DataSource;   //указатель на DataSource
+    property KeyFieldName : string read FKeyFieldName write SetKeyFieldName;           //имя ключевого поля таблицы
+    property ParentFieldName : string read FParentFieldName write SetParentFieldName;  //имя родительского поля таблицы
   end;
 
 { TD2CustomDBGrid }
@@ -8367,9 +8415,9 @@ TOnGetHaveChildren  = function(Sender: TObject): boolean of object;
   // Массив идентификаторов типа линии, которая используется при рисовании узла. A collection of line type IDs which is used while painting a node.
   TD2TreeLineArray = array of TD2TreeLineType;
 
-{ TD2TreeCell }
+{ TD2TreeCellControl }
 
-TD2TreeCell = class(TD2Control)
+TD2TreeCellControl = class(TD2Control)
   private
     FAllowGrayed: boolean;
     FCheck: TD2CustomButton;          //указатель на чекбокс
@@ -8432,6 +8480,7 @@ TD2TreeCell = class(TD2Control)
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
     function DetermineNextCheckState(CheckType: TD2CheckType; CheckState: TD2CheckState): TD2CheckState; virtual;
+
   public
               //создать экземпляр объекта
     constructor Create(AOwner: TComponent);  override;
@@ -8441,6 +8490,7 @@ TD2TreeCell = class(TD2Control)
     procedure DoSplitterMouseMove(Sender: TObject; Shift: TShiftState; X, Y, Dx, Dy:single);
               //перестроить объект
     procedure Realign; override;
+
   published
     property AllowGrayed: boolean read FAllowGrayed write SetAllowGrayed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;    //true - у узла установлена отметка
@@ -8453,25 +8503,16 @@ end;
 TD2TreeColumn = class(TD2Column)
 
   protected
-              //обработчик изменения состояния разворачивания узла
+             //обработчик изменения состояния разворачивания узла
     procedure DoChangeExpander(Sender: TObject);
-
-              //обработчик потери фокуса ячейкой
-    //procedure DoKillFocus(Sender: TObject);  override;
-
-                //True - колонка является главной (содержит дерево)
+             //True - колонка является главной (содержит дерево)
     function GetIsMainColumn: boolean;
-                //создание ячейки
+             //создание ячейки
     function CreateCellControl: TD2Control;  override;
-             //инициализация ячейки
-    procedure InitCellControl(ACellControl: TD2Control); override;
+             //получить класс ячеек для данного типа колонки
+    function GetCellClass: TD2CellClass; override;
               //обновить колонку
     procedure UpdateColumn; override;
-
-    //procedure PaintColumn; virtual;
-
-              //Нарисовать прямоугольник целевого узла перетаскивания
-    procedure PaintDropMark(const Cell: TD2TreeCell);
               // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
     procedure NodeSetFocus(Node: PD2TreeNode);  virtual;
 
@@ -8490,26 +8531,63 @@ TD2TreeTextColumn = class(TD2TreeColumn)
   protected
              //Создает текстовую ячейку
     function CreateCellControl: TD2Control;  override;
-
-    procedure InitCellControl(ACellControl: TD2Control); override;
-
-                 //обработка изменения текста в ячейке
+             //получить класс ячеек для данного типа колонки
+    function GetCellClass: TD2CellClass; override;
+              //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
               //обработчик двойного клика по ячейке. используется из грида
     procedure NodeSetFocus(Node: PD2TreeNode);  override;
 
 end;
 
+{ TD2TreeCheckColumn }
+
 TD2TreeCheckColumn = class(TD2TreeColumn)
+  private
+    procedure DoCheckChanged(Sender: TObject);
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
 end;
+
+{ TD2TreeProgressColumn }
 
 TD2TreeProgressColumn = class(TD2TreeColumn)
+  private
+    FMin:single;
+    FMax:single;
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+  published
+    property Min:single read FMin write FMin;
+    property Max:single read FMax write FMax;
 end;
+
+{ TD2TreePopupColumn }
 
 TD2TreePopupColumn = class(TD2TreeColumn)
+  private
+    FItems: TD2WideStrings;
+    procedure SetItems(const Value:TD2WideStrings);
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Items: TD2WideStrings read FItems write SetItems;
 end;
 
+{ TD2TreeImageColumn }
+
 TD2TreeImageColumn = class(TD2TreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
 end;
 
 
@@ -8573,6 +8651,11 @@ TD2DropMode = (
   dmOnNode,    //На узел
   dmBelow      //Ниже узла
 );
+
+//Drag & Drop Прерывание после отпускании кнопки мыши при перетаскивании над объектом
+TD2VTDragDropEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState;
+                                const Pt: TD2Point;  var TargetNode: PD2TreeNode;
+                                var Mode: TD2DropMode) of object;
 
 //Drag & Drop Прерывание при перетаскивании над объектом
 TD2VTDragOverEvent = procedure(Sender: TObject; const Data: TD2DragObject; Shift: TShiftState;
@@ -8855,7 +8938,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FOnCollapsed: TD2VTChangeEvent;                //Вызывается после сворачивания узла. called after a node has been collapsed
     FOnCollapsing: TD2VTChangingEvent;             //Вызывается перед сворачиванием узла. called just before a node is collapsed
     FOnCompareNodes: TD2VTCompareEvent;            //Используется для сортировки. used during sort
-    FOnDragOver: TD2VTDragOverEvent;               //Вызывается при перетаскивании над объектом
+    FOnDragDrop: TD2VTDragDropEvent;               //Вызывается после отпускания кнопки мыши при перетаскивании (если было разрешено падение). called on release of mouse button (if drop was allowed)
+    FOnDragOver: TD2VTDragOverEvent;               //Вызывается при перетаскивании над объектом. called for every mouse move
     FOnEditCancelled: TD2VTEditCancelEvent;        //Вызывается при отмене редактирования. called when editing has been cancelled
     FOnEdited: TD2VTEditChangeEvent;               //Вызывается после успешного окончания редактирования. called when editing has successfully been finished
     FOnEditing: TD2VTEditChangingEvent;            //Вызывается непосредственно перед переходом узла в режим редактирования. called just before a node goes into edit mode
@@ -9192,7 +9276,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
 
     procedure DragLeave;  override;
 
-    procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point); override;
+    procedure DragDrop(const Data: TD2DragObject; Shift: TShiftState; const Point: TD2Point); override;
 
     procedure DoDragScroll(Sender: TObject);
 
@@ -9749,7 +9833,8 @@ public
     property OnBeforeDrawTreeLine: TD2VTBeforeDrawTreeLineEvent read FOnBeforeDrawTreeLine write FOnBeforeDrawTreeLine;
     property OnChecked: TD2VTChangeEvent read FOnChecked write FOnChecked;            //Прерывание после изменения состояния отметки узла.
     property OnChecking: TD2VTCheckChangingEvent read FOnChecking write FOnChecking;  //Прерывание перед изменением состояния отметки узла.
-    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
+    property OnDragDrop: TD2VTDragDropEvent read FOnDragDrop write FOnDragDrop;       //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение). called on release of mouse button (if drop was allowed)
+    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;       //Прерывание при перетаскивании над объектом
     property OnEdititingDone: TD2VTEdititingDone read FOnEdititingDone write FOnEdititingDone;  //указатель на процедуру прерывания после окончания записи в DataSet
     property OnGetNodeDataSize: TD2VTGetNodeDataSizeEvent read FOnGetNodeDataSize write FOnGetNodeDataSize; //Прерывание при NodeDataSize = -1
     property OnGetValue:TD2VTGetValue read FOnGetValue write FOnGetValue;   //указатель на процедуру прерывания при получении данных из DataSet
@@ -9793,8 +9878,8 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property OnChecked;     //Прерывание после изменения состояния отметки узла.
     property OnChecking;    //Прерывание перед измененем состояния отметки узла.
 
-    property OnDragOver: TD2VTDragOverEvent read FOnDragOver write FOnDragOver;         //Прерывание при перетаскивании над объектом
-
+    property OnDragOver;         //Прерывание при перетаскивании над объектом
+    property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
 end;
 
 
@@ -11138,7 +11223,7 @@ initialization
 ***************************************************************************************************}
                    TD2DBTextColumn, TD2DockingTab, TD2Column,
                    TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
-                   TD2TreeCell, TD2TreeColumn,
+                   TD2TreeCellControl, TD2TreeColumn,
                    TD2TreeTextColumn, TD2TreeCheckColumn, TD2TreeProgressColumn, TD2TreePopupColumn,
                    TD2TreeImageColumn
 //======================= End part of make by GoldenFox =======================

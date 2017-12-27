@@ -18,9 +18,9 @@
 
 ***********************************************************************}
 
-{ TD2TreeCell }
+{ TD2TreeCellControl }
 
-procedure TD2TreeCell.Realign;
+procedure TD2TreeCellControl.Realign;
 var
   SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
 begin
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
+procedure TD2TreeCellControl.CalculateVerticalAlignments(ShowImages, ShowStateImages: Boolean; out VButtonAlign: Single);
 //Вычисляет вертикальное выравнивание узла Node и связанной с ним кнопки развернуть/свернуть
 //во время цикла рисования узла в зависимости от стиля выравнивания узлов.
 // Calculates the vertical alignment of the given node and its associated expand/collapse button during
@@ -196,7 +196,7 @@ begin
     else VButtonAlign := FVAlign;
 end;
 
-procedure TD2TreeCell.CalculateIndent;
+procedure TD2TreeCellControl.CalculateIndent;
 //рассчитать отступ експандера и/или отметки узла и нарисовать линии дерева
 var
   ButtonY: single;
@@ -224,7 +224,7 @@ begin
 
 end;
 
-procedure TD2TreeCell.PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
+procedure TD2TreeCellControl.PaintTreeLines(IndentSize: Integer; LineArray: TD2TreeLineArray);
 //нарисовать линии дерева в ячейке Cell в соответствии с массивом линий LineArray
 var
   I: Integer;
@@ -281,7 +281,7 @@ begin
   {$endif}
 end;
 
-procedure TD2TreeCell.DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
+procedure TD2TreeCellControl.DrawTreeLine(X: Single; Style: TD2TreeLineType; ClipExpander: boolean; Reverse: Boolean);
 // Рисует (в зависимости от стиля) один из 5 типов линий дерева.
 // Если Reverse = True, то столбец рисуется справа налево, и горизонтальные линии должны быть зеркалированы.
 // X и Y описывают левый верхний угол прямоугольника изображения линии, а H обозначает его высоту (и ширину).
@@ -379,7 +379,7 @@ begin
 end;
 
 
-function TD2TreeCell.GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
+function TD2TreeCellControl.GetBandsLineArray(IndentSize: Integer; LineArray: TD2TreeLineArray): TD2TreeLineArray;
 //получить альтернативный массив линий дерева для режима LineMode=lmBands
 var
   i: Integer;
@@ -420,14 +420,14 @@ begin
   Result:= NewStyles;
 end;
 
-procedure TD2TreeCell.DoExpanderClick(Sender: TObject);
+procedure TD2TreeCellControl.DoExpanderClick(Sender: TObject);
 //обработчик нажатия на экспандер
 begin
   if (FNode <> nil) and (FGrid <> nil)
     then FGrid.ToggleNode(FNode);
 end;
 
-procedure TD2TreeCell.SetIsExpanded(const Value: boolean);
+procedure TD2TreeCellControl.SetIsExpanded(const Value: boolean);
 //установить флаг IsExpanded (узел развернут/свернут) в состояние Value
 begin
   if FIsExpanded <> Value then
@@ -439,7 +439,7 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.SetIsChecked(const Value: boolean);
+procedure TD2TreeCellControl.SetIsChecked(const Value: boolean);
 //установить флаг IsChecked (отметка узла) в состояние Value
 begin
   if FIsChecked <> Value then
@@ -460,7 +460,7 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.SetIsGrayed(Value: boolean);
+procedure TD2TreeCellControl.SetIsGrayed(Value: boolean);
 //установить флаг IsGrayed (серая (промежуточная) отметка узла) для 3-х позиционного чек-бокса в состояние Value
 begin
   if FIsGrayed <> Value then
@@ -482,7 +482,7 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.SetAllowGrayed(Value: boolean);
+procedure TD2TreeCellControl.SetAllowGrayed(Value: boolean);
 //установить разрешение серого (промежуточного) состояния для 3-х позиционного чек-бокса
 begin
   if FAllowGrayed <> Value then
@@ -493,7 +493,7 @@ begin
     end;
 end;
 
-function TD2TreeCell.GetData: Variant;
+function TD2TreeCellControl.GetData: Variant;
 //получить данные из ячейки
 begin
   if FControl<>nil
@@ -501,14 +501,14 @@ begin
     else Result:=Null;
 end;
 
-procedure TD2TreeCell.SetData(const Value: Variant);
+procedure TD2TreeCellControl.SetData(const Value: Variant);
 //установить данные ячейки в Value
 begin
   if FControl<>nil
     then FControl.SetData(Value);
 end;
 
-procedure TD2TreeCell.ApplyStyle;
+procedure TD2TreeCellControl.ApplyStyle;
 var
   B:TD2Object;
 begin
@@ -583,7 +583,7 @@ begin
   StartTriggerAnimation(Self,'IsSelected');
 end;
 
-procedure TD2TreeCell.FreeStyle;
+procedure TD2TreeCellControl.FreeStyle;
 begin
   inherited;
   if FControl<>nil
@@ -598,7 +598,7 @@ begin
   FSplitter:=nil;
 end;
 
-procedure TD2TreeCell.KeyDown(var Key: Word; var KeyChar: System.WideChar;
+procedure TD2TreeCellControl.KeyDown(var Key: Word; var KeyChar: System.WideChar;
   Shift: TShiftState);
 var NewCheckState: TD2CheckState;
 begin
@@ -632,12 +632,12 @@ begin
   end;
 end;
 
-procedure TD2TreeCell.DoCheckMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TD2TreeCellControl.DoCheckMouseDown(Sender: TObject; Button: TMouseButton;
                                        Shift: TShiftState; X, Y:single);
 //обработчик нажатия кнопок мыши над отметкой узла
 var NewCheckState: TD2CheckState;
 begin
-  if {(Button = mbLeft) and }(Shift = [ssLeft]) and
+  if (Shift = [ssLeft]) and
      (FGrid<>nil) and (toCheckSupport in FGrid.FOptions.FMiscOptions) and
      (FNode<>nil) and not (vsDisabled in FNode.States) and (FNode.CheckType<>ctNone) and
      (FGrid.FStates * [tsMouseCheckPending, tsKeyCheckPending] = [])
@@ -653,7 +653,7 @@ begin
           end;
 end;
 
-procedure TD2TreeCell.DoCheckMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TD2TreeCellControl.DoCheckMouseUp(Sender: TObject; Button: TMouseButton;
                                      Shift: TShiftState; X, Y: single);
 //обработчик отпускания кнопок мыши над отметкой узла
 begin
@@ -678,7 +678,7 @@ begin
     end;
 end;
 
-function TD2TreeCell.DetermineNextCheckState(CheckType: TD2CheckType;
+function TD2TreeCellControl.DetermineNextCheckState(CheckType: TD2CheckType;
   CheckState: TD2CheckState): TD2CheckState;
 //Определяет следующее состояние отметки если пользователь щелкнет на значек отметки или нажмет клавишу пробел.
 // Determines the next check state in case the user click the check image or pressed the space key.
@@ -701,7 +701,7 @@ begin
   end;
 end;
 
-constructor TD2TreeCell.Create(AOwner: TComponent);
+constructor TD2TreeCellControl.Create(AOwner: TComponent);
 begin
   inherited;
 
@@ -723,13 +723,13 @@ begin
   FVAlign:= 0;             //сдвиг горизонтальной линии дерева
 end;
 
-destructor TD2TreeCell.Destroy;
+destructor TD2TreeCellControl.Destroy;
 begin
   FreeAndNil(FControl);
   inherited Destroy;
 end;
 
-procedure TD2TreeCell.DoSplitterMouseMove(Sender: TObject; Shift: TShiftState;
+procedure TD2TreeCellControl.DoSplitterMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y, Dx, Dy: single);
 var
   NewSize:single;
@@ -742,7 +742,6 @@ begin
       if (NewSize < FGrid.FRowHeight) then NewSize:=FGrid.FRowHeight;
       if (NewSize <> FNode.NodeHeight) then
       begin
-        //Height := NewSize;
         FGrid.SetNodeHeight(FNode,NewSize); //установить новый размер узла
         FGrid.Realign;                      //перестроить грид
       end;
@@ -750,12 +749,12 @@ begin
   end;
 end;
 
-{ TD2TreeColumn }
+//=============== TD2TreeColumn =============================================
 
 procedure TD2TreeColumn.DoChangeExpander(Sender: TObject);
 begin
   if (FGrid <> nil) then
-    with TD2TreeCell(Sender) do
+    with TD2TreeCellControl(Sender) do
       if (FNode <> nil) and
          (IsExpanded <> (vsExpanded in FNode.States))
         then TD2TreeGrid(Self.FGrid).ToggleNode(FNode);
@@ -770,33 +769,28 @@ end;
 
 function TD2TreeColumn.CreateCellControl: TD2Control;
 begin
-  Result:=TD2TreeCell.Create(Self);
+  Result:=TD2TreeCellControl.Create(Self);
+  with TD2TreeCellControl(Result) do
+  begin
+    Parent:=Self;
+    HitTest:=false;
+    Visible:=false;
+    Locked:=true;
+    Stored:=false;
+    CanFocused:=false;
+    FControl:=GetCellClass.Create(Result);
+    FControl.ApplyResource;
+    FControl.OnCanFocused:=DoCanFocused;
+    FControl.OnEnterFocus:=DoEnterFocus;
+    FControl.OnKillFocus:=DoKillFocus;
+    FControl.OnKeyDown:=DoKeyDown;
+    ApplyResource;
+  end;
 end;
 
-procedure TD2TreeColumn.InitCellControl(ACellControl: TD2Control);
+function TD2TreeColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  if (ACellControl <> nil) and
-     (ACellControl is TD2TreeCell) and
-     (TD2TreeCell(ACellControl).FControl <> nil) and
-     (TD2TreeCell(ACellControl).FControl is TD2Control) then
-    begin
-      ACellControl.OnEnterFocus:=nil;
-      ACellControl.OnKillFocus:=nil;
-      ACellControl.OnKeyDown:=nil;
-      ACellControl.OnCanFocused:=nil;
-      with TD2TreeCell(ACellControl) do
-      begin
-        FControl.ApplyResource;
-        FControl.OnCanFocused:=DoCanFocused;
-        FControl.OnEnterFocus:=DoEnterFocus;
-        FControl.OnKillFocus:=DoKillFocus;
-        FControl.OnKeyDown:=DoKeyDown;
-        //OnChangeCheck:=DoChangeCheck;
-        //OnChangeExpander:=DoChangeExpander;
-        ApplyResource;
-      end;
-    end;
+  Result:=inherited;
 end;
 
 procedure TD2TreeColumn.UpdateColumn;
@@ -804,7 +798,7 @@ procedure TD2TreeColumn.UpdateColumn;
 var
   Node: PD2TreeNode;
   BaseOffset: Single;          // Верхнее положение верхнего узла для рисования, заданное в абсолютных координатах дерева. top position of the top node to draw given in absolute tree coordinates
-  Cell: TD2TreeCell;           //текущий контрол ячейки
+  Cell: TD2TreeCellControl;           //текущий контрол ячейки
   i: integer;
 
   //UseBackground,
@@ -819,9 +813,9 @@ begin
 
   with TD2TreeGrid(FGrid) do
   begin
-  //  if not (tsPainting in FStates) then
-  //  begin
-  //    DoStateChange([tsPainting]);
+    //if not (tsPainting in FStates) then
+    //begin
+      DoStateChange([tsPainting]);
       try
         ////Для быстрой проверки используются промежуточные переменные. For quick checks some intermediate variables are used.
         //UseBackground := (toShowBackground in FOptions.FPaintOptions) and (FBackground.Graphic is TBitmap) ;
@@ -836,9 +830,8 @@ begin
         begin
           if i >= FCellControls.Count            //если текущий индекс больше чем кол-во созданных ячеек
              then begin                          //то
-                    Cell:=TD2TreeCell(CreateCellControl); //создадим ячеку
+                    Cell:=TD2TreeCellControl(CreateCellControl); //создадим и настроим ячеку
                     Cell.SendToBack;                    //переместим ячейку выше всех
-                    InitCellControl(Cell);         //настроим ячеку
                     FCellControls.Add(Cell);       //добавим ячейку к списку ячеек
                   end
              else Cell:= FCellControls.Items[i]; //иначе возьмем текущую ячейку
@@ -849,10 +842,6 @@ begin
           Cell.Data:= GetValue(Node, Self.Index);
           Cell.SetBounds(0, BaseOffset, Self.Width, Node.NodeHeight); //задаем границы ячейки
           Cell.Realign;
-          // Заключительный штрих для этого узла: отметьте его, если он является текущим целевым узлом перетаскивания. Final touch for this node: mark it if it is the current drop target node.
-          if (Node = FDropTargetNode) and (toShowDropmark in FOptions.FPaintOptions)
-             then PaintDropMark(Cell);
-
           inc(i);
           d2IncFloat(BaseOffset, Node.NodeHeight);
         end;    //-------------- конец основного цикла
@@ -861,17 +850,11 @@ begin
           TD2Control(FCellControls.Items[i]).Visible:=false;
         UpdateSelected;
       finally
-        //DoStateChange([], [tsPainting]);
+        DoStateChange([], [tsPainting]);
         FUpdateColumn:=false;  //обновление колонки закончено (для совместимости с CustomGrid)
       end;
     //end;
   end;
-end;
-
-procedure TD2TreeColumn.PaintDropMark(const Cell: TD2TreeCell);
-//Нарисовать прямоугольник целевого узла перетаскивания
-begin
-
 end;
 
 procedure TD2TreeColumn.NodeSetFocus(Node: PD2TreeNode);
@@ -887,7 +870,7 @@ begin
   Result:=nil;
   if Grid=nil then Exit;
   for i:=0 to FCellControls.Count - 1 do
-    with TD2TreeCell(FCellControls.Items[i]) do
+    with TD2TreeCellControl(FCellControls.Items[i]) do
       if Visible and (FNode=Node) then
       begin
         Result:=TD2Control(FCellControls.Items[i]);
@@ -895,29 +878,23 @@ begin
       end;
 end;
 
-{ TD2TreeTextColumn }
+//=============== TD2TreeTextColumn =============================================
 
 function TD2TreeTextColumn.CreateCellControl: TD2Control;
 begin
   Result:=inherited;
-  if Result <> nil then
-    begin
-      TD2TreeCell(Result).FControl:=TD2TextCell.Create(Result);
-      if TD2TreeCell(Result).FControl <> nil then
-        with TD2TreeCell(Result).FControl do
-        begin
-          HitTest:=false;
-          CanFocused:=false;
-          Locked:=true;
-        end;
-    end;
+  with TD2TextCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    HitTest:=false;
+    CanFocused:=false;
+    Locked:=true;
+    OnChange:=DoTextChanged;
+  end;
 end;
 
-procedure TD2TreeTextColumn.InitCellControl(ACellControl: TD2Control);
+function TD2TreeTextColumn.GetCellClass: TD2CellClass;
 begin
-  inherited;
-  if TD2TreeCell(ACellControl).FControl <> nil then
-    TD2TextCell(TD2TreeCell(ACellControl).FControl).OnChange:=DoTextChanged;
+  Result:=TD2TextCell;
 end;
 
 procedure TD2TreeTextColumn.DoTextChanged(Sender: TObject);
@@ -925,7 +902,7 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  with TD2TreeCell(TD2TextCell(Sender).Owner) do
+  with TD2TreeCellControl(TD2TextCell(Sender).Owner) do
   begin
     TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
     if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
@@ -938,15 +915,108 @@ var C: TD2Control;
 begin
   inherited;
   C:=CellControlByNode(Node);
-  if (C <> nil) and (C is TD2TreeCell) and (TD2TreeCell(C).FControl <> nil) then
+  if (C <> nil) and (C is TD2TreeCellControl) and (TD2TreeCellControl(C).FControl <> nil) then
   begin
-    TD2TreeCell(C).FControl.HitTest:=true;
-    TD2TreeCell(C).FControl.CanFocused:=true;
-    TD2TreeCell(C).FControl.SetFocus;
+    TD2TreeCellControl(C).FControl.HitTest:=true;
+    TD2TreeCellControl(C).FControl.CanFocused:=true;
+    TD2TreeCellControl(C).FControl.SetFocus;
   end;
 end;
 
-{ TD2CustomTreeGrid }
+
+//=============== TD2TreeCheckColumn =============================================
+
+procedure TD2TreeCheckColumn.DoCheckChanged(Sender: TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with TD2TreeCellControl(TD2TextCell(Sender).Owner) do
+  begin
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
+    if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
+      TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
+  end;
+end;
+
+function TD2TreeCheckColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2CheckCell(TD2TreeCellControl(Result).FControl).OnChange:=DoCheckChanged;
+end;
+
+function TD2TreeCheckColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2CheckCell;
+end;
+
+//=============== TD2TreeProgressColumn =============================================
+
+function TD2TreeProgressColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  with TD2ProgressCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    Min:=FMin;
+    Max:=FMax;
+  end;
+end;
+
+function TD2TreeProgressColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ProgressCell;
+end;
+
+constructor TD2TreeProgressColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FMax:=100;
+end;
+
+//=============== TD2TreePopupColumn =============================================
+
+procedure TD2TreePopupColumn.SetItems(const Value: TD2WideStrings);
+begin
+  FItems.Assign(Value);
+end;
+
+function TD2TreePopupColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2PopupCell(TD2TreeCellControl(Result).FControl).Items.Assign(FItems);
+end;
+
+function TD2TreePopupColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2PopupCell;
+end;
+
+constructor TD2TreePopupColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FItems:=TD2WideStringList.Create;
+end;
+
+destructor TD2TreePopupColumn.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+
+//===============  TD2TreeImageColumn =============================================
+
+function TD2TreeImageColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2ImageCell(TD2TreeCellControl(Result).FControl).EnableOpenDialog:=false;
+end;
+
+function TD2TreeImageColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ImageCell;
+end;
+
+//=============== TD2CustomTreeGrid =============================================
 
 constructor TD2CustomTreeGrid.Create(AOwner: TComponent);
 begin
@@ -3638,7 +3708,7 @@ begin
                           s:=0;
                           K:=Columns[FMainColumn].LocalToAbsolute(d2Point(0,0));
                           K:=TD2VisualObject(Sender).AbsoluteToLocal(K);
-                          with TD2TreeCell(Columns[FMainColumn].FCellControls[i]) do
+                          with TD2TreeCellControl(Columns[FMainColumn].FCellControls[i]) do
                             if FIndent <> nil
                               then begin
                                      NewStyles:= GetBandsLineArray( IfThen(toFixedIndent in FGrid.FOptions.FPaintOptions,
@@ -3727,18 +3797,19 @@ begin
 
     //установим границы маркера пред.выбора
     if (FPreSelection <> nil) and             //если маркер предвыбора имеется и
-       ( (FIsDragOver    and (FDropTargetNode = PD2TreeNode(FVisibleRowsList[i]))) or     //маркер предвыбора влючен и предвыбранный узел равен текущему, или
-         (FIsPreSelected and (FLastSelected   = PD2TreeNode(FVisibleRowsList[i]))) and not FIsDragOver) then  //осуществляется перетаскивание и целевой узел равен текущему, то
-      begin
-        P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
-        if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
-          P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);                     //то преобразуем в координаты владельца FPreSelection
-        if (FContent.Width < ClientWidth) or FIsDragOver
-          then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
-          else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
-        FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
-        FPreSelection.Visible:=true;
-      end;
+       ( ((toShowDropmark in FOptions.FPaintOptions) and                                //разрешено выделять целевой узел при перетаскивании и
+           FIsDragOver and (FDropTargetNode=PD2TreeNode(FVisibleRowsList[i]))) or     //осуществляется перетаскивание и целевой узел равен текущему или
+          (not FIsDragOver and FIsPreSelected and (FFocusedNode=PD2TreeNode(FVisibleRowsList[i]))) )  //нет перетаскивания и маркер предвыбора влючен и предвыбранный узел равен текущему
+      then  begin
+              P := FContent.LocalToAbsolute(d2Point(0, Offset)); //верхнюю левую точку узла преобразуем в координаты контента
+              if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual then  //если есть владелец и он визуальный,
+                P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);                     //то преобразуем в координаты владельца FPreSelection
+              if (FContent.Width < ClientWidth) or FIsDragOver
+                then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight)
+                else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + PD2TreeNode(FVisibleRowsList[i]).NodeHeight);
+              FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
+              FPreSelection.Visible:=true;
+            end;
     d2IncFloat(Offset, PD2TreeNode(FVisibleRowsList[i]).NodeHeight); //координата Y следующего узла
   end;
 
@@ -4424,11 +4495,18 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DragDrop(const Data: TD2DragObject;
-  const Point: TD2Point);
+  Shift: TShiftState; const Point: TD2Point);
 begin
   StopDragScroll; //остановим автоматический скроллинг
   StopDropExpand; //остановим авторазворачивание узла
-  inherited;
+  //inherited;
+  FIsDragOver:=false;
+  Repaint;
+  StartTriggerAnimation(Self,'IsDragOver');
+  ApplyTriggerEffect(Self,'IsDragOver');
+  if Assigned(OnDragDrop)
+    //then OnDragDrop(Self,Data,Point);
+    then OnDragDrop(Self,Data,Shift,Point,FDropTargetNode,FLastDropMode);
   if (FPreSelection<>nil) and (FPreSelection is TD2Rectangle) then
     begin
       TD2Rectangle(FPreSelection).Sides:=[];
@@ -5616,31 +5694,31 @@ procedure TD2CustomTreeGrid.SetSelectedByPoint(const X, Y: single);
 //сделать выбранной строку по координатам X, Y
 begin
   //InternalClearSelection;
-  FLastSelected:=GetNodeAtTree(X, Y);
-  SelectNode(FLastSelected);
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  SelectNode(FFocusedNode);
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedMoreRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, FLastSelected, false)
-        else SelectNode(FLastSelected);
+        then SelectNodes(FRangeAnchor, FFocusedNode, false)
+        else SelectNode(FFocusedNode);
     end;
 end;
 
 procedure TD2CustomTreeGrid.SetSelectedExtraRowByPoint(const X, Y: single);
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
     begin
       if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-        then SelectNodes(FRangeAnchor, FLastSelected, true)
-        else Selected[FLastSelected]:= true;
+        then SelectNodes(FRangeAnchor, FFocusedNode, true)
+        else Selected[FFocusedNode]:= true;
     end;
 end;
 
@@ -5648,13 +5726,13 @@ function TD2CustomTreeGrid.ChangeSelectionRowByPoint(const X, Y: single): boolea
 //Инвертировать выделение строки по координатам X,Y. Результат: true - строка выделена, false - развыделена
 var s: boolean;
 begin
-  FLastSelected:=GetNodeAtTree(X, Y);
-  if Assigned(FLastSelected) then
+  FFocusedNode:=GetNodeAtTree(X, Y);
+  if Assigned(FFocusedNode) then
   begin
-    s:= not GetSelected(FLastSelected);
-    Selected[FLastSelected]:= s;
+    s:= not GetSelected(FFocusedNode);
+    Selected[FFocusedNode]:= s;
     if SelectedCount > 0
-      then FRangeAnchor:=FLastSelected
+      then FRangeAnchor:=FFocusedNode
       else FRangeAnchor:=nil;
     Result:=s;
   end;
@@ -5669,39 +5747,50 @@ begin
   if FVisibleCount > 0 then
   begin
     MultiSelect:= (toMultiSelect in FOptions.FSelectionOptions);
+    //очистка указателя на узел ожидающий изменения состояния отметки
+    if (tsKeyCheckPending in FStates) and (Key <> VK_SPACE) then  //если есть флаг изменения отметки с клавиатуры и нажат не пробел
+    begin
+      DoStateChange([], [tskeyCheckPending]);                         //удалим флаг
+      FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState]; //снимем отметку у ожидающего узла
+      //RepaintNode(FCheckNode);
+      FCheckNode := nil;                                              //очистим указатель
+    end;
+
     if IsOneRowSelected then
     begin
+      //передача управления в обработчик ячейки
       if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
       begin
         if (Columns[FocusedColumn] <> nil) and
-           (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected) <> nil) then
+           (TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FFocusedNode) <> nil) then
         begin
           if (KeyChar = ' ')
             then  if (FocusedColumn = FMainColumn)
                     then Key:=VK_SPACE
                     else KeyChar:= #0
-            else TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
-          TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FLastSelected)).KeyDown(Key,KeyChar,Shift);
+            else TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FFocusedNode);
+          TD2HackVisualObject(TD2TreeColumn(Columns[FocusedColumn]).CellControlByNode(FFocusedNode)).KeyDown(Key,KeyChar,Shift);
           Key:=0;
         end;
       end;
+
       case Key of
         VK_F2:
           begin
             if Columns[FocusedColumn] <> nil
-               then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FLastSelected);
+               then TD2TreeColumn(Columns[FocusedColumn]).NodeSetFocus(FFocusedNode);
             Key:=0;
           end;
         VK_LEFT:
           begin
             if (Shift = []) then                    //нажата только влево
             begin
-              if Assigned(FLastSelected) then //если есть выделенная ячейка
+              if Assigned(FFocusedNode) then //если есть выделенная ячейка
               begin
                 if (FFocusedColumn = FMainColumn) and          // если это главная колонка и
-                       (HasChildren[FLastSelected]) and             // есть дети и
-                            (Expanded[FLastSelected])               // узел разсвернут
-                  then Expanded[FLastSelected]:=false            // то свернуть узел
+                       (HasChildren[FFocusedNode]) and             // есть дети и
+                            (Expanded[FFocusedNode])               // узел разсвернут
+                  then Expanded[FFocusedNode]:=false            // то свернуть узел
                   else begin                                     // иначе
                           if (FocusedColumn > 0)                   // если это не первая колонка
                             then FocusedColumn := FocusedColumn - 1; // то выделить предыдущую ячейку строки
@@ -5716,12 +5805,12 @@ begin
           begin
             if (Shift = []) then                     //нажата только вправо
             begin
-              if Assigned(FLastSelected) then              // если есть выделенная ячейка
+              if Assigned(FFocusedNode) then              // если есть выделенная ячейка
               begin
                 if (FFocusedColumn = FMainColumn) and        // если это главная колонка и
-                       (HasChildren[FLastSelected]) and           // есть дети и узел свернут и
-                            (not Expanded[FLastSelected])         // узел свернут
-                  then Expanded[FLastSelected]:=true           // то развернуть узел
+                       (HasChildren[FFocusedNode]) and           // есть дети и узел свернут и
+                            (not Expanded[FFocusedNode])         // узел свернут
+                  then Expanded[FFocusedNode]:=true           // то развернуть узел
                   else begin                                     // иначе
                           if (FocusedColumn < ColumnCount - 1)     //если это не последняя колонка
                             then FocusedColumn := FocusedColumn + 1; //то выделить следующую ячейку строки
@@ -5738,8 +5827,8 @@ begin
       VK_SPACE:
         if (Shift = [ssCtrl]) and MultiSelect then   //Ctrl + пробел
         begin
-          FIsPreSelected := Selected[FLastSelected];
-          Selected[FLastSelected]:= not FIsPreSelected;
+          FIsPreSelected := Selected[FFocusedNode];
+          Selected[FFocusedNode]:= not FIsPreSelected;
           Key:=0;
         end;
       VK_A:
@@ -5754,35 +5843,35 @@ begin
           if Shift = [] then  //нажата только вверх
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + ввех
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                 then FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                 then FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + ввех
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetPreviousVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetPreviousVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5791,35 +5880,35 @@ begin
           if Shift = [] then  //нажата только вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + вниз
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetNextVisible(FLastSelected);
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetNextVisible(FFocusedNode);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5828,29 +5917,29 @@ begin
           if Shift = [] then  //нажата только Home
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + Home
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
           if Shift = [ssCtrl] then //Ctrl + Home и выбрана не первая строка
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetFirstVisible;
+              FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5859,34 +5948,34 @@ begin
           if Shift = [] then  //нажата только End
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
           if Shift = [ssShift] then  //если Shift + End
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:=true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:=true;
               Key:=0;
             end;
           if Shift = [ssCtrl]  then //Ctrl + End и выбрана не последняя строка
             begin
               FIsPreSelected:=false;
-              FLastSelected:=GetLastVisible;
+              FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
     end;
-    ScrollIntoView(FLastSelected,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+    ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
 
     case Key of
       VK_PRIOR:
@@ -5895,19 +5984,19 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
-              SelectNode(FLastSelected);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
+              SelectNode(FFocusedNode);
               Key:=0;
             end;
 
@@ -5915,21 +6004,21 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
 
@@ -5937,24 +6026,24 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetTopNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetTopNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetTopNode(FFocusedNode);
                       end
                 else  begin
-                        SetBottomNode(FLastSelected);
-                        FLastSelected:=GetTopNode;
-                        SetTopNode(FLastSelected);
+                        SetBottomNode(FFocusedNode);
+                        FFocusedNode:=GetTopNode;
+                        SetTopNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetFirstVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetFirstVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -5965,19 +6054,19 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
-              SelectNode(FLastSelected);
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
+              SelectNode(FFocusedNode);
 
               Key:=0;
             end;
@@ -5986,22 +6075,22 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
 
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if (toMultiSelect in TreeOptions.SelectionOptions) and  Assigned(FRangeAnchor)
-                then SelectNodes(FRangeAnchor, FLastSelected, false)
-                else Selected[FLastSelected]:= true;
+                then SelectNodes(FRangeAnchor, FFocusedNode, false)
+                else Selected[FFocusedNode]:= true;
               Key:=0;
             end;
 
@@ -6009,24 +6098,24 @@ begin
             begin
               FIsPreSelected:=false;
               ANode:=GetBottomNode;
-              if ANode <> FLastSelected
+              if ANode <> FFocusedNode
                 then  begin
-                        FLastSelected:=ANode;
-                        SetBottomNode(FLastSelected);
+                        FFocusedNode:=ANode;
+                        SetBottomNode(FFocusedNode);
                       end
                 else  begin
-                        SetTopNode(FLastSelected);
-                        FLastSelected:=GetBottomNode;
-                        SetBottomNode(FLastSelected);
+                        SetTopNode(FFocusedNode);
+                        FFocusedNode:=GetBottomNode;
+                        SetBottomNode(FFocusedNode);
                       end;
-              if not Assigned(FLastSelected)
-                then FLastSelected:=GetLastVisible;
+              if not Assigned(FFocusedNode)
+                then FFocusedNode:=GetLastVisible;
               if MultiSelect
                 then begin
                        FIsPreSelected:=true;
                        Realign;
                      end
-                else SelectNode(FLastSelected);
+                else SelectNode(FFocusedNode);
               Key:=0;
             end;
         end;
@@ -6047,7 +6136,7 @@ begin
             DoStateChange([], [tskeyCheckPending]);
             if (FCheckNode <> nil) then
             begin
-              if (FCheckNode = FLastSelected)
+              if (FCheckNode = FFocusedNode)
                 then DoCheckClick(FCheckNode, FPendingCheckState)
                 else FCheckNode.CheckState := UnpressedState[FCheckNode.CheckState];
               FCheckNode := nil;
@@ -6071,32 +6160,35 @@ end;
 
 procedure TD2CustomTreeGrid.SetFocusedNodeAndColumn(Node: PD2TreeNode; Column: Integer);
 //Устанавливает фокус на узел Node и колонку Column
-//var
-//  OldColumn: Integer;
-//  WasDifferent: Boolean;
+var
+  OldColumn: Integer;
+  WasDifferent: Boolean;
 
 begin
-  //if not FHeader.AllowFocus(Column) then
-  //  Column := FFocusedColumn;
-  //
-  //WasDifferent := (Node <> FFocusedNode) or (Column <> FFocusedColumn);
-  //
-  //OldColumn := FFocusedColumn;
-  //FFocusedColumn := Column;
-  //
-  //DoFocusNode(Node, True);
-  //
-  //// Check if the change was accepted.
-  //if FFocusedNode = Node then
-  //begin
-  //  CancelEditNode;
-  //  if WasDifferent then
-  //    DoFocusChange(FFocusedNode, FFocusedColumn);
-  //end
-  //else
-  //  // If the user did not accept the new cell to focus then set also the focused column back
-  //  // to its original state.
-  //  FFocusedColumn := OldColumn;
+  //if not FHeader.AllowFocus(Column)
+  if not IsValidColumn(Column)
+    then Column := FFocusedColumn;
+
+  WasDifferent := (Node <> FFocusedNode) or (Column <> FFocusedColumn);
+
+  OldColumn := FFocusedColumn;
+  FFocusedColumn := Column;
+
+  DoFocusNode(Node, True);
+
+  //Проверяем, было ли изменение принято.
+  // Check if the change was accepted.
+  if FFocusedNode = Node
+    then  begin
+            CancelEditNode;
+            if WasDifferent then
+              DoFocusChange(FFocusedNode, FFocusedColumn);
+          end
+    // Если пользователь не принял новую ячейку для фокусировки, тогда вернуть сфокусированную колонку в исходное состояние.
+    // If the user did not accept the new cell to focus then set also the focused column back to its original state.
+    else FFocusedColumn := OldColumn;
+
+
 end;
 
 procedure TD2CustomTreeGrid.SkipNode(Stream: TStream);
@@ -6711,7 +6803,7 @@ begin
       end;
       ClearSelection;
       FFocusedNode := nil;
-      FLastSelected := nil;
+      FFocusedNode := nil;
       //FCurrentHotNode := nil;
       FDropTargetNode := nil;
       FLastChangedNode := nil;
