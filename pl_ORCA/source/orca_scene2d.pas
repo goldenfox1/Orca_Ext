@@ -7709,6 +7709,8 @@ TD2DBMemo = class(TD2CustomMemo)
     property DataController: TD2FieldDataController read FDataController write SetDataController;
   end;
 
+{ TD2DBColumn }
+
 TD2DBColumn = class(TD2Column)
   private
     FField: TField;
@@ -7727,21 +7729,28 @@ TD2DBColumn = class(TD2Column)
     property FieldName: String read FFieldName write SetFieldName;
   end;
 
+{ TD2DBTextColumn }
+
 TD2DBTextColumn = class(TD2DBColumn)
   protected
+    procedure DoTextChanged(Sender: TObject);
+    function CreateCellControl: TD2Control;  override;
     procedure SetData(Value:Variant);  override;
     function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
 end;
 
+{ TD2DBCheckColumn }
+
 TD2DBCheckColumn = class(TD2DBColumn)
-  private
   protected
     function CreateCellControl: TD2Control;  override;
     procedure DoCheckChanged(Sender: TObject);
     function GetData: Variant;  override;
-  public
-  published
-  end;
+    function GetCellClass: TD2CellClass; override;
+end;
+
+{ TD2DBPopupColumn }
 
 TD2DBPopupColumn = class(TD2DBColumn)
   private
@@ -7750,12 +7759,15 @@ TD2DBPopupColumn = class(TD2DBColumn)
   protected
     function  CreateCellControl: TD2Control;  override;
     procedure DoPopupChanged(Sender: TObject);
+    function GetCellClass: TD2CellClass; override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
   published
     property Items: TD2WideStrings read FItems write SetItems;
-  end;
+end;
+
+{ TD2DBImageColumn }
 
 TD2DBImageColumn = class(TD2DBColumn)
   private
@@ -7765,10 +7777,12 @@ TD2DBImageColumn = class(TD2DBColumn)
     procedure DoImageChanged(Sender: TObject);
     procedure SetData(Value:Variant);  override;
     function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
   public
     destructor Destroy;  override;
-  published
-  end;
+end;
+
+{ TD2DBProgressColumn }
 
 TD2DBProgressColumn = class(TD2DBColumn)
   private
@@ -7776,6 +7790,7 @@ TD2DBProgressColumn = class(TD2DBColumn)
     FMax:single;
   protected
     function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
   public
     constructor Create(AOwner: TComponent);  override;
   published
@@ -7840,7 +7855,8 @@ TD2TreeDataController=class(TD2GridDataController)
 
 { TD2CustomDBGrid }
 
-TD2CustomDBGrid = class(TD2CustomGrid)   //заказной класс сетки для отображения данных из базы данных описывающий все поля и свойства
+//заказной класс сетки для отображения данных из базы данных описывающий все поля и свойства
+TD2CustomDBGrid = class(TD2CustomGrid)
   private
     FDataController: TD2GridDataController;  // указатель на DataController
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
@@ -8510,7 +8526,8 @@ TD2TreeColumn = class(TD2Column)
              //создание ячейки
     function CreateCellControl: TD2Control;  override;
              //получить класс ячеек для данного типа колонки
-    function GetCellClass: TD2CellClass; override;
+    //function GetCellClass: TD2CellClass; override;
+
               //обновить колонку
     procedure UpdateColumn; override;
               // Установить фокус в видимую ячейку соответствующую узлу Node. Виртуальный метод: определяется в потомках
@@ -8591,7 +8608,46 @@ TD2TreeImageColumn = class(TD2TreeColumn)
 end;
 
 
+{ TD2DBTreeColumn }
 
+TD2DBTreeColumn = class(TD2TreeColumn)
+  private
+    FField: TField;
+    FFieldName: String;
+    procedure SetFieldName(const Value:String);
+    function GetField: TField;
+    procedure SetField(Value:TField);
+    procedure LinkField;
+  protected
+    function GetData: Variant;  virtual;
+    procedure SetData(Value:Variant);  virtual;
+  public
+    destructor Destroy;  override;
+    property  Field: TField read GetField write SetField;
+  published
+    property FieldName: String read FFieldName write SetFieldName;
+  end;
+
+{ TD2DBTreeTextColumn }
+
+TD2DBTreeTextColumn = class(TD2DBTreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure SetData(Value:Variant);  override;
+    function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
+    procedure DoTextChanged(Sender: TObject);
+end;
+
+{ TD2DBTreeCheckColumn }
+
+TD2DBTreeCheckColumn = class(TD2DBTreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoCheckChanged(Sender: TObject);
+    function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
+end;
 
 //Прерывания узлов. node events
 
@@ -9882,7 +9938,23 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
 end;
 
+//заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
 
+{ TD2CustomDBTreeGrid }
+
+TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
+
+private
+  FDataController: TD2TreeDataController;
+  procedure SetDataController(AValue: TD2TreeDataController);
+public
+  property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
+end;
+
+//Класс дерева для отображения данных из базы данных
+TD2DBTreeGrid = class(TD2CustomDBTreeGrid)
+
+end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
 //=============================================================================
@@ -11190,6 +11262,7 @@ end;
 {$I orca_scene2d_obj_database.inc}
 {$I orca_scene2d_obj_docking.inc} //Added by GoldenFox
 {$I orca_scene2d_obj_treegrid.inc}     //Added by GoldenFox
+{$I orca_scene2d_obj_dbtreegrid.inc}     //Added by GoldenFox
 
 //==============================================================
 //==============================================================

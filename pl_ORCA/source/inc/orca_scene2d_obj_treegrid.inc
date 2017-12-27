@@ -788,10 +788,10 @@ begin
   end;
 end;
 
-function TD2TreeColumn.GetCellClass: TD2CellClass;
-begin
-  Result:=inherited;
-end;
+//function TD2TreeColumn.GetCellClass: TD2CellClass;
+//begin
+//  Result:=inherited;
+//end;
 
 procedure TD2TreeColumn.UpdateColumn;
 //Обновление колонки
@@ -902,7 +902,7 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  with TD2TreeCellControl(TD2TextCell(Sender).Owner) do
+  with TD2TreeCellControl(TD2Control(Sender).Owner) do
   begin
     TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
     if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
@@ -931,7 +931,7 @@ begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
-  with TD2TreeCellControl(TD2TextCell(Sender).Owner) do
+  with TD2TreeCellControl(TD2Control(Sender).Owner) do
   begin
     TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
     if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
