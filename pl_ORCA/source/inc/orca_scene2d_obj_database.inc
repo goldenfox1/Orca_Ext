@@ -1311,6 +1311,8 @@ begin
     then Field.Value:=Value
 end;
 
+{ TD2DBTextColumn }
+
 procedure TD2DBTextColumn.DoTextChanged(Sender: TObject);
 begin
   if Grid=nil then Exit;
@@ -1330,7 +1332,7 @@ begin
   TD2TextCell(Result).OnChange:=DoTextChanged;
 end;
 
-{ TD2DBTextColumn }
+
 procedure TD2DBTextColumn.SetData(Value:Variant); {procedure Added by GoldenFox}
 begin
   if Assigned(Field)
@@ -1362,7 +1364,11 @@ begin
   if FUpdateColumn then Exit;
   if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
 end;
 
 function TD2DBCheckColumn.GetData:Variant;
@@ -1406,8 +1412,13 @@ procedure TD2DBPopupColumn.DoPopupChanged(Sender:TObject);
 begin
   if Grid = nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
 end;
 
 function TD2DBPopupColumn.GetCellClass: TD2CellClass;
@@ -1435,9 +1446,14 @@ procedure TD2DBImageColumn.DoImageChanged(Sender:TObject);
 begin
   if Grid =nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   if not Grid.CanEditModify then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
 end;
 
 function TD2DBImageColumn.GetData:Variant;

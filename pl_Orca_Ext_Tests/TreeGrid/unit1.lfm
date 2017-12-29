@@ -146,6 +146,14 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
+      object DBTreeGrid1: TD2DBTreeGrid
+        Position.Point = '(53,305)'
+        RotateAngle = 0
+        Width = 200
+        Height = 100
+        Resource = 'gridstyle'
+        TabOrder = 6
+      end
     end
   end
   object VT: TVirtualStringTree

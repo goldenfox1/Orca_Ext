@@ -172,9 +172,9 @@ begin
   Result:=inherited;
   with TD2TextCell(TD2TreeCellControl(Result).FControl) do
   begin
-    HitTest:=false;
-    CanFocused:=false;
-    Locked:=true;
+    //HitTest:=false;
+    //CanFocused:=false;
+    //Locked:=true;
     OnChange:=DoTextChanged;
   end;
 end;
@@ -203,7 +203,7 @@ begin
   if FDisableChange then Exit;
   with TD2TreeCellControl(TD2Control(Sender).Owner) do
   begin
-    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,TD2Control(Sender).Data);
     if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
       TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
   end;
@@ -225,7 +225,7 @@ begin
   if FDisableChange then Exit;
   with TD2TreeCellControl(TD2Control(Sender).Owner) do
   begin
-    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,Data);
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,TD2Control(Sender).Data);
     if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
       TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
   end;
@@ -241,4 +241,164 @@ function TD2DBTreeCheckColumn.GetCellClass: TD2CellClass;
 begin
   Result:=TD2CheckCell;
 end;
+
+
+{ TD2DBTreeProgressColumn }
+
+function TD2DBTreeProgressColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  with TD2ProgressCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    Min:=FMin;
+    Max:=FMax;
+  end
+end;
+
+function TD2DBTreeProgressColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ProgressCell;
+end;
+
+constructor TD2DBTreeProgressColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FMax:=100;
+end;
+
+{ TD2DBTreePopupColumn }
+
+procedure TD2DBTreePopupColumn.SetItems(const Value: TD2WideStrings);
+begin
+  FItems.Assign(Value);
+end;
+
+procedure TD2DBTreePopupColumn.DoPopupChanged(Sender:TObject);
+begin
+  if Grid = nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with TD2TreeCellControl(TD2Control(Sender).Owner) do
+  begin
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,TD2Control(Sender).Data);
+    if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
+      TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
+  end;
+end;
+
+function TD2DBTreePopupColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  with TD2PopupCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    Items.Assign(FItems);
+    OnChange:=DoPopupChanged;
+  end;
+end;
+
+function TD2DBTreePopupColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2PopupCell;
+end;
+
+constructor TD2DBTreePopupColumn.Create(AOwner: TComponent);
+begin
+  inherited;
+  FItems:=TD2WideStringList.Create;
+end;
+
+destructor TD2DBTreePopupColumn.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+
+{ TD2DBTreeImageColumn }
+
+function TD2DBTreeImageColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  with TD2ImageCell(TD2TreeCellControl(Result).FControl) do
+  begin
+    OnChange:=DoImageChanged;
+    EnableOpenDialog:=false;
+  end;
+
+end;
+
+procedure TD2DBTreeImageColumn.DoImageChanged(Sender: TObject);
+begin
+  if Grid =nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  if not Grid.CanEditModify then Exit;
+  with TD2TreeCellControl(TD2Control(Sender).Owner) do
+  begin
+    TD2TreeGrid(Grid).SetValue(FNode,FColumnIndex,TD2Control(Sender).Data);
+    if Assigned(TD2TreeGrid(Grid).FOnEdititingDone) then
+      TD2TreeGrid(Grid).FOnEdititingDone(Grid,FNode,FColumnIndex);
+  end;
+end;
+
+procedure TD2DBTreeImageColumn.SetData(Value: Variant);
+var
+  P:TPicture;
+begin
+  if Assigned(Field) and Field.IsBlob and VarIsObject(Value)
+    then  begin
+            P:=TPicture.Create;
+            P.Assign(TPersistent(VariantToObject(Value)));
+            Field.Assign(P);
+            P.Free;
+          end
+    else Field.Value:=NULL;
+end;
+
+function TD2DBTreeImageColumn.GetData: Variant;
+begin
+  if Assigned(Field) and Field.IsBlob and (TBlobField(Field).BlobSize > 0)
+    then  begin
+            if FCurrent=nil
+               then FCurrent:=TD2Bitmap.Create(1,1);
+            FCurrent.Assign(Field);
+            Result:=ObjectToVariant(FCurrent);
+          end
+    else  Result:=NULL;
+end;
+
+function TD2DBTreeImageColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ImageCell;
+end;
+
+destructor TD2DBTreeImageColumn.Destroy;
+begin
+  if FCurrent <> nil
+    then FCurrent.Free;
+  inherited;
+end;
+
+
+{ TDBDataNode }
+
+constructor TDBDataNode.Create(AKey: Integer; AParent: Integer;
+  ANode: PD2TreeNode);
+begin
+  FKey:=AKey;
+  FParent:=AParent;
+  FNode:=ANode;
+end;
+
+{ TD2CustomDBTreeGrid }
+
+procedure TD2CustomDBTreeGrid.SetDataController(AValue: TD2TreeDataController);
+begin
+  FDataController.Assign(AValue);
+end;
+
+function TD2CustomDBTreeGrid.ItemClass: string;
+begin
+  Result:='TD2DBTreeTextColumn;TD2DBTreeCheckColumn;TD2DBTreePopupColumn;TD2DBTreeImageColumn;TD2DBTreeProgressColumn';
+end;
+
 

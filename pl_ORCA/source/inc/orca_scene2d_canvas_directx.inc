@@ -107,13 +107,6 @@ begin
   if IUnknown(i) <> nil then IUnknown(i):= nil;
 end;
 
-{ TD2CustomDBTreeGrid }
-
-procedure TD2CustomDBTreeGrid.SetDataController(AValue: TD2TreeDataController);
-begin
-  FDataController.Assign(AValue);
-end;
-
 //==================== TD2FilterWIC =======================================
 
 class function TD2FilterWIC.GetFileTypes:string;

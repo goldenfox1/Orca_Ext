@@ -7733,11 +7733,11 @@ TD2DBColumn = class(TD2Column)
 
 TD2DBTextColumn = class(TD2DBColumn)
   protected
-    procedure DoTextChanged(Sender: TObject);
     function CreateCellControl: TD2Control;  override;
-    procedure SetData(Value:Variant);  override;
-    function GetData: Variant;  override;
+    procedure DoTextChanged(Sender: TObject);
     function GetCellClass: TD2CellClass; override;
+    function GetData: Variant;  override;
+    procedure SetData(Value:Variant);  override;
 end;
 
 { TD2DBCheckColumn }
@@ -7812,46 +7812,6 @@ TD2GridDataController=class(TComponentDataLink)   //невизуальный к�
     property DataSource;   //указатель на DataSource
   end;
 
-
-{ TD2TreeDataController }
-
-TD2TreeDataController=class(TD2GridDataController)
-  private
-    FDataSet: TDataSet;       //указатель на DataSet
-    FDataSetName: string;     //имя DataSet-а
-    FKeyField: TField;        //указатель на ключевое поле таблицы
-    FKeyFieldName: string;    //имя ключевого поля таблицы
-    FParentField: TField;     //указатель на родительское поле таблицы
-    FParentFieldName: string; //имя родительского поля таблицы
-    FOnKeyChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения ключевого поля
-    FOnParentChanged: TFieldNotifyEvent;   //указатель на обрабочик прерывания изменения родительского поля
-
-              //установить ключевое поле в соответствии c его имемем AValue
-    procedure SetKeyFieldName(const AValue: string);
-              //установить родительское поле в соответствии c его имемем AValue
-    procedure SetParentFieldName(const AValue: string);
-              //обновить ключевое поле в соответствии с его именем заданным параметром FKeyFieldName
-    procedure UpdateKeyField;
-              //обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
-    procedure UpdateParentField;
-
-  protected
-              //вызывается при изменении состояния открыт/закрыт DataSet-a
-    procedure ActiveChanged; override;
-              //вызывается при изменении ключевого поля таблицы
-    procedure KeyChanged; virtual;
-              //вызывается при изменении родительское поля таблицы
-    procedure ParentChanged; virtual;
-  public
-    property KeyField: TField read FKeyField;        //указатель на ключевое поле таблицы
-    property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
-    property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
-    property OnParentChanged: TFieldNotifyEvent read FOnParentChanged write FOnParentChanged; //обрабочик прерывания изменения родительского поля
-  published
-    property DataSource;   //указатель на DataSource
-    property KeyFieldName : string read FKeyFieldName write SetKeyFieldName;           //имя ключевого поля таблицы
-    property ParentFieldName : string read FParentFieldName write SetParentFieldName;  //имя родительского поля таблицы
-  end;
 
 { TD2CustomDBGrid }
 
@@ -8567,6 +8527,7 @@ TD2TreeCheckColumn = class(TD2TreeColumn)
     function GetCellClass: TD2CellClass; override;
 end;
 
+
 { TD2TreeProgressColumn }
 
 TD2TreeProgressColumn = class(TD2TreeColumn)
@@ -8604,48 +8565,6 @@ end;
 TD2TreeImageColumn = class(TD2TreeColumn)
   protected
     function CreateCellControl: TD2Control;  override;
-    function GetCellClass: TD2CellClass; override;
-end;
-
-
-{ TD2DBTreeColumn }
-
-TD2DBTreeColumn = class(TD2TreeColumn)
-  private
-    FField: TField;
-    FFieldName: String;
-    procedure SetFieldName(const Value:String);
-    function GetField: TField;
-    procedure SetField(Value:TField);
-    procedure LinkField;
-  protected
-    function GetData: Variant;  virtual;
-    procedure SetData(Value:Variant);  virtual;
-  public
-    destructor Destroy;  override;
-    property  Field: TField read GetField write SetField;
-  published
-    property FieldName: String read FFieldName write SetFieldName;
-  end;
-
-{ TD2DBTreeTextColumn }
-
-TD2DBTreeTextColumn = class(TD2DBTreeColumn)
-  protected
-    function CreateCellControl: TD2Control;  override;
-    procedure SetData(Value:Variant);  override;
-    function GetData: Variant;  override;
-    function GetCellClass: TD2CellClass; override;
-    procedure DoTextChanged(Sender: TObject);
-end;
-
-{ TD2DBTreeCheckColumn }
-
-TD2DBTreeCheckColumn = class(TD2DBTreeColumn)
-  protected
-    function CreateCellControl: TD2Control;  override;
-    procedure DoCheckChanged(Sender: TObject);
-    function GetData: Variant;  override;
     function GetCellClass: TD2CellClass; override;
 end;
 
@@ -9938,22 +9857,169 @@ TD2TreeGrid = class(TD2CustomTreeGrid)
     property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
 end;
 
-//заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
+{ TD2DBTreeColumn }
+
+TD2DBTreeColumn = class(TD2TreeColumn)
+  private
+    FField: TField;
+    FFieldName: String;
+    procedure SetFieldName(const Value:String);
+    function GetField: TField;
+    procedure SetField(Value:TField);
+    procedure LinkField;
+  protected
+    function GetData: Variant;  virtual;
+    procedure SetData(Value:Variant);  virtual;
+  public
+    destructor Destroy;  override;
+    property  Field: TField read GetField write SetField;
+  published
+    property FieldName: String read FFieldName write SetFieldName;
+  end;
+
+{ TD2DBTreeTextColumn }
+
+TD2DBTreeTextColumn = class(TD2DBTreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoTextChanged(Sender: TObject);
+    function GetCellClass: TD2CellClass; override;
+    function GetData: Variant;  override;
+    procedure SetData(Value:Variant);  override;
+end;
+
+{ TD2DBTreeCheckColumn }
+
+TD2DBTreeCheckColumn = class(TD2DBTreeColumn)
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoCheckChanged(Sender: TObject);
+    function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
+end;
+
+{ TD2DBTreeProgressColumn }
+
+TD2DBTreeProgressColumn = class(TD2DBTreeColumn)
+  private
+    FMin:single;
+    FMax:single;
+  protected
+    function CreateCellControl: TD2Control;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+  published
+    property Min:single read FMin write FMin;
+    property Max:single read FMax write FMax;
+end;
+
+{ TD2DBTreePopupColumn }
+
+TD2DBTreePopupColumn = class(TD2DBTreeColumn)
+  private
+    FItems: TD2WideStrings;
+    procedure SetItems(const Value:TD2WideStrings);
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoPopupChanged(Sender: TObject);
+    function GetCellClass: TD2CellClass; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Items: TD2WideStrings read FItems write SetItems;
+end;
+
+{ TD2DBTreeImageColumn }
+
+TD2DBTreeImageColumn = class(TD2DBTreeColumn)
+  private
+    FCurrent: TD2Bitmap;
+  protected
+    function CreateCellControl: TD2Control;  override;
+    procedure DoImageChanged(Sender: TObject);
+    procedure SetData(Value:Variant);  override;
+    function GetData: Variant;  override;
+    function GetCellClass: TD2CellClass; override;
+  public
+    destructor Destroy;  override;
+end;
+
+{ TD2TreeDataController }
+
+TD2TreeDataController=class(TD2GridDataController)
+  private
+    FDataSet: TDataSet;       //указатель на DataSet
+    FDataSetName: string;     //имя DataSet-а
+    FKeyField: TField;        //указатель на ключевое поле таблицы
+    FKeyFieldName: string;    //имя ключевого поля таблицы
+    FParentField: TField;     //указатель на родительское поле таблицы
+    FParentFieldName: string; //имя родительского поля таблицы
+    FOnKeyChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения ключевого поля
+    FOnParentChanged: TFieldNotifyEvent;   //указатель на обрабочик прерывания изменения родительского поля
+
+              //установить ключевое поле в соответствии c его имемем AValue
+    procedure SetKeyFieldName(const AValue: string);
+              //установить родительское поле в соответствии c его имемем AValue
+    procedure SetParentFieldName(const AValue: string);
+              //обновить ключевое поле в соответствии с его именем заданным параметром FKeyFieldName
+    procedure UpdateKeyField;
+              //обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
+    procedure UpdateParentField;
+
+  protected
+              //вызывается при изменении состояния открыт/закрыт DataSet-a
+    procedure ActiveChanged; override;
+              //вызывается при изменении ключевого поля таблицы
+    procedure KeyChanged; virtual;
+              //вызывается при изменении родительское поля таблицы
+    procedure ParentChanged; virtual;
+  public
+    property KeyField: TField read FKeyField;        //указатель на ключевое поле таблицы
+    property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
+    property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
+    property OnParentChanged: TFieldNotifyEvent read FOnParentChanged write FOnParentChanged; //обрабочик прерывания изменения родительского поля
+  published
+    property DataSource;   //указатель на DataSource
+    property KeyFieldName : string read FKeyFieldName write SetKeyFieldName;           //имя ключевого поля таблицы
+    property ParentFieldName : string read FParentFieldName write SetParentFieldName;  //имя родительского поля таблицы
+end;
+
+
+{ TDBDataNode }
+
+TDBDataNode = class
+  private
+    FKey: Integer;
+    FParent: Integer;
+    FNode: PD2TreeNode;
+  public
+    constructor Create(AKey: Integer = 0; AParent: Integer = 0; ANode: PD2TreeNode = nil);
+    property Key: Integer read FKey write FKey;
+    property Parent: Integer read FParent write FParent;
+    property Node: PD2TreeNode read FNode write FNode;
+end;
+
+
+
 
 { TD2CustomDBTreeGrid }
 
+//заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
-
-private
-  FDataController: TD2TreeDataController;
-  procedure SetDataController(AValue: TD2TreeDataController);
-public
-  property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
+  private
+    FDataController: TD2TreeDataController;
+    procedure SetDataController(AValue: TD2TreeDataController);
+  public
+    property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
+    function ItemClass: string;  override;              //список классов колонок для дизайнера
 end;
 
 //Класс дерева для отображения данных из базы данных
 TD2DBTreeGrid = class(TD2CustomDBTreeGrid)
-
+  published
+    property DataController;
 end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
@@ -11296,9 +11362,10 @@ initialization
 ***************************************************************************************************}
                    TD2DBTextColumn, TD2DockingTab, TD2Column,
                    TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
-                   TD2TreeCellControl, TD2TreeColumn,
-                   TD2TreeTextColumn, TD2TreeCheckColumn, TD2TreeProgressColumn, TD2TreePopupColumn,
-                   TD2TreeImageColumn
+                   TD2TreeCellControl, TD2TreeColumn, TD2TreeTextColumn, TD2TreeCheckColumn,
+                   TD2TreePopupColumn, TD2TreeImageColumn, TD2TreeProgressColumn,
+                   TD2DBTreeColumn, TD2DBTreeTextColumn, TD2DBTreeCheckColumn, TD2DBTreePopupColumn,
+                   TD2DBTreeImageColumn, TD2DBTreeProgressColumn
 //======================= End part of make by GoldenFox =======================
 
                    ]);
@@ -11377,9 +11444,7 @@ initialization
 
   Registerd2Objects('Grid', [TD2Grid, TD2StringGrid, TD2Header]);
 
-  //Registerd2Objects('Grid Columns', [TD2Column, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn]);  //Deleted by GoldenFox
-
-  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
+  Registerd2Objects('DB-Aware', [TD2DBNavigator, TD2DBGrid, TD2DBTreeGrid, TD2DBLabel, TD2DBImage, TD2DBTextBox, TD2DBMemo]);
 
   {**********************************************************************
                           This part make by GoldenFox
