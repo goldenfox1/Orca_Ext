@@ -338,20 +338,6 @@ begin
   Result.OnKeyDown:=DoKeyDown;
 end;
 
-//procedure TD2Column.InitCellControl(ACellControl: TD2Control);
-//begin
-//  ACellControl.Parent:=Self;
-//  ACellControl.HitTest:=false;
-//  ACellControl.Visible:=false;
-//  ACellControl.Locked:=true;
-//  ACellControl.Stored:=false;
-//  ACellControl.CanFocused:=false;
-//  ACellControl.OnCanFocused:=DoCanFocused;
-//  ACellControl.OnEnterFocus:=DoEnterFocus;
-//  ACellControl.OnKillFocus:=DoKillFocus;
-//  ACellControl.OnKeyDown:=DoKeyDown;
-//end;
-
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
 begin
   if Grid=nil then Exit;

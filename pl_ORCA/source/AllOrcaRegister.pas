@@ -541,7 +541,9 @@ begin
     TD2DBColumn, TD2DBTextColumn, TD2DBProgressColumn, TD2DBImageColumn,  TD2DBPopupColumn, TD2DBCheckColumn,
     TD2DockingPlace, TD2DockingPanel, TD2DockingTab,
     TD2TreeGrid, TD2TreeColumn,
-    TD2TreeTextColumn, TD2TreeProgressColumn, TD2TreeImageColumn,  TD2TreePopupColumn, TD2TreeCheckColumn ]);
+    TD2TreeTextColumn, TD2TreeProgressColumn, TD2TreeImageColumn,  TD2TreePopupColumn, TD2TreeCheckColumn,
+    TD2DBTreeGrid, TD2DBTreeColumn, TD2DBTreeTextColumn, TD2DBTreeCheckColumn, TD2DBTreePopupColumn,
+    TD2DBTreeImageColumn, TD2DBTreeProgressColumn ]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TD2FieldDataController, 'FieldName', TFieldProperty);

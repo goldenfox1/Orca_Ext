@@ -18,7 +18,10 @@ type
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
+    DBGrid1: TD2DBGrid;
     DBStringTree1: TDBStringTree;
+    DBTextColumn1: TD2DBTextColumn;
+    DBTreeGrid1: TD2DBTreeGrid;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;

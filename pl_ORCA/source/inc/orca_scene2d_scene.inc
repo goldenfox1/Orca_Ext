@@ -2328,7 +2328,8 @@ var
   C:System.WideChar;
 begin
   K:=0;
-  C:=UTF8ToUTF16(UTF8Key)[1];
+  //C:=UTF8ToUTF16(UTF8Key)[1];
+  C:=UTF8Decode(UTF8Key)[1];
   case C of
         #3:// ctrl+c
           begin

@@ -1249,113 +1249,13 @@ begin
   //end;
 end;
 
-{ TD2TreeDataController }
-
-procedure TD2TreeDataController.ActiveChanged;
-//вызывается при изменении состояния открыт/закрыт DataSet-a
-begin
-  if Active
-    then begin
-           FDataSet := DataSet;
-           if DataSetName <> fDataSetName
-             then begin
-                    fDataSetName := DataSetName;
-                    UpdateKeyField;
-                    UpdateParentField;
-                    if Assigned(OnNewDataSet) then OnNewDataSet(DataSet);
-                  end
-             else if Assigned(OnDataSetOpen) then OnDataSetOpen(DataSet);
-         end
-    else begin
-           BufferCount := 0;
-           if (DataSource = nil)
-             then begin
-                    if Assigned(OnInvalidDataSource) then OnInvalidDataSource(fDataSet);
-                    fDataSet := nil;
-                    fDataSetName := '[???]';
-                  end
-             else begin
-                    if (DataSet=nil)or(csDestroying in DataSet.ComponentState)
-                      then begin
-                             if Assigned(OnInvalidDataSet) then OnInvalidDataSet(fDataSet);
-                             fDataSet := nil;
-                             fDataSetName := '[???]';
-                           end
-                      else begin
-                             if Assigned(OnDataSetClose) then OnDataSetClose(DataSet);
-                             if DataSet <> nil then FDataSetName := DataSetName;
-                           end;
-                  end;
-         end;
-end;
-
-procedure TD2TreeDataController.SetKeyFieldName(const AValue: string);
-//установить ключевое поле в соответствии c его имемем AValue
-begin
-  if FKeyFieldName <> AValue then
-  begin
-    FKeyFieldName := AValue;
-    UpdateKeyField;
-  end;
-end;
-
-procedure TD2TreeDataController.SetParentFieldName(const AValue: string);
-//установить родительское поле в соответствии c его имемем AValue
-begin
-  if FParentFieldName <> AValue then
-  begin
-    FParentFieldName := AValue;
-    UpdateParentField;
-  end;
-end;
-
-procedure TD2TreeDataController.UpdateKeyField;
-//обновить ключевое поле в соответствии с его именем заданным параметром FKeyFieldName
-begin
-  if Active and
-     DataSet.Active and
-     (FKeyFieldName <> '')
-    then FKeyField := DataSet.FieldByName(FKeyFieldName)
-    else FKeyField := nil;
-  KeyChanged;
-end;
-
-procedure TD2TreeDataController.UpdateParentField;
-//обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
-begin
-  if Active and
-     DataSet.Active and
-     (FParentFieldName <> '')
-    then FParentField := DataSet.FieldByName(FParentFieldName)
-    else FParentField := nil;
-  ParentChanged;
-end;
-
-procedure TD2TreeDataController.KeyChanged;
-//вызывается при изменении ключевого поля таблицы
-begin
-  if Assigned(FOnKeyChanged) then
-    FOnKeyChanged(FKeyField);
-end;
-
-procedure TD2TreeDataController.ParentChanged;
-//вызывается при изменении родительское поля таблицы
-begin
-  if Assigned(FOnParentChanged) then
-    FOnParentChanged(FParentField);
-end;
-
 { TD2DBColumn }
 
 destructor TD2DBColumn.Destroy;
 begin
-  //if Assigned(FField) and (Grid <> nil) then
-  //  FField.RemoveFreeNotification(Grid);
   FField:=nil;
-  //FieldName:='';
   inherited;
 end;
-
 
 function TD2DBColumn.GetField:TField;
 begin    { Returns Nil if FieldName can't be found in dataset }
@@ -1378,16 +1278,11 @@ end;
 procedure TD2DBColumn.SetField(Value:TField);
 begin
   if FField=Value then Exit;
-  //if Assigned(FField) and (Grid <> nil) then
-  //  FField.RemoveFreeNotification(Grid);
   if Assigned(Value) and (csDestroying in Value.ComponentState) then
     Value:=nil;    // don't acquire references to fields being destroyed
   FField:=Value;
   if Assigned(Value) then
   begin
-    //if Grid <> nil then
-    //  FField.FreeNotification(Grid);
-
     FFieldName:=Value.FieldName;
   end;
 end;
@@ -1396,33 +1291,52 @@ procedure TD2DBColumn.SetFieldName(const Value:String);
 begin
   if FFieldName <> Value then
   begin
-    if Header=FFieldName then Header:=Value;   //Added by GoldenFox
-    FField:=nil;                               //Added by GoldenFox
+    if Header=FFieldName
+      then Header:=Value;
+    FField:=nil;
     FFieldName:=Value;
-    //if Header='' then       //Deleted by GoldenFox
-    //  Header:=FieldName;    //Deleted by GoldenFox
     UpdateColumn;
   end;
 end;
 
 function TD2DBColumn.GetData:Variant;
 begin
-  if Assigned(Field) then
-    Result:=Field.Value;
+  if Assigned(Field)
+    then Result:=Field.Value;
 end;
 
 procedure TD2DBColumn.SetData(Value:Variant);
 begin
-  if Assigned(Field) then
-    Field.Value:=Value
+  if Assigned(Field)
+    then Field.Value:=Value
+end;
+
+{ TD2DBTextColumn }
+
+procedure TD2DBTextColumn.DoTextChanged(Sender: TObject);
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
+function TD2DBTextColumn.CreateCellControl: TD2Control;
+begin
+  Result:=inherited;
+  TD2TextCell(Result).OnChange:=DoTextChanged;
 end;
 
 
-{ TD2DBTextColumn }
 procedure TD2DBTextColumn.SetData(Value:Variant); {procedure Added by GoldenFox}
 begin
-  if Assigned(Field) then
-    Field.Text:=UTF8Encode(Value);
+  if Assigned(Field)
+    then Field.Text:=UTF8Encode(Value);
 end;
 
 function TD2DBTextColumn.GetData: Variant;
@@ -1431,11 +1345,16 @@ begin
     Result:= UTF8Decode(Field.DisplayText);
 end;
 
+function TD2DBTextColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2TextCell;
+end;
+
 { TD2DBCheckColumn }
 
 function TD2DBCheckColumn.CreateCellControl:TD2Control;
 begin
-  Result:=TD2CheckCell.Create(Self);
+  Result:=inherited;
   TD2CheckCell(Result).OnChange:=DoCheckChanged;
 end;
 
@@ -1443,14 +1362,24 @@ procedure TD2DBCheckColumn.DoCheckChanged(Sender:TObject);
 begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
 end;
 
 function TD2DBCheckColumn.GetData:Variant;
 begin
   if Assigned(Field) then
     Result:=Field.AsBoolean
+end;
+
+function TD2DBCheckColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2CheckCell;
 end;
 
 { TD2DBPopupColumn }
@@ -1483,8 +1412,18 @@ procedure TD2DBPopupColumn.DoPopupChanged(Sender:TObject);
 begin
   if Grid = nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+
+function TD2DBPopupColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2PopupCell;
 end;
 
 { TD2DBImageColumn }
@@ -1507,9 +1446,14 @@ procedure TD2DBImageColumn.DoImageChanged(Sender:TObject);
 begin
   if Grid =nil then Exit;
   if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
   if not Grid.CanEditModify then Exit;
   with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
 end;
 
 function TD2DBImageColumn.GetData:Variant;
@@ -1523,6 +1467,11 @@ begin
   end
   else
     Result:=NULL;
+end;
+
+function TD2DBImageColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ImageCell;
 end;
 
 procedure TD2DBImageColumn.SetData(Value:Variant);
@@ -1553,6 +1502,11 @@ begin
   Result:=TD2ProgressCell.Create(Self);
   TD2ProgressCell(Result).Min:=FMin;
   TD2ProgressCell(Result).Max:=FMax;
+end;
+
+function TD2DBProgressColumn.GetCellClass: TD2CellClass;
+begin
+  Result:=TD2ProgressCell;
 end;
 
 { TD2CustomDBGrid }
