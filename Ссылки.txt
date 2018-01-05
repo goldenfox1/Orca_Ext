@@ -4,3 +4,6 @@ https://habrahabr.ru/post/123111/ Инструкция-шпаргалка Git д
 http://git-scm.com/book/ru/v1 русский перевод Pro Git онлайн
 https://habrahabr.ru/post/106912/ удачная модель ветвления
 https://habrahabr.ru/post/195674/ про тонкости слияния
+http://sqlitestudio.one.pl удобный менеджер БД SQLite
+https://devlaz.ru/lazarus_sqlite/ Lazarus и SQLite
+https://devlaz.ru/ Блог Lazarus-программиста
