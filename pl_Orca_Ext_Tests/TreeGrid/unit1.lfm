@@ -1,16 +1,16 @@
 object Form1: TForm1
   Left = 315
-  Height = 552
+  Height = 465
   Top = 117
   Width = 876
   Caption = 'Form1'
-  ClientHeight = 552
+  ClientHeight = 465
   ClientWidth = 876
   OnCreate = FormCreate
   LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 552
+    Height = 465
     Top = 0
     Width = 600
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 600
-      Height = 552
+      Height = 465
       object Grid1: TD2Grid
         DragMode = d2DragAutomatic
         Position.Point = '(312,15)'
