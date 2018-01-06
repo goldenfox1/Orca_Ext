@@ -1,13 +1,13 @@
 object Form1: TForm1
-  Left = 315
+  Left = 253
   Height = 552
-  Top = 117
+  Top = 119
   Width = 876
   Caption = 'Form1'
   ClientHeight = 552
   ClientWidth = 876
   OnCreate = FormCreate
-  LCLVersion = '1.6.4.0'
+  LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
     Height = 552
@@ -145,14 +145,31 @@ object Form1: TForm1
           TabOrder = 1
         end
       end
-      object TreeGrid2: TD2TreeGrid
-        Position.Point = '(128,409)'
+      object DBGrid1: TD2DBGrid
+        Position.Point = '(20,280)'
         RotateAngle = 0
         Width = 200
         Height = 100
         Resource = 'gridstyle'
         TabOrder = 5
-        MainColumn = -1
+        RowHeight = 21
+        ScrollDuration = 0.300000011920929
+      end
+      object DBTreeGrid1: TD2DBTreeGrid
+        Position.Point = '(295,407)'
+        RotateAngle = 0
+        Width = 200
+        Height = 100
+        Resource = 'gridstyle'
+        TabOrder = 6
+        DataController.DataSource = DataSource1
+        object DBTreeTextColumn1: TD2DBTreeTextColumn
+          RotateAngle = 0
+          Width = 100
+          Height = 75
+          HitTest = False
+          TabOrder = 0
+        end
       end
     end
   end
@@ -167,5 +184,29 @@ object Form1: TForm1
     Header.MainColumn = -1
     NodeDataSize = 4
     TabOrder = 1
+  end
+  object DataSource1: TDataSource
+    DataSet = ZTable1
+    left = 632
+    top = 448
+  end
+  object ZTable1: TZTable
+    Connection = ZConnection1
+    TableName = 'devlaz'
+    left = 688
+    top = 448
+  end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF8
+    AutoEncodeStrings = False
+    Properties.Strings = (
+      'AutoEncodeStrings='
+    )
+    Connected = True
+    Port = 0
+    Database = 'C:\lazarus\components\=Orca_Ext\pl_Orca_Ext_Tests\DBTreeGrid\devlaz.db'
+    Protocol = 'sqlite-3'
+    left = 744
+    top = 448
   end
 end

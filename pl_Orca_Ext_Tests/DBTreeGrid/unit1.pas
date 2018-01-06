@@ -7,9 +7,10 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, DBStringTree, RTTICtrls, SynEdit,
+  Classes, SysUtils, db, FileUtil, DBStringTree, RTTICtrls, SynEdit,
   SynHighlighterPas, SynCompletion, SynMacroRecorder, SynPluginSyncroEdit,
-  VirtualTrees, VTHeaderPopup, orca_scene2d, Forms, Controls, Graphics, Dialogs;
+  ZDataset, ZConnection, VirtualTrees, VTHeaderPopup, orca_scene2d, Forms,
+  Controls, Graphics, Dialogs;
 
 type
 
@@ -18,7 +19,11 @@ type
   TForm1 = class(TForm)
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
+    DataSource1: TDataSource;
+    DBGrid1: TD2DBGrid;
     DBStringTree1: TDBStringTree;
+    DBTreeGrid1: TD2DBTreeGrid;
+    DBTreeTextColumn1: TD2DBTreeTextColumn;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
@@ -28,9 +33,10 @@ type
     TextColumn1: TD2TextColumn;
     TextColumn2: TD2TextColumn;
     TreeGrid1: TD2TreeGrid;
-    TreeGrid2: TD2TreeGrid;
     TreeTextColumn1: TD2TreeTextColumn;
     TreeTextColumn2: TD2TreeTextColumn;
+    ZConnection1: TZConnection;
+    ZTable1: TZTable;
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);

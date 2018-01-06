@@ -10012,8 +10012,10 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     FDataController: TD2TreeDataController;
     procedure SetDataController(AValue: TD2TreeDataController);
   public
-    property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
+    constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
+    destructor Destroy;  override;                      //уничтожить экземпляр объекта
     function ItemClass: string;  override;              //список классов колонок для дизайнера
+    property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
 //Класс дерева для отображения данных из базы данных

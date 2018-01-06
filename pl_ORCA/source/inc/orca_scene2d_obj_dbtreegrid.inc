@@ -396,6 +396,36 @@ begin
   FDataController.Assign(AValue);
 end;
 
+constructor TD2CustomDBTreeGrid.Create(AOwner: TComponent);
+begin
+  inherited;
+  FDataController := TD2TreeDataController.Create;//(Self);
+  //FDataController.OnRecordChanged:=OnRecordChanged;
+  //FDataController.OnDatasetChanged:=OnDataSetChanged;
+  //FDataController.OnDataSetOpen:=OnDataSetOpen;
+  //FDataController.OnDataSetClose:=OnDataSetClose;
+  //FDataController.OnNewDataSet:=OnNewDataSet;
+  //FDataController.OnInvalidDataSet:=OnInvalidDataset;
+  //FDataController.OnInvalidDataSource:=OnInvalidDataSource;
+  //FDataController.OnDataSetScrolled:=OnDataSetScrolled;
+  //FDataController.OnLayoutChanged:=OnLayoutChanged;
+  //FDataController.OnEditingChanged:=OnEditingChanged;
+  //FDataController.OnUpdateData:=OnUpdateData;
+  //FDataController.VisualControl:= True;
+
+  //FSelectedRows := TBookmarkList.Create(Self);
+  //RowCount:=0;
+  //FDisableMove:=false;
+end;
+
+destructor TD2CustomDBTreeGrid.Destroy;
+begin
+  FDataController.OnDataSetChanged:=nil;
+  FDataController.OnRecordChanged:=nil;
+  FDataController.Free;
+  inherited;
+end;
+
 function TD2CustomDBTreeGrid.ItemClass: string;
 begin
   Result:='TD2DBTreeTextColumn;TD2DBTreeCheckColumn;TD2DBTreePopupColumn;TD2DBTreeImageColumn;TD2DBTreeProgressColumn';
