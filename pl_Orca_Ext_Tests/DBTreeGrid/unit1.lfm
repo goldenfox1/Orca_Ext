@@ -146,7 +146,7 @@ object Form1: TForm1
         end
       end
       object DBGrid1: TD2DBGrid
-        Position.Point = '(20,280)'
+        Position.Point = '(312,339)'
         RotateAngle = 0
         Width = 200
         Height = 100
@@ -154,22 +154,24 @@ object Form1: TForm1
         TabOrder = 5
         RowHeight = 21
         ScrollDuration = 0.300000011920929
-      end
-      object DBTreeGrid1: TD2DBTreeGrid
-        Position.Point = '(295,407)'
-        RotateAngle = 0
-        Width = 200
-        Height = 100
-        Resource = 'gridstyle'
-        TabOrder = 6
-        DataController.DataSource = DataSource1
-        object DBTreeTextColumn1: TD2DBTreeTextColumn
+        object DBTextColumn1: TD2DBTextColumn
           RotateAngle = 0
           Width = 100
           Height = 75
           HitTest = False
           TabOrder = 0
         end
+      end
+      object DBTreeGrid1: TD2DBTreeGrid
+        Position.Point = '(48,287)'
+        RotateAngle = 0
+        Width = 200
+        Height = 100
+        Resource = 'gridstyle'
+        TabOrder = 6
+        DataController.DataSource = DataSource1
+        DataController.KeyFieldName = 'id'
+        DataController.ParentFieldName = 'par_id'
       end
     end
   end

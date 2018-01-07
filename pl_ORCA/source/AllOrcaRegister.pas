@@ -43,10 +43,18 @@ type
 
   { TD2FieldProperty }
 
-  TD2DBColumnFieldProperty = class(TFieldProperty)
+TD2DBColumnFieldProperty = class(TFieldProperty)
   public
     procedure FillValues(const Values: TStringList); override;
-  end;
+end;
+
+{ TD2DBTreeColumnFieldProperty }
+
+TD2DBTreeColumnFieldProperty = class(TFieldProperty)
+  public
+    procedure FillValues(const Values: TStringList); override;
+end;
+
 {------------------- End part of make by GoldenFox -------------------}
 
   TD2BrushProperty = class(TClassProperty)
@@ -211,9 +219,24 @@ var
 begin
   Col:=GetComponent(0);
   if (Col is TD2DBColumn) and (Assigned(TD2DBColumn(Col).Grid)) and (TD2DBColumn(Col).Grid is TD2CustomDBGrid)
-    then DataSource := TD2CustomDBGrid(TD2DBColumn(Col).Grid).DataSource
+    //then DataSource := TD2CustomDBGrid(TD2DBColumn(Col).Grid).DataSource
+    then DataSource := TD2CustomDBGrid(TD2DBColumn(Col).Grid).DataController.DataSource
     else DataSource := Nil;
     //DataSource := GetObjectProp(GetComponent(0), 'DataSource') as TDataSource;
+  ListDataSourceFields(DataSource, Values);
+end;
+
+//-------------- TD2DBTreeColumnFieldProperty -----------------------------
+
+procedure TD2DBTreeColumnFieldProperty.FillValues(const Values: TStringList);
+var
+  DataSource: TDataSource;
+  Col: TObject;
+begin
+  Col:=GetComponent(0);
+  if (Col is TD2DBTreeColumn) and (Assigned(TD2DBTreeColumn(Col).Grid)) and (TD2DBTreeColumn(Col).Grid is TD2CustomDBTreeGrid)
+    then DataSource := TD2CustomDBTreeGrid(TD2DBTreeColumn(Col).Grid).DataController.DataSource
+    else DataSource := Nil;
   ListDataSourceFields(DataSource, Values);
 end;
 {------------------- End part of make by GoldenFox -------------------}
@@ -489,6 +512,8 @@ end;
 //================== Register Routines ===============
 
 procedure Register;
+var
+  TD2DBTreeColumnFieldProperty: TPropertyEditorClass;
 begin
 
 //------ Visible Components -----------------------
@@ -546,11 +571,11 @@ begin
     TD2DBTreeImageColumn, TD2DBTreeProgressColumn ]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TD2DBTreeColumn, 'FieldName', TD2DBTreeColumnFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TD2FieldDataController, 'FieldName', TFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TD2TreeDataController, 'KeyFieldName', TFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TD2TreeDataController, 'ParentFieldName', TFieldProperty);
   {------------------- End part of make by GoldenFox -------------------}
-
-  RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);
-  RegisterComponentEditor(TD2Lang, TD2LangEditor);
 
   RegisterPropertyEditor(TypeInfo(String), TD2Lang, 'Lang', TD2LangProperty);
   RegisterPropertyEditor(TypeInfo(String), TD2Effect, 'Trigger', TD2TriggerProperty);
@@ -564,7 +589,8 @@ begin
   RegisterPropertyEditor(TypeInfo(TD2Font), nil, '', TD2FontProperty);
   RegisterPropertyEditor(TypeInfo(TStrings), TD2Resources, 'Resource', TD2ResourceProperty);
 
-
+  RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);
+  RegisterComponentEditor(TD2Lang, TD2LangEditor);
 end;
 
 initialization

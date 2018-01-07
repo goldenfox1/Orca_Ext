@@ -22,8 +22,8 @@ type
     DataSource1: TDataSource;
     DBGrid1: TD2DBGrid;
     DBStringTree1: TDBStringTree;
+    DBTextColumn1: TD2DBTextColumn;
     DBTreeGrid1: TD2DBTreeGrid;
-    DBTreeTextColumn1: TD2DBTreeTextColumn;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
