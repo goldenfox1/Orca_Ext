@@ -23,7 +23,7 @@
     <Description Value="ORCA Library for CodeTyphon Studio	"/>
     <License Value="Mozilla Public Licence (MPL)"/>
     <Version Major="5" Minor="4" Release="1"/>
-    <Files Count="60">
+    <Files Count="61">
       <Item1>
         <Filename Value="source/AllOrcaRegister.pas"/>
         <HasRegisterProc Value="True"/>
@@ -234,37 +234,41 @@
         <Type Value="Include"/>
       </Item52>
       <Item53>
-        <Filename Value="source/inc/orca_scene2d_paths.inc"/>
+        <Filename Value="source/inc/orca_scene2d_obj_treegrid.inc"/>
         <Type Value="Include"/>
       </Item53>
       <Item54>
-        <Filename Value="source/inc/orca_scene2d_popups.inc"/>
+        <Filename Value="source/inc/orca_scene2d_paths.inc"/>
         <Type Value="Include"/>
       </Item54>
       <Item55>
-        <Filename Value="source/inc/orca_scene2d_resources.inc"/>
+        <Filename Value="source/inc/orca_scene2d_popups.inc"/>
         <Type Value="Include"/>
       </Item55>
       <Item56>
-        <Filename Value="source/inc/orca_scene2d_scene.inc"/>
+        <Filename Value="source/inc/orca_scene2d_resources.inc"/>
         <Type Value="Include"/>
       </Item56>
       <Item57>
-        <Filename Value="source/inc/orca_scene2d_selections.inc"/>
+        <Filename Value="source/inc/orca_scene2d_scene.inc"/>
         <Type Value="Include"/>
       </Item57>
       <Item58>
-        <Filename Value="source/inc/orca_scene2d_storage.inc"/>
+        <Filename Value="source/inc/orca_scene2d_selections.inc"/>
         <Type Value="Include"/>
       </Item58>
       <Item59>
-        <Filename Value="source/inc/orca_scene2d_widestr.inc"/>
+        <Filename Value="source/inc/orca_scene2d_storage.inc"/>
         <Type Value="Include"/>
       </Item59>
       <Item60>
-        <Filename Value="source/inc/orca_scene2d_windows.inc"/>
+        <Filename Value="source/inc/orca_scene2d_widestr.inc"/>
         <Type Value="Include"/>
       </Item60>
+      <Item61>
+        <Filename Value="source/inc/orca_scene2d_windows.inc"/>
+        <Type Value="Include"/>
+      </Item61>
     </Files>
     <RequiredPkgs Count="6">
       <Item1>

@@ -402,15 +402,19 @@ procedure TD2CustomDBTreeGrid.OnDataSetChanged(aDataSet: TDataSet);
 //прерывание при изменениях в DataSet
 var i: integer;
 begin
-  if (FDataController.DataSet <> nil) then
+  if not FBuildTree and  (FDataController.DataSet <> nil) then
   begin
-    i:=FDataController.DataSet.RecNo;
-    BuildTree;
     UpdateRowCount;
     FDisableMove:=true;
-    if i > 0
-      //then Selected:=(i - 1);
-      then FDataController.DataSet.RecNo:=i;
+    with FDataController do
+      if (DataSet.RecNo > 0) and (FKeyField<>nil)  then
+      begin
+        FIsPreSelected:=false;
+        i:=0;
+        FFocusedNode:=FindNode(FKeyField.AsInteger,i);
+        SelectNode(FFocusedNode);
+        ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+      end;
     FDisableMove:=false;
     UpdateColumns;
   end;
@@ -456,12 +460,14 @@ end;
 
 procedure TD2CustomDBTreeGrid.OnKeyChanged(aField: TField);
 begin
-  BuildTree;
+  if FDataController.Active
+    then BuildTree;
 end;
 
 procedure TD2CustomDBTreeGrid.OnParentChanged(aField: TField);
 begin
-  BuildTree;
+  if FDataController.Active
+    then BuildTree;
 end;
 
 procedure TD2CustomDBTreeGrid.OnLayoutChanged(aDataSet: TDataSet);
@@ -586,65 +592,6 @@ end;
 procedure TD2CustomDBTreeGrid.BuildTree;
 //перестроить структуру дерева в соответствии с данными в DataSet
 
-//------------------------------ локальные функции ----------------------------------------
-
-  //локальная функция сравнения двух записей в списке соответствия узлов и записей DataSet
-  function KeyCompare(Item1, Item2: Pointer): Integer;
-  begin
-    if TD2DBDataNode(Item1).Key > TD2DBDataNode(Item2).Key
-      then Result := 1
-      else if TD2DBDataNode(Item1).Key = TD2DBDataNode(Item2).Key
-             then Result := 0
-             else Result := -1;
-  end;
-
-  //Локальная функция поиска узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
-  //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
-  function FindNode(aKey: integer; var aStart: integer): PD2TreeNode;
-  var
-    verh: integer; { верхняя граница поиска }
-    niz: integer; { нижняя граница поиска }
-    found: boolean; { TRUE — совпадение образца с элементом массива }
-  begin
-    if FDataNodes.Count <= 0 then //если нет узлов данных
-    begin
-      aStart:=-1;       //позицию поиска установить -1
-      Result:=RootNode; //вернуть корень
-      exit;             //выйти
-    end;
-    if aStart > FDataNodes.Count - 1      //если позиция поиска больше индекса последнего узла
-      then aStart := FDataNodes.Count-1;    //то установить позицию поиска в индекс последнего узла
-    if aStart < 0 then aStart := 0;       //если позиция поиска отрицательное то установить в 0
-
-    if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
-      then found := True                                          //то установить флаг "найдено"
-      else begin                                                  //иначе
-             found := False;                                        //снять флаг "найдено"
-             if aKey < TD2DBDataNode(FDataNodes.Items[aStart]).FKey   //если искомое меньше текущего
-               then begin                                             //то
-                      verh := 0;                                        //начало ставим в 0
-                      niz := aStart - 1;                                //конечную позицию сдвигаем на 1 выше текущей
-                    end
-               else begin                                              //иначе если больше
-                      verh := aStart + 1;                                //начальную позицию сдвигаем на 1 ниже текущей
-                      niz := FDataNodes.Count-1;                         //конечную позицию ставим на последий узел
-                    end;
-             while (verh <= niz) and (not found) do                      //пока верх меньше или равно низ и нет флага "найдено"
-             begin
-               aStart := ((niz - verh) div 2) + verh;                   //текущая позиция в середину диапазона
-               if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
-                 then found := True                                          //то установить флаг "найдено"
-                 else if aKey < TD2DBDataNode(FDataNodes.Items[AStart]).FKey   //иначе если искомое меньше текущего
-                        then niz := aStart - 1                                 //конечную позицию сдвигаем на 1 выше текущей
-                        else verh := aStart + 1;                               //иначе начальную позицию сдвигаем на 1 ниже текущей
-             end;
-           end;
-    if found then Result:=TD2DBDataNode(FDataNodes.Items[AStart]).FNode //если найдено, вернуть узел
-             else Result:=RootNode;                                     //иначе вернуть корень
-  end;
-
-//------------------------------ конец локальных функций ----------------------------------------
-
 var
   i,s: Integer;
   P: TD2DBDataNode;
@@ -672,18 +619,67 @@ begin
           FDataNodes.Add(P);                          //добавим узел данных в дерево список данных
           DataSet.Next;                          //следующий
         end;
-        DataSet.First;                         //встать на первую запись таблицы
-        DataSet.EnableControls;                //подключить данные к контролу
-        FDataNodes.Sort(@KeyCompare);          //Сортируем данные по ключевому полю (сортировка в DataSet-e может быть другой)
+        FDataNodes.Sort(DBDataNodeKeyCompare);          //Сортируем данные по ключевому полю (сортировка в DataSet-e может быть другой)
         s:=0;
         if FParentField <> nil then            //если есть ParentField
           for i:=0 to FDataNodes.Count-1 do      //делаем для всех узлов
             MoveTo(TD2DBDataNode(FDataNodes.Items[i]).FNode, //подключаем все дочерние узлы к их родителям
                    FindNode(TD2DBDataNode(FDataNodes.Items[i]).FParent, s),
                    amAddChildLast, False );
+
+        P:=TD2DBDataNode(GetNodeData(GetFirstVisible)^);
+        if Assigned(P)
+          then FDataController.DataSet.Locate( FDataController.FKeyFieldName, P.Key, []); //встать на первую видимый узел дерева
+
+        DataSet.EnableControls;                //подключить данные к контролу
       end;
   EndUpdate;          //разрешаем обновление отображения дерева
   FBuildTree:=false;  //снимаем флаг построения дерева
+end;
+
+function TD2CustomDBTreeGrid.FindNode(aKey: integer; var aStart: integer): PD2TreeNode;
+//Поиск узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
+//На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
+var
+  verh: integer; { верхняя граница поиска }
+  niz: integer; { нижняя граница поиска }
+  found: boolean; { TRUE — совпадение образца с элементом массива }
+begin
+  if FDataNodes.Count <= 0 then //если нет узлов данных
+  begin
+    aStart:=-1;       //позицию поиска установить -1
+    Result:=RootNode; //вернуть корень
+    exit;             //выйти
+  end;
+  if aStart > FDataNodes.Count - 1      //если позиция поиска больше индекса последнего узла
+    then aStart := FDataNodes.Count-1;    //то установить позицию поиска в индекс последнего узла
+  if aStart < 0 then aStart := 0;       //если позиция поиска отрицательное то установить в 0
+
+  if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
+    then found := True                                          //то установить флаг "найдено"
+    else begin                                                  //иначе
+           found := False;                                        //снять флаг "найдено"
+           if aKey < TD2DBDataNode(FDataNodes.Items[aStart]).FKey   //если искомое меньше текущего
+             then begin                                             //то
+                    verh := 0;                                        //начало ставим в 0
+                    niz := aStart - 1;                                //конечную позицию сдвигаем на 1 выше текущей
+                  end
+             else begin                                              //иначе если больше
+                    verh := aStart + 1;                                //начальную позицию сдвигаем на 1 ниже текущей
+                    niz := FDataNodes.Count-1;                         //конечную позицию ставим на последий узел
+                  end;
+           while (verh <= niz) and (not found) do                      //пока верх меньше или равно низ и нет флага "найдено"
+           begin
+             aStart := ((niz - verh) div 2) + verh;                   //текущая позиция в середину диапазона
+             if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
+               then found := True                                          //то установить флаг "найдено"
+               else if aKey < TD2DBDataNode(FDataNodes.Items[AStart]).FKey   //иначе если искомое меньше текущего
+                      then niz := aStart - 1                                 //конечную позицию сдвигаем на 1 выше текущей
+                      else verh := aStart + 1;                               //иначе начальную позицию сдвигаем на 1 ниже текущей
+           end;
+         end;
+  if found then Result:=TD2DBDataNode(FDataNodes.Items[AStart]).FNode //если найдено, вернуть узел
+           else Result:=RootNode;                                     //иначе вернуть корень
 end;
 
 constructor TD2CustomDBTreeGrid.Create(aOwner: TComponent);

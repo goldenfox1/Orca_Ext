@@ -2680,7 +2680,8 @@ begin
   if FNodeDataSize <> Value then
   begin
     FNodeDataSize := Value;
-    if not (csLoading in ComponentState) and not (csDesigning in ComponentState) then
+    LastRootCount:=0;
+    if not (csLoading in ComponentState) and not (csDesigning in ComponentState) and (FRoot<>nil) then
     begin
       LastRootCount := FRoot.ChildCount;
       Clear;

@@ -10068,6 +10068,9 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     constructor Create(aOwner: TComponent);  override;
                //уничтожить экземпляр объекта
     destructor Destroy;  override;
+             //Поиск узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
+             //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
+    function FindNode(aKey: integer; var aStart: integer): PD2TreeNode;
              //список классов колонок для дизайнера
     function ItemClass: string;  override;
 
@@ -10353,6 +10356,11 @@ procedure ShowDsgnLang(Lang: TD2Lang);
 // Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
 function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
 
+// DBTrees
+//функция сравнения двух записей в списке соответствия узлов и записей DataSet
+function DBDataNodeKeyCompare(Item1, Item2: Pointer): Integer;
+
+
 //=============================================================================
 //=============== GLobal Variables ============================================
 //=============================================================================
@@ -10455,6 +10463,16 @@ begin
     Result := TD2CustomTreeGrid(Node.Parent)
   else
     Result := nil;
+end;
+
+function DBDataNodeKeyCompare(Item1, Item2: Pointer): Integer;
+//функция сравнения двух записей в списке соответствия узлов и записей DataSet
+begin
+  if TD2DBDataNode(Item1).Key > TD2DBDataNode(Item2).Key
+    then Result := 1
+    else if TD2DBDataNode(Item1).Key = TD2DBDataNode(Item2).Key
+           then Result := 0
+           else Result := -1;
 end;
 
 procedure CloseAllPopups;
