@@ -10,20 +10,20 @@ uses
   Classes, SysUtils, db, FileUtil, DBStringTree, RTTICtrls, SynEdit,
   SynHighlighterPas, SynCompletion, SynMacroRecorder, SynPluginSyncroEdit,
   ZDataset, ZConnection, VirtualTrees, VTHeaderPopup, orca_scene2d, Forms,
-  Controls, Graphics, Dialogs;
+  Controls, Graphics, Dialogs, DBGrids;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TD2Button;
     CheckColumn1: TD2CheckColumn;
     D2Scene1: TD2Scene;
     DataSource1: TDataSource;
-    DBGrid1: TD2DBGrid;
-    DBStringTree1: TDBStringTree;
-    DBTextColumn1: TD2DBTextColumn;
     DBTreeGrid1: TD2DBTreeGrid;
+    DBTreeTextColumn1: TD2DBTreeTextColumn;
+    DBTreeTextColumn2: TD2DBTreeTextColumn;
     GradientAnimation1: TD2GradientAnimation;
     Grid1: TD2Grid;
     Label1: TD2Label;
@@ -37,6 +37,7 @@ type
     TreeTextColumn2: TD2TreeTextColumn;
     ZConnection1: TZConnection;
     ZTable1: TZTable;
+    procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Grid1DragOver(Sender: TObject; const Data: TD2DragObject;
       const Point: TD2Point; var Accept: Boolean);
@@ -98,6 +99,14 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   CreateTreeGreed;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  ZTable1.Active:=not ZTable1.Active;
+  if ZTable1.Active
+    then Button1.Text:='Зыкрыть'
+    else Button1.Text:='Открыть';
 end;
 
 procedure TForm1.Grid1DragOver(Sender: TObject; const Data: TD2DragObject;

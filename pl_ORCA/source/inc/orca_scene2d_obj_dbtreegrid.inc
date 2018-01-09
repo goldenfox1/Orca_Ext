@@ -155,7 +155,7 @@ end;
 procedure TD2DBTreeColumn.SetData(Value: Variant);
 begin
   if Assigned(Field)
-    then Field.Value:=Value
+    then Field.Value:=Value;
 end;
 
 destructor TD2DBTreeColumn.Destroy;
@@ -381,7 +381,7 @@ end;
 
 { TDBDataNode }
 
-constructor TDBDataNode.Create(AKey: Integer; AParent: Integer;
+constructor TD2DBDataNode.Create(AKey: Integer; AParent: Integer;
   ANode: PD2TreeNode);
 begin
   FKey:=AKey;
@@ -391,37 +391,339 @@ end;
 
 { TD2CustomDBTreeGrid }
 
+procedure TD2CustomDBTreeGrid.OnRecordChanged(aField: TField);
+//прерывание после изменения записи в DataSet сразу после Post
+begin
+  if FDataController.DataSource.State <> dsInactive then
+    UpdateColumns;
+end;
+
+procedure TD2CustomDBTreeGrid.OnDataSetChanged(aDataSet: TDataSet);
+//прерывание при изменениях в DataSet
+var i: integer;
+begin
+  if (FDataController.DataSet <> nil) then
+  begin
+    i:=FDataController.DataSet.RecNo;
+    BuildTree;
+    UpdateRowCount;
+    FDisableMove:=true;
+    if i > 0
+      //then Selected:=(i - 1);
+      then FDataController.DataSet.RecNo:=i;
+    FDisableMove:=false;
+    UpdateColumns;
+  end;
+end;
+
+procedure TD2CustomDBTreeGrid.OnDataSetOpen(aDataSet: TDataSet);
+//прерывание при открытии DataSet
+begin
+  LinkActive(FDataController.Active);
+  BuildTree;
+  FIsPreSelected := false;
+end;
+
+procedure TD2CustomDBTreeGrid.OnDataSetClose(aDataSet: TDataSet);
+//прерывание при закрытии DataSet
+begin
+  LinkActive(FDataController.Active);
+  Clear;  //удалить все узлы из дерева
+  FDataNodes.Clear;        //удалить данные узлов
+end;
+
+procedure TD2CustomDBTreeGrid.OnEditingChanged(aDataSet: TDataSet);
+//прерывание при входе или выходе в/из режима редактирования данных в DataSet
+begin
+  LinkActive(FDataController.Active);
+end;
+
+procedure TD2CustomDBTreeGrid.OnInvalidDataSet(aDataSet: TDataSet);
+//прерывание если не правильный DataSet
+begin
+  LinkActive(FDataController.Active);
+  Clear;  //удалить все узлы из дерева
+  FDataNodes.Clear;        //удалить данные узлов
+end;
+
+procedure TD2CustomDBTreeGrid.OnInvalidDataSource(aDataSet: TDataset);
+//прерывание если не правильный DataSource
+begin
+  LinkActive(FDataController.Active);
+  Clear;  //удалить все узлы из дерева
+  FDataNodes.Clear;        //удалить данные узлов
+end;
+
+procedure TD2CustomDBTreeGrid.OnKeyChanged(aField: TField);
+begin
+  BuildTree;
+end;
+
+procedure TD2CustomDBTreeGrid.OnParentChanged(aField: TField);
+begin
+  BuildTree;
+end;
+
+procedure TD2CustomDBTreeGrid.OnLayoutChanged(aDataSet: TDataSet);
+begin
+
+end;
+
+procedure TD2CustomDBTreeGrid.OnNewDataSet(aDataSet: TDataset);
+begin
+
+end;
+
+procedure TD2CustomDBTreeGrid.OnDataSetScrolled(aDataSet: TDataSet;
+  Distance: Integer);
+begin
+
+end;
+
+procedure TD2CustomDBTreeGrid.OnDataSourceChanged(aDataSource: TDataSource);
+begin
+
+end;
+
+procedure TD2CustomDBTreeGrid.OnUpdateData(aDataSet: TDataSet);
+var C: TD2DBTreeColumn;
+begin
+  if FNeedUpdate then
+  begin
+    C:=TD2DBTreeColumn(Columns[FocusedColumn]);
+    if Assigned(C)
+      then C.SetData(FEditValue);
+    FEditValue:=NULL;
+    FNeedUpdate:=false;
+  end;
+end;
+
 procedure TD2CustomDBTreeGrid.SetDataController(AValue: TD2TreeDataController);
+//установить ссылку на DataController
 begin
   FDataController.Assign(AValue);
 end;
 
-constructor TD2CustomDBTreeGrid.Create(AOwner: TComponent);
+procedure TD2CustomDBTreeGrid.UpdateRowCount;
+//установить кол-во строк в гриде в соответствии с DataSet
+var R: Integer;
+begin
+  //if FDataController.Active then
+  //begin
+  //  FDataController.BufferCount:=VisibleRows * 2;
+  //  if FDataController.BufferCount < FDataController.DataSet.RecordCount then
+  //    RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+  //  else
+  //    RowCount:=FDataController.RecordCount;
+  //end
+  //else RowCount:=0;
+
+  if FDataController.Active then
+  begin
+    R:=FDataController.DataSet.RecordCount;
+    FDataController.BufferCount:=R;
+    RowCount:=R;
+  end
+  else begin
+         RowCount:=0;
+         FDataController.BufferCount:=0;
+       end;
+end;
+
+function TD2CustomDBTreeGrid.GetValue(Node: PD2TreeNode; Col: integer): Variant;
+//получить значение ячейки в колонке Col для узла Node
+var
+  C: TD2DBTreeColumn;
+  D: TD2DBDataNode;
+begin
+    if (not Assigned(Node)) or (Col < 0) or
+       (not Assigned(FDataController.DataSet)) or
+       (not FDataController.DataSet.Active) then exit;
+    C:=TD2DBTreeColumn(Columns[Col]);
+    D:=TD2DBDataNode(GetNodeData(Node)^);
+    if Assigned(D) and Assigned(C) and Assigned(C.FField)
+      then Result := FDataController.DataSet.Lookup(FDataController.FKeyFieldName,
+                                                    D.Key, C.FFieldName)
+      else Result := Null;
+  if Assigned(FOnGetValue) then
+    FOnGetValue(Self, Node, Col, Result);
+end;
+
+procedure TD2CustomDBTreeGrid.SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);
+//сохранить значение ячейки Value в колонке Col для узла Node
+var
+  C: TD2DBTreeColumn;
+begin
+  if Assigned(FDataController) and FDataController.Active and not FDataController.ReadOnly then
+  begin
+    C:=TD2DBTreeColumn(Columns[Col]);
+    if (C <> nil) and (C.Field <> nil) and C.Field.CanModify then
+    begin
+      FDataController.Modified:=True;
+      FEditValue:=Value;
+      FNeedUpdate:=true;
+      FDataController.UpdateData;
+    end;
+  end;
+end;
+
+procedure TD2CustomDBTreeGrid.ColumnsLinkFields;
+//переопределить Field для каждой колонки
+var i: integer;
+begin
+  for i:=0 to ColumnCount - 1 do
+    TD2DBTreeColumn(Columns[i]).LinkField;
+end;
+
+procedure TD2CustomDBTreeGrid.LinkActive(Value: Boolean);
+//переинициализация дерева при изменении свойста FDataController.Active
+begin
+  ColumnsLinkFields;
+  UpdateRowCount;
+  UpdateSelection;
+end;
+
+procedure TD2CustomDBTreeGrid.BuildTree;
+//перестроить структуру дерева в соответствии с данными в DataSet
+
+//------------------------------ локальные функции ----------------------------------------
+
+  //локальная функция сравнения двух записей в списке соответствия узлов и записей DataSet
+  function KeyCompare(Item1, Item2: Pointer): Integer;
+  begin
+    if TD2DBDataNode(Item1).Key > TD2DBDataNode(Item2).Key
+      then Result := 1
+      else if TD2DBDataNode(Item1).Key = TD2DBDataNode(Item2).Key
+             then Result := 0
+             else Result := -1;
+  end;
+
+  //Локальная функция поиска узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
+  //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
+  function FindNode(aKey: integer; var aStart: integer): PD2TreeNode;
+  var
+    verh: integer; { верхняя граница поиска }
+    niz: integer; { нижняя граница поиска }
+    found: boolean; { TRUE — совпадение образца с элементом массива }
+  begin
+    if FDataNodes.Count <= 0 then //если нет узлов данных
+    begin
+      aStart:=-1;       //позицию поиска установить -1
+      Result:=RootNode; //вернуть корень
+      exit;             //выйти
+    end;
+    if aStart > FDataNodes.Count - 1      //если позиция поиска больше индекса последнего узла
+      then aStart := FDataNodes.Count-1;    //то установить позицию поиска в индекс последнего узла
+    if aStart < 0 then aStart := 0;       //если позиция поиска отрицательное то установить в 0
+
+    if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
+      then found := True                                          //то установить флаг "найдено"
+      else begin                                                  //иначе
+             found := False;                                        //снять флаг "найдено"
+             if aKey < TD2DBDataNode(FDataNodes.Items[aStart]).FKey   //если искомое меньше текущего
+               then begin                                             //то
+                      verh := 0;                                        //начало ставим в 0
+                      niz := aStart - 1;                                //конечную позицию сдвигаем на 1 выше текущей
+                    end
+               else begin                                              //иначе если больше
+                      verh := aStart + 1;                                //начальную позицию сдвигаем на 1 ниже текущей
+                      niz := FDataNodes.Count-1;                         //конечную позицию ставим на последий узел
+                    end;
+             while (verh <= niz) and (not found) do                      //пока верх меньше или равно низ и нет флага "найдено"
+             begin
+               aStart := ((niz - verh) div 2) + verh;                   //текущая позиция в середину диапазона
+               if aKey = TD2DBDataNode(FDataNodes.Items[aStart]).FKey        //если искомое равно текущему
+                 then found := True                                          //то установить флаг "найдено"
+                 else if aKey < TD2DBDataNode(FDataNodes.Items[AStart]).FKey   //иначе если искомое меньше текущего
+                        then niz := aStart - 1                                 //конечную позицию сдвигаем на 1 выше текущей
+                        else verh := aStart + 1;                               //иначе начальную позицию сдвигаем на 1 ниже текущей
+             end;
+           end;
+    if found then Result:=TD2DBDataNode(FDataNodes.Items[AStart]).FNode //если найдено, вернуть узел
+             else Result:=RootNode;                                     //иначе вернуть корень
+  end;
+
+//------------------------------ конец локальных функций ----------------------------------------
+
+var
+  i,s: Integer;
+  P: TD2DBDataNode;
+  N: PD2TreeNode;
+begin
+  if FBuildTree then exit; //если уже идет построение дерева то выйти
+  FBuildTree:=true;        //установить флаг построения дерева
+  BeginUpdate;             //запретить обновление отображения дерева
+  Clear;                   //удалить все узлы дерева
+  FDataNodes.Clear;        //удалить узлы данных
+  with DataController do
+    if (FKeyField <> nil) and    //если определено ключевое поле и
+       (DataSet <> nil) and      //есть таблица и
+       (DataSet.Active) and      //таблиц открыта и
+       (DataSet.RecordCount > 0) then  //в таблице есть записи
+      begin
+        DataSet.DisableControls;               //отключить данные от контрола
+        DataSet.First;                         //встать на первую запись таблицы
+        for i:=1 to DataSet.RecordCount do     //для всех записей таблицы
+        begin
+          P:=TD2DBDataNode.Create(FKeyField.AsInteger); //создать узел данных с ключевым полем
+          if FParentField <> nil                      //если поле родителя определено
+             then P.FParent:=FParentField.AsInteger;    //то добавим его в узел данных
+          P.Node:=AddChild(nil,P);                    //создать узел дерева, указатель на него пишем в узел данных
+          FDataNodes.Add(P);                          //добавим узел данных в дерево список данных
+          DataSet.Next;                          //следующий
+        end;
+        DataSet.First;                         //встать на первую запись таблицы
+        DataSet.EnableControls;                //подключить данные к контролу
+        FDataNodes.Sort(@KeyCompare);          //Сортируем данные по ключевому полю (сортировка в DataSet-e может быть другой)
+        s:=0;
+        if FParentField <> nil then            //если есть ParentField
+          for i:=0 to FDataNodes.Count-1 do      //делаем для всех узлов
+            MoveTo(TD2DBDataNode(FDataNodes.Items[i]).FNode, //подключаем все дочерние узлы к их родителям
+                   FindNode(TD2DBDataNode(FDataNodes.Items[i]).FParent, s),
+                   amAddChildLast, False );
+      end;
+  EndUpdate;          //разрешаем обновление отображения дерева
+  FBuildTree:=false;  //снимаем флаг построения дерева
+end;
+
+constructor TD2CustomDBTreeGrid.Create(aOwner: TComponent);
 begin
   inherited;
+  FBuildTree:=false;
+  NodeDataSize := SizeOf(TD2DBDataNode);
   FDataController := TD2TreeDataController.Create;//(Self);
-  //FDataController.OnRecordChanged:=OnRecordChanged;
-  //FDataController.OnDatasetChanged:=OnDataSetChanged;
-  //FDataController.OnDataSetOpen:=OnDataSetOpen;
-  //FDataController.OnDataSetClose:=OnDataSetClose;
-  //FDataController.OnNewDataSet:=OnNewDataSet;
-  //FDataController.OnInvalidDataSet:=OnInvalidDataset;
-  //FDataController.OnInvalidDataSource:=OnInvalidDataSource;
-  //FDataController.OnDataSetScrolled:=OnDataSetScrolled;
-  //FDataController.OnLayoutChanged:=OnLayoutChanged;
-  //FDataController.OnEditingChanged:=OnEditingChanged;
-  //FDataController.OnUpdateData:=OnUpdateData;
-  //FDataController.VisualControl:= True;
-
-  //FSelectedRows := TBookmarkList.Create(Self);
-  //RowCount:=0;
-  //FDisableMove:=false;
+  FDataNodes:=TList.Create;
+  FDataController.OnRecordChanged:=OnRecordChanged;
+  FDataController.OnDatasetChanged:=OnDataSetChanged;
+  FDataController.OnDataSetOpen:=OnDataSetOpen;
+  FDataController.OnDataSetClose:=OnDataSetClose;
+  FDataController.OnNewDataSet:=OnNewDataSet;
+  FDataController.OnInvalidDataSet:=OnInvalidDataset;
+  FDataController.OnInvalidDataSource:=OnInvalidDataSource;
+  FDataController.OnKeyChanged:=OnKeyChanged;
+  FDataController.OnParentChanged:=OnParentChanged;
+  FDataController.OnDataSetScrolled:=OnDataSetScrolled;
+  FDataController.OnLayoutChanged:=OnLayoutChanged;
+  FDataController.OnEditingChanged:=OnEditingChanged;
+  FDataController.OnUpdateData:=OnUpdateData;
 end;
 
 destructor TD2CustomDBTreeGrid.Destroy;
 begin
-  FDataController.OnDataSetChanged:=nil;
   FDataController.OnRecordChanged:=nil;
+  FDataController.OnDatasetChanged:=nil;
+  FDataController.OnDataSetOpen:=nil;
+  FDataController.OnDataSetClose:=nil;
+  FDataController.OnNewDataSet:=nil;
+  FDataController.OnInvalidDataSet:=nil;
+  FDataController.OnInvalidDataSource:=nil;
+  FDataController.OnKeyChanged:=nil;
+  FDataController.OnParentChanged:=nil;
+  FDataController.OnDataSetScrolled:=nil;
+  FDataController.OnLayoutChanged:=nil;
+  FDataController.OnEditingChanged:=nil;
+  FDataController.OnUpdateData:=nil;
+  FDataNodes.Free;
   FDataController.Free;
   inherited;
 end;

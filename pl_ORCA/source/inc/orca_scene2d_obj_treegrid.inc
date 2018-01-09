@@ -2019,6 +2019,13 @@ begin
   Result := Node = FRoot;
 end;
 
+function TD2CustomTreeGrid.GetVisibleRows: integer;
+begin
+  if Assigned(FVisibleRowsList)
+    then Result:=FVisibleRowsList.Count
+    else Result:=0;
+end;
+
 function TD2CustomTreeGrid.HasVisibleNextSibling(Node: PD2TreeNode): Boolean;
 //True - если следующий за узлом Node одноуровневый узел видимый.
 //Требуется, чтобы сделать правильные линии дерева
@@ -2190,7 +2197,8 @@ end;
 
 {$IMPLICITEXCEPTIONS OFF}
 
-function TD2CustomTreeGrid.PackArray(TheArray: TD2NodeArray; Count: Integer): Integer; assembler;
+function TD2CustomTreeGrid.PackArray(TheArray: TD2NodeArray; Count: Integer
+  ): Integer;
 // Удаляет узлы, которые больше не используются, из массива выбора. Возвращает кол-во оставшихся узлов.
 // Массив выбора должен быть отсортирован для работы этого алгоритма. У удаляемых узлов
 // установлен бит 0 (LSB). Этот маленький трюк работает, потому что выделение памяти всегда
@@ -3755,10 +3763,7 @@ var
   R:TD2Rect;
   SelRects:array of TD2Rect; //массив прямоугольников
   Clone:TD2VisualObject;
-
   Offset: single;
-  Node: PD2TreeNode;
-  bSelect, bPreSelect: boolean;
 begin
 
   //inherited UpdateSelection;
@@ -3941,7 +3946,7 @@ begin
     FOnEndOperation(Self, OperationKind)
 end;
 
-procedure TD2CustomTreeGrid.DoEnter;
+procedure TD2CustomTreeGrid.DoEnter();
 //Выделить узел при при получении деревом фокуса
 begin
   EnsureNodeSelected();
@@ -7225,7 +7230,7 @@ begin
     Result := True;
 end;
 
-procedure TD2CustomTreeGrid.EnsureNodeSelected;
+procedure TD2CustomTreeGrid.EnsureNodeSelected();
 //Обеспечить выделение узла при потере выбора текущим узлом (например при удалении)
 begin
   if (toAlwaysSelectNode in TreeOptions.SelectionOptions) and

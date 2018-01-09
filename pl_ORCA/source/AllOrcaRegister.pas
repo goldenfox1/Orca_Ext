@@ -512,8 +512,6 @@ end;
 //================== Register Routines ===============
 
 procedure Register;
-var
-  TD2DBTreeColumnFieldProperty: TPropertyEditorClass;
 begin
 
 //------ Visible Components -----------------------

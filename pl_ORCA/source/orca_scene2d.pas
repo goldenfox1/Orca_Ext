@@ -9044,6 +9044,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function GetVisible(Node: PD2TreeNode): Boolean;
              //True - все родители узла Node развернуты и видимы.
     function GetVisiblePath(Node: PD2TreeNode): Boolean;
+              //получить кол-во видимых на экране строк
+    function  GetVisibleRows:integer; override;
              //True - если следующий за узлом Node одноуровневый узел видимый.
     function HasVisibleNextSibling(Node: PD2TreeNode): Boolean;
              //True - если предыдущий перед узлом Node одноуровневый узел видимый.
@@ -9121,7 +9123,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //установить кол-во детей для узла Root
     procedure SetRootNodeCount(Value: Cardinal);
               //Установить статус "выбран" узла Node в соответствие с Value.
-    procedure SetSelected(Node: PD2TreeNode; Value: Boolean);
+    procedure SetSelected(Node: PD2TreeNode; Value: Boolean); overload; virtual;
               //Установить узел Node верхним видимым
     procedure SetTopNode(Node: PD2TreeNode);
               //Установить в Value значение вертикального смещения кнопки экспандера для узла Node
@@ -9285,9 +9287,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //получить координату Y вехней видимой строки
     function GetTopRowY: single; override;
               //получить значение ячейки в колонке Col для узла Node
-    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; overload;
+    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; overload; virtual;
               //сохранить значение ячейки Value в колонке Col для узла Node
-    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  overload;
+    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  overload; virtual;
               //Инициализация дочерних узлов для узла Node.
     procedure InitChildren(Node: PD2TreeNode); virtual;
               //Инициализация узла Node
@@ -9831,9 +9833,9 @@ end;
 
 //Класс дерева
 TD2TreeGrid = class(TD2CustomTreeGrid)
-  public
-    property VScrollBar;
-    property HScrollBar;
+  //public
+  //  property VScrollBar;
+  //  property HScrollBar;
   published
     property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
     property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
@@ -9986,10 +9988,11 @@ TD2TreeDataController=class(TD2GridDataController)
     property ParentFieldName : string read FParentFieldName write SetParentFieldName;  //имя родительского поля таблицы
 end;
 
-
 { TDBDataNode }
 
-TDBDataNode = class
+{ TD2DBDataNode }
+
+TD2DBDataNode = class
   private
     FKey: Integer;
     FParent: Integer;
@@ -10001,27 +10004,99 @@ TDBDataNode = class
     property Node: PD2TreeNode read FNode write FNode;
 end;
 
-
-
-
 { TD2CustomDBTreeGrid }
 
 //заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
   private
+
+
+    FBuildTree: boolean;                     //флаг перестроения дерева в соответствии с DataSet
     FDataController: TD2TreeDataController;
+    FDataNodes: TList;
+    FDisableMove:boolean;                    // флаг запрета смены текущей записи
+    FEditValue:Variant;                      // указатель на значение
+    FNeedUpdate:boolean;                     // флаг необходимости обновления записи в DataSet
+
+              //прерывание после изменения записи в DataSet сразу после Post
+    procedure OnRecordChanged(aField:TField);
+              //прерывание при изменениях в DataSet
+    procedure OnDataSetChanged(aDataSet: TDataSet);
+              //прерывание при открытии DataSet
+    procedure OnDataSetOpen(aDataSet: TDataSet);
+              //прерывание при закрытии DataSet
+    procedure OnDataSetClose(aDataSet: TDataSet);
+              //прерывание при входе или выходе в/из режима редактирования данных в DataSet
+    procedure OnEditingChanged(aDataSet: TDataSet);
+              //прерывание если не правильный DataSet
+    procedure OnInvalidDataSet(aDataSet: TDataSet);
+              //прерывание если не правильный DataSource
+    procedure OnInvalidDataSource(aDataSet: TDataset);
+              //прерывание при смене указаеля на ключевое поле в DataSet
+    procedure OnKeyChanged(aField:TField);
+              //прерывание при смене указаеля на родительское поле в DataSet
+    procedure OnParentChanged(aField:TField);
+
+    procedure OnLayoutChanged(aDataSet: TDataSet);                //прерывание при изменении состава или порядка полей в DataSet
+
+    procedure OnNewDataSet(aDataSet: TDataset);                   //прерывание при подключении к другому DataSet
+
+    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer);  //прерывание при смене текущей записи в DataSet
+
+    procedure OnDataSourceChanged (aDataSource: TDataSource);
+              //прерывание при записи изменений в БД
+    procedure OnUpdateData(aDataSet: TDataSet);
+              //установить ссылку на DataController
     procedure SetDataController(AValue: TD2TreeDataController);
+              //установить кол-во строк в гриде в соответствии с DataSet
+    procedure UpdateRowCount;
+
+  protected
+              //получить значение ячейки в колонке Col для узла Node
+    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; override;
+              //сохранить значение ячейки Value в колонке Col для узла Node
+    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  override;
+              //переопределить Field для каждой колонки
+    procedure ColumnsLinkFields;
+              //переинициализация дерева при изменении свойста FDataController.Active
+    procedure LinkActive(Value:Boolean);
+
   public
-    constructor Create(AOwner: TComponent);  override;  //создать экземпляр объекта
-    destructor Destroy;  override;                      //уничтожить экземпляр объекта
-    function ItemClass: string;  override;              //список классов колонок для дизайнера
+              //перестроить структуру дерева в соответствии с данными в DataSet
+    procedure BuildTree; virtual;
+                //создать экземпляр объекта
+    constructor Create(aOwner: TComponent);  override;
+               //уничтожить экземпляр объекта
+    destructor Destroy;  override;
+             //список классов колонок для дизайнера
+    function ItemClass: string;  override;
+
+    property DataNodes: TList read FDataNodes; //список соответствия узлов и записей в DataSet
     property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
 //Класс дерева для отображения данных из базы данных
 TD2DBTreeGrid = class(TD2CustomDBTreeGrid)
   published
+    property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
     property DataController;
+    property LineMode;
+    property MainColumn;     //индекс главной колонки
+    property SortColumn;     //индекс колонки в которой происходит сортировка
+    property SortDirection;  //направление сортировки
+    property TreeOptions;
+
+    //прерывания
+
+    property OnBeforeDrawTreeLine;
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
+    property OnScroll;
+    property OnChecked;     //Прерывание после изменения состояния отметки узла.
+    property OnChecking;    //Прерывание перед измененем состояния отметки узла.
+    property OnDragOver;         //Прерывание при перетаскивании над объектом
+    property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
 end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
