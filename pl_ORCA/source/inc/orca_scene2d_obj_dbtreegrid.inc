@@ -381,12 +381,13 @@ end;
 
 { TDBDataNode }
 
-constructor TD2DBDataNode.Create(AKey: Integer; AParent: Integer;
-  ANode: PD2TreeNode);
+constructor TD2DBDataNode.Create(aPosition: Integer; aKey: Integer;
+  aParent: Integer; aNode: PD2TreeNode);
 begin
-  FKey:=AKey;
-  FParent:=AParent;
-  FNode:=ANode;
+  FPosition:=aPosition;
+  FKey:=aKey;
+  FParent:=aParent;
+  FNode:=aNode;
 end;
 
 { TD2CustomDBTreeGrid }
@@ -471,25 +472,49 @@ begin
 end;
 
 procedure TD2CustomDBTreeGrid.OnLayoutChanged(aDataSet: TDataSet);
+//прерывание при изменении состава или порядка полей в DataSet
 begin
-
+  LinkActive(FDataController.Active);
+  if FDataController.Active
+    then BuildTree;
 end;
 
 procedure TD2CustomDBTreeGrid.OnNewDataSet(aDataSet: TDataset);
+//прерывание или первом открытии нового DataSet
 begin
-
+  LinkActive(FDataController.Active);
+  BuildTree;
+  FIsPreSelected := false;
 end;
 
-procedure TD2CustomDBTreeGrid.OnDataSetScrolled(aDataSet: TDataSet;
-  Distance: Integer);
+procedure TD2CustomDBTreeGrid.OnDataSetScrolled(aDataSet: TDataSet; Distance: Integer);
+//прерывание при перемещении на другую запись в DataSet
+var i: integer;
 begin
-
+  if not FBuildTree and  (FDataController.DataSet <> nil) then
+  begin
+    UpdateRowCount;
+    FDisableMove:=true;
+    with FDataController do
+      if (DataSet.RecNo > 0) and (FKeyField<>nil)  then
+      begin
+        FIsPreSelected:=false;
+        i:=0;
+        FFocusedNode:=FindNode(FKeyField.AsInteger,i);
+        SelectNode(FFocusedNode);
+        ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+      end;
+    FDisableMove:=false;
+    UpdateColumns;
+  end;
 end;
 
-procedure TD2CustomDBTreeGrid.OnDataSourceChanged(aDataSource: TDataSource);
-begin
-
-end;
+//procedure TD2CustomDBTreeGrid.OnDataSourceChanged(aDataSource: TDataSource);
+//begin
+//  LinkActive(FDataController.Active);
+//  if FDataController.Active
+//    then BuildTree;
+//end;
 
 procedure TD2CustomDBTreeGrid.OnUpdateData(aDataSet: TDataSet);
 var C: TD2DBTreeColumn;
@@ -512,7 +537,6 @@ end;
 
 procedure TD2CustomDBTreeGrid.UpdateRowCount;
 //установить кол-во строк в гриде в соответствии с DataSet
-var R: Integer;
 begin
   //if FDataController.Active then
   //begin
@@ -526,9 +550,8 @@ begin
 
   if FDataController.Active then
   begin
-    R:=FDataController.DataSet.RecordCount;
-    FDataController.BufferCount:=R;
-    RowCount:=R;
+    FDataController.BufferCount:=FDataController.DataSet.RecordCount;
+    RowCount:=VisibleCount;
   end
   else begin
          RowCount:=0;
@@ -610,14 +633,14 @@ begin
       begin
         DataSet.DisableControls;               //отключить данные от контрола
         DataSet.First;                         //встать на первую запись таблицы
-        for i:=1 to DataSet.RecordCount do     //для всех записей таблицы
+        for i:=0 to DataSet.RecordCount-1 do     //для всех записей таблицы
         begin
-          P:=TD2DBDataNode.Create(FKeyField.AsInteger); //создать узел данных с ключевым полем
-          if FParentField <> nil                      //если поле родителя определено
-             then P.FParent:=FParentField.AsInteger;    //то добавим его в узел данных
-          P.Node:=AddChild(nil,P);                    //создать узел дерева, указатель на него пишем в узел данных
-          FDataNodes.Add(P);                          //добавим узел данных в дерево список данных
-          DataSet.Next;                          //следующий
+          P:=TD2DBDataNode.Create(i, FKeyField.AsInteger); //создать узел данных с ключевым полем
+          if FParentField <> nil                           //если поле родителя определено
+             then P.FParent:=FParentField.AsInteger;         //то добавим его в узел данных
+          P.Node:=AddChild(nil,P);                         //создать узел дерева, указатель на него пишем в узел данных
+          FDataNodes.Add(P);                               //добавим узел данных в дерево список данных
+          DataSet.Next;                                    //следующий
         end;
         FDataNodes.Sort(DBDataNodeKeyCompare);          //Сортируем данные по ключевому полю (сортировка в DataSet-e может быть другой)
         s:=0;

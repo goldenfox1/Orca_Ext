@@ -1547,29 +1547,28 @@ begin
 end;
 
 procedure TD2CustomDBGrid.UpdateRowCount;
-//var R: Integer;
+var R: Integer;
 begin
-  if FDataController.Active then
-  begin
-    FDataController.BufferCount:=VisibleRows * 2;
-    if FDataController.BufferCount < FDataController.DataSet.RecordCount then
-      RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-    else
-      RowCount:=FDataController.RecordCount;
-  end
-  else RowCount:=0;
-
   //if FDataController.Active then
   //begin
-  //  R:=FDataController.DataSet.RecordCount;
-  //  FDataController.BufferCount:=R;
-  //  RowCount:=R;
+  //  FDataController.BufferCount:=VisibleRows * 2;
+  //  if FDataController.BufferCount < FDataController.DataSet.RecordCount then
+  //    RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+  //  else
+  //    RowCount:=FDataController.RecordCount;
   //end
-  //else begin
-  //       RowCount:=0;
-  //       FDataController.BufferCount:=0;
-  //     end;
+  //else RowCount:=0;
 
+  if FDataController.Active
+    then  begin
+            R:=FDataController.DataSet.RecordCount;
+            FDataController.BufferCount:=R;
+            RowCount:=R;
+          end
+    else  begin
+            RowCount:=0;
+            FDataController.BufferCount:=0;
+          end;
 end;
 
 procedure TD2CustomDBGrid.OnRecordChanged(Field: TField);
@@ -1721,11 +1720,6 @@ begin
       if Result then FDataController.Modified:=True;
     end;
   end;
-end;
-
-procedure TD2CustomDBGrid.HScrollChange(Sender: TObject);
-begin
-  inherited HScrollChange(Sender);
 end;
 
 procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;

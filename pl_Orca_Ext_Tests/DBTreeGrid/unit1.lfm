@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 251
+  Left = 246
   Height = 552
-  Top = 120
+  Top = 116
   Width = 876
   Caption = 'Form1'
   ClientHeight = 552
@@ -63,7 +63,6 @@ object Form1: TForm1
         Height = 201
         Resource = 'gridstyle'
         TabOrder = 1
-        DataController.DataSource = DataSource1
         RowHeight = 21
         ScrollDuration = 0.300000011920929
         object DBTextColumn1: TD2DBTextColumn
@@ -92,10 +91,9 @@ object Form1: TForm1
         Width = 428
         Height = 137
         Resource = 'gridstyle'
-        TabOrder = 3
+        TabOrder = 2
         DataController.DataSource = DataSource1
         DataController.KeyFieldName = 'id'
-        DataController.ParentFieldName = 'par_id'
         object DBTreeTextColumn1: TD2DBTreeTextColumn
           RotateAngle = 0
           Width = 53

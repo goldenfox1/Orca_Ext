@@ -7844,7 +7844,6 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure SetValue(Col, Row:integer; const Value:Variant);  override; //записать в DataSet значение ячейки в колонке Col строке Row
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //проверка ввода с клавиатуры на соответствие полю TField.ValidChars
     function  CanEditModify: Boolean;  override;          //перевести DataSet в режим редактирования. true - переведено в реим редактирования
-    procedure HScrollChange(Sender: TObject);  override;  //обработка перемещения горизонтального скроллера
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //обработка нажатия клавиш
     procedure Reset;  override;  //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //очистка указателя на DataSource при его удалении
@@ -9994,14 +9993,16 @@ end;
 
 TD2DBDataNode = class
   private
-    FKey: Integer;
-    FParent: Integer;
-    FNode: PD2TreeNode;
+    FPosition: Integer;      //№ позиции в таблице (в порядке чтения)
+    FKey: Integer;           //Идентификатор записи в таблице (ключевое поле)
+    FParent: Integer;        //Указатель на идентификатор родителя
+    FNode: PD2TreeNode;      //Указатель на узел дерева
   public
-    constructor Create(AKey: Integer = 0; AParent: Integer = 0; ANode: PD2TreeNode = nil);
+    constructor Create(aPosition: Integer = -1; aKey: Integer = 0; aParent: Integer = 0; aNode: PD2TreeNode = nil);
     property Key: Integer read FKey write FKey;
     property Parent: Integer read FParent write FParent;
     property Node: PD2TreeNode read FNode write FNode;
+    property Position: Integer read FPosition write FPosition;
 end;
 
 { TD2CustomDBTreeGrid }
@@ -10009,8 +10010,6 @@ end;
 //заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
   private
-
-
     FBuildTree: boolean;                     //флаг перестроения дерева в соответствии с DataSet
     FDataController: TD2TreeDataController;
     FDataNodes: TList;
@@ -10036,14 +10035,16 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     procedure OnKeyChanged(aField:TField);
               //прерывание при смене указаеля на родительское поле в DataSet
     procedure OnParentChanged(aField:TField);
+              //прерывание при изменении состава или порядка полей в DataSet
+    procedure OnLayoutChanged(aDataSet: TDataSet);
+              //прерывание или первом открытии нового DataSet
+    procedure OnNewDataSet(aDataSet: TDataset);
+              //прерывание при перемещении на другую запись в DataSet
+    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer);
 
-    procedure OnLayoutChanged(aDataSet: TDataSet);                //прерывание при изменении состава или порядка полей в DataSet
+              //прерывание при изменении DataSource
+    //procedure OnDataSourceChanged (aDataSource: TDataSource);
 
-    procedure OnNewDataSet(aDataSet: TDataset);                   //прерывание при подключении к другому DataSet
-
-    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer);  //прерывание при смене текущей записи в DataSet
-
-    procedure OnDataSourceChanged (aDataSource: TDataSource);
               //прерывание при записи изменений в БД
     procedure OnUpdateData(aDataSet: TDataSet);
               //установить ссылку на DataController
