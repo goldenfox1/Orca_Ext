@@ -559,6 +559,22 @@ begin
        end;
 end;
 
+procedure TD2CustomDBTreeGrid.DoFocusNode(Node: PD2TreeNode; Ask: Boolean);
+//Передать фокус узлу Value
+var Old: PD2TreeNode;
+begin
+  Old := FFocusedNode;
+  inherited;
+  if (Old <> FFocusedNode) and
+     (not FDisableMove) and
+     (FDataController.Active) then
+    try
+      FDataController.MoveBy(TD2DBDataNode(GetNodeData(FFocusedNode)^).FPosition-
+                             TD2DBDataNode(GetNodeData(Old)^).FPosition );
+    except
+    end;
+end;
+
 function TD2CustomDBTreeGrid.GetValue(Node: PD2TreeNode; Col: integer): Variant;
 //получить значение ячейки в колонке Col для узла Node
 var
@@ -602,6 +618,12 @@ var i: integer;
 begin
   for i:=0 to ColumnCount - 1 do
     TD2DBTreeColumn(Columns[i]).LinkField;
+end;
+
+procedure TD2CustomDBTreeGrid.KeyDown(var Key: Word;
+  var KeyChar: System.WideChar; Shift: TShiftState);
+begin
+  inherited;
 end;
 
 procedure TD2CustomDBTreeGrid.LinkActive(Value: Boolean);

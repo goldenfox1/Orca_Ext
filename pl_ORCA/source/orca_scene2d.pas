@@ -9209,7 +9209,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoFocusChange(Node: PD2TreeNode; Column: Integer); virtual;
               //Вызывает прерывание перед изменением фокуса узла и/или колонки
     function DoFocusChanging(OldNode, NewNode: PD2TreeNode; OldColumn, NewColumn: Integer): Boolean;
-              //Вызывает прерывание при изменениии фокуса узла
+              //Устанавливает фокус на узел Node, разворачивает (если установлен toAutoExpand) и делает его видимым
+              //если разрешено в прерывании DoFocusChanging. Если Ask=true фокус не изменяется
     procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
               //Вызывает прерывание при освобождении узла
     procedure DoFreeNode(Node: PD2TreeNode); virtual;
@@ -10053,12 +10054,17 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     procedure UpdateRowCount;
 
   protected
+              //Устанавливает фокус на узел Node, разворачивает (если установлен toAutoExpand) и делает его видимым
+              //если разрешено в прерывании DoFocusChanging. Если Ask=true фокус не изменяется
+    procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
               //получить значение ячейки в колонке Col для узла Node
     function  GetValue(Node: PD2TreeNode; Col: integer): Variant; override;
               //сохранить значение ячейки Value в колонке Col для узла Node
     procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  override;
               //переопределить Field для каждой колонки
     procedure ColumnsLinkFields;
+               //обработка нажатий клавиатуры
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //переинициализация дерева при изменении свойста FDataController.Active
     procedure LinkActive(Value:Boolean);
 

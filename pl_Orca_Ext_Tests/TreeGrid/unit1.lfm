@@ -1,16 +1,16 @@
 object Form1: TForm1
-  Left = 315
-  Height = 465
-  Top = 117
+  Left = 247
+  Height = 492
+  Top = 116
   Width = 876
   Caption = 'Form1'
-  ClientHeight = 465
+  ClientHeight = 492
   ClientWidth = 876
   OnCreate = FormCreate
   LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 465
+    Height = 492
     Top = 0
     Width = 600
     Align = alLeft
@@ -20,7 +20,7 @@ object Form1: TForm1
     object Root1: TD2Background
       RotateAngle = 0
       Width = 600
-      Height = 465
+      Height = 492
       object Grid1: TD2Grid
         DragMode = d2DragAutomatic
         Position.Point = '(312,15)'
@@ -124,7 +124,6 @@ object Form1: TForm1
         OnDragDrop = TreeGrid1DragDrop
         Resource = 'gridstyle'
         TabOrder = 4
-        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
         TreeOptions.SelectionOptions = [toMultiSelect]
         OnGetValue = TreeGrid1GetValue
@@ -153,6 +152,7 @@ object Form1: TForm1
         Height = 100
         Resource = 'gridstyle'
         TabOrder = 5
+        MainColumn = -1
       end
     end
   end
@@ -184,10 +184,10 @@ object Form1: TForm1
     OnGetText = VTGetText
   end
   object DBStringTree1: TDBStringTree
-    Left = 640
+    Left = 634
     Height = 100
-    Top = 376
-    Width = 200
+    Top = 360
+    Width = 224
     DefaultText = 'Node'
     Header.AutoSizeIndex = 0
     Header.Columns = <>
