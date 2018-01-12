@@ -911,6 +911,7 @@ begin
 end;
 
 procedure TD2TreeTextColumn.NodeSetFocus(Node: PD2TreeNode);
+// Установить фокус в видимую ячейку соответствующую узлу Node.
 var C: TD2Control;
 begin
   inherited;
@@ -10333,7 +10334,7 @@ begin
   Result := False;
 
   if ColumnCount < 1 then Exit;
-  //if not FHeader.Columns.IsValidColumn(Column) then Exit; // Just in case.
+  if not IsValidColumn(Column) then Exit; // Just in case.
 
   ColumnLeft := Columns[Column].GetBoundsRect.Left;
   ColumnRight := Columns[Column].GetBoundsRect.Right;

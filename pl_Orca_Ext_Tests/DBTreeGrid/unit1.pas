@@ -22,18 +22,25 @@ type
     DataSource1: TDataSource;
     DBGrid1: TDBGrid;
     DBGrid2: TD2DBGrid;
+    DBTextBox1: TD2DBTextBox;
     DBTextColumn1: TD2DBTextColumn;
     DBTextColumn2: TD2DBTextColumn;
+    DBTextColumn3: TD2DBTextColumn;
+    DBTextColumn4: TD2DBTextColumn;
     DBTreeGrid1: TD2DBTreeGrid;
     DBTreeTextColumn1: TD2DBTreeTextColumn;
     DBTreeTextColumn2: TD2DBTreeTextColumn;
     DBTreeTextColumn3: TD2DBTreeTextColumn;
     DBTreeTextColumn4: TD2DBTreeTextColumn;
     GradientAnimation1: TD2GradientAnimation;
+    Grid1: TD2Grid;
     Root1: TD2Background;
+    TextColumn1: TD2TextColumn;
+    TextColumn2: TD2TextColumn;
     ZConnection1: TZConnection;
     ZTable1: TZTable;
     procedure Button1Click(Sender: TObject);
+    procedure ZTable1AfterEdit(DataSet: TDataSet);
 
   private
     { private declarations }
@@ -80,6 +87,11 @@ begin
   if ZTable1.Active
     then Button1.Text:='Зыкрыть'
     else Button1.Text:='Открыть';
+end;
+
+procedure TForm1.ZTable1AfterEdit(DataSet: TDataSet);
+begin
+  //
 end;
 
 end.

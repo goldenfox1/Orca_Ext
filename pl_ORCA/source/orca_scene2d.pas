@@ -7621,17 +7621,17 @@ TD2DBLabel = class(TD2CustomLabel)
   private
     FDataController: TD2FieldDataController;
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     procedure SetDataController(const AValue: TD2FieldDataController);
     function  GetFieldText: string;
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
     property TextAlign  default d2TextAlignNear;
@@ -7642,19 +7642,19 @@ TD2DBImage = class(TD2Image)
     FDataController: TD2FieldDataController;
     procedure DataChange(Sender: TObject);
     procedure UpdateData(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     procedure SetDataController(const AValue: TD2FieldDataController);
     function  GetFieldText: string;
   protected
     procedure DoBitmapChanged(Sender: TObject);  override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
   end;
@@ -7664,12 +7664,12 @@ TD2DBTextBox = class(TD2CustomTextBox)
     FDataController: TD2FieldDataController;
     procedure SetDataController(const AValue: TD2FieldDataController);
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure Change;  override;
     procedure EnterFocus;  override;
@@ -7677,8 +7677,8 @@ TD2DBTextBox = class(TD2CustomTextBox)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
     property Password;
@@ -7690,12 +7690,12 @@ TD2DBMemo = class(TD2CustomMemo)
     FDataController: TD2FieldDataController;
     procedure SetDataController(const AValue: TD2FieldDataController);
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure Change;  override;
     procedure EnterFocus;  override;
@@ -7703,8 +7703,8 @@ TD2DBMemo = class(TD2CustomMemo)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
   end;
@@ -7738,6 +7738,7 @@ TD2DBTextColumn = class(TD2DBColumn)
     function GetCellClass: TD2CellClass; override;
     function GetData: Variant;  override;
     procedure SetData(Value:Variant);  override;
+    procedure CellSetFocus(ARow: integer);  override;
 end;
 
 { TD2DBCheckColumn }
@@ -7822,8 +7823,8 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
     FEditValue:Variant;                      // указатель на значение
     FNeedUpdate:boolean;                     // флаг необходимости обновления записи в DataSet
-    function GetDataSource: TDataSource;     // получить указательа на DataSource
-    procedure SetDataSource(const Value:TDataSource); // установить указательа на DataSource
+    //function GetDataSource: TDataSource;     // получить указательа на DataSource
+    //procedure SetDataSource(const Value:TDataSource); // установить указательа на DataSource
     function GetSelectedField: TField;                // получить указатель на выбранную колонку
     procedure SetSelectedField(const Value:TField);   // установить указатель на выбранную колонку
     procedure SetDataController(const AValue: TD2GridDataController); //установить указатель на DataController
@@ -7860,7 +7861,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     destructor Destroy;  override;                      //уничтожить экземпляр объекта
     function ItemClass: string;  override;              //список классов колонок для дизайнера
     property SelectedField: TField read GetSelectedField write SetSelectedField;  //указатель на выбранную колонку
-    property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
+    //property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
     property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
@@ -8511,7 +8512,7 @@ TD2TreeTextColumn = class(TD2TreeColumn)
     function GetCellClass: TD2CellClass; override;
               //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
-              //обработчик двойного клика по ячейке. используется из грида
+              // Установить фокус в видимую ячейку соответствующую узлу Node.
     procedure NodeSetFocus(Node: PD2TreeNode);  override;
 
 end;
@@ -9888,6 +9889,8 @@ TD2DBTreeTextColumn = class(TD2DBTreeColumn)
     function GetCellClass: TD2CellClass; override;
     function GetData: Variant;  override;
     procedure SetData(Value:Variant);  override;
+              // Установить фокус в видимую ячейку соответствующую узлу Node.
+    procedure NodeSetFocus(Node: PD2TreeNode);  override;
 end;
 
 { TD2DBTreeCheckColumn }
@@ -9978,6 +9981,7 @@ TD2TreeDataController=class(TD2GridDataController)
               //вызывается при изменении родительское поля таблицы
     procedure ParentChanged; virtual;
   public
+    function  Edit: Boolean;
     property KeyField: TField read FKeyField;        //указатель на ключевое поле таблицы
     property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
     property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
@@ -10054,17 +10058,17 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     procedure UpdateRowCount;
 
   protected
+              //перевести DataSet в режим редактирования. true - переведено в реим редактирования
+    function  CanEditModify: Boolean;  override;
               //Устанавливает фокус на узел Node, разворачивает (если установлен toAutoExpand) и делает его видимым
               //если разрешено в прерывании DoFocusChanging. Если Ask=true фокус не изменяется
-    procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
+    procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); override;
               //получить значение ячейки в колонке Col для узла Node
     function  GetValue(Node: PD2TreeNode; Col: integer): Variant; override;
               //сохранить значение ячейки Value в колонке Col для узла Node
     procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  override;
               //переопределить Field для каждой колонки
     procedure ColumnsLinkFields;
-               //обработка нажатий клавиатуры
-    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
               //переинициализация дерева при изменении свойста FDataController.Active
     procedure LinkActive(Value:Boolean);
 

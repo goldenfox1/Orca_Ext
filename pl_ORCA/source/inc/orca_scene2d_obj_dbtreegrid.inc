@@ -104,6 +104,14 @@ begin
     FOnParentChanged(FParentField);
 end;
 
+function TD2TreeDataController.Edit: Boolean;
+begin
+  If Not ReadOnly then
+  DataSource.Edit;
+  // Triggered event will set FEditing
+  Result:=Editing;
+end;
+
 { TD2DBTreeColumn }
 
 procedure TD2DBTreeColumn.SetFieldName(const Value: String);
@@ -172,9 +180,9 @@ begin
   Result:=inherited;
   with TD2TextCell(TD2TreeCellControl(Result).FControl) do
   begin
-    //HitTest:=false;
-    //CanFocused:=false;
-    //Locked:=true;
+    HitTest:=false;
+    CanFocused:=false;
+    Locked:=true;
     OnChange:=DoTextChanged;
   end;
 end;
@@ -183,6 +191,20 @@ procedure TD2DBTreeTextColumn.SetData(Value: Variant);
 begin
   if Assigned(Field)
     then Field.Text:=UTF8Encode(Value);
+end;
+
+procedure TD2DBTreeTextColumn.NodeSetFocus(Node: PD2TreeNode);
+// Установить фокус в видимую ячейку соответствующую узлу Node.
+var C: TD2Control;
+begin
+  inherited;
+  C:=CellControlByNode(Node);
+  if (C <> nil) and (C is TD2TreeCellControl) and (TD2TreeCellControl(C).FControl <> nil) then
+  begin
+    TD2TreeCellControl(C).FControl.HitTest:=true;
+    TD2TreeCellControl(C).FControl.CanFocused:=true;
+    TD2TreeCellControl(C).FControl.SetFocus;
+  end;
 end;
 
 function TD2DBTreeTextColumn.GetData: Variant;
@@ -403,22 +425,22 @@ procedure TD2CustomDBTreeGrid.OnDataSetChanged(aDataSet: TDataSet);
 //прерывание при изменениях в DataSet
 var i: integer;
 begin
-  if not FBuildTree and  (FDataController.DataSet <> nil) then
-  begin
-    UpdateRowCount;
-    FDisableMove:=true;
-    with FDataController do
-      if (DataSet.RecNo > 0) and (FKeyField<>nil)  then
-      begin
-        FIsPreSelected:=false;
-        i:=0;
-        FFocusedNode:=FindNode(FKeyField.AsInteger,i);
-        SelectNode(FFocusedNode);
-        ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
-      end;
-    FDisableMove:=false;
-    UpdateColumns;
-  end;
+  //if not FBuildTree and  (FDataController.DataSet <> nil) then
+  //begin
+  //  //UpdateRowCount;
+  //  FDisableMove:=true;
+  //  with FDataController do
+  //    if (DataSet.RecNo > 0) and (FKeyField<>nil)  then
+  //    begin
+  //      FIsPreSelected:=false;
+  //      i:=0;
+  //      FFocusedNode:=FindNode(FKeyField.AsInteger,i);
+  //      SelectNode(FFocusedNode);
+  //      ScrollIntoView(FFocusedNode,toCenterScrollIntoView in TreeOptions.FSelectionOptions,false);
+  //    end;
+  //  FDisableMove:=false;
+  //  UpdateColumns;
+  //end;
 end;
 
 procedure TD2CustomDBTreeGrid.OnDataSetOpen(aDataSet: TDataSet);
@@ -493,7 +515,7 @@ var i: integer;
 begin
   if not FBuildTree and  (FDataController.DataSet <> nil) then
   begin
-    UpdateRowCount;
+    //UpdateRowCount;
     FDisableMove:=true;
     with FDataController do
       if (DataSet.RecNo > 0) and (FKeyField<>nil)  then
@@ -548,15 +570,26 @@ begin
   //end
   //else RowCount:=0;
 
-  if FDataController.Active then
+  if FDataController.Active
+    then FDataController.BufferCount:=FDataController.DataSet.RecordCount
+    else FDataController.BufferCount:=0;
+end;
+
+function TD2CustomDBTreeGrid.CanEditModify: Boolean;
+begin
+  Result:=False;
+  if not ReadOnly and FDataController.Active and not FDataController.Readonly then
+  with TD2DBTreeColumn(Columns[FocusedColumn]) do
   begin
-    FDataController.BufferCount:=FDataController.DataSet.RecordCount;
-    RowCount:=VisibleCount;
-  end
-  else begin
-         RowCount:=0;
-         FDataController.BufferCount:=0;
-       end;
+    if (not ReadOnly) and Assigned(Field) then
+      Result:=Field.CanModify;
+    if (not ReadOnly) and Assigned(Field) and Field.CanModify then
+    begin
+      FDataController.Edit;
+      Result:=FDataController.Editing;
+      if Result then FDataController.Modified:=True;
+    end;
+  end;
 end;
 
 procedure TD2CustomDBTreeGrid.DoFocusNode(Node: PD2TreeNode; Ask: Boolean);
@@ -565,14 +598,14 @@ var Old: PD2TreeNode;
 begin
   Old := FFocusedNode;
   inherited;
-  if (Old <> FFocusedNode) and
+  if (FFocusedNode <> nil) and (Old <> FFocusedNode) and
      (not FDisableMove) and
      (FDataController.Active) then
-    try
-      FDataController.MoveBy(TD2DBDataNode(GetNodeData(FFocusedNode)^).FPosition-
-                             TD2DBDataNode(GetNodeData(Old)^).FPosition );
-    except
-    end;
+    if (Old <> nil)
+      then FDataController.MoveBy(TD2DBDataNode(GetNodeData(FFocusedNode)^).FPosition-
+                                  TD2DBDataNode(GetNodeData(Old)^).FPosition )
+      else with FDataController do
+             DataSet.Locate(FKeyFieldName, TD2DBDataNode(GetNodeData(FFocusedNode)^).FKey,[]);
 end;
 
 function TD2CustomDBTreeGrid.GetValue(Node: PD2TreeNode; Col: integer): Variant;
@@ -618,12 +651,6 @@ var i: integer;
 begin
   for i:=0 to ColumnCount - 1 do
     TD2DBTreeColumn(Columns[i]).LinkField;
-end;
-
-procedure TD2CustomDBTreeGrid.KeyDown(var Key: Word;
-  var KeyChar: System.WideChar; Shift: TShiftState);
-begin
-  inherited;
 end;
 
 procedure TD2CustomDBTreeGrid.LinkActive(Value: Boolean);
