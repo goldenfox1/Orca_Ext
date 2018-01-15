@@ -6804,6 +6804,9 @@ end;
 
 procedure TD2CustomTreeGrid.Clear;
 //полное удаление всех узлов дерева
+var
+  i,t: integer;
+  C: TD2Column;
 begin
   if not (toReadOnly in FOptions.FMiscOptions) or (csDestroying in ComponentState) then
   begin
@@ -6833,7 +6836,14 @@ begin
          then HScrollBar.Value := 0;
       if FVScrollBar<> nil
          then VScrollBar.Value := 0;
-
+      for t:=0 to ColumnCount-1  do
+      begin
+        C:=Columns[t];
+        for i:=0 to C.FCellControls.Count-1 do
+          TD2TreeCellControl(C.FCellControls.Items[i]).FNode:=Nil;
+        //C.FCellControls.Clear;
+      end;
+      FVisibleRowsList.Clear;;
     finally
       EndUpdate;
     end;
