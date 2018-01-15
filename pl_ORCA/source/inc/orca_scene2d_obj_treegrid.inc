@@ -2544,7 +2544,7 @@ begin
       Include(Node.States, vsFiltered);
       if not (toShowFilteredNodes in FOptions.FPaintOptions) then
       begin
-        AdjustTotalHeight(Node, -Integer(NodeHeight[Node]), True);
+        AdjustTotalHeight(Node, -NodeHeight[Node], True);
         if FullyVisible[Node] then
         begin
           Dec(FVisibleCount);
@@ -2562,7 +2562,7 @@ begin
       Exclude(Node.States, vsFiltered);
       if not (toShowFilteredNodes in FOptions.FPaintOptions) then
       begin
-        AdjustTotalHeight(Node, Integer(NodeHeight[Node]), True);
+        AdjustTotalHeight(Node, NodeHeight[Node], True);
         if FullyVisible[Node] then
         begin
           Inc(FVisibleCount);
@@ -2892,7 +2892,7 @@ begin
     else
     begin
       if vsExpanded in Node.Parent.States then
-        AdjustTotalHeight(Node.Parent, -Integer(Node.TotalHeight), True);
+        AdjustTotalHeight(Node.Parent, -Node.TotalHeight, True);
       if VisiblePath[Node] then
       begin
         Dec(FVisibleCount, CountVisibleChildren(Node) + Cardinal(IfThen(IsEffectivelyVisible[Node], 1)));
@@ -4917,6 +4917,7 @@ procedure TD2CustomTreeGrid.InternalDisconnectNode(Node: PD2TreeNode;
 // Если KeepFocus = True, то узел сохраняет фокус. Это полезно, если этот узел вновь
 // подсоединяется к дереву сразу после возврата из прцедуры и он должен оставаться
 // сфокусированным, если это было раньше.
+// Если Reindex=True производится переиндексация всех братьев расположенных после Node
 // Внимание! Node не должен быть Nil или корневым узлом.
 
 // Disconnects the given node from its parent and siblings. The node's pointer
@@ -4933,17 +4934,18 @@ var
 
 begin
   Assert(Assigned(Node) and (Node <> FRoot), 'Node must neither be nil nor the root node.');
+  if (Node = nil) or (Node = FRoot) then exit; //Узел не должен Nil корнем. Node must neither be nil nor the root node
 
-  if (Node = FFocusedNode) and not KeepFocus then
+  if (Node = FFocusedNode) and not KeepFocus then //если узел был в фокусе, но KeepFocus = False
   begin
-    DoFocusNode(nil, False);
-    DoFocusChange(FFocusedNode, FFocusedColumn);
+    DoFocusNode(nil, False);                      //расфокусировать узел
+    DoFocusChange(FFocusedNode, FFocusedColumn);  //вызвать прерывание изменение фокуса узлов
   end;
 
-  if Node = FRangeAnchor then
-    ResetRangeAnchor;
+  if Node = FRangeAnchor then   //если узел был якорем диапазона выбора
+    ResetRangeAnchor;             //обновить якорь начала диапазона выбора
 
-  // Update the hidden children flag of the parent.
+  // Обновить флаг скрытия детей родителя. Update the hidden children flag of the parent.
   if (Node.Parent <> FRoot) and not (vsClearing in Node.Parent.States) then
     if FUpdateCount = 0 then
       DetermineHiddenChildrenFlag(Node.Parent)
@@ -4952,32 +4954,34 @@ begin
 
   if not (vsDeleting in Node.States) then
   begin
-    // Some states are only temporary so take them out.
+    // Некоторые состояния являются временными, поэтому выйдем из них. Some states are only temporary so take them out.
     Node.States := Node.States - [vsChecking];
     Parent := Node.Parent;
     Dec(Parent.ChildCount);
-    AdjustHeight := (vsExpanded in Parent.States) and (vsVisible in Node.States);
-    if Parent.ChildCount = 0 then
+    AdjustHeight := (vsExpanded in Parent.States) and (vsVisible in Node.States); //определим необходимость пересчета высоты
+    if Parent.ChildCount = 0 then   //если это был единственный ребенок родителя
     begin
-      Parent.States := Parent.States - [vsAllChildrenHidden, vsHasChildren];
-      if (Parent <> FRoot) and (vsExpanded in Parent.States) then
-        Exclude(Parent.States, vsExpanded);
+      Parent.States := Parent.States - [vsAllChildrenHidden, vsHasChildren]; //удаляем флаги у узла касающиеся детей
+      if (Parent <> FRoot) and (vsExpanded in Parent.States) then            //если узел был развернут и не Rott
+        Exclude(Parent.States, vsExpanded);                                    //удалим флаг развернутости узла
     end;
-    AdjustTotalCount(Parent, -Integer(Node.TotalCount), True);
-    if AdjustHeight then
-      AdjustTotalHeight(Parent, -Integer(Node.TotalHeight), True);
-    if FullyVisible[Node] then
-      Dec(FVisibleCount, CountVisibleChildren(Node) + Cardinal(IfThen(IsEffectivelyVisible[Node], 1)));
+    AdjustTotalCount(Parent, -Integer(Node.TotalCount), True);      //изменим общее кол-во узлов у всех родителей
+    if AdjustHeight then                                            //если требуется, то
+      AdjustTotalHeight(Parent, -Node.TotalHeight, True);     // пересчитаем общую высоту узлов у всех родителей
+    if FullyVisible[Node] then                                         // если узел был видим, то
+      Dec(FVisibleCount, CountVisibleChildren(Node) + Cardinal(IfThen(IsEffectivelyVisible[Node], 1))); //уменьшим кол-во видимых узлов
 
+    //отключаем узел от предыдущих братьев если они есть
     if Assigned(Node.PrevSibling) then
       Node.PrevSibling.NextSibling := Node.NextSibling
     else
       Parent.FirstChild := Node.NextSibling;
 
+    //отключаем узел от последующих братьев если они есть
     if Assigned(Node.NextSibling) then
     begin
       Node.NextSibling.PrevSibling := Node.PrevSibling;
-      // Reindex all following nodes.
+      // Переиндексируем всех братьев, расположенных после узла. Reindex all following nodes.
       if Reindex then
       begin
         Run := Node.NextSibling;
@@ -10037,8 +10041,11 @@ var
   Stream: TMemoryStream;
 
 begin
-  Assert(TreeFromNode(Source) = Self, 'The source tree must contain the source node.');
+  //Assert(TreeFromNode(Source) = Self, 'The source tree must contain the source node.');
+  if TreeFromNode(Source) <> Self then exit; //Дерево источника должно содержать исходный узел. The source tree must contain the source node.
 
+  //При перемещении узлов источник (Source) и цель (Target) не должны быть одним и тем же узлом,
+  //если только дети источника не перемещаются, и они вставляются до или после самого узла.
   // When moving nodes then source and target must not be the same node unless only the source's children are
   // moved and they are inserted before or after the node itself.
   Allowed := (Source <> Target) or ((Mode in [amInsertBefore, amInsertAfter]) and ChildrenOnly);
@@ -10046,137 +10053,138 @@ begin
   if Allowed and (Mode <> amNoWhere) and Assigned(Source) and
     (Source <> FRoot) and not (toReadOnly in FOptions.FMiscOptions) then
   begin
-    // Assume that an empty destination means the root in this (the source) tree.
-    if Target = nil
-      then  begin
-              TargetTree := Self;
-              Target := FRoot;
-              Mode := amAddChildFirst;
-            end
-      else TargetTree := TreeFromNode(Target);
+    // Примем, что пустым пунктом назначения является корень в этом (исходном) дереве. Assume that an empty destination means the root in this (the source) tree.
+    if Target = nil then
+    begin
+      TargetTree := Self;
+      Target := FRoot;
+      Mode := amAddChildFirst;
+    end
+    else
+      TargetTree := TreeFromNode(Target);
 
-    if Target = TargetTree.FRoot
-    then  begin
-            case Mode of
-              amInsertBefore:
-                Mode := amAddChildFirst;
-              amInsertAfter:
-                Mode := amAddChildLast;
-            end;
-          end;
+    if Target = TargetTree.FRoot then
+    begin
+      case Mode of
+        amInsertBefore:
+          Mode := amAddChildFirst;
+        amInsertAfter:
+          Mode := amAddChildLast;
+      end;
+    end;
 
-    // Make sure the target node is initialized.
-    if not (vsInitialized in Target.States)
-      then TargetTree.InitNode(Target)
-      else if (vsHasChildren in Target.States) and (Target.ChildCount = 0)
-             then TargetTree.InitChildren(Target);
+    // Убедимся, что целевой узел и его дети инициализированы. Make sure the target node is initialized.
+    if not (vsInitialized in Target.States) then
+      TargetTree.InitNode(Target)
+    else
+      if (vsHasChildren in Target.States) and (Target.ChildCount = 0) then
+        TargetTree.InitChildren(Target);
 
-    if TargetTree = Self
-    then  begin
-            // Simple case: move node(s) within the same tree.
-            if Target = FRoot
-              then Allowed := DoNodeMoving(Source, nil)
-              else Allowed := DoNodeMoving(Source, Target);
-            if Allowed then
+    if TargetTree = Self then// Простой случай: перемещение узла (узлов) в пределах одного дерева. Simple case: move node(s) within the same tree.
+    begin
+      if Target = FRoot then
+         Allowed := DoNodeMoving(Source, nil)       //проверяем разешение пользователя на перемещение
+      else Allowed := DoNodeMoving(Source, Target);
+      if Allowed then   //если перемещение разрешено
+      begin
+        //Проверяем сначала, что Source не добавляется как новый дочерний элемент к целевому узлу,
+        //который уже является дочерним элементом Source.
+        //Рассмотрим случай Source и Target - один и тот же узел, и только дочерние узлы перемещаются.
+        // Check first that Source is not added as new child to a target node which
+        // is already a child of Source.
+        // Consider the case Source and Target are the same node, but only child nodes are moved.
+        if (Source <> Target) and HasAsParent(Target, Source) then
+            ShowError(SWrongMoveError, hcTFWrongMoveError);
+
+        if ChildrenOnly then //Необходимо переместить только дочерние узлы.
+        begin     //Порядок вставки зависит от режима перемещения.
+          if Mode = amAddChildFirst then //узлы добавляются первыми дочерними
+          begin
+            Source := Source.LastChild;  // найдем последний дочерний узел и последовательно переместим все дочерние снизу вверх
+            while Assigned(Source) do
             begin
-              // Check first that Source is not added as new child to a target node which
-              // is already a child of Source.
-              // Consider the case Source and Target are the same node, but only child nodes are moved.
-              if (Source <> Target) and HasAsParent(Target, Source) then
-                  ShowError(SWrongMoveError, hcTFWrongMoveError);
-
-              if not ChildrenOnly
-              then  begin
-                      // Disconnect from old location.
-                      InternalDisconnectNode(Source, True);
-                      // Connect to new location.
-                      InternalConnectNode(Source, Target, Self, Mode);
-                      DoNodeMoved(Source);
-                    end
-              else  begin
-                      // Only child nodes should be moved. Insertion order depends on move mode.
-                      if Mode = amAddChildFirst
-                      then  begin
-                              Source := Source.LastChild;
-                              while Assigned(Source) do
-                              begin
-                                NewNode := Source.PrevSibling;
-                                // Disconnect from old location.
-                                InternalDisconnectNode(Source, True, False);
-                                // Connect to new location.
-                                InternalConnectNode(Source, Target, Self, Mode);
-                                DoNodeMoved(Source);
-                                Source := NewNode;
-                              end;
-                            end
-                      else  begin
-                              Source := Source.FirstChild;
-                              while Assigned(Source) do
-                              begin
-                                NewNode := Source.NextSibling;
-                                // Disconnect from old location.
-                                InternalDisconnectNode(Source, True, False);
-                                // Connect to new location.
-                                InternalConnectNode(Source, Target, Self, Mode);
-                                DoNodeMoved(Source);
-                                Source := NewNode;
-                              end;
-                            end;
-                    end;
+              NewNode := Source.PrevSibling;
+              InternalDisconnectNode(Source, True, False);     // Отключить от старого местоположения. Disconnect from old location.
+              InternalConnectNode(Source, Target, Self, Mode); // Подключить к новому местоположению. Connect to new location.
+              DoNodeMoved(Source);                             // Вызовем прерывание после перемещения узла
+              Source := NewNode;
             end;
           end
-    else  begin
-            // Difficult case: move node(s) to another tree.
-            // In opposition to node copying we ask only once if moving is allowed because
-            // we cannot take back a move once done.
-            if Target = TargetTree.FRoot
-              then Allowed := DoNodeMoving(Source, nil)
-              else Allowed := DoNodeMoving(Source, Target);
-            if Allowed then
+          else
+          begin              //узлы добавляются последними дочерними
+            Source := Source.FirstChild;   // найдем первый дочерний узел и последовательно переместим все дочерние сверху вниз
+            while Assigned(Source) do
             begin
-              Stream := TMemoryStream.Create;
-              try
-                // Write all nodes into a temporary stream depending on the ChildrenOnly flag.
-                if not ChildrenOnly
-                  then  WriteNode(Stream, Source)
-                  else  begin
-                          Source := Source.FirstChild;
-                          while Assigned(Source) do
-                          begin
-                            WriteNode(Stream, Source);
-                            Source := Source.NextSibling;
-                          end;
-                        end;
-                // Now load the serialized nodes into the target node (tree).
-                TargetTree.BeginUpdate;
-                try
-                  Stream.Position := 0;
-                  while Stream.Position < Stream.Size do
-                  begin
-                    NewNode := TargetTree.MakeNewNode;
-                    InternalConnectNode(NewNode, Target, TargetTree, Mode);
-                    TargetTree.InternalAddFromStream(Stream, TreeStreamVersion, NewNode);
-                    DoNodeMoved(NewNode);
-                  end;
-                finally
-                  TargetTree.EndUpdate;
-                end;
-              finally
-                Stream.Free;
-              end;
-              // finally delete original nodes
-              BeginUpdate;
-              try
-                if ChildrenOnly
-                  then DeleteChild(Source)
-                  else DeleteNode(Source);
-              finally
-                EndUpdate;
-              end;
+              NewNode := Source.NextSibling;
+              InternalDisconnectNode(Source, True, False);     // Отключить от старого местоположения. Disconnect from old location.
+              InternalConnectNode(Source, Target, Self, Mode); // Подключить к новому местоположению. Connect to new location.
+              DoNodeMoved(Source);                             // Вызовем прерывание после перемещения узла
+              Source := NewNode;
             end;
           end;
+        end
+        else
+        begin  // Перемещается узел вместе с детьми
+          InternalDisconnectNode(Source, True);            // Отключить от старого местоположения. Disconnect from old location.
+          InternalConnectNode(Source, Target, Self, Mode); // Подключить к новому местоположению. Connect to new location.
+          DoNodeMoved(Source);                             // Вызовем прерывание после перемещения узла
+        end;
+      end;
+    end
+    else  //Трудный случай: Перемещение узла (узлов) в другое дерево. Difficult case: move node(s) to another tree.
+    begin
+      //В противоположность копированию узла мы спрашивем только один раз разрешено ли перемещение,
+      //потому что мы не можем вернуть ход после его выполнения.
+      // In opposition to node copying we ask only once if moving is allowed because
+      // we cannot take back a move once done.
+      if Target = TargetTree.FRoot
+        then Allowed := DoNodeMoving(Source, nil)
+        else Allowed := DoNodeMoving(Source, Target);
+      if Allowed then
+      begin
+        Stream := TMemoryStream.Create;
+        try
+          // Записываем все узлы во временный поток в зависимости от флага ChildrenOnly. Write all nodes into a temporary stream depending on the ChildrenOnly flag.
+          if not ChildrenOnly
+            then  WriteNode(Stream, Source)
+            else  begin
+                    Source := Source.FirstChild;
+                    while Assigned(Source) do
+                    begin
+                      WriteNode(Stream, Source);
+                      Source := Source.NextSibling;
+                    end;
+                  end;
+          // Теперь загрузим сериализованные узлы в целевой узел (дерево). Now load the serialized nodes into the target node (tree).
+          TargetTree.BeginUpdate;
+          try
+            Stream.Position := 0;
+            while Stream.Position < Stream.Size do
+            begin
+              NewNode := TargetTree.MakeNewNode;
+              InternalConnectNode(NewNode, Target, TargetTree, Mode);
+              TargetTree.InternalAddFromStream(Stream, TreeStreamVersion, NewNode);
+              DoNodeMoved(NewNode);
+            end;
+          finally
+            TargetTree.EndUpdate;
+          end;
+        finally
+          Stream.Free;
+        end;
+        //Наконец, удалим исходные узлы. finally delete original nodes
+        BeginUpdate;
+        try
+          if ChildrenOnly
+            then DeleteChild(Source)
+            else DeleteNode(Source);
+        finally
+          EndUpdate;
+        end;
+      end;
+    end;
 
-    InvalidateCache;
+    InvalidateCache;  //Пометить кэш недействительным.
     if (FUpdateCount = 0) and Allowed then
     begin
       ValidateCache;

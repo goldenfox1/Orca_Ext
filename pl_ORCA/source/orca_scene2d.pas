@@ -8898,7 +8898,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FTopRowY: single;                  //Координата Y верхнего видимого в окне узла в абсолютных координатах
     FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
                                          Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
-    FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
+    FUpdateCount: Cardinal;            //Осталоcь до конца обновления. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
     FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
     FVisibleRowsList: TList;   //Массив видимых в окне узлов.
 
@@ -9309,7 +9309,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
                                     Mode: TD2TreeNodeAttachMode); virtual;
               //Внутренняя процедура очистки массива выбора узлов
     procedure InternalClearSelection; virtual;
-              // Отключает узел Node от его родителя и братьев и сестер. Если KeepFocus = True, то узел сохраняет фокус.
+              // Отключает узел Node от его родителя и братьев и сестер.
+              // Если KeepFocus = True, то узел сохраняет фокус.
+              // Если Reindex=True производится переиндексация всех братьев расположенных после Node
     procedure InternalDisconnectNode(Node: PD2TreeNode; KeepFocus: Boolean; Reindex: Boolean = True); virtual;
              //Получить узел по координатам (внутренняя версия функции GetNodeAt).
              //X и Y задаются в координатах клиентской области
@@ -9959,10 +9961,12 @@ TD2TreeDataController=class(TD2GridDataController)
     FDataSetName: string;     //имя DataSet-а
     FKeyField: TField;        //указатель на ключевое поле таблицы
     FKeyFieldName: string;    //имя ключевого поля таблицы
+
     FParentField: TField;     //указатель на родительское поле таблицы
     FParentFieldName: string; //имя родительского поля таблицы
-    FOnKeyChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения ключевого поля
-    FOnParentChanged: TFieldNotifyEvent;   //указатель на обрабочик прерывания изменения родительского поля
+    FOnKeyChanged: TFieldNotifyEvent;         //указатель на обрабочик прерывания изменения ключевого поля
+    FOnParentChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения родительского поля
+    FOnParentValueChanged: TFieldNotifyEvent; //указатель на обрабочик прерывания изменения значения в текущей записи родительского поля
 
               //установить ключевое поле в соответствии c его имемем AValue
     procedure SetKeyFieldName(const AValue: string);
@@ -9972,6 +9976,8 @@ TD2TreeDataController=class(TD2GridDataController)
     procedure UpdateKeyField;
               //обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
     procedure UpdateParentField;
+              //обработчик изменения значения в текущей записи родительского поля
+    procedure DoParentValueChanged(Sender: TField);
 
   protected
               //вызывается при изменении состояния открыт/закрыт DataSet-a
@@ -9986,6 +9992,7 @@ TD2TreeDataController=class(TD2GridDataController)
     property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
     property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
     property OnParentChanged: TFieldNotifyEvent read FOnParentChanged write FOnParentChanged; //обрабочик прерывания изменения родительского поля
+    property OnParentValueChanged: TFieldNotifyEvent read FOnParentValueChanged write FOnParentValueChanged; //обрабочик прерывания изменения родительского поля
   published
     property DataSource;   //указатель на DataSource
     property KeyFieldName : string read FKeyFieldName write SetKeyFieldName;           //имя ключевого поля таблицы
@@ -10016,6 +10023,7 @@ end;
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
   private
     FBuildTree: boolean;                     //флаг перестроения дерева в соответствии с DataSet
+    FNeedBuildTree: boolean;                 //флаг необходимости перестроения дерева при изменении в ParentField текущей записи
     FDataController: TD2TreeDataController;
     FDataNodes: TList;
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
@@ -10040,6 +10048,8 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     procedure OnKeyChanged(aField:TField);
               //прерывание при смене указаеля на родительское поле в DataSet
     procedure OnParentChanged(aField:TField);
+              //прерывание при смене указаеля на родительское поле в DataSet
+    procedure OnParentValueChanged(aField:TField);
               //прерывание при изменении состава или порядка полей в DataSet
     procedure OnLayoutChanged(aDataSet: TDataSet);
               //прерывание или первом открытии нового DataSet
@@ -10081,7 +10091,9 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     destructor Destroy;  override;
              //Поиск узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
              //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
-    function FindNode(aKey: integer; var aStart: integer): PD2TreeNode;
+    function FindNode(aKey: Integer; var aStart: Integer): PD2TreeNode;
+             //Поиск узла, соответствующего ключу aKey в списке DataNodes.На выходе найденный узел или Root
+    function FindNodeFull(aKey: Integer): PD2TreeNode;
              //список классов колонок для дизайнера
     function ItemClass: string;  override;
 

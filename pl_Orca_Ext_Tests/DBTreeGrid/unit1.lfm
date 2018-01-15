@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 246
+  Left = 304
   Height = 552
-  Top = 116
+  Top = 115
   Width = 876
   Caption = 'Form1'
-  ClientHeight = 552
-  ClientWidth = 876
+  ClientHeight = 0
+  ClientWidth = 0
   LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
@@ -116,6 +116,8 @@ object Form1: TForm1
         DataController.DataSource = DataSource1
         DataController.KeyFieldName = 'id'
         DataController.ParentFieldName = 'par_id'
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toNodeHeightResize, toEditOnClick]
+        TreeOptions.SelectionOptions = [toAlwaysSelectNode]
         object DBTreeTextColumn1: TD2DBTreeTextColumn
           RotateAngle = 0
           Width = 53
@@ -195,7 +197,7 @@ object Form1: TForm1
     end
   end
   object DBGrid1: TDBGrid
-    Left = 512
+    Left = 536
     Height = 216
     Top = 16
     Width = 352
@@ -219,7 +221,6 @@ object Form1: TForm1
   end
   object ZTable1: TZTable
     Connection = ZConnection1
-    Active = True
     TableName = 'devlaz'
     left = 600
     top = 448
