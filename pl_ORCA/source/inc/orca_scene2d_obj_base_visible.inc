@@ -84,9 +84,12 @@ begin
 end;
 
 destructor TD2VisualObject.Destroy;
+var i: integer;
 begin
-  if FTabList <> nil then
-    FreeAndNil(FTabList);
+  //if FTabList <> nil then
+  //  for i:=0 to FTabList.Count-1 do
+  //    TD2Object(FTabList[i]).Free;
+  FreeAndNil(FTabList);
   if FEffectBitmap <> nil then
     FreeAndNil(FEffectBitmap);
   FMargins.Free;

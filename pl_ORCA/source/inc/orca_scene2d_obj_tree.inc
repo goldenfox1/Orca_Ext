@@ -286,10 +286,20 @@ begin
 end;
 
 destructor TD2TreeView.Destroy;
+var i: integer;
 begin
   if FSelections <> nil then
+  begin
+    for i:=0 to FSelections.Count-1 do
+      TObject(FSelections[i]).Free;
     FreeAndNil(FSelections);
-  FreeAndNil(FGlobalList);
+  end;
+  if FGlobalList <> nil then
+  begin
+    for i:=0 to FGlobalList.Count-1 do
+      TObject(FGlobalList[i]).Free;
+    FreeAndNil(FGlobalList);
+  end;
   inherited;
 end;
 

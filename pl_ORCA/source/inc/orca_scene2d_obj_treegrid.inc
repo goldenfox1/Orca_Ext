@@ -1105,6 +1105,7 @@ begin
 end;
 
 destructor TD2CustomTreeGrid.Destroy;
+var i: integer;
 begin
   InterruptValidation();
   Exclude(FOptions.FMiscOptions, toReadOnly);
@@ -1119,9 +1120,11 @@ begin
   //FEditLink := nil;
   //FClipboardFormats.Free;
   // Clear will also free the drag manager if it is still alive.
+  if FVisibleRowsList <> nil then
+    for i:=0 to FVisibleRowsList.Count-1 do
+      TObject(FVisibleRowsList[i]).Free;
   Clear;
   FVisibleRowsList.Free;
-
   //FDragImage.Free;
   //FColors.Free;
   //FBackground.Free;
@@ -6823,12 +6826,12 @@ begin
       end;
       ClearSelection;
       FFocusedNode := nil;
-      FFocusedNode := nil;
+      //FFocusedNode := nil;
       //FCurrentHotNode := nil;
       FDropTargetNode := nil;
       FLastChangedNode := nil;
       FRangeAnchor := nil;
-      //FCheckNode := nil;
+      FCheckNode := nil;
       FLastVCLDragTarget := nil;
       FLastSearchNode := nil;
       DeleteChild(FRoot, True);
@@ -6841,9 +6844,10 @@ begin
         C:=Columns[t];
         for i:=0 to C.FCellControls.Count-1 do
           TD2TreeCellControl(C.FCellControls.Items[i]).FNode:=Nil;
-        //C.FCellControls.Clear;
       end;
-      FVisibleRowsList.Clear;;
+      if FVisibleRowsList <> nil then
+        FVisibleRowsList.Clear;
+
     finally
       EndUpdate;
     end;
@@ -7016,7 +7020,7 @@ begin
 end;
 
 procedure TD2CustomTreeGrid.DeleteChild(Node: PD2TreeNode; ResetHasChildren: Boolean);
-//Удаление всех детей и их детей узла Node из памяти, не меняя флмг vsHasChildren узла.
+//Удаление всех детей и их детей узла Node из памяти, не меняя флаг vsHasChildren узла.
 // Removes all children and their children from memory without changing the vsHasChildren style by default.
 var
   Run,

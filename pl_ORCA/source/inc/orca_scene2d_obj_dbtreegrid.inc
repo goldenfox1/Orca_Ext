@@ -13,39 +13,54 @@
 procedure TD2TreeDataController.ActiveChanged;
 //вызывается при изменении состояния открыт/закрыт DataSet-a
 begin
-  if Active
-    then begin
-           FDataSet := DataSet;
-           if DataSetName <> fDataSetName
-             then begin
-                    fDataSetName := DataSetName;
-                    UpdateKeyField;
-                    UpdateParentField;
-                    if Assigned(OnNewDataSet) then OnNewDataSet(DataSet);
-                  end
-             else if Assigned(OnDataSetOpen) then OnDataSetOpen(DataSet);
-         end
-    else begin
-           BufferCount := 0;
-           if (DataSource = nil)
-             then begin
-                    if Assigned(OnInvalidDataSource) then OnInvalidDataSource(fDataSet);
-                    fDataSet := nil;
-                    fDataSetName := '[???]';
-                  end
-             else begin
-                    if (DataSet=nil)or(csDestroying in DataSet.ComponentState)
-                      then begin
-                             if Assigned(OnInvalidDataSet) then OnInvalidDataSet(fDataSet);
-                             fDataSet := nil;
-                             fDataSetName := '[???]';
-                           end
-                      else begin
-                             if Assigned(OnDataSetClose) then OnDataSetClose(DataSet);
-                             if DataSet <> nil then FDataSetName := DataSetName;
-                           end;
-                  end;
-         end;
+  if Active then
+  begin
+    FDataSet := DataSet;
+    if DataSetName <> FDataSetName then
+    begin
+      FDataSetName := DataSetName;
+      UpdateKeyField;
+      UpdateParentField;
+      if Assigned(OnNewDataSet) then
+        OnNewDataSet(DataSet);
+    end
+    else
+    begin
+      UpdateKeyField;
+      UpdateParentField;
+      if Assigned(OnDataSetOpen) then
+        OnDataSetOpen(DataSet);
+    end;
+  end
+  else
+  begin
+    BufferCount := 0;
+    if (DataSource = nil) then
+    begin
+      if Assigned(OnInvalidDataSource) then
+        OnInvalidDataSource(fDataSet);
+      FDataSet := nil;
+      FDataSetName := '[???]';
+    end
+    else
+    begin
+      if (DataSet = nil) or
+         (csDestroying in DataSet.ComponentState) then
+      begin
+        if Assigned(OnInvalidDataSet) then
+          OnInvalidDataSet(fDataSet);
+        FDataSet := nil;
+        FDataSetName := '[???]';
+      end
+      else
+      begin
+        if Assigned(OnDataSetClose) then
+          OnDataSetClose(DataSet);
+        if DataSet <> nil then
+          FDataSetName := DataSetName;
+      end;
+    end;
+  end;
 end;
 
 procedure TD2TreeDataController.SetKeyFieldName(const AValue: string);
@@ -471,8 +486,8 @@ procedure TD2CustomDBTreeGrid.OnEditingChanged(aDataSet: TDataSet);
 //прерывание при входе или выходе в/из режима редактирования данных в DataSet
 begin
   LinkActive(FDataController.Active);
-  if FNeedBuildTree then
-    BuildTree;
+  //if FNeedBuildTree then
+  //  BuildTree;
 end;
 
 procedure TD2CustomDBTreeGrid.OnInvalidDataSet(aDataSet: TDataSet);
@@ -706,10 +721,10 @@ var
 begin
   if FBuildTree then exit; //если уже идет построение дерева то выйти
   FBuildTree:=true;        //установить флаг построения дерева
-  FNeedBuildTree:=false;   //сбросить флаг необходимости построения дерева
+  //FNeedBuildTree:=false;   //сбросить флаг необходимости построения дерева
   BeginUpdate;             //запретить обновление отображения дерева
   Clear;                   //удалить все узлы дерева
-  FDataNodes.Clear;        //удалить узлы данных
+  //FDataNodes.Clear;        //удалить узлы данных
   with DataController do
     if (FKeyField <> nil) and    //если определено ключевое поле и
        (DataSet <> nil) and      //есть таблица и
@@ -720,7 +735,8 @@ begin
         DataSet.First;                         //встать на первую запись таблицы
         for i:=0 to DataSet.RecordCount-1 do     //для всех записей таблицы
         begin
-          P:=TD2DBDataNode.Create(i, FKeyField.AsInteger); //создать узел данных с ключевым полем
+          s:=FKeyField.AsInteger;
+          P:=TD2DBDataNode.Create(i, s); //создать узел данных с ключевым полем
           if FParentField <> nil                           //если поле родителя определено
              then P.FParent:=FParentField.AsInteger;         //то добавим его в узел данных
           P.Node:=AddChild(nil,P);                         //создать узел дерева, указатель на него пишем в узел данных
@@ -837,9 +853,30 @@ begin
   FDataController.OnLayoutChanged:=nil;
   FDataController.OnEditingChanged:=nil;
   FDataController.OnUpdateData:=nil;
-  FDataNodes.Free;
   FDataController.Free;
   inherited;
+  FDataNodes.Free;
+end;
+
+//полное удаление всех узлов дерева
+procedure TD2CustomDBTreeGrid.Clear;
+var i: integer;
+begin
+  if not (toReadOnly in FOptions.FMiscOptions) or (csDestroying in ComponentState) then
+  begin
+    BeginUpdate;
+    try
+      inherited;
+      if (FDataNodes <> nil) and (FDataNodes.Count > 0 ) then
+      begin
+        for i:=0 to FDataNodes.Count-1 do
+          TObject(FDataNodes[i]).Free;
+          FDataNodes.Clear;
+      end;
+    finally
+      EndUpdate;
+    end;
+  end;
 end;
 
 function TD2CustomDBTreeGrid.ItemClass: string;

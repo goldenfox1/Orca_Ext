@@ -45,7 +45,7 @@ object Form1: TForm1
         StopValue.Style = d2LinearGradient
       end
       object Button1: TD2Button
-        Position.Point = '(403,511)'
+        Position.Point = '(404,510)'
         RotateAngle = 0
         Width = 80
         Height = 22

@@ -19,9 +19,13 @@ begin
 end;
 
 destructor TD2AniThread.Destroy;
+var i: integer;
 begin
+  if FAniList <> nil then
+    for i:=0 to FAniList.Count-1 do
+      TObject(FAniList[i]).Free;
   FAniList.Free;
-  inherited ;
+  inherited;
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);

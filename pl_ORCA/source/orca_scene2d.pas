@@ -7363,6 +7363,10 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure VScrollChange(Sender: TObject);  override;
 
   public
+               //создать грид
+    constructor Create(AOwner: TComponent);  override;
+              //уничтожить грид
+    destructor Destroy;  override;
               //добавить дочерний объект
     procedure AddObject(AObject: TD2Object);  override;
               //применить ресурс
@@ -7371,10 +7375,6 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function ColumnByIndex(const Idx: integer): TD2Column;
               //получить указатель на колонку по координатам
     function ColumnByPoint(const X, Y:single): TD2Column;
-              //создать грид
-    constructor Create(AOwner: TComponent);  override;
-              //уничтожить грид
-    destructor Destroy;  override;
               //список классов колонок для дизайнера
     function ItemClass: string;  override;
               //обработка нажатий кнопок мыши
@@ -8900,7 +8900,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
                                          Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
     FUpdateCount: Cardinal;            //Осталоcь до конца обновления. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
     FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
-    FVisibleRowsList: TList;   //Массив видимых в окне узлов.
+    FVisibleRowsList: TList;           //Массив видимых в окне узлов.
 
      //------Ссылки на обработчики прерываний
 
@@ -9486,6 +9486,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property OnStructureChange: TD2VTStructureChangeEvent read FOnStructureChange write FOnStructureChange;
 
 public
+             //создать экземпляр объекта
+    constructor Create(AOwner: TComponent);  override;
+             //уничтожить экземпляр объекта
+    destructor Destroy;  override;
              //Возвращает абсолютный № узла Node в дереве
     function AbsoluteIndex(Node: PD2TreeNode): Cardinal;
              //Добавляет новый дочерний узел к родительскому узлу Parent
@@ -9823,10 +9827,7 @@ public
     property OnMeasureItem: TD2VTMeasureItemEvent read FOnMeasureItem write FOnMeasureItem; //Прерывание определения высоты узла
     property OnSetValue:TD2VTSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
 
-             //создать экземпляр объекта
-    constructor Create(AOwner: TComponent);  override;
-               //уничтожить экземпляр объекта
-    destructor Destroy;  override;
+
              //список классов колонок для дизайнера
     function ItemClass: string;  override;
 
@@ -10023,7 +10024,7 @@ end;
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
   private
     FBuildTree: boolean;                     //флаг перестроения дерева в соответствии с DataSet
-    FNeedBuildTree: boolean;                 //флаг необходимости перестроения дерева при изменении в ParentField текущей записи
+    //FNeedBuildTree: boolean;                 //флаг необходимости перестроения дерева при изменении в ParentField текущей записи
     FDataController: TD2TreeDataController;
     FDataNodes: TList;
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
@@ -10089,6 +10090,8 @@ TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
     constructor Create(aOwner: TComponent);  override;
                //уничтожить экземпляр объекта
     destructor Destroy;  override;
+              //полное удаление всех узлов дерева
+    procedure Clear; override;
              //Поиск узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
              //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
     function FindNode(aKey: Integer; var aStart: Integer): PD2TreeNode;
