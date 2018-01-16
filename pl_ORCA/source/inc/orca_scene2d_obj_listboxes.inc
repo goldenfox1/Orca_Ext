@@ -229,9 +229,14 @@ begin
 end;
 
 destructor TD2ListBox.Destroy;
+var i: integer;
 begin
   if FSelections <> nil then
+  begin
+    for i:=0 to FSelections.Count-1 do
+      TObject(FSelections[i]).Free;
     FSelections.Free;
+  end;
   FOddFill.Free;
   inherited;
 end;
