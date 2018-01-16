@@ -7363,6 +7363,10 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     procedure VScrollChange(Sender: TObject);  override;
 
   public
+               //создать грид
+    constructor Create(AOwner: TComponent);  override;
+              //уничтожить грид
+    destructor Destroy;  override;
               //добавить дочерний объект
     procedure AddObject(AObject: TD2Object);  override;
               //применить ресурс
@@ -7371,10 +7375,6 @@ TD2CustomGrid = class(TD2CustomScrollBox)
     function ColumnByIndex(const Idx: integer): TD2Column;
               //получить указатель на колонку по координатам
     function ColumnByPoint(const X, Y:single): TD2Column;
-              //создать грид
-    constructor Create(AOwner: TComponent);  override;
-              //уничтожить грид
-    destructor Destroy;  override;
               //список классов колонок для дизайнера
     function ItemClass: string;  override;
               //обработка нажатий кнопок мыши
@@ -7621,17 +7621,17 @@ TD2DBLabel = class(TD2CustomLabel)
   private
     FDataController: TD2FieldDataController;
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     procedure SetDataController(const AValue: TD2FieldDataController);
     function  GetFieldText: string;
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
     property TextAlign  default d2TextAlignNear;
@@ -7642,19 +7642,19 @@ TD2DBImage = class(TD2Image)
     FDataController: TD2FieldDataController;
     procedure DataChange(Sender: TObject);
     procedure UpdateData(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     procedure SetDataController(const AValue: TD2FieldDataController);
     function  GetFieldText: string;
   protected
     procedure DoBitmapChanged(Sender: TObject);  override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
   end;
@@ -7664,12 +7664,12 @@ TD2DBTextBox = class(TD2CustomTextBox)
     FDataController: TD2FieldDataController;
     procedure SetDataController(const AValue: TD2FieldDataController);
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure Change;  override;
     procedure EnterFocus;  override;
@@ -7677,8 +7677,8 @@ TD2DBTextBox = class(TD2CustomTextBox)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
     property Password;
@@ -7690,12 +7690,12 @@ TD2DBMemo = class(TD2CustomMemo)
     FDataController: TD2FieldDataController;
     procedure SetDataController(const AValue: TD2FieldDataController);
     procedure DataChange(Sender: TObject);
-    function  GetDataField: string;
-    function  GetDataSource: TDataSource;
+    //function  GetDataField: string;
+    //function  GetDataSource: TDataSource;
     function  GetFieldText: string;
     procedure UpdateData(Sender: TObject);
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     procedure Change;  override;
     procedure EnterFocus;  override;
@@ -7703,8 +7703,8 @@ TD2DBMemo = class(TD2CustomMemo)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    property DataField: string read GetDataField;
-    property DataSource: TDataSource read GetDataSource;
+    //property DataField: string read GetDataField;
+    //property DataSource: TDataSource read GetDataSource;
   published
     property DataController: TD2FieldDataController read FDataController write SetDataController;
   end;
@@ -7738,6 +7738,7 @@ TD2DBTextColumn = class(TD2DBColumn)
     function GetCellClass: TD2CellClass; override;
     function GetData: Variant;  override;
     procedure SetData(Value:Variant);  override;
+    procedure CellSetFocus(ARow: integer);  override;
 end;
 
 { TD2DBCheckColumn }
@@ -7822,8 +7823,8 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     FDisableMove:boolean;                    // флаг запрета смены текущей записи
     FEditValue:Variant;                      // указатель на значение
     FNeedUpdate:boolean;                     // флаг необходимости обновления записи в DataSet
-    function GetDataSource: TDataSource;     // получить указательа на DataSource
-    procedure SetDataSource(const Value:TDataSource); // установить указательа на DataSource
+    //function GetDataSource: TDataSource;     // получить указательа на DataSource
+    //procedure SetDataSource(const Value:TDataSource); // установить указательа на DataSource
     function GetSelectedField: TField;                // получить указатель на выбранную колонку
     procedure SetSelectedField(const Value:TField);   // установить указатель на выбранную колонку
     procedure SetDataController(const AValue: TD2GridDataController); //установить указатель на DataController
@@ -7844,7 +7845,6 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     procedure SetValue(Col, Row:integer; const Value:Variant);  override; //записать в DataSet значение ячейки в колонке Col строке Row
     function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override; //проверка ввода с клавиатуры на соответствие полю TField.ValidChars
     function  CanEditModify: Boolean;  override;          //перевести DataSet в режим редактирования. true - переведено в реим редактирования
-    procedure HScrollChange(Sender: TObject);  override;  //обработка перемещения горизонтального скроллера
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override; //обработка нажатия клавиш
     procedure Reset;  override;  //отмена редактирования ячейки (нажата клавиша Esc), установка фокуса на  грид
     procedure Notification(AComponent: TComponent; Operation: TOperation);  override;  //очистка указателя на DataSource при его удалении
@@ -7861,7 +7861,7 @@ TD2CustomDBGrid = class(TD2CustomGrid)
     destructor Destroy;  override;                      //уничтожить экземпляр объекта
     function ItemClass: string;  override;              //список классов колонок для дизайнера
     property SelectedField: TField read GetSelectedField write SetSelectedField;  //указатель на выбранную колонку
-    property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
+    //property DataSource: TDataSource read GetDataSource write SetDataSource;      //Указатель на DataSource
     property DataController: TD2GridDataController read FDataController write SetDataController; //Указатель на DataController
 end;
 
@@ -8512,7 +8512,7 @@ TD2TreeTextColumn = class(TD2TreeColumn)
     function GetCellClass: TD2CellClass; override;
               //обработка изменения текста в ячейке
     procedure DoTextChanged(Sender: TObject);
-              //обработчик двойного клика по ячейке. используется из грида
+              // Установить фокус в видимую ячейку соответствующую узлу Node.
     procedure NodeSetFocus(Node: PD2TreeNode);  override;
 
 end;
@@ -8898,9 +8898,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     FTopRowY: single;                  //Координата Y верхнего видимого в окне узла в абсолютных координатах
     FTotalInternalDataSize: Cardinal;  { Хранит размер необходимого объема внутренних данных для всех потомков класса дерева.
                                          Cache of the sum of the necessary internal data size for all tree classes derived from this base class. }
-    FUpdateCount: Cardinal;            //Осталоcь до конца обновения. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
+    FUpdateCount: Cardinal;            //Осталоcь до конца обновления. если 0 то обновление выполнено. update stopper, updates of the tree control are only done if = 0
     FVisibleCount: Cardinal;           //Текущее количество видимых узлов. number of currently visible nodes
-    FVisibleRowsList: TList;   //Массив видимых в окне узлов.
+    FVisibleRowsList: TList;           //Массив видимых в окне узлов.
 
      //------Ссылки на обработчики прерываний
 
@@ -9044,6 +9044,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     function GetVisible(Node: PD2TreeNode): Boolean;
              //True - все родители узла Node развернуты и видимы.
     function GetVisiblePath(Node: PD2TreeNode): Boolean;
+              //получить кол-во видимых на экране строк
+    function  GetVisibleRows:integer; override;
              //True - если следующий за узлом Node одноуровневый узел видимый.
     function HasVisibleNextSibling(Node: PD2TreeNode): Boolean;
              //True - если предыдущий перед узлом Node одноуровневый узел видимый.
@@ -9121,7 +9123,7 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //установить кол-во детей для узла Root
     procedure SetRootNodeCount(Value: Cardinal);
               //Установить статус "выбран" узла Node в соответствие с Value.
-    procedure SetSelected(Node: PD2TreeNode; Value: Boolean);
+    procedure SetSelected(Node: PD2TreeNode; Value: Boolean); overload; virtual;
               //Установить узел Node верхним видимым
     procedure SetTopNode(Node: PD2TreeNode);
               //Установить в Value значение вертикального смещения кнопки экспандера для узла Node
@@ -9208,7 +9210,8 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     procedure DoFocusChange(Node: PD2TreeNode; Column: Integer); virtual;
               //Вызывает прерывание перед изменением фокуса узла и/или колонки
     function DoFocusChanging(OldNode, NewNode: PD2TreeNode; OldColumn, NewColumn: Integer): Boolean;
-              //Вызывает прерывание при изменениии фокуса узла
+              //Устанавливает фокус на узел Node, разворачивает (если установлен toAutoExpand) и делает его видимым
+              //если разрешено в прерывании DoFocusChanging. Если Ask=true фокус не изменяется
     procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); virtual;
               //Вызывает прерывание при освобождении узла
     procedure DoFreeNode(Node: PD2TreeNode); virtual;
@@ -9285,9 +9288,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
               //получить координату Y вехней видимой строки
     function GetTopRowY: single; override;
               //получить значение ячейки в колонке Col для узла Node
-    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; overload;
+    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; overload; virtual;
               //сохранить значение ячейки Value в колонке Col для узла Node
-    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  overload;
+    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  overload; virtual;
               //Инициализация дочерних узлов для узла Node.
     procedure InitChildren(Node: PD2TreeNode); virtual;
               //Инициализация узла Node
@@ -9306,7 +9309,9 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
                                     Mode: TD2TreeNodeAttachMode); virtual;
               //Внутренняя процедура очистки массива выбора узлов
     procedure InternalClearSelection; virtual;
-              // Отключает узел Node от его родителя и братьев и сестер. Если KeepFocus = True, то узел сохраняет фокус.
+              // Отключает узел Node от его родителя и братьев и сестер.
+              // Если KeepFocus = True, то узел сохраняет фокус.
+              // Если Reindex=True производится переиндексация всех братьев расположенных после Node
     procedure InternalDisconnectNode(Node: PD2TreeNode; KeepFocus: Boolean; Reindex: Boolean = True); virtual;
              //Получить узел по координатам (внутренняя версия функции GetNodeAt).
              //X и Y задаются в координатах клиентской области
@@ -9481,6 +9486,10 @@ TD2CustomTreeGrid = class(TD2CustomGrid)
     property OnStructureChange: TD2VTStructureChangeEvent read FOnStructureChange write FOnStructureChange;
 
 public
+             //создать экземпляр объекта
+    constructor Create(AOwner: TComponent);  override;
+             //уничтожить экземпляр объекта
+    destructor Destroy;  override;
              //Возвращает абсолютный № узла Node в дереве
     function AbsoluteIndex(Node: PD2TreeNode): Cardinal;
              //Добавляет новый дочерний узел к родительскому узлу Parent
@@ -9818,10 +9827,7 @@ public
     property OnMeasureItem: TD2VTMeasureItemEvent read FOnMeasureItem write FOnMeasureItem; //Прерывание определения высоты узла
     property OnSetValue:TD2VTSetValue read FOnSetValue write FOnSetValue;   //указатель на процедуру прерывания при записи данных в DataSet
 
-             //создать экземпляр объекта
-    constructor Create(AOwner: TComponent);  override;
-               //уничтожить экземпляр объекта
-    destructor Destroy;  override;
+
              //список классов колонок для дизайнера
     function ItemClass: string;  override;
 
@@ -9831,9 +9837,9 @@ end;
 
 //Класс дерева
 TD2TreeGrid = class(TD2CustomTreeGrid)
-  public
-    property VScrollBar;
-    property HScrollBar;
+  //public
+  //  property VScrollBar;
+  //  property HScrollBar;
   published
     property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
     property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
@@ -9886,6 +9892,8 @@ TD2DBTreeTextColumn = class(TD2DBTreeColumn)
     function GetCellClass: TD2CellClass; override;
     function GetData: Variant;  override;
     procedure SetData(Value:Variant);  override;
+              // Установить фокус в видимую ячейку соответствующую узлу Node.
+    procedure NodeSetFocus(Node: PD2TreeNode);  override;
 end;
 
 { TD2DBTreeCheckColumn }
@@ -9954,10 +9962,12 @@ TD2TreeDataController=class(TD2GridDataController)
     FDataSetName: string;     //имя DataSet-а
     FKeyField: TField;        //указатель на ключевое поле таблицы
     FKeyFieldName: string;    //имя ключевого поля таблицы
+
     FParentField: TField;     //указатель на родительское поле таблицы
     FParentFieldName: string; //имя родительского поля таблицы
-    FOnKeyChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения ключевого поля
-    FOnParentChanged: TFieldNotifyEvent;   //указатель на обрабочик прерывания изменения родительского поля
+    FOnKeyChanged: TFieldNotifyEvent;         //указатель на обрабочик прерывания изменения ключевого поля
+    FOnParentChanged: TFieldNotifyEvent;      //указатель на обрабочик прерывания изменения родительского поля
+    FOnParentValueChanged: TFieldNotifyEvent; //указатель на обрабочик прерывания изменения значения в текущей записи родительского поля
 
               //установить ключевое поле в соответствии c его имемем AValue
     procedure SetKeyFieldName(const AValue: string);
@@ -9967,6 +9977,8 @@ TD2TreeDataController=class(TD2GridDataController)
     procedure UpdateKeyField;
               //обновить родительское поле в соответствии с его именем заданным параметром FParentFieldName
     procedure UpdateParentField;
+              //обработчик изменения значения в текущей записи родительского поля
+    procedure DoParentValueChanged(Sender: TField);
 
   protected
               //вызывается при изменении состояния открыт/закрыт DataSet-a
@@ -9976,50 +9988,144 @@ TD2TreeDataController=class(TD2GridDataController)
               //вызывается при изменении родительское поля таблицы
     procedure ParentChanged; virtual;
   public
+    function  Edit: Boolean;
     property KeyField: TField read FKeyField;        //указатель на ключевое поле таблицы
     property ParentField: TField read FParentField;  //указатель на родительское поле таблицы
     property OnKeyChanged: TFieldNotifyEvent read FOnKeyChanged write FOnKeyChanged;          //обрабочик прерывания изменения ключевого поля
     property OnParentChanged: TFieldNotifyEvent read FOnParentChanged write FOnParentChanged; //обрабочик прерывания изменения родительского поля
+    property OnParentValueChanged: TFieldNotifyEvent read FOnParentValueChanged write FOnParentValueChanged; //обрабочик прерывания изменения родительского поля
   published
     property DataSource;   //указатель на DataSource
     property KeyFieldName : string read FKeyFieldName write SetKeyFieldName;           //имя ключевого поля таблицы
     property ParentFieldName : string read FParentFieldName write SetParentFieldName;  //имя родительского поля таблицы
 end;
 
-
 { TDBDataNode }
 
-TDBDataNode = class
+{ TD2DBDataNode }
+
+TD2DBDataNode = class
   private
-    FKey: Integer;
-    FParent: Integer;
-    FNode: PD2TreeNode;
+    FPosition: Integer;      //№ позиции в таблице (в порядке чтения)
+    FKey: Integer;           //Идентификатор записи в таблице (ключевое поле)
+    FParent: Integer;        //Указатель на идентификатор родителя
+    FNode: PD2TreeNode;      //Указатель на узел дерева
   public
-    constructor Create(AKey: Integer = 0; AParent: Integer = 0; ANode: PD2TreeNode = nil);
+    constructor Create(aPosition: Integer = -1; aKey: Integer = 0; aParent: Integer = 0; aNode: PD2TreeNode = nil);
     property Key: Integer read FKey write FKey;
     property Parent: Integer read FParent write FParent;
     property Node: PD2TreeNode read FNode write FNode;
+    property Position: Integer read FPosition write FPosition;
 end;
-
-
-
 
 { TD2CustomDBTreeGrid }
 
 //заказной класс дерева для отображения данных из базы данных описывающий все поля и свойства
 TD2CustomDBTreeGrid = class(TD2CustomTreeGrid)
   private
+    FBuildTree: boolean;                     //флаг перестроения дерева в соответствии с DataSet
+    //FNeedBuildTree: boolean;                 //флаг необходимости перестроения дерева при изменении в ParentField текущей записи
     FDataController: TD2TreeDataController;
+    FDataNodes: TList;
+    FDisableMove:boolean;                    // флаг запрета смены текущей записи
+    FEditValue:Variant;                      // указатель на значение
+    FNeedUpdate:boolean;                     // флаг необходимости обновления записи в DataSet
+
+              //прерывание после изменения записи в DataSet сразу после Post
+    procedure OnRecordChanged(aField:TField);
+              //прерывание при изменениях в DataSet
+    procedure OnDataSetChanged(aDataSet: TDataSet);
+              //прерывание при открытии DataSet
+    procedure OnDataSetOpen(aDataSet: TDataSet);
+              //прерывание при закрытии DataSet
+    procedure OnDataSetClose(aDataSet: TDataSet);
+              //прерывание при входе или выходе в/из режима редактирования данных в DataSet
+    procedure OnEditingChanged(aDataSet: TDataSet);
+              //прерывание если не правильный DataSet
+    procedure OnInvalidDataSet(aDataSet: TDataSet);
+              //прерывание если не правильный DataSource
+    procedure OnInvalidDataSource(aDataSet: TDataset);
+              //прерывание при смене указаеля на ключевое поле в DataSet
+    procedure OnKeyChanged(aField:TField);
+              //прерывание при смене указаеля на родительское поле в DataSet
+    procedure OnParentChanged(aField:TField);
+              //прерывание при смене указаеля на родительское поле в DataSet
+    procedure OnParentValueChanged(aField:TField);
+              //прерывание при изменении состава или порядка полей в DataSet
+    procedure OnLayoutChanged(aDataSet: TDataSet);
+              //прерывание или первом открытии нового DataSet
+    procedure OnNewDataSet(aDataSet: TDataset);
+              //прерывание при перемещении на другую запись в DataSet
+    procedure OnDataSetScrolled(aDataSet:TDataSet; Distance: Integer);
+
+              //прерывание при изменении DataSource
+    //procedure OnDataSourceChanged (aDataSource: TDataSource);
+
+              //прерывание при записи изменений в БД
+    procedure OnUpdateData(aDataSet: TDataSet);
+              //установить ссылку на DataController
     procedure SetDataController(AValue: TD2TreeDataController);
+              //установить кол-во строк в гриде в соответствии с DataSet
+    procedure UpdateRowCount;
+
+  protected
+              //перевести DataSet в режим редактирования. true - переведено в реим редактирования
+    function  CanEditModify: Boolean;  override;
+              //Устанавливает фокус на узел Node, разворачивает (если установлен toAutoExpand) и делает его видимым
+              //если разрешено в прерывании DoFocusChanging. Если Ask=true фокус не изменяется
+    procedure DoFocusNode(Node: PD2TreeNode; Ask: Boolean); override;
+              //получить значение ячейки в колонке Col для узла Node
+    function  GetValue(Node: PD2TreeNode; Col: integer): Variant; override;
+              //сохранить значение ячейки Value в колонке Col для узла Node
+    procedure SetValue(Node: PD2TreeNode; Col: integer; const Value: Variant);  override;
+              //переопределить Field для каждой колонки
+    procedure ColumnsLinkFields;
+              //переинициализация дерева при изменении свойста FDataController.Active
+    procedure LinkActive(Value:Boolean);
+
   public
+              //перестроить структуру дерева в соответствии с данными в DataSet
+    procedure BuildTree; virtual;
+                //создать экземпляр объекта
+    constructor Create(aOwner: TComponent);  override;
+               //уничтожить экземпляр объекта
+    destructor Destroy;  override;
+              //полное удаление всех узлов дерева
+    procedure Clear; override;
+             //Поиск узла, соответствующего ключу aKey в списке DataNodes начиная с позиции aStart.
+             //На выходе найденный узел или Root; в aStart - № позиции узла в списке DataNodes.
+    function FindNode(aKey: Integer; var aStart: Integer): PD2TreeNode;
+             //Поиск узла, соответствующего ключу aKey в списке DataNodes.На выходе найденный узел или Root
+    function FindNodeFull(aKey: Integer): PD2TreeNode;
+             //список классов колонок для дизайнера
+    function ItemClass: string;  override;
+
+    property DataNodes: TList read FDataNodes; //список соответствия узлов и записей в DataSet
     property DataController: TD2TreeDataController read FDataController write SetDataController; //Указатель на DataController
-    function ItemClass: string;  override;              //список классов колонок для дизайнера
 end;
 
 //Класс дерева для отображения данных из базы данных
 TD2DBTreeGrid = class(TD2CustomDBTreeGrid)
   published
+    property AutoExpandDelay; //Задаржка автоматического разворачиваня при удержании мыши над узлом для операции Drag & Drop
+    property AutoScrollDelay;  //Задаржка автоматического скроллинга при нахождении мыши у края окна для операции Drag & Drop
     property DataController;
+    property LineMode;
+    property MainColumn;     //индекс главной колонки
+    property SortColumn;     //индекс колонки в которой происходит сортировка
+    property SortDirection;  //направление сортировки
+    property TreeOptions;
+
+    //прерывания
+
+    property OnBeforeDrawTreeLine;
+    property OnHeaderClick;              //указатель на процедуру прерывания при клике на заголовок
+    property OnHeaderDblClick;           //указатель на процедуру прерывания при двойном клике на заголовок
+    property OnScroll;
+    property OnChecked;     //Прерывание после изменения состояния отметки узла.
+    property OnChecking;    //Прерывание перед измененем состояния отметки узла.
+    property OnDragOver;         //Прерывание при перетаскивании над объектом
+    property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
 end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================
@@ -10276,6 +10382,11 @@ procedure ShowDsgnLang(Lang: TD2Lang);
 // Возвращает дерево, которому принадлежит узел Node или ноль, если узел не привязан к дереву.
 function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
 
+// DBTrees
+//функция сравнения двух записей в списке соответствия узлов и записей DataSet
+function DBDataNodeKeyCompare(Item1, Item2: Pointer): Integer;
+
+
 //=============================================================================
 //=============== GLobal Variables ============================================
 //=============================================================================
@@ -10378,6 +10489,16 @@ begin
     Result := TD2CustomTreeGrid(Node.Parent)
   else
     Result := nil;
+end;
+
+function DBDataNodeKeyCompare(Item1, Item2: Pointer): Integer;
+//функция сравнения двух записей в списке соответствия узлов и записей DataSet
+begin
+  if TD2DBDataNode(Item1).Key > TD2DBDataNode(Item2).Key
+    then Result := 1
+    else if TD2DBDataNode(Item1).Key = TD2DBDataNode(Item2).Key
+           then Result := 0
+           else Result := -1;
 end;
 
 procedure CloseAllPopups;

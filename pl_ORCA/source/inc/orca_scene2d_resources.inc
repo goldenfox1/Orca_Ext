@@ -16,10 +16,16 @@ begin
 end;
 
 destructor TD2Resources.Destroy;
+var i: integer;
 begin
   if FRoot <> nil then
     FreeAndNil(FRoot);
-  FreeAndNil(FSceneList);
+  if FSceneList <> nil then
+  begin
+    for i:=0 to FSceneList.Count-1 do
+      TObject(FSceneList[i]).Free;
+    FreeAndNil(FSceneList);
+  end;
   FreeAndNil(FResource);
   inherited;
 end;

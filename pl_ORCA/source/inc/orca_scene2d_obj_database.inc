@@ -801,13 +801,13 @@ begin
   inherited;
 end;
 
-procedure TD2DBLabel.Notification(AComponent:TComponent;
-  Operation:TOperation);
-begin
-  inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataController <> nil) and
-    (AComponent=DataSource) then FDataController.DataSource:=nil;
-end;
+//procedure TD2DBLabel.Notification(AComponent:TComponent;
+//  Operation:TOperation);
+//begin
+//  inherited Notification(AComponent,Operation);
+//  if (Operation=opRemove) and (FDataController <> nil) and
+//    (AComponent=DataSource) then FDataController.DataSource:=nil;
+//end;
 
 function TD2DBLabel.GetFieldText:string;
 begin
@@ -820,20 +820,20 @@ begin
       Result:='';
 end;
 
-function TD2DBLabel.GetDataField:string;
-begin
-  Result:=FDataController.FieldName;
-end;
+//function TD2DBLabel.GetDataField:string;
+//begin
+//  Result:=FDataController.FieldName;
+//end;
 
 //procedure TD2DBLabel.SetDataField(const Value:string);
 //begin
 //  FDataController.FieldName:=Value;
 //end;
 
-function TD2DBLabel.GetDataSource:TDataSource;
-begin
-  Result:=FDataController.DataSource;
-end;
+//function TD2DBLabel.GetDataSource:TDataSource;
+//begin
+//  Result:=FDataController.DataSource;
+//end;
 
 procedure TD2DBLabel.SetDataController(const AValue: TD2FieldDataController);
 begin
@@ -923,13 +923,13 @@ begin
   end;
 end;
 
-procedure TD2DBImage.Notification(AComponent:TComponent;
-  Operation:TOperation);
-begin
-  inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataController <> nil) and
-    (AComponent=DataSource) then FDataController.DataSource:=nil;
-end;
+//procedure TD2DBImage.Notification(AComponent:TComponent;
+//  Operation:TOperation);
+//begin
+//  inherited Notification(AComponent,Operation);
+//  if (Operation=opRemove) and (FDataController <> nil) and
+//    (AComponent=DataSource) then FDataController.DataSource:=nil;
+//end;
 
 function TD2DBImage.GetFieldText:string;
 begin
@@ -942,20 +942,20 @@ begin
       Result:='';
 end;
 
-function TD2DBImage.GetDataField:string;
-begin
-  Result:=FDataController.FieldName;
-end;
+//function TD2DBImage.GetDataField:string;
+//begin
+//  Result:=FDataController.FieldName;
+//end;
 
 //procedure TD2DBImage.SetDataField(const Value:string);
 //begin
 //  FDataLink.FieldName:=Value;
 //end;
 
-function TD2DBImage.GetDataSource:TDataSource;
-begin
-  Result:=FDataController.DataSource;
-end;
+//function TD2DBImage.GetDataSource:TDataSource;
+//begin
+//  Result:=FDataController.DataSource;
+//end;
 
 procedure TD2DBImage.SetDataController(const AValue: TD2FieldDataController);
 begin
@@ -1004,13 +1004,13 @@ begin
   FDataController.Field.Text:=Text;
 end;
 
-procedure TD2DBTextBox.Notification(AComponent:TComponent;
-  Operation:TOperation);
-begin
-  inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataController <> nil) and
-    (AComponent=DataSource) then FDataController.DataSource:=nil;
-end;
+//procedure TD2DBTextBox.Notification(AComponent:TComponent;
+//  Operation:TOperation);
+//begin
+//  inherited Notification(AComponent,Operation);
+//  if (Operation=opRemove) and (FDataController <> nil) and
+//    (AComponent=DataSource) then FDataController.DataSource:=nil;
+//end;
 
 function TD2DBTextBox.GetFieldText:string;
 begin
@@ -1023,20 +1023,20 @@ begin
       Result:='';
 end;
 
-function TD2DBTextBox.GetDataField:string;
-begin
-  Result:=FDataController.FieldName;
-end;
+//function TD2DBTextBox.GetDataField:string;
+//begin
+//  Result:=FDataController.FieldName;
+//end;
 
 //procedure TD2DBTextBox.SetDataField(const Value:string);
 //begin
 //  FDataLink.FieldName:=Value;
 //end;
 
-function TD2DBTextBox.GetDataSource:TDataSource;
-begin
-  Result:=FDataController.DataSource;
-end;
+//function TD2DBTextBox.GetDataSource:TDataSource;
+//begin
+//  Result:=FDataController.DataSource;
+//end;
 
 //procedure TD2DBTextBox.SetDataSource(const Value:TDataSource);
 //begin
@@ -1131,13 +1131,13 @@ begin
   FDataController.Field.AsString:=UTF8Encode(TextW);
 end;
 
-procedure TD2DBMemo.Notification(AComponent:TComponent;
-  Operation:TOperation);
-begin
-  inherited Notification(AComponent,Operation);
-  if (Operation=opRemove) and (FDataController <> nil) and
-    (AComponent=DataSource) then FDataController.DataSource:=nil;
-end;
+//procedure TD2DBMemo.Notification(AComponent:TComponent;
+//  Operation:TOperation);
+//begin
+//  inherited Notification(AComponent,Operation);
+//  if (Operation=opRemove) and (FDataController <> nil) and
+//    (AComponent=DataSource) then FDataController.DataSource:=nil;
+//end;
 
 function TD2DBMemo.GetFieldText:string;
 begin
@@ -1150,20 +1150,20 @@ begin
       Result:='';
 end;
 
-function TD2DBMemo.GetDataField:string;
-begin
-  Result:=FDataController.FieldName;
-end;
+//function TD2DBMemo.GetDataField:string;
+//begin
+//  Result:=FDataController.FieldName;
+//end;
 
 //procedure TD2DBMemo.SetDataField(const Value:string);
 //begin
 //  FDataLink.FieldName:=Value;
 //end;
 
-function TD2DBMemo.GetDataSource:TDataSource;
-begin
-  Result:=FDataController.DataSource;
-end;
+//function TD2DBMemo.GetDataSource:TDataSource;
+//begin
+//  Result:=FDataController.DataSource;
+//end;
 
 //procedure TD2DBMemo.SetDataSource(const Value:TDataSource);
 //begin
@@ -1339,6 +1339,19 @@ begin
     then Field.Text:=UTF8Encode(Value);
 end;
 
+procedure TD2DBTextColumn.CellSetFocus(ARow: integer);
+var C: TD2Control;
+begin
+  //inherited;
+  C:=CellControlByRow(ARow);
+  if C <> nil then
+  begin
+    C.HitTest:=true;
+    C.CanFocused:=true;
+    C.SetFocus;
+  end;
+end;
+
 function TD2DBTextColumn.GetData: Variant;
 begin
   if Assigned(Field) then
@@ -1511,16 +1524,16 @@ end;
 
 { TD2CustomDBGrid }
 
-function TD2CustomDBGrid.GetDataSource:TDataSource;
-begin
-  Result:=FDataController.DataSource;
-end;
+//function TD2CustomDBGrid.GetDataSource:TDataSource;
+//begin
+//  Result:=FDataController.DataSource;
+//end;
 
-procedure TD2CustomDBGrid.SetDataSource(const Value:TDataSource);
-begin
-  if not (FDataController.DataSourceFixed and (csLoading in ComponentState))
-    then FDataController.DataSource:=Value;
-end;
+//procedure TD2CustomDBGrid.SetDataSource(const Value:TDataSource);
+//begin
+//  if not (FDataController.DataSourceFixed and (csLoading in ComponentState))
+//    then FDataController.DataSource:=Value;
+//end;
 
 function TD2CustomDBGrid.GetSelectedField: TField;
 begin
@@ -1547,29 +1560,28 @@ begin
 end;
 
 procedure TD2CustomDBGrid.UpdateRowCount;
-//var R: Integer;
+var R: Integer;
 begin
-  if FDataController.Active then
-  begin
-    FDataController.BufferCount:=VisibleRows * 2;
-    if FDataController.BufferCount < FDataController.DataSet.RecordCount then
-      RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
-    else
-      RowCount:=FDataController.RecordCount;
-  end
-  else RowCount:=0;
-
   //if FDataController.Active then
   //begin
-  //  R:=FDataController.DataSet.RecordCount;
-  //  FDataController.BufferCount:=R;
-  //  RowCount:=R;
+  //  FDataController.BufferCount:=VisibleRows * 2;
+  //  if FDataController.BufferCount < FDataController.DataSet.RecordCount then
+  //    RowCount:=FDataController.DataSet.RecordCount - FDataController.BufferCount + FDataController.RecordCount
+  //  else
+  //    RowCount:=FDataController.RecordCount;
   //end
-  //else begin
-  //       RowCount:=0;
-  //       FDataController.BufferCount:=0;
-  //     end;
+  //else RowCount:=0;
 
+  if FDataController.Active
+    then  begin
+            R:=FDataController.DataSet.RecordCount;
+            FDataController.BufferCount:=R;
+            RowCount:=R;
+          end
+    else  begin
+            RowCount:=0;
+            FDataController.BufferCount:=0;
+          end;
 end;
 
 procedure TD2CustomDBGrid.OnRecordChanged(Field: TField);
@@ -1721,11 +1733,6 @@ begin
       if Result then FDataController.Modified:=True;
     end;
   end;
-end;
-
-procedure TD2CustomDBGrid.HScrollChange(Sender: TObject);
-begin
-  inherited HScrollChange(Sender);
 end;
 
 procedure TD2CustomDBGrid.KeyDown(var Key: Word; var KeyChar: System.WideChar;

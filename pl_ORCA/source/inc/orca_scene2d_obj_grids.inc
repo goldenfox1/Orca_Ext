@@ -530,19 +530,21 @@ end;
 
 procedure TD2Column.UpdateSelected;
 var
-  i:integer;
+  i,m:integer;
 begin
   if Grid=nil then Exit;
   if Grid.ReadOnly then Exit;
   if ReadOnly then Exit;
   if Assigned(FCellControls) and  (FCellControls.Count > 0) then
-    for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do
+  begin
+    for i:=0 to Min(Grid.RowCount,Min(FCellControls.Count,Grid.VisibleRows)) - 1 do
       with TD2Control(FCellControls.Items[i]) do
         begin
           HitTest:=false;
           if IsFocused
             then Grid.SetFocus;
         end;
+  end;
 end;
 
 procedure TD2Column.SetHeader(const Value:String);
@@ -732,9 +734,14 @@ begin
 end;
 
 destructor TD2CustomGrid.Destroy;
+var i: integer;
 begin
   if FSelections <> nil then
+  begin
+    for i:=0 to FSelections.Count-1 do
+      TObject(FSelections[i]).Free;
     FSelections.Free;
+  end;
   FLineFill.Free;
   FOddFill.Free;
   inherited;
