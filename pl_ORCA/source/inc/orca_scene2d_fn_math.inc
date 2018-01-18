@@ -6,27 +6,31 @@
 ***********************************************************************}
 
 const
-  // to be used as descriptive indices
+  //Для использования в качестве описательных индексов. to be used as descriptive indices
   X=0;
   Y=1;
   Z=2;
   W=3;
 
+//Вычисляет значение A1 * A2 / A3
 function d2MulDiv(A1, A2, A3:single):single;
 begin
   Result:=A1 * A2 / A3;
 end;
 
+//Вычисляет сумму A1 + A2 или А1 + 1 если A2 не задано
 procedure d2IncFloat(var A1:single; A2:single = 1.0);
 begin
   A1:= A1 + A2;
 end;
 
+//Вычисляет разность A1 - A2 или А1 - 1 если A2 не задано
 procedure d2DecFloat(var A1:single; A2:single = 1.0);
 begin
   A1:= A1 - A2;
 end;
 
+//Возвращает наибольшее из A1 и A2
 function d2MaxFloat(A1,A2:single):single;
 begin
   if A1 > A2 then
@@ -35,6 +39,7 @@ begin
     Result:=A2;
 end;
 
+//Возвращает наименьшее из A1 и A2
 function d2MinFloat(A1,A2:single):single;
 begin
   if A1 < A2 then
@@ -43,12 +48,15 @@ begin
     Result:=A2;
 end;
 
+//Если х внутри диапазона [mi,ma], то возвращает х. Если х вне диапазона [mi,ma],
+//то возвращает ближайшую границу: если левее, то возвращает mi, правее - ma
 function d2MinMax(x,mi,ma:single):single;
 begin
   if (x < mi) then Result:=mi
     else if (x > ma) then Result:=ma else Result:=x;
 end;      
 
+//Вычисляет синус Sin и косинус Cos угла Theta
 procedure d2SinCos(const Theta:single; var Sin,Cos:single);
 var
   s,c :Extended;
@@ -68,6 +76,7 @@ begin
    Result:=Degrees * cPIdiv180;
 end;
 
+//Нормализует угол angle  ???
 function d2NormalizeAngle(const angle:single) :single;
 begin
   Result:=angle - Int(angle * cInv360) * c360;
@@ -75,12 +84,15 @@ begin
     Result:=Result + c360;
 end;
 
+//Возвращает точку (объект TD2Point) формируя его из X и Y
 function d2Point(const X,Y:single):TD2Point;
 begin
   Result.X:=X;
   Result.Y:=Y;
 end;
 
+//Возвращает точку (объект TD2Point) находящуюся левее другой.
+//Если позиции по Y равны, то возвращает точку которая выше другой
 function d2MinPoint(P1,P2:TD2Point):TD2Point;
 begin
   Result:=P1;
@@ -88,12 +100,14 @@ begin
     Result:=P2;
 end;
 
+//Масштабирует точку P - умножает P.X и P.Y на dx и dy соответственно
 function d2ScalePoint(P:TD2Point; dx,dy:single):TD2Point;
 begin
   Result.X:=P.X * dx;
   Result.Y:=P.Y * dy;
 end;
 
+//Возвращает прямоугольник (объект TD2Rect), заданный параметрами ALeft,ATop,ARight,ABottom
 function d2Rect(const ALeft,ATop,ARight,ABottom:single):TD2Rect;
 begin
   Result.Left:=ALeft;
@@ -102,6 +116,7 @@ begin
   Result.Bottom:=ABottom;
 end;
 
+//Возвращает прямоугольник (объект TD2Rect), описанный вокруг всех точек массива Pts
 function d2NormalizeRect(const Pts:array of TD2Point):TD2Rect;
 var
   i:integer;
@@ -123,12 +138,14 @@ begin
   end;
 end;
 
+//Возвращает нормализованный прямоугольник ARect, т.е. разворачивает его так, чтобы соблюдались условия Left <= Right и Top <= Bottom
 function d2NormalizeRect2(const ARect:TD2Rect):TD2Rect;
 begin
   with ARect do
     Result:=d2NormalizeRect([d2Point(Left,Top),d2Point(Right,Top),d2Point(Right,Bottom),d2Point(Left,Bottom)]);
 end;
 
+//Возвращает сдвинутый прямоугольник R по X и Y на величины Dx и Dy соответственно
 procedure d2OffsetRect(var R:TD2Rect; const Dx,Dy:single);
 begin
   R.Left:=R.Left + Dx;
@@ -137,6 +154,7 @@ begin
   R.Bottom:=R.Bottom + Dy;
 end;
 
+//Масштабирует прямоугольник R - умножает R.Left и R.Right на Dx, а R.Top и R.Bottom на Dy
 procedure d2MultiplyRect(var R:TD2Rect; const Dx,Dy:single);
 begin
   R.Left:=R.Left * Dx;
@@ -145,6 +163,8 @@ begin
   R.Bottom:=R.Bottom * Dy;
 end;
 
+//Изменяет размеры прямоугольника R одновременно влево и вправо на величину Dx,
+//а вверх и вниз - на Dy соответственно.При этом центр прямоугольника остается на месте
 procedure d2InflateRect(var R:TD2Rect; const Dx,Dy:single);
 begin
   R.Left:=R.Left - Dx;
@@ -153,6 +173,7 @@ begin
   R.Bottom:=R.Bottom + Dy;
 end;
 
+//Возвращает прямоугольник (объект TD2Rect) описанный вокруг прямоугольников ARect1 и ARect2
 function d2UnionRect(const ARect1,ARect2:TD2Rect):TD2Rect;
 begin
   Result.Left:=ARect1.Left;
@@ -172,31 +193,37 @@ begin
     Result.Bottom:=ARect2.Bottom;
 end;
 
+//Возращает ширину прямоугольника R
 function d2RectWidth(const R:TD2Rect):single;
 begin
   Result:=R.Right - R.Left;
 end;
 
+//Возращает высоту прямоугольника R
 function d2RectHeight(const R:TD2Rect):single;
 begin
   Result:=R.Bottom - R.Top;
 end;
 
+//Возвращает прямоугольник (объект TD2Rect), равный R и отцентрованный относительно границ, заданных Bounds
 function d2RectCenter(var R:TD2Rect; Bounds:TD2Rect):TD2Rect;
 begin
   d2OffsetRect(R,-R.Left,-R.Top);
   d2OffsetRect(R,round((d2RectWidth(Bounds) - d2RectWidth(R)) / 2),round((d2RectHeight(Bounds) - d2RectHeight(R)) / 2));
   d2OffsetRect(R,Bounds.Left,Bounds.Top);
-
   Result:=R;
 end;
 
+//Центрует прямоугольник R относительно BoundsRect, при этом пропорционально
+//его уменьшает если он не помещается в границы (впиисывает R в BoundsRect)
+//Возвращает наибольшее из отношений ширин и высот R к BoundsRect.
+//Если возращаемая величина меньше 1 то R не уменьшился.
 function d2FitRect(var R:TD2Rect; BoundsRect:TD2Rect):single;
 var
   ratio:single;
 begin
   Result:=1;
-  if d2RectWidth(BoundsRect) * d2RectHeight(BoundsRect)=0 then Exit;
+  if d2RectWidth(BoundsRect) * d2RectHeight(BoundsRect)=0 then Exit; //если площадь границы 0 то выходим
 
   if (d2RectWidth(R) / d2RectWidth(BoundsRect)) > (d2RectHeight(R) / d2RectHeight(BoundsRect)) then
     ratio:=d2RectWidth(R) / d2RectWidth(BoundsRect)
@@ -216,16 +243,21 @@ begin
   d2RectCenter(R,BoundsRect);
 end;
 
+//True - если ширина или выота прямоугольника Rect меньше или равна 0
 function d2IsRectEmpty(Rect:TD2Rect):boolean;
 begin
   Result:=(d2RectWidth(Rect) <= 0) or (d2RectHeight(Rect) <= 0);
 end;
 
+//True - если прямоугольники Rect1 и Rect2 пересекаются
 function d2IntersectRect(const Rect1,Rect2:TD2Rect):boolean;
 begin
-  Result:=(Rect1.Left <= Rect2.Right) and (Rect1.Right >= Rect2.Left) and (Rect1.Top <= Rect2.Bottom) and (Rect1.Bottom >= Rect2.Top);
+  Result:=(Rect1.Left <= Rect2.Right) and (Rect1.Right >= Rect2.Left) and
+          (Rect1.Top <= Rect2.Bottom) and (Rect1.Bottom >= Rect2.Top);
 end;
 
+//True - если прямоугольники SrcRect1 и SrcRect2 пересекаются
+//в DestRect - прямоугольник на пересечении SrcRect1 и SrcRect2 или нулевой прямоугольник если пересечения нет
 function d2IntersectRect(var DestRect:TD2Rect; const SrcRect1,SrcRect2:TD2Rect):boolean;
 begin
   Result:=(SrcRect2.Left < SrcRect1.Right)
@@ -248,22 +280,30 @@ begin
   end;
 end;
 
+//True - если точка P находится внутри прямоугольника Rect
 function d2PtInRect(const P:TD2Point; const Rect:TD2Rect):boolean;
 begin
   Result:=(P.X >= Rect.Left) and (P.X <= Rect.Right) and (P.Y >= Rect.Top) and (P.Y <= Rect.Bottom);
 end;
 
+//True - если точка заданная координатами PX,PY находится внутри прямоугольника,
+//ограниченного RLeft,RRight,RTop,RBottom
 function d2PtInRect(const PX,PY,RLeft,RRight,RTop,RBottom:single):boolean;
 begin
   Result:=(PX >= RLeft) and (PX <= RRight) and (PY >= RTop) and (PY <= RBottom);
 end;
 
+//Возвращает стоковое представление прямоугольника R вида '(L,T,R,B)', где L, T, R, B
+//строковые представления значений R.Left, R.Top, R.Right, R.Bottom соответственно
 function d2RectToString(R:TD2Rect):Ansistring;
 begin
   Result:='(' + d2FloatToStr(R.Left) + ',' + d2FloatToStr(R.Top) + ',' + d2FloatToStr(R.Right) + ',' +
     d2FloatToStr(R.Bottom) + ')';
 end;
 
+//Возвращает прямоугольник (объект TD2Rect), заданный строкой S вида '(L,T,R,B)', где L, T, R, B
+//строковые представления значений R.Left, R.Top, R.Right, R.Bottom соответственно.
+//В случае некоректной строки возвращает нулевой прямоугольник (все значения равны 0)
 function d2StringToRect(S:Ansistring):TD2Rect;
 begin
   try
@@ -277,17 +317,23 @@ begin
   end;
 end;
 
+//Возвращает точку (объект TD2Point), заданную значениями v.X и v.Y вектора v
 function d2PointFromVector(const v:TD2Vector):TD2Point;
 begin
   Result.x:=v.x;
   Result.y:=v.y;
 end;
 
-function d2PointToString(R:TD2Point):Ansistring;
+//Возвращает стоковое представление точки P вида '(X,Y)', где X и Y
+//строковые представления значений P.X и P.Y соответственно
+function d2PointToString(P:TD2Point):Ansistring;
 begin
-  Result:='(' + d2FloatToStr(R.X) + ',' + d2FloatToStr(R.Y) + ')';
+  Result:='(' + d2FloatToStr(P.X) + ',' + d2FloatToStr(P.Y) + ')';
 end;
 
+//Возвращает точку (объект TD2Point), заданный строкой S '(X,Y)', где X и Y
+//строковые представления значений P.X и P.Y соответственно.
+//В случае некоректной строки возвращает нулевую точку (все значения равны 0)
 function d2StringToPoint(S:Ansistring):TD2Point;
 begin
   try
@@ -299,6 +345,7 @@ begin
   end;
 end;
 
+//Возвращает матриу 3х3 произведение матриц M1(3х3) * M2(3х3)
 function d2MatrixMultiply(const M1,M2:TD2Matrix):TD2Matrix;
 begin
   Result.m11:=M1.m11 * M2.m11 + M1.m12 * M2.m21 + M1.m13 * M2.m31;
@@ -312,6 +359,7 @@ begin
   Result.m33:=M1.m31 * M2.m13 + M1.m32 * M2.m23 + M1.m33 * M2.m33;
 end;
 
+//Возвращает детерминант матрицы M(3х3)
 function d2MatrixDeterminant(const M:TD2Matrix):single;
 begin
   Result:=M.M[X].V[X] * (M.M[Y].V[Y] * M.M[Z].V[Z] - M.M[Z].V[Y] * M.M[Y].V[Z])
@@ -341,6 +389,7 @@ begin
    M.M[Z].V[Z]:= (a1*b2-b1*a2);
 end;
 
+
 procedure d2ScaleMatrix(var M:TD2Matrix; const factor:single);
 var
    i :integer;
@@ -352,6 +401,7 @@ begin
    end;
 end;
 
+//Инвертирует матрицу M(3х3)
 procedure d2InvertMatrix(var M:TD2Matrix);
 var
    det :single;
@@ -366,6 +416,7 @@ begin
   end;
 end;
 
+//Возвращает вектор (объект TD2Vector), заданный значениями x,y,w
 function d2Vector(const x,y:single; const w:single=1.0):TD2Vector;
 begin
   Result.X:=x;
@@ -373,6 +424,7 @@ begin
   Result.W:=w;
 end;
 
+//Возвращает вектор (объект TD2Vector), заданный точкой P и значением w
 function d2Vector(const P:TD2Point; const w:single=1.0):TD2Vector;
 begin
   Result.X:=P.x;

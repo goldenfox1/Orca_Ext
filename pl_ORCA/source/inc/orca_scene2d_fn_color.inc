@@ -123,6 +123,7 @@ begin
   end;
 end;
 
+//Возвращает строковое представление числа Value
 function d2FloatToStr(Value:single):string;
 var
   S:char;
@@ -139,6 +140,7 @@ begin
   end;
 end;
 
+//Возвращает дрбное число, соответствующее его строковому представлению Value
 function d2StrToFloat(Value:string):single;
 var
   S:char;

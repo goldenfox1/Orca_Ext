@@ -1,0 +1,78 @@
+object Form1: TForm1
+  Left = 311
+  Height = 509
+  Top = 126
+  Width = 637
+  Caption = 'Form1'
+  ClientHeight = 509
+  ClientWidth = 637
+  LCLVersion = '1.8.0.6'
+  object D2Scene1: TD2Scene
+    Left = 0
+    Height = 509
+    Top = 0
+    Width = 637
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      Align = vaClient
+      RotateAngle = 0
+      Width = 637
+      Height = 509
+      object Line1: TD2Line
+        Position.Point = '(117,110)'
+        RotateAngle = 0
+        Width = 115
+        Height = 74
+        LineType = d2LineHorizontal
+      end
+      object Line2: TD2Line
+        Position.Point = '(307,110)'
+        RotateAngle = 0
+        Width = 71
+        Height = 74
+        LineType = d2LineVertical
+      end
+      object ScrollArrowLeft1: TD2ScrollArrowLeft
+        Position.Point = '(320,190)'
+        RotateAngle = 0
+        Width = 13
+        Height = 20
+      end
+      object SidesRectangle1: TD2SidesRectangle
+        Position.Point = '(436,223)'
+        RotateAngle = 0
+        Width = 108
+        Height = 27
+        xRadius = 15
+        yRadius = 15
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+      end
+      object Rectangle1: TD2Rectangle
+        Position.Point = '(320,350)'
+        RotateAngle = 0
+        Width = 147
+        Height = 98
+        xRadius = 0
+        yRadius = 0
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+      end
+      object RoundRect1: TD2RoundRect
+        Position.Point = '(378,272)'
+        RotateAngle = 0
+        Width = 239
+        Height = 62
+      end
+      object DropTarget1: TD2DropTarget
+        DragDisableHighlight = True
+        Position.Point = '(112,284)'
+        RotateAngle = 0
+        Width = 120
+        Height = 120
+        TabOrder = 7
+      end
+    end
+  end
+end

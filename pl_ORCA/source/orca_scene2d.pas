@@ -10213,107 +10213,225 @@ function CGRectFromRect(const R: TD2Rect): CGRect;
 //=============================================================================
 
 // Strings
-function d2PointToString(R: TD2Point): Ansistring;
-function d2StringToPoint(S: Ansistring): TD2Point;
-function d2RectToString(R: TD2Rect): Ansistring;
-function d2StringToRect(S: Ansistring): TD2Rect;
-function d2ColorToStr(Value:TD2Color): string;
-function d2StrToColor(Value:string): TD2Color;
-function d2FloatToStr(Value:single): string;
-function d2StrToFloat(Value:string):single;
+
+          //Возвращает стоковое представление точки P вида '(X,Y)', где X и Y
+          //строковые представления значений P.X и P.Y соответственно
+function  d2PointToString(P: TD2Point): Ansistring;
+          //Возвращает точку (объект TD2Point), заданный строкой S '(X,Y)', где X и Y
+          //строковые представления значений P.X и P.Y соответственно.
+          //В случае некоректной строки возвращает нулевую точку (все значения равны 0)
+function  d2StringToPoint(S: Ansistring): TD2Point;
+          //Возвращает стоковое представление прямоугольника R вида '(L,T,R,B)', где L, T, R, B
+          //строковые представления значений R.Left, R.Top, R.Right, R.Bottom соответственно
+function  d2RectToString(R: TD2Rect): Ansistring;
+          //Возвращает прямоугольник (объект TD2Rect), заданный строкой S вида '(L,T,R,B)', где L, T, R, B
+          //строковые представления значений R.Left, R.Top, R.Right, R.Bottom соответственно.
+          //В случае некоректной строки возвращает нулевой прямоугольник (все значения равны 0)
+function  d2StringToRect(S: Ansistring): TD2Rect;
+
+function  d2ColorToStr(Value:TD2Color): string;
+
+function  d2StrToColor(Value:string): TD2Color;
+
+function  d2FloatToStr(Value:single): string;
+
+function  d2StrToFloat(Value:string):single;
 
 // Geometry
+
+          //Вычисляет синус Sin и косинус Cos угла Theta
 procedure d2SinCos(const Theta:single; var Sin, Cos:single);
+
 function  d2RadToDeg(const Degrees:single):single;
+
 function  d2DegToRad(const Degrees:single):single;
+          //Нормализует угол angle  ???
 function  d2NormalizeAngle(const angle: Single) :single;
+          //Возвращает точку (объект TD2Point) формируя его из X и Y
 function  d2Point(const X, Y:single): TD2Point;
+          //Возвращает точку (объект TD2Point) находящуюся левее другой.
+          //Если позиции по Y равны, то возвращает точку которая выше другой
 function  d2MinPoint(P1, P2: TD2Point): TD2Point;
+          //Масштабирует точку P - умножает P.X и P.Y на dx и dy соответственно
 function  d2ScalePoint(P: TD2Point; dx, dy:single): TD2Point;
+          //Возвращает прямоугольник (объект TD2Rect), заданный параметрами ALeft,ATop,ARight,ABottom
 function  d2Rect(const ALeft, ATop, ARight, ABottom:single): TD2Rect;
+          //Возвращает прямоугольник (объект TD2Rect), описанный вокруг всех точек массива Pts
 function  d2NormalizeRect(const Pts: array of TD2Point): TD2Rect;
+          //Возвращает нормализованный прямоугольник ARect, т.е. преобразовывает
+          //его так, чтобы соблюдались условия Left <= Right и Top <= Bottom
 function  d2NormalizeRect2(const ARect: TD2Rect): TD2Rect;
+          //Возращает ширину прямоугольника R
 function  d2RectWidth(const R: TD2Rect):single;
+          //Возращает высоту прямоугольника R
 function  d2RectHeight(const R: TD2Rect):single;
+          //Возвращает прямоугольник (объект TD2Rect), равный R и отцентрованный относительно границ, заданных Bounds
 function  d2RectCenter(var R: TD2Rect; Bounds: TD2Rect): TD2Rect;
+          //Центрует прямоугольник R относительно BoundsRect, при этом пропорционально
+          //его уменьшает если он не помещается в границы (впиисывает R в BoundsRect)
+          //Возвращает наибольшее из отношений ширин и высот R к BoundsRect.
+          //Если возращаемая величина меньше 1 то R не уменьшился.
 function  d2FitRect(var R: TD2Rect; BoundsRect: TD2Rect):single;
+          //True - если ширина или выота прямоугольника Rect меньше или равна 0
 function  d2IsRectEmpty(Rect: TD2Rect):boolean;
+          //Возвращает сдвинутый прямоугольник R по X и Y на величины Dx и Dy соответственно
 procedure d2OffsetRect(var R: TD2Rect; const Dx, Dy:single);
+          //Масштабирует прямоугольник R - умножает R.Left и R.Right на Dx, а R.Top и R.Bottom на Dy
 procedure d2MultiplyRect(var R: TD2Rect; const Dx, Dy:single);
+          //Изменяет размеры прямоугольника R одновременно влево и вправо на величину Dx,
+          //а вверх и вниз - на Dy соответственно.При этом центр прямоугольника остается на месте
 procedure d2InflateRect(var R: TD2Rect; const Dx, Dy:single);
+          //True - если прямоугольники Rect1 и Rect2 пересекаются
 function  d2IntersectRect(const Rect1, Rect2: TD2Rect):boolean; overload;
+          //True - если прямоугольники SrcRect1 и SrcRect2 пересекаются
+          //в DestRect - прямоугольник на пересечении SrcRect1 и SrcRect2 или
+          //нулевой прямоугольник если пересечения нет
 function  d2IntersectRect(var DestRect: TD2Rect; const SrcRect1, SrcRect2: TD2Rect):boolean; overload;
+          //True - если точка P находится внутри прямоугольника Rect
 function  d2PtInRect(const P: TD2Point; const Rect: TD2Rect):boolean; overload;
+          //True - если точка заданная координатами PX,PY находится внутри прямоугольника,
+          //ограниченного RLeft,RRight,RTop,RBottom
 function  d2PtInRect(const PX,PY,RLeft,RRight,RTop,RBottom: Single):boolean; overload;
+          //Возвращает прямоугольник (объект TD2Rect) описанный вокруг прямоугольников ARect1 и ARect2
 function  d2UnionRect(const ARect1, ARect2: TD2Rect): TD2Rect;
+          //Возвращает точку (объект TD2Point), заданную значениями v.X и v.Y вектора v
 function  d2PointFromVector(const v: TD2Vector): TD2Point;
+          //Возвращает матриу 3х3 произведение матриц M1(3х3) * M2(3х3)
 function  d2MatrixMultiply(const M1, M2: TD2Matrix): TD2Matrix;
+          //Возвращает детерминант матрицы M(3х3)
 function  d2MatrixDeterminant(const M: TD2Matrix):single;
+
 procedure d2AdjointMatrix(var M: TD2Matrix);
+
 procedure d2ScaleMatrix(var M: TD2Matrix; const factor:single);
+          //Инвертирует матрицу M(3х3)
 procedure d2InvertMatrix(var M: TD2Matrix);
+
 function  d2Vector(const x, y: Single; const w:single = 1.0) : TD2Vector; overload;
+          //Возвращает вектор (объект TD2Vector), заданный точкой P и значением w
 function  d2Vector(const P: TD2Point; const w:single = 1.0): TD2Vector; overload;
+
 function  d2VectorTransform(const V: TD2Vector; const M: TD2Matrix): TD2Vector;
+
 function  d2CreateRotationMatrix(angle:single): TD2Matrix;
+
 function  d2VectorAdd(const v1: TD2Vector; const v2: TD2Vector): TD2Vector;
+
 function  d2VectorSubtract(const v1: TD2Vector; const v2: TD2Vector): TD2Vector;
+
 function  d2VectorNorm(const v : TD2Vector) :single;
+
 function  d2VectorNormalize(const v: TD2Vector): TD2Vector;
+
 function  d2VectorScale(const v: TD2Vector; factor : Single): TD2Vector;
+
 function  d2VectorLength(const v : TD2Vector) :single;
+
 function  d2VectorDotProduct(const V1, V2 : TD2Vector):single;
+
 function  d2VectorAngleCosine(const V1, V2: TD2Vector):single;
+
 function  d2VectorCrossProductZ(const V1, V2: TD2Vector):single;
+
 function  d2VectorCombine2(const V1, V2: TD2Vector; const F1, F2: Single): TD2Vector;
+
 function  d2VectorReflect(const V, N: TD2Vector): TD2Vector;
+
 function  d2VectorAngle(const V, N: TD2Vector):single;
 
 // Colors
+
+
 function  d2AppendColor(start, stop: TD2Color): TD2Color;
+
 function  d2SubtractColor(start, stop: TD2Color): TD2Color;
+
 function  d2RGBtoBGR(const C: TD2Color): TD2Color;
+
 function  d2ColorFromVCL(const C: TColor): TD2Color;
+
 function  d2CorrectColor(const C: TD2Color): TD2Color;
+
 function  d2PremultyAlpha(const C: TD2Color): TD2Color;
+
 function  d2UnpremultyAlpha(const C: TD2Color): TD2Color;
+
 function  d2Opacity(const C: TD2Color; const AOpacity:single): TD2Color;
+
 function  d2Color(R, G, B: Byte; A: Byte = $FF): TD2Color;
+
 function  d2HSLtoRGB(H, S, L: Single): TD2Color;
+
 procedure d2RGBtoHSL(RGB: TD2Color; out H, S, L:single);
+
 function  d2ChangeHSL(const C: TD2Color; dH, dS, dL:single): TD2Color;
 
 // Animation
+
+
 function d2InterpolateSingle(const start, stop, t:single):single;
+
 function d2InterpolateRotation(start, stop, t : Single) :single;
+
 function d2InterpolateColor(start, stop: TD2Color; t :single): TD2Color;
+
 function d2InterpolateLinear(T, B, C, D: Double): Double;
+
 function d2InterpolateSine(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateQuint(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateQuart(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateQuad(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateExpo(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateElastic(T, B, C, D, A, P: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateCubic(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateCirc(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateBounce(T, B, C, D: Double; aType: TD2AnimationType): Double;
+
 function d2InterpolateBack(T, B, C, D, S: Double; aType: TD2AnimationType): Double;
 
 // Help functions
 
+
 procedure d2ReverseBytes(p: Pointer; Count: integer);
+
 procedure d2MoveLongword(const Src: Pointer; Dst: Pointer; Count: Integer);
+
 procedure d2FillLongword(Src: Pointer; Count: Integer; Value:Longword);
+
 procedure d2FillAlpha(Src: Pointer; Count: Integer; Alpha: byte);
+
 procedure d2FillLongwordRect(Src: Pointer; W, H, X1, Y1, X2, Y2: Integer; Value:Longword);
+
 function  d2GetToken(var S: Ansistring; Separators: Ansistring; Stop: Ansistring = ''): Ansistring;
+
 function  d2WideGetToken(var Pos:integer; const S: WideString; Separators: WideString; Stop: WideString = ''): WideString;
+          //Вычисляет значение A1 * A2 / A3
+function d2MulDiv(A1, A2, A3:single):single;
+         //Вычисляет сумму A1 + A2 или А1 + 1 если A2 не задано
+procedure d2IncFloat(var A1:single; A2:single = 1.0);
+          //Вычисляет разность A1 - A2 или А1 - 1 если A2 не задано
+procedure d2DecFloat(var A1:single; A2:single = 1.0);
+          //Возвращает наибольшее из A1 и A2
 function  d2MaxFloat(A1, A2:single):single;
+          //Возвращает наименьшее из A1 и A2
 function  d2MinFloat(A1, A2:single):single;
+          //Если х внутри диапазона [mi,ma], то возвращает х. Если х вне диапазона [mi,ma],
+          //то возвращает ближайшую границу: если левее, то возвращает mi, правее - ma
 function  d2MinMax(x, mi, ma:single):single;
 
 // Other
+
+
 procedure Blur(const Canvas: TD2Canvas; const Bitmap: TD2Bitmap; const Radius:integer; UseAlpha: boolean = true);
+
 function ComposeCaretPos(ALine, APos : integer) : TCaretPosition;
 
 function MessagePopup(const ACaption, AMessage: WideString; AType: TD2MessageType;
