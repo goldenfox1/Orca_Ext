@@ -1,17 +1,17 @@
 object Form1: TForm1
   Left = 311
-  Height = 509
+  Height = 559
   Top = 126
-  Width = 637
+  Width = 693
   Caption = 'Form1'
-  ClientHeight = 509
-  ClientWidth = 637
+  ClientHeight = 559
+  ClientWidth = 693
   LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 509
+    Height = 559
     Top = 0
-    Width = 637
+    Width = 693
     Align = alClient
     DesignSnapGridShow = False
     DesignSnapToGrid = False
@@ -19,59 +19,70 @@ object Form1: TForm1
     object Root1: TD2Background
       Align = vaClient
       RotateAngle = 0
-      Width = 637
-      Height = 509
-      object Line1: TD2Line
-        Position.Point = '(117,110)'
+      Width = 693
+      Height = 559
+      object FramedScrollBox1: TD2FramedScrollBox
+        Position.Point = '(34,22)'
         RotateAngle = 0
-        Width = 115
-        Height = 74
-        LineType = d2LineHorizontal
+        Width = 207
+        Height = 213
+        TabOrder = 0
       end
-      object Line2: TD2Line
-        Position.Point = '(307,110)'
+      object CalloutPanel1: TD2CalloutPanel
+        Position.Point = '(220,319)'
         RotateAngle = 0
-        Width = 71
-        Height = 74
-        LineType = d2LineVertical
+        Width = 149
+        Height = 66
+        Resource = 'CalloutPanel1Style1'
+        TabOrder = 1
+        CalloutWidth = 23
+        CalloutLength = 11
+        CalloutPosition = d2CalloutLeft
+        CalloutOffset = 0
       end
-      object ScrollArrowLeft1: TD2ScrollArrowLeft
-        Position.Point = '(320,190)'
+      object AniIndicator1: TD2AniIndicator
+        Enabled = False
+        Position.Point = '(437,300)'
         RotateAngle = 0
-        Width = 13
-        Height = 20
+        Width = 94
+        Height = 64
+        Scale.Point = '(1,-1)'
+        TabOrder = 2
+        Style = d2AniIndicatorLine
       end
-      object SidesRectangle1: TD2SidesRectangle
-        Position.Point = '(436,223)'
+      object Ellipse1: TD2Ellipse
+        Position.Point = '(488,361)'
         RotateAngle = 0
-        Width = 108
-        Height = 27
-        xRadius = 15
-        yRadius = 15
-        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        Width = 124
+        Height = 50
       end
-      object Rectangle1: TD2Rectangle
-        Position.Point = '(320,350)'
+      object RoundRect1: TD2RoundRect
+        Position.Point = '(453,78)'
         RotateAngle = 0
-        Width = 147
-        Height = 98
+        Width = 159
+        Height = 32
+        object Text1: TD2Text
+          Align = vaClient
+          Position.Point = '(10,10)'
+          RotateAngle = 0
+          Width = 139
+          Height = 12
+          Padding.Rect = '(10,10,10,10)'
+          Text = 'ПРоверка текста помещеного в квадрат'
+        end
+      end
+      object CalloutRectangle1: TD2CalloutRectangle
+        Position.Point = '(277,155)'
+        RotateAngle = 0
+        Width = 127
+        Height = 88
         xRadius = 0
         yRadius = 0
         Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-      end
-      object RoundRect1: TD2RoundRect
-        Position.Point = '(378,272)'
-        RotateAngle = 0
-        Width = 239
-        Height = 62
-      end
-      object DropTarget1: TD2DropTarget
-        DragDisableHighlight = True
-        Position.Point = '(112,284)'
-        RotateAngle = 0
-        Width = 120
-        Height = 120
-        TabOrder = 7
+        CalloutWidth = 124
+        CalloutLength = 15
+        CalloutPosition = d2CalloutBottom
+        CalloutOffset = 50
       end
     end
   end

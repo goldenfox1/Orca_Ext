@@ -12,15 +12,15 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    AniIndicator1: TD2AniIndicator;
+    CalloutPanel1: TD2CalloutPanel;
+    CalloutRectangle1: TD2CalloutRectangle;
     D2Scene1: TD2Scene;
-    DropTarget1: TD2DropTarget;
-    Line1: TD2Line;
-    Line2: TD2Line;
-    Rectangle1: TD2Rectangle;
+    Ellipse1: TD2Ellipse;
+    FramedScrollBox1: TD2FramedScrollBox;
     Root1: TD2Background;
     RoundRect1: TD2RoundRect;
-    ScrollArrowLeft1: TD2ScrollArrowLeft;
-    SidesRectangle1: TD2SidesRectangle;
+    Text1: TD2Text;
     ValueLabel1: TD2ValueLabel;
   private
 

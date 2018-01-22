@@ -2848,6 +2848,69 @@ TD2Shape = class(TD2VisualObject)
   published
   end;
 
+//Тип узла дракон-схемы
+TD2DrakonNodeType=(
+  drNone,      //Не определен
+  drAction,    //Действие
+  drAddress,   //Конец ветки-ссылка на другую ветку
+  drBeginend,  //Название алгоритма
+  drBranch,    //Начало ветки
+  drCase,      //Вариант для множественного выбора
+  drComment,   //Комментарий
+  drCtrlStart, //Начало контрольного срока
+  drCtrlEnd,   //Конец контрольного срока
+  drDuration,  //Время, длительность
+  drEnd,       //Конец алгоритма
+  drInput,     //Ввод
+  drInsertion, //Вставка
+  drJunction,  //точка соединения линий
+  drLoopBegin, //Начало цикла
+  drLoopEnd,   //Конец цикла
+  drOutput,    //Вывод
+  drParams,    //Вхдные параметры
+  drPause,     //Пауза
+  drProcess,   //Парралельный процесс
+  drQuestion,  //Вопрос
+  drSelect,    //Множественный выбор из нескольких значений
+  drShelf,     //Полка
+  drSInput,    //Простой ввод
+  drSOutput,   //Простой вывод
+  drTimer     //Таймер
+);
+
+//Узел дракон-схемы
+TD2DrakonNode=class(TD2VisualObject)
+  private
+    FNodeIndex: integer;          //Порядковый № узла на схеме
+    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
+    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
+    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
+    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+    FNodeType: TD2DrakonNodeType; //Тип узла
+    FShape: TD2Shape; //указатель на графический контур объект
+
+              //Задать связанный узел ниже
+    procedure SetNodeDown(AValue: TD2DrakonNode);
+              //Задать связанный узел слева
+    procedure SetNodeLeft(AValue: TD2DrakonNode);
+              //Задать связанный узел справа
+    procedure SetNodeRight(AValue: TD2DrakonNode);
+              //Задать тип узела
+    procedure SetNodeType(AValue: TD2DrakonNodeType);
+              //Задать связанный узел выше
+    procedure SetNodeUp(AValue: TD2DrakonNode);
+
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+
+    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
+    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
+    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
+    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
+    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+end;
+
 TD2Line = class(TD2Shape)
   private
     FLineType: TD2LineType;
@@ -11568,6 +11631,7 @@ end;
 {$I orca_scene2d_obj_docking.inc} //Added by GoldenFox
 {$I orca_scene2d_obj_treegrid.inc}     //Added by GoldenFox
 {$I orca_scene2d_obj_dbtreegrid.inc}     //Added by GoldenFox
+{$I orca_scene2d_obj_drakon.inc}     //Added by GoldenFox
 
 //==============================================================
 //==============================================================

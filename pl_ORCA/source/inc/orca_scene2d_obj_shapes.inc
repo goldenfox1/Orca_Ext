@@ -135,8 +135,10 @@ end;
 procedure TD2Line.Paint;
 begin
   case FLineType of
-    d2LineHorizontal:Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Right,GetShapeRect.Top),AbsoluteOpacity);
-    d2LineVertical:Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Left,GetShapeRect.Bottom),AbsoluteOpacity);
+    d2LineHorizontal:
+      Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Right,GetShapeRect.Top),AbsoluteOpacity);
+    d2LineVertical:
+      Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Left,GetShapeRect.Bottom),AbsoluteOpacity);
   else
     Canvas.DrawLine(GetShapeRect.TopLeft,GetShapeRect.BottomRight,AbsoluteOpacity);
   end;
