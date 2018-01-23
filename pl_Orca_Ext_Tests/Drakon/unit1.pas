@@ -18,8 +18,10 @@ type
     D2Scene1: TD2Scene;
     Ellipse1: TD2Ellipse;
     FramedScrollBox1: TD2FramedScrollBox;
+    Rectangle1: TD2Rectangle;
     Root1: TD2Background;
     RoundRect1: TD2RoundRect;
+    RoundRect2: TD2RoundRect;
     Text1: TD2Text;
     ValueLabel1: TD2ValueLabel;
   private

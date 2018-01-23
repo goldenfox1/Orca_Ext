@@ -59,7 +59,7 @@ const
    cnmergegdip = 0;
    cnmerge2 = 0;
 
-const
+//const
   WM_ADDUPDATERECT = WM_USER + 123;
 
   InvalideCanvasState = $FFFFFFFF;
@@ -2455,7 +2455,7 @@ TD2MessagePopup = class(TD2Popup)
     property DisableScene: boolean read FDisableScene write FDisableScene  default true;
   end;
 
-type
+//type
 
 TD2CustomTranslateProc = function (AText: WideString): WideString;
 
@@ -2812,7 +2812,7 @@ TD2ReflectionEffect = class(TD2Effect)
     property Length:single read FLength write SetLength;
   end;
 
-type
+//type
 
 TD2Shape = class(TD2VisualObject)
   private
@@ -2857,6 +2857,8 @@ TD2DrakonNodeType=(
   drBranch,    //Начало ветки
   drCase,      //Вариант для множественного выбора
   drComment,   //Комментарий
+  drCommentL,  //Комментарий слева
+  drCommentR,  //Комментарий справа
   drCtrlStart, //Начало контрольного срока
   drCtrlEnd,   //Конец контрольного срока
   drDuration,  //Время, длительность
@@ -2875,19 +2877,140 @@ TD2DrakonNodeType=(
   drShelf,     //Полка
   drSInput,    //Простой ввод
   drSOutput,   //Простой вывод
-  drTimer     //Таймер
+  drTimer      //Таймер
 );
 
+//Базовый графический Дракон-объект
+
+{ TD2DrakonShape }
+
+TD2DrakonShape = class (TD2Shape)
+  private
+    procedure SetText(Text: WideString);
+end;
+
+//Графический Дракон-объект Действие
+TD2DrakonAction = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Конец ветки - ссылка на другую ветку
+TD2DrakonAddress = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Название алгоритма
+TD2DrakonBeginend = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Начало ветки
+TD2DrakonBranch = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Вариант для множественного выбора
+TD2DrakonCase = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Комментарий
+TD2DrakonComment = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Комментарий слева
+TD2DrakonCommentL = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Комментарий справа
+TD2DrakonCommentR = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Начало контрольного срока
+TD2DrakonCtrlStart = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Конец контрольного срока
+TD2DrakonCtrlEnd = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Время, длительность
+TD2DrakonDuration = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Конец алгоритма
+TD2DrakonEnd = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Ввод
+TD2DrakonInput = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Вставка
+TD2DrakonInsertion = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект точка соединения линий
+TD2DrakonJunction = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Начало цикла
+TD2DrakonLoopBegin = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Конец цикла
+TD2DrakonLoopEnd = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Вывод
+TD2DrakonOutput = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Вхдные параметры
+TD2DrakonParams = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Пауза
+TD2DrakonPause = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Парралельный процесс
+TD2DrakonProcess = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Вопрос
+TD2DrakonQuestion = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Множественный выбор из нескольких значений
+TD2DrakonSelect = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Полка
+TD2DrakonShelf = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Простой ввод
+TD2DrakonSInput = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Простой вывод
+TD2DrakonSOutput = class (TD2DrakonShape)
+End;
+
+//Графический Дракон-объект Таймер
+TD2DrakonTimer = class (TD2DrakonShape)
+End;
+
+TD2DrakonEditor = class;
+
+{ TD2DrakonNode }
 //Узел дракон-схемы
 TD2DrakonNode=class(TD2VisualObject)
   private
+    FEditor: TD2DrakonEditor;     //указатель на редактор
     FNodeIndex: integer;          //Порядковый № узла на схеме
     FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
     FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
     FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
     FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
     FNodeType: TD2DrakonNodeType; //Тип узла
-    FShape: TD2Shape; //указатель на графический контур объект
+    FShape: TD2DrakonShape;       //указатель на графический Дракон-объект
 
               //Задать связанный узел ниже
     procedure SetNodeDown(AValue: TD2DrakonNode);
@@ -2895,10 +3018,11 @@ TD2DrakonNode=class(TD2VisualObject)
     procedure SetNodeLeft(AValue: TD2DrakonNode);
               //Задать связанный узел справа
     procedure SetNodeRight(AValue: TD2DrakonNode);
-              //Задать тип узела
-    procedure SetNodeType(AValue: TD2DrakonNodeType);
               //Задать связанный узел выше
     procedure SetNodeUp(AValue: TD2DrakonNode);
+              //Задать тип узела
+    procedure SetNodeType(AValue: TD2DrakonNodeType);
+
 
   public
     constructor Create(AOwner: TComponent);  override;
@@ -2910,6 +3034,7 @@ TD2DrakonNode=class(TD2VisualObject)
     property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
     property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
 end;
+
 
 TD2Line = class(TD2Shape)
   private
@@ -3316,7 +3441,7 @@ TD2ScrollArrowRight = class(TD2CustomPath)
     constructor Create(AOwner: TComponent);  override;
   end;
 
-type
+//type
 
 TD2SelectionItem = class(TD2Control)
   private
@@ -4557,6 +4682,8 @@ TD2ScrollBox = class(TD2CustomScrollBox)
     property OnScroll;
 end;
 
+
+
 TD2VertScrollBox = class(TD2ScrollBox)
   private
   protected
@@ -4572,6 +4699,10 @@ TD2FramedScrollBox = class(TD2ScrollBox)
   public
   published
   end;
+
+TD2DrakonEditor = class(TD2FramedScrollBox)
+
+end;
 
 TD2FramedVertScrollBox = class(TD2VertScrollBox)
   private
@@ -4627,7 +4758,7 @@ TD2Nond2Layout = class(TD2Layout)
   end;
 
 
-type
+//type
 
   TD2ListBox = class;
   TD2ComboBox = class;
@@ -5498,7 +5629,7 @@ TD2CustomTextBox = class(TD2Control)
   end;
 
 
-type
+//type
 
  TD2CustomMemo = class;
  //TD2Memo = class;
@@ -5718,7 +5849,7 @@ TD2HudMemo = class(TD2Memo)
   published
 end;
 
-type
+//type
 
 TD2BitmapTrackBar = class(TD2TrackBar)
   private
@@ -6804,7 +6935,7 @@ TD2StyleDesigner = class(TForm)
   public
   end;
 
-type
+//type
  TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop); //набор мест присоединения панелей
  TD2DockingAllowAligns = set of TD2DockingAlign;                         //набор разрешеных мест присоединения панелей
  TD2DockingMouseDownSide = (dmsTop, dmsTopLeft, dmsTopRight,             //набор разрешений на изменение размера панели мышью
@@ -7536,7 +7667,7 @@ private
     property OnScroll;
   end;
 
-type
+//type
   TD2NavButton = class;
   TD2NavDataLink = class;
 
