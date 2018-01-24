@@ -294,12 +294,12 @@ begin
       TObject(FSelections[i]).Free;
     FreeAndNil(FSelections);
   end;
-  if FGlobalList <> nil then
-  begin
-    for i:=0 to FGlobalList.Count-1 do
-      TObject(FGlobalList[i]).Free;
+  //if FGlobalList <> nil then
+  //begin
+  //  for i:=0 to FGlobalList.Count-1 do
+  //    TObject(FGlobalList[i]).Free;
     FreeAndNil(FGlobalList);
-  end;
+  //end;
   inherited;
 end;
 
