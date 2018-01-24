@@ -16,6 +16,7 @@ type
     CalloutPanel1: TD2CalloutPanel;
     CalloutRectangle1: TD2CalloutRectangle;
     D2Scene1: TD2Scene;
+    DrakonAction1: TD2DrakonAction;
     Ellipse1: TD2Ellipse;
     FramedScrollBox1: TD2FramedScrollBox;
     Rectangle1: TD2Rectangle;

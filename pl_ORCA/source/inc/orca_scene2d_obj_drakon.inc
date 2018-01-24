@@ -138,13 +138,53 @@ begin
   FreeAndNil(FShape);
   inherited;
 end;
-        
-//=============== TD2DrakonShape  ===============================================
 
-procedure TD2DrakonShape.SetText(Text: WideString);
+
+{ TD2DrakonShape }
+
+function TD2DrakonShape.GetText: TD2Text;
 begin
-
+  Result:= FText;
 end;
 
-            
+procedure TD2DrakonShape.SetText(AValue: TD2Text);
+begin
+  FText:= AValue;
+end;
+
+constructor TD2DrakonShape.Create(AParent: TD2Object);
+begin
+  inherited Create;
+  FText:= TD2Text.Create(AParent);
+  if FText = nil then exit;
+  FText.Parent:=AParent;
+  FText.Locked:=true;
+  FText.Align:=vaClient;
+  FText.Padding.SetRect(d2Rect(5,5,5,5));
+end;
+
+{ TD2DrakonAction }
+
+function TD2DrakonAction.GetText: TD2Text;
+begin
+  Result:= FText.Text;
+end;
+
+//procedure TD2DrakonAction.SetText(AValue: TD2Text);
+//begin
+//  FText.Text:= AValue;
+//end;
+
+constructor TD2DrakonAction.Create(AOwner: TComponent);
+begin
+  inherited;
+  FText:=TD2DrakonShape.Create(Self);
+  //FText.CreateText(Self);
+end;
+
+destructor TD2DrakonAction.Destroy;
+begin
+  FText:=nil;
+  inherited;
+end;
   

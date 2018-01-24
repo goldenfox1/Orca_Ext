@@ -2848,194 +2848,6 @@ TD2Shape = class(TD2VisualObject)
   published
   end;
 
-//Тип узла дракон-схемы
-TD2DrakonNodeType=(
-  drNone,      //Не определен
-  drAction,    //Действие
-  drAddress,   //Конец ветки-ссылка на другую ветку
-  drBeginend,  //Название алгоритма
-  drBranch,    //Начало ветки
-  drCase,      //Вариант для множественного выбора
-  drComment,   //Комментарий
-  drCommentL,  //Комментарий слева
-  drCommentR,  //Комментарий справа
-  drCtrlStart, //Начало контрольного срока
-  drCtrlEnd,   //Конец контрольного срока
-  drDuration,  //Время, длительность
-  drEnd,       //Конец алгоритма
-  drInput,     //Ввод
-  drInsertion, //Вставка
-  drJunction,  //точка соединения линий
-  drLoopBegin, //Начало цикла
-  drLoopEnd,   //Конец цикла
-  drOutput,    //Вывод
-  drParams,    //Вхдные параметры
-  drPause,     //Пауза
-  drProcess,   //Парралельный процесс
-  drQuestion,  //Вопрос
-  drSelect,    //Множественный выбор из нескольких значений
-  drShelf,     //Полка
-  drSInput,    //Простой ввод
-  drSOutput,   //Простой вывод
-  drTimer      //Таймер
-);
-
-//Базовый графический Дракон-объект
-
-{ TD2DrakonShape }
-
-TD2DrakonShape = class (TD2Shape)
-  private
-    procedure SetText(Text: WideString);
-end;
-
-//Графический Дракон-объект Действие
-TD2DrakonAction = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Конец ветки - ссылка на другую ветку
-TD2DrakonAddress = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Название алгоритма
-TD2DrakonBeginend = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Начало ветки
-TD2DrakonBranch = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Вариант для множественного выбора
-TD2DrakonCase = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Комментарий
-TD2DrakonComment = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Комментарий слева
-TD2DrakonCommentL = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Комментарий справа
-TD2DrakonCommentR = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Начало контрольного срока
-TD2DrakonCtrlStart = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Конец контрольного срока
-TD2DrakonCtrlEnd = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Время, длительность
-TD2DrakonDuration = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Конец алгоритма
-TD2DrakonEnd = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Ввод
-TD2DrakonInput = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Вставка
-TD2DrakonInsertion = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект точка соединения линий
-TD2DrakonJunction = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Начало цикла
-TD2DrakonLoopBegin = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Конец цикла
-TD2DrakonLoopEnd = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Вывод
-TD2DrakonOutput = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Вхдные параметры
-TD2DrakonParams = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Пауза
-TD2DrakonPause = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Парралельный процесс
-TD2DrakonProcess = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Вопрос
-TD2DrakonQuestion = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Множественный выбор из нескольких значений
-TD2DrakonSelect = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Полка
-TD2DrakonShelf = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Простой ввод
-TD2DrakonSInput = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Простой вывод
-TD2DrakonSOutput = class (TD2DrakonShape)
-End;
-
-//Графический Дракон-объект Таймер
-TD2DrakonTimer = class (TD2DrakonShape)
-End;
-
-TD2DrakonEditor = class;
-
-{ TD2DrakonNode }
-//Узел дракон-схемы
-TD2DrakonNode=class(TD2VisualObject)
-  private
-    FEditor: TD2DrakonEditor;     //указатель на редактор
-    FNodeIndex: integer;          //Порядковый № узла на схеме
-    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
-    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
-    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
-    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
-    FNodeType: TD2DrakonNodeType; //Тип узла
-    FShape: TD2DrakonShape;       //указатель на графический Дракон-объект
-
-              //Задать связанный узел ниже
-    procedure SetNodeDown(AValue: TD2DrakonNode);
-              //Задать связанный узел слева
-    procedure SetNodeLeft(AValue: TD2DrakonNode);
-              //Задать связанный узел справа
-    procedure SetNodeRight(AValue: TD2DrakonNode);
-              //Задать связанный узел выше
-    procedure SetNodeUp(AValue: TD2DrakonNode);
-              //Задать тип узела
-    procedure SetNodeType(AValue: TD2DrakonNodeType);
-
-
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-
-    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
-    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
-    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
-    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
-    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
-end;
-
-
 TD2Line = class(TD2Shape)
   private
     FLineType: TD2LineType;
@@ -3300,6 +3112,219 @@ TD2Text = class(TD2Shape)
     property Stretch: boolean read FStretch write SetStretch  default false;
     property WordWrap: boolean read FWordWrap write SetWordWrap  default true;
   end;
+
+//Тип узла дракон-схемы
+TD2DrakonNodeType=(
+  drNone,      //Не определен
+  drAction,    //Действие
+  drAddress,   //Конец ветки-ссылка на другую ветку
+  drBeginend,  //Название алгоритма
+  drBranch,    //Начало ветки
+  drCase,      //Вариант для множественного выбора
+  drComment,   //Комментарий
+  drCommentL,  //Комментарий слева
+  drCommentR,  //Комментарий справа
+  drCtrlStart, //Начало контрольного срока
+  drCtrlEnd,   //Конец контрольного срока
+  drDuration,  //Время, длительность
+  drEnd,       //Конец алгоритма
+  drInput,     //Ввод
+  drInsertion, //Вставка
+  drJunction,  //точка соединения линий
+  drLoopBegin, //Начало цикла
+  drLoopEnd,   //Конец цикла
+  drOutput,    //Вывод
+  drParams,    //Вхдные параметры
+  drPause,     //Пауза
+  drProcess,   //Парралельный процесс
+  drQuestion,  //Вопрос
+  drSelect,    //Множественный выбор из нескольких значений
+  drShelf,     //Полка
+  drSInput,    //Простой ввод
+  drSOutput,   //Простой вывод
+  drTimer      //Таймер
+);
+
+//Базовый графический Дракон-объект
+
+
+{ TD2DrakonShape }
+Id2DrakonShape = interface
+    ['{84C08873-D32E-4FA0-817A-B36AFAB05D63}']
+  //private
+    function GetText: TD2Text;
+    procedure SetText(AValue: TD2Text);
+  //published
+    property Text: TD2Text read GetText write SetText;
+end;
+
+TD2DrakonShape = class (TInterfacedObject, Id2DrakonShape)
+  private
+    FText: TD2Text; //ссылка на объект текст
+    function GetText: TD2Text;
+    procedure SetText(AValue: TD2Text);
+  public
+    constructor Create(AParent: TD2Object);
+  published
+    property Text: TD2Text read GetText write SetText;
+end;
+
+//Графический Дракон-объект Действие
+
+{ TD2DrakonAction }
+
+TD2DrakonAction = class (TD2Rectangle)
+  private
+    FText: Id2DrakonShape;
+    function GetText: TD2Text;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Caption: TD2Text read GetText;
+End;
+
+//Графический Дракон-объект Конец ветки - ссылка на другую ветку
+TD2DrakonAddress = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Название алгоритма
+TD2DrakonBeginend = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Начало ветки
+TD2DrakonBranch = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Вариант для множественного выбора
+TD2DrakonCase = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Комментарий
+TD2DrakonComment = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Комментарий слева
+TD2DrakonCommentL = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Комментарий справа
+TD2DrakonCommentR = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Начало контрольного срока
+TD2DrakonCtrlStart = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Конец контрольного срока
+TD2DrakonCtrlEnd = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Время, длительность
+TD2DrakonDuration = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Конец алгоритма
+TD2DrakonEnd = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Ввод
+TD2DrakonInput = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Вставка
+TD2DrakonInsertion = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект точка соединения линий
+TD2DrakonJunction = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Начало цикла
+TD2DrakonLoopBegin = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Конец цикла
+TD2DrakonLoopEnd = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Вывод
+TD2DrakonOutput = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Вхдные параметры
+TD2DrakonParams = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Пауза
+TD2DrakonPause = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Парралельный процесс
+TD2DrakonProcess = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Вопрос
+TD2DrakonQuestion = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Множественный выбор из нескольких значений
+TD2DrakonSelect = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Полка
+TD2DrakonShelf = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Простой ввод
+TD2DrakonSInput = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Простой вывод
+TD2DrakonSOutput = class (TD2Rectangle)
+End;
+
+//Графический Дракон-объект Таймер
+TD2DrakonTimer = class (TD2Rectangle)
+End;
+
+TD2DrakonEditor = class;
+
+{ TD2DrakonNode }
+//Узел дракон-схемы
+TD2DrakonNode=class(TD2VisualObject)
+  private
+    FEditor: TD2DrakonEditor;     //указатель на редактор
+    FNodeIndex: integer;          //Порядковый № узла на схеме
+    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
+    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
+    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
+    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+    FNodeType: TD2DrakonNodeType; //Тип узла
+    FShape: TD2Shape;       //указатель на графический Дракон-объект
+
+              //Задать связанный узел ниже
+    procedure SetNodeDown(AValue: TD2DrakonNode);
+              //Задать связанный узел слева
+    procedure SetNodeLeft(AValue: TD2DrakonNode);
+              //Задать связанный узел справа
+    procedure SetNodeRight(AValue: TD2DrakonNode);
+              //Задать связанный узел выше
+    procedure SetNodeUp(AValue: TD2DrakonNode);
+              //Задать тип узела
+    procedure SetNodeType(AValue: TD2DrakonNodeType);
+
+
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+
+    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
+    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
+    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
+    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
+    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+end;
 
 TD2Image = class(TD2VisualObject)
   private
@@ -11884,6 +11909,14 @@ initialization
                           This part make by GoldenFox
  **********************************************************************}
   Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel]);
+
+  Registerd2Objects('Drakon', [TD2DrakonAction, TD2DrakonAddress, TD2DrakonBeginend, TD2DrakonBranch, TD2DrakonCase,
+                               TD2DrakonComment, TD2DrakonCommentL, TD2DrakonCommentR, TD2DrakonCtrlStart, TD2DrakonCtrlEnd,
+                               TD2DrakonDuration, TD2DrakonEnd, TD2DrakonInput, TD2DrakonInsertion, TD2DrakonJunction,
+                               TD2DrakonLoopBegin, TD2DrakonLoopEnd, TD2DrakonOutput, TD2DrakonParams, TD2DrakonPause,
+                               TD2DrakonProcess, TD2DrakonQuestion, TD2DrakonSelect, TD2DrakonShelf, TD2DrakonSInput,
+                               TD2DrakonSOutput, TD2DrakonTimer]);
+
 //======================= End part of make by GoldenFox =======================
 //.................................................................................................
 

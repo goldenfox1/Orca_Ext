@@ -17,7 +17,6 @@ object Form1: TForm1
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
-      Align = vaClient
       RotateAngle = 0
       Width = 693
       Height = 559
@@ -29,7 +28,7 @@ object Form1: TForm1
         TabOrder = 0
       end
       object CalloutPanel1: TD2CalloutPanel
-        Position.Point = '(86,281)'
+        Position.Point = '(86,283)'
         RotateAngle = 0
         Width = 149
         Height = 66
@@ -51,28 +50,29 @@ object Form1: TForm1
         Style = d2AniIndicatorLine
       end
       object Ellipse1: TD2Ellipse
-        Position.Point = '(488,361)'
+        Position.Point = '(489,361)'
         RotateAngle = 0
         Width = 124
         Height = 50
       end
       object RoundRect1: TD2RoundRect
-        Position.Point = '(453,78)'
+        Position.Point = '(443,75)'
         RotateAngle = 0
-        Width = 127
-        Height = 50
+        Width = 132
+        Height = 77
         object Text1: TD2Text
           Align = vaClient
           Position.Point = '(10,10)'
           RotateAngle = 0
-          Width = 107
-          Height = 30
+          Width = 112
+          Height = 57
           Padding.Rect = '(10,10,10,10)'
-          Text = 'ПРоверка текста помещеного в квадрат'
+          AutoSize = True
+          Text = 'Проверка текста помещеного в квадрат'
         end
       end
       object CalloutRectangle1: TD2CalloutRectangle
-        Position.Point = '(277,155)'
+        Position.Point = '(276,155)'
         RotateAngle = 0
         Width = 127
         Height = 88
@@ -85,7 +85,7 @@ object Form1: TForm1
         CalloutOffset = 50
       end
       object Rectangle1: TD2Rectangle
-        Position.Point = '(304,279)'
+        Position.Point = '(305,279)'
         RotateAngle = 0
         Width = 50
         Height = 50
@@ -98,6 +98,34 @@ object Form1: TForm1
         RotateAngle = 0
         Width = 240
         Height = 49
+      end
+      object DrakonAction1: TD2DrakonAction
+        Position.Point = '(298,349)'
+        RotateAngle = 0
+        Width = 139
+        Height = 42
+        xRadius = 0
+        yRadius = 0
+        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        object TD2Text
+          Align = vaClient
+          Position.Point = '(5,5)'
+          RotateAngle = 0
+          Locked = True
+          Width = 129
+          Height = 32
+          Padding.Rect = '(5,5,5,5)'
+          Text = 'Ghj,s;alkdjf'
+        end
+        object TD2Text
+          Align = vaClient
+          Position.Point = '(5,5)'
+          RotateAngle = 0
+          Locked = True
+          Width = 129
+          Height = 32
+          Padding.Rect = '(5,5,5,5)'
+        end
       end
     end
   end

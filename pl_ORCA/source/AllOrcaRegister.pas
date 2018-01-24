@@ -566,7 +566,14 @@ begin
     TD2TreeGrid, TD2TreeColumn,
     TD2TreeTextColumn, TD2TreeProgressColumn, TD2TreeImageColumn,  TD2TreePopupColumn, TD2TreeCheckColumn,
     TD2DBTreeGrid, TD2DBTreeColumn, TD2DBTreeTextColumn, TD2DBTreeCheckColumn, TD2DBTreePopupColumn,
-    TD2DBTreeImageColumn, TD2DBTreeProgressColumn ]);
+    TD2DBTreeImageColumn, TD2DBTreeProgressColumn,
+    TD2DrakonEditor,
+    TD2DrakonAction, TD2DrakonAddress, TD2DrakonBeginend, TD2DrakonBranch, TD2DrakonCase,
+    TD2DrakonComment, TD2DrakonCommentL, TD2DrakonCommentR, TD2DrakonCtrlStart, TD2DrakonCtrlEnd,
+    TD2DrakonDuration, TD2DrakonEnd, TD2DrakonInput, TD2DrakonInsertion, TD2DrakonJunction,
+    TD2DrakonLoopBegin, TD2DrakonLoopEnd, TD2DrakonOutput, TD2DrakonParams, TD2DrakonPause,
+    TD2DrakonProcess, TD2DrakonQuestion, TD2DrakonSelect, TD2DrakonShelf, TD2DrakonSInput,
+    TD2DrakonSOutput, TD2DrakonTimer]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TD2DBTreeColumn, 'FieldName', TD2DBTreeColumnFieldProperty);
