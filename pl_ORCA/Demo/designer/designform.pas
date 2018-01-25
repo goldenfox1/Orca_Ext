@@ -23,9 +23,11 @@ type
     d2SceneInspector: TD2Scene;
     d2Toolbar: TD2Scene;
     DesignerRoot: TD2Background;
+    DrakonNode1: TD2DrakonNode;
     EditorStore: TD2Rectangle;
     Label1: TD2Label;
     Label2: TD2Label;
+    Panel1: TD2Panel;
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
@@ -33,6 +35,7 @@ type
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
     Root2: TD2Background;
+    RoundRect1: TD2RoundRect;
     SpeedButton1: TD2SpeedButton;
     SpeedButton2: TD2SpeedButton;
     SpeedButton3: TD2SpeedButton;

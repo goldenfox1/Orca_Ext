@@ -115,6 +115,15 @@ object Form1: TForm1
           Width = 129
           Height = 32
           Padding.Rect = '(5,5,5,5)'
+        end
+        object TD2Text
+          Align = vaClient
+          Position.Point = '(5,5)'
+          RotateAngle = 0
+          Locked = True
+          Width = 129
+          Height = 32
+          Padding.Rect = '(5,5,5,5)'
           Text = 'Ghj,s;alkdjf'
         end
         object TD2Text
@@ -125,6 +134,37 @@ object Form1: TForm1
           Width = 129
           Height = 32
           Padding.Rect = '(5,5,5,5)'
+        end
+      end
+      object Memo1: TD2Memo
+        Position.Point = '(531,210)'
+        RotateAngle = 0
+        Width = 108
+        Height = 82
+        TabOrder = 9
+        WordWrap = True
+        Text = 'проба провбоава жфыдлвожал ж ывла фж ыва фжыва  лыва'
+      end
+      object TextBox1: TD2TextBox
+        Position.Point = '(437,435)'
+        RotateAngle = 0
+        Width = 155
+        Height = 60
+        TabOrder = 10
+        ReadOnly = False
+        Password = False
+        Text = 'проба провбоава жфыдлвожал ж ывла фж ыва фжыва  лыва'
+      end
+      object DrakonNode1: TD2DrakonNode
+        Position.Point = '(332,82)'
+        RotateAngle = 0
+        Width = 50
+        Height = 50
+        NodeType = drOutput
+        object TD2DrakonIcon
+          RotateAngle = 0
+          Width = 50
+          Height = 50
         end
       end
     end

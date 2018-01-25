@@ -48,72 +48,80 @@ procedure TD2DrakonNode.SetNodeType(AValue: TD2DrakonNodeType);
 begin
   if FNodeType=AValue then Exit;
   FNodeType:=AValue;
-  FreeAndNil(FShape);
-  case  FNodeType of
-    drAction:
-      FShape:= TD2DrakonAction.Create(Self); //Действие
+  case  AValue of     //создаем новый контур
+    drAction:    //Действие
+      Resource:='DrakonActionStyle';
     drAddress:   //Конец ветки-ссылка на другую ветку
-      FShape:= TD2DrakonAddress.Create(Self);
+      Resource:='DrakonAddressStyle';
     drBeginend:  //Название алгоритма
-      FShape:= TD2DrakonBeginend.Create(Self);
+      Resource:='DrakonBeginendStyle';
     drBranch:    //Начало ветки
-      FShape:= TD2DrakonBranch.Create(Self);
+      Resource:='DrakonBranchStyle';
     drCase:      //Вариант для множественного выбора
-      FShape:= TD2DrakonCase.Create(Self);
+      Resource:='DrakonCaseStyle';
     drComment:   //Комментарий
-      FShape:= TD2DrakonComment.Create(Self);
+      Resource:='DrakonCommentStyle';
     drCommentL:  //Комментарий слева
-      FShape:= TD2DrakonCommentL.Create(Self);
+      Resource:='DrakonCommentLStyle';
     drCommentR:  //Комментарий справка ;
-      FShape:= TD2DrakonCommentR.Create(Self);
+      Resource:='DrakonCommentRStyle';
     drCtrlEnd:   //Конец контрольного срока
-      FShape:= TD2DrakonCtrlEnd.Create(Self);
+      Resource:='DrakonCtrlEndStyle';
     drCtrlStart: //Начало контрольного срока
-      FShape:= TD2DrakonCtrlStart.Create(Self);
+      Resource:='DrakonCtrlStartStyle';
     drDuration:  //Время, длительность
-      FShape:= TD2DrakonDuration.Create(Self);
+      Resource:='DrakonDurationStyle';
     drEnd:       //Конец алгоритма
-      FShape:= TD2DrakonEnd.Create(Self);
+      Resource:='DrakonEndStyle';
     drInput:     //Ввод
-      FShape:= TD2DrakonInput.Create(Self);
+      Resource:='DrakonInputStyle';
     drInsertion: //Вставка
-      FShape:= TD2DrakonInsertion.Create(Self);
-    drJunction:  //точка соединения линий
-      FShape:= TD2DrakonJunction.Create(Self);
+      Resource:='DrakonInsertionStyle';
     drLoopBegin: //Начало цикла
-      FShape:= TD2DrakonLoopBegin.Create(Self);
+      Resource:='DrakonLoopBeginStyle';
     drLoopEnd:   //Конец цикла
-      FShape:= TD2DrakonLoopEnd.Create(Self);
+      Resource:='DrakonLoopEndStyle';
     drOutput:    //Вывод
-      FShape:= TD2DrakonOutput.Create(Self);
+      Resource:='DrakonOutputStyle';
     drParams:    //Вхдные параметры
-      FShape:= TD2DrakonParams.Create(Self);
+      Resource:='DrakonParamsStyle';
     drPause:     //Пауза
-      FShape:= TD2DrakonPause.Create(Self);
+      Resource:='DrakonPauseStyle';
     drProcess:   //Парралельный процесс
-      FShape:= TD2DrakonProcess.Create(Self);
+      Resource:='DrakonProcessStyle';
     drQuestion:  //Вопрос
-      FShape:= TD2DrakonQuestion.Create(Self);
+      Resource:='DrakonQuestionStyle';
     drSelect:    //Множественный выбор из нескольких значений
-      FShape:= TD2DrakonSelect.Create(Self);
+      Resource:='DrakonSelectStyle';
     drShelf:     //Полка
-      FShape:= TD2DrakonShelf.Create(Self);
+      Resource:='DrakonShelfStyle';
     drSInput:    //Простой ввод
-      FShape:= TD2DrakonSInput.Create(Self);
+      Resource:='DrakonSInputStyle';
     drSOutput:   //Простой вывод
-      FShape:= TD2DrakonSOutput.Create(Self);
+      Resource:='DrakonSOutputStyle';
     drTimer:     //Таймер
-      FShape:= TD2DrakonTimer.Create(Self);
-  //else // drNone тип не определен
+      Resource:='DrakonTimerStyle';
+    drJunction: //точка соединения линий
+      Resource:='DrakonJunctionStyle';
+    else
+         //drNone тип не определен
+      Resource:='DrakonNodeStyle';
   end;
+end;
 
-  if FShape <> nil then //вставляем текст
-    begin
-
-
-    end;
-  if (FEditor <> nil) then
-    FEditor.Realign;
+procedure TD2DrakonNode.ApplyStyle;
+var S:TD2Object;
+begin
+  inherited;
+  S:=FindResource('shape');
+  if (S<>nil) and (S is TD2Shape)
+    then FShape:=TD2Shape(S)
+    else
+      if (S=nil) and (FResourceLink is TD2Shape)
+        then FShape:=TD2Shape(FResourceLink);
+  S:=FindResource('text');
+  if (S<>nil) and (S is TD2Text)
+    then FText:=TD2Text(S)
 end;
 
 constructor TD2DrakonNode.Create(AOwner: TComponent);
@@ -121,6 +129,7 @@ begin
   FNodeIndex:=-1;
   FNodeType:=drNone;
   FShape:= nil;
+  FText:= nil;
   FNodeDown:= nil;
   FNodeLeft:= nil;
   FNodeRight:= nil;
@@ -134,57 +143,7 @@ begin
   FNodeUp:= nil;
   FNodeLeft:= nil;
   FNodeRight:= nil;
-
-  FreeAndNil(FShape);
   inherited;
 end;
 
-
-{ TD2DrakonShape }
-
-function TD2DrakonShape.GetText: TD2Text;
-begin
-  Result:= FText;
-end;
-
-procedure TD2DrakonShape.SetText(AValue: TD2Text);
-begin
-  FText:= AValue;
-end;
-
-constructor TD2DrakonShape.Create(AParent: TD2Object);
-begin
-  inherited Create;
-  FText:= TD2Text.Create(AParent);
-  if FText = nil then exit;
-  FText.Parent:=AParent;
-  FText.Locked:=true;
-  FText.Align:=vaClient;
-  FText.Padding.SetRect(d2Rect(5,5,5,5));
-end;
-
-{ TD2DrakonAction }
-
-function TD2DrakonAction.GetText: TD2Text;
-begin
-  Result:= FText.Text;
-end;
-
-//procedure TD2DrakonAction.SetText(AValue: TD2Text);
-//begin
-//  FText.Text:= AValue;
-//end;
-
-constructor TD2DrakonAction.Create(AOwner: TComponent);
-begin
-  inherited;
-  FText:=TD2DrakonShape.Create(Self);
-  //FText.CreateText(Self);
-end;
-
-destructor TD2DrakonAction.Destroy;
-begin
-  FText:=nil;
-  inherited;
-end;
   
