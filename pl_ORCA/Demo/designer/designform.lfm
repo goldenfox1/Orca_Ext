@@ -132,28 +132,6 @@ object frmDesigner: TfrmDesigner
           IsExpanded = False
           IsSelected = False
         end
-        object Panel1: TD2Panel
-          Position.Point = '(257,159)'
-          RotateAngle = 0
-          Width = 120
-          Height = 100
-          TabOrder = 2
-        end
-        object RoundRect1: TD2RoundRect
-          Position.Point = '(74,291)'
-          RotateAngle = 0
-          Width = 361
-          Height = 44
-        end
-        object DrakonNode1: TD2DrakonNode
-          Position.Point = '(438,125)'
-          RotateAngle = 0
-          Width = 118
-          Height = 50
-          Resource = 'DrakonInsertionStyle'
-          TabOrder = 4
-          NodeType = drInsertion
-        end
       end
       object Label2: TD2Label
         Align = vaTop

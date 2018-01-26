@@ -8,7 +8,8 @@
 
 //=============== TD2Brush ===================================================================}
 
-constructor TD2Brush.Create;
+constructor TD2Brush.Create(const ADefaultStyle: TD2BrushStyle;
+  const ADefaultColor: TD2Color);
 begin
   inherited Create;
   FDefaultStyle:=ADefaultStyle;
@@ -79,32 +80,32 @@ begin
   if Assigned(FOnChanged) then FOnChanged(Self);
 end;
 
-function TD2Brush.isBitmapStored:boolean;
+function TD2Brush.isBitmapStored: Boolean;
 begin
   Result:=(FStyle=d2BrushBitmap);
 end;
 
-function TD2Brush.isColorStored:boolean;
+function TD2Brush.isColorStored: Boolean;
 begin
   Result:=(FStyle=d2BrushSolid) and (FColor <> FDefaultColor);
 end;
 
-function TD2Brush.isGradientStored:boolean;
+function TD2Brush.isGradientStored: Boolean;
 begin
   Result:=FStyle=d2BrushGradient;
 end;
 
-function TD2Brush.isStyleStored:boolean;
+function TD2Brush.isStyleStored: Boolean;
 begin
   Result:=FStyle <> FDefaultStyle;
 end;
 
-function TD2Brush.isVisualStored:boolean;
+function TD2Brush.isVisualStored: Boolean;
 begin
   Result:=FStyle=d2BrushVisual;
 end;
 
-function TD2Brush.isResourceStored:boolean;
+function TD2Brush.isResourceStored: Boolean;
 begin
   Result:=FStyle=d2BrushResource;
 end;

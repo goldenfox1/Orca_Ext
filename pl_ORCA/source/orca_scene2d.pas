@@ -871,6 +871,8 @@ TD2Visual = class(TPersistent)
     property VisualObject: TD2VisualObject read FVisualObject write SetVisualObject;
   end;
 
+{ TD2Brush }
+
 TD2Brush = class(TPersistent)
   private
     FColor: TD2Color;
@@ -3257,8 +3259,10 @@ TD2DrakonEditor = class;
 TD2DrakonNode=class(TD2Control)
   private
     FEditor: TD2DrakonEditor;     //указатель на редактор
-    FText: TD2Text;
-    FShape: TD2Shape;
+    FText: TD2Text;               //указатель основной текстовый объект иконы
+    FText2: TD2Text;              //Указатель на дополнительный текстовый объект иконы
+    FShape: TD2Shape;             //Указатель на основной объект контура иконы
+    FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
     FNodeType: TD2DrakonNodeType; //Тип узла
     FNodeIndex: integer;          //Порядковый № узла на схеме
     FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
@@ -3290,6 +3294,8 @@ TD2DrakonNode=class(TD2Control)
     property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
   published
     property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+    property NodeText: TD2Text read FText;
+    property NodeShape: TD2Shape read FShape;
 end;
 
 TD2Image = class(TD2VisualObject)
