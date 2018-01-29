@@ -488,6 +488,7 @@ type
                vaHorzCenter, vaHorizontal, vaVertical, vaScale, vaFit, vaFitLeft, vaFitRight);
 
   TD2CalloutPosition = (d2CalloutTop, d2CalloutLeft, d2CalloutBottom, d2CalloutRight);
+  TD2DirectionPosition = (d2DirectionTop, d2DirectionLeft, d2DirectionBottom, d2DirectionRight);
   TD2PathWrap = (d2PathOriginal, d2PathFit, d2PathStretch, d2PathTile);
   TD2ButtonLayout = (d2GlyphLeft, d2GlyphRight, d2GlyphTop, d2GlyphBottom, d2GlyphCenter);
 
@@ -2981,6 +2982,41 @@ TD2CalloutRectangle = class(TD2Rectangle)
     property CalloutLength:single read FCalloutLength write SetCalloutLength;
     property CalloutPosition: TD2CalloutPosition read FCalloutPosition write SetCalloutPosition  default d2CalloutTop;
     property CalloutOffset:single read FCalloutOffset write SetCalloutOffset;
+    property Stroke;
+    property StrokeCap;
+    property StrokeDash;
+    property StrokeJoin;
+    property StrokeThickness;
+  end;
+
+{ TD2DirectionRectangle }
+
+TD2DirectionRectangle = class(TD2Rectangle)
+  private
+    FDirectionPosition: TD2DirectionPosition;
+    FDirectionLength:single;
+    FDirectionLine: boolean;
+    FDirectionMark: boolean;
+    FMarkPath: TD2PathData;
+    FPath: TD2PathData;
+
+    procedure SetDirectionLength(const Value:single);
+    procedure SetDirectionLine(Value: boolean);
+    procedure SetDirectionMark(Value: boolean);
+    procedure SetDirectionPosition(const Value:TD2DirectionPosition);
+  protected
+    procedure CreatePath;
+    procedure Paint;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Fill;
+    property DirectionLength:single read FDirectionLength write SetDirectionLength default 15;
+    property DirectionLine: boolean read FDirectionLine write SetDirectionLine default false;
+    property DirectionMark: boolean read FDirectionMark write SetDirectionMark default false;
+    property DirectionPosition: TD2DirectionPosition read FDirectionPosition write SetDirectionPosition default d2DirectionTop;
+
     property Stroke;
     property StrokeCap;
     property StrokeDash;
@@ -11816,7 +11852,7 @@ initialization
 
   Registerd2Objects('Shapes', [TD2Line, TD2Rectangle, TD2SidesRectangle, TD2BlurRectangle, TD2RoundRect, TD2BlurRoundRect,
                                TD2Ellipse, TD2Circle, TD2Arc, TD2Pie, TD2Text, TD2Path, TD2Image, TD2PaintBox,
-                               TD2ScrollArrowLeft, TD2ScrollArrowRight, TD2CalloutRectangle]);
+                               TD2ScrollArrowLeft, TD2ScrollArrowRight, TD2CalloutRectangle, TD2DirectionRectangle]);
 
   Registerd2Objects('Design', [TD2Selection, TD2SelectionPoint, TD2DesignFrame,TD2Inspector]);
 

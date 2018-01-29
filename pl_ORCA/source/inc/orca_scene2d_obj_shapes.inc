@@ -591,6 +591,320 @@ begin
   FRecreate:=true;
 end;
 
+{ TD2DirectionRectangle }
+
+procedure TD2DirectionRectangle.SetDirectionLength(const Value: single);
+begin
+  if FDirectionLength <> Value then
+  begin
+    FDirectionLength:=Value;
+    CreatePath;
+    Repaint;
+  end
+end;
+
+procedure TD2DirectionRectangle.SetDirectionLine(Value: boolean);
+begin
+  if FDirectionLine=Value then Exit;
+  FDirectionLine:=Value;
+  Repaint;
+end;
+
+procedure TD2DirectionRectangle.SetDirectionMark(Value: boolean);
+begin
+  if FDirectionMark=Value then Exit;
+  FDirectionMark:=Value;
+  Repaint;
+end;
+
+procedure TD2DirectionRectangle.SetDirectionPosition(const Value: TD2DirectionPosition);
+begin
+  if FDirectionPosition <> Value then
+  begin
+    FDirectionPosition:=Value;
+    CreatePath;
+    Repaint;
+  end;
+end;
+
+procedure TD2DirectionRectangle.CreatePath;
+var
+  x1,x2,y1,y2:single;
+  R:TD2Rect;
+  Off:single;
+  p1,p2,p3: TD2Point;
+begin
+  R:=GetShapeRect;
+  if DirectionLength > 0 then
+    case DirectionPosition of
+      d2DirectionTop:R.Top:=R.Top + FDirectionLength;
+      d2DirectionLeft:R.Left:=R.Left + FDirectionLength;
+      d2DirectionBottom:R.Bottom:=R.Bottom - FDirectionLength;
+      d2DirectionRight:R.Right:=R.Right - FDirectionLength;
+    end;
+  if Sides <> AllSides then
+  begin
+    Off:=R.Left;
+    if not (d2SideTop in FSides) then
+      R.Top:=R.Top - Off;
+    if not (d2SideLeft in FSides) then
+      R.Left:=R.Left - Off;
+    if not (d2SideBottom in FSides) then
+      R.Bottom:=R.Bottom + Off;
+    if not (d2SideRight in FSides) then
+      R.Right:=R.Right + Off;
+  end;
+  x1:=xRadius;
+  if d2RectWidth(R) - (x1 * 2) < 0 then
+    x1:=(xRadius * (d2RectWidth(R) / (x1 * 2)));
+  x2:=x1 / 2;
+  y1:=yRadius;
+  if d2RectHeight(R) - (y1 * 2) < 0 then
+    y1:=(yRadius * (d2RectHeight(R) / (y1 * 2)));
+  y2:=y1 / 2;
+  FPath.Clear;
+  FMarkPath.Clear;
+  FPath.MoveTo(d2Point(R.Left,R.Top + y1));
+  if d2CornerTopLeft in FCorners then
+  begin
+    case FCornerType of
+      // d2CornetRound - default
+      d2CornerBevel:
+        FPath.LineTo(d2Point(R.Left + x1,R.Top));
+      d2CornerInnerRound:
+        FPath.CurveTo(d2Point(R.Left + x2,R.Top + y1),d2Point(R.Left + x1,R.Top + y2),d2Point(R.Left + x1,R.Top));
+      d2CornerInnerLine:
+        begin
+          FPath.LineTo(d2Point(R.Left + x2,R.Top + y1));
+          FPath.LineTo(d2Point(R.Left + x1,R.Top + y2));
+          FPath.LineTo(d2Point(R.Left + x1,R.Top));
+        end;
+    else
+      FPath.CurveTo(d2Point(R.Left,R.Top + (y2)),d2Point(R.Left + x2,R.Top),d2Point(R.Left + x1,R.Top))
+    end;
+  end
+  else
+  begin
+    if d2SideLeft in FSides then
+      FPath.LineTo(d2Point(R.Left,R.Top))
+    else
+      FPath.MoveTo(d2Point(R.Left,R.Top));
+    if d2SideTop in FSides then
+      FPath.LineTo(d2Point(R.Left + x1,R.Top))
+    else
+      FPath.MoveTo(d2Point(R.Left + x1,R.Top));
+  end;
+  if not (d2SideTop in FSides) then
+    FPath.MoveTo(d2Point(R.Right - x1,R.Top))
+  else
+  begin
+    if (FDirectionPosition=d2DirectionTop) then
+    begin
+      if FDirectionMark and (FDirectionLength>0) then
+      begin
+        p2:=d2Point((R.Right - R.Left) / 2,R.Top - FDirectionLength); //вершина треугольника
+        p3:=d2Point(R.Right - x1,R.Top);
+        p3:=d2Point(p2.X + (p3.X - p2.X)/2, p2.Y + (p3.Y - p2.Y)/2);
+        p1:=d2Point(p2.X - (p3.X - p2.X), p3.Y);
+        FMarkPath.MoveTo(p1);
+        FMarkPath.LineTo(p2);
+        FMarkPath.LineTo(p3);
+        FMarkPath.LineTo(p1);
+      end;
+      FPath.LineTo(d2Point((R.Right - R.Left) / 2,R.Top - FDirectionLength));
+    end;
+    FPath.LineTo(d2Point(R.Right - x1,R.Top));
+  end;
+  if d2CornerTopRight in FCorners then
+  begin
+    case FCornerType of
+      // d2CornetRound - default
+      d2CornerBevel:FPath.LineTo(d2Point(R.Right,R.Top + y1));
+      d2CornerInnerRound:FPath.CurveTo(d2Point(R.Right - x1,R.Top + y2),d2Point(R.Right - x2,R.Top + y1),d2Point(R.Right,R.Top + y1));
+      d2CornerInnerLine:
+        begin
+          FPath.LineTo(d2Point(R.Right - x1,R.Top + y2));
+          FPath.LineTo(d2Point(R.Right - x2,R.Top + y1));
+          FPath.LineTo(d2Point(R.Right,R.Top + y1));
+        end;
+    else
+      FPath.CurveTo(d2Point(R.Right - x2,R.Top),d2Point(R.Right,R.Top + (y2)),d2Point(R.Right,R.Top + y1))
+    end;
+  end
+  else
+  begin
+    if d2SideTop in FSides then
+      FPath.LineTo(d2Point(R.Right,R.Top))
+    else
+      FPath.MoveTo(d2Point(R.Right,R.Top));
+    if d2SideRight in FSides then
+      FPath.LineTo(d2Point(R.Right,R.Top + y1))
+    else
+      FPath.MoveTo(d2Point(R.Right,R.Top + y1));
+  end;
+  if not (d2SideRight in FSides) then
+    FPath.MoveTo(d2Point(R.Right,R.Bottom - y1))
+  else
+  begin
+    if (FDirectionPosition=d2DirectionRight) then
+    begin
+      if FDirectionMark and (FDirectionLength>0) then
+      begin
+        p2:=d2Point(R.Right + FDirectionLength,(R.Bottom - R.Top) / 2); //вершина треугольника
+        p3:=d2Point(R.Right,R.Bottom - y1);
+        p3:=d2Point(p2.X - (p2.X - p3.X)/2, p2.Y + (p3.Y - p2.Y)/2);
+        p1:=d2Point(p3.X, p2.Y-(p3.Y-p2.Y));
+
+        FMarkPath.MoveTo(p1);
+        FMarkPath.LineTo(p2);
+        FMarkPath.LineTo(p3);
+        FMarkPath.LineTo(p1);
+      end;
+      FPath.LineTo(d2Point(R.Right + FDirectionLength,(R.Bottom - R.Top) / 2));
+    end;
+    FPath.LineTo(d2Point(R.Right,R.Bottom - y1));
+  end;
+  if d2CornerBottomRight in FCorners then
+  begin
+    case FCornerType of
+      // d2CornetRound - default
+      d2CornerBevel:FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+      d2CornerInnerRound:FPath.CurveTo(d2Point(R.Right - x2,R.Bottom - y1),d2Point(R.Right - x1,R.Bottom - y2),d2Point(R.Right - x1,R.Bottom));
+      d2CornerInnerLine:
+        begin
+          FPath.LineTo(d2Point(R.Right - x2,R.Bottom - y1));
+          FPath.LineTo(d2Point(R.Right - x1,R.Bottom - y2));
+          FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+        end;
+    else
+      FPath.CurveTo(d2Point(R.Right,R.Bottom - (y2)),d2Point(R.Right - x2,R.Bottom),d2Point(R.Right - x1,R.Bottom))
+    end;
+  end
+  else
+  begin
+    if d2SideRight in FSides then
+      FPath.LineTo(d2Point(R.Right,R.Bottom))
+    else
+      FPath.MoveTo(d2Point(R.Right,R.Bottom));
+    if d2SideBottom in FSides then
+      FPath.LineTo(d2Point(R.Right - x1,R.Bottom))
+    else
+      FPath.MoveTo(d2Point(R.Right - x1,R.Bottom));
+  end;
+  if not (d2SideBottom in FSides) then
+    FPath.MoveTo(d2Point(R.Left + x1,R.Bottom))
+  else
+  begin
+    if (FDirectionPosition=d2DirectionBottom) then
+    begin
+      if FDirectionMark and (FDirectionLength>0) then
+      begin
+        p2:=d2Point((R.Right - R.Left) / 2,R.Bottom + FDirectionLength); //вершина треугольника
+        p3:=d2Point(R.Left + x1,R.Bottom);
+        p3:=d2Point(p2.X - (p2.X - p3.X)/2, p2.Y - (p2.Y - p3.Y)/2);
+        p1:=d2Point(p2.X + (p2.X - p3.X), p3.Y);
+
+        FMarkPath.MoveTo(p1);
+        FMarkPath.LineTo(p2);
+        FMarkPath.LineTo(p3);
+        FMarkPath.LineTo(p1);
+      end;
+      FPath.LineTo(d2Point((R.Right - R.Left) / 2,R.Bottom + FDirectionLength));
+    end;
+    FPath.LineTo(d2Point(R.Left + x1,R.Bottom));
+  end;
+  if d2CornerBottomLeft in FCorners then
+  begin
+    case FCornerType of
+      // d2CornetRound - default
+      d2CornerBevel:FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+      d2CornerInnerRound:FPath.CurveTo(d2Point(R.Left + x1,R.Bottom - y2),d2Point(R.Left + x2,R.Bottom - y1),d2Point(R.Left,R.Bottom - y1));
+      d2CornerInnerLine:
+        begin
+          FPath.LineTo(d2Point(R.Left + x1,R.Bottom - y2));
+          FPath.LineTo(d2Point(R.Left + x2,R.Bottom - y1));
+          FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+        end;
+    else
+      FPath.CurveTo(d2Point(R.Left + x2,R.Bottom),d2Point(R.Left,R.Bottom - (y2)),d2Point(R.Left,R.Bottom - y1))
+    end;
+  end
+  else
+  begin
+    if d2SideBottom in FSides then
+      FPath.LineTo(d2Point(R.Left,R.Bottom))
+    else
+      FPath.MoveTo(d2Point(R.Left,R.Bottom));
+    if d2SideLeft in FSides then
+      FPath.LineTo(d2Point(R.Left,R.Bottom - y1))
+    else
+      FPath.MoveTo(d2Point(R.Left,R.Bottom - y1));
+  end;
+  if (d2SideLeft in FSides) then
+  begin
+    if (FDirectionPosition=d2DirectionLeft) then
+    begin
+      if FDirectionMark and (FDirectionLength > 0) then
+      begin
+        p2:=d2Point(R.Left - FDirectionLength,(R.Bottom - R.Top) / 2); //вершина треугольника
+        p3:=d2Point(R.Left,R.Top + y1);
+        p3:=d2Point(p2.X + (p3.X - p2.X)/2, p2.Y - (p2.Y - p3.Y)/2);
+        p1:=d2Point(p3.X, p2.Y - (p3.Y - p2.Y));
+        FMarkPath.MoveTo(p1);
+        FMarkPath.LineTo(p2);
+        FMarkPath.LineTo(p3);
+        FMarkPath.LineTo(p1);
+      end;
+      FPath.LineTo(d2Point(R.Left - FDirectionLength,(R.Bottom - R.Top) / 2));
+    end;
+    FPath.LineTo(d2Point(R.Left,R.Top + y1));
+  end;
+end;
+
+procedure TD2DirectionRectangle.Paint;
+var
+  R:TD2Rect;
+begin
+  CreatePath;
+  R:=FPath.GetBounds;
+  Canvas.FillPath(FPath,R,AbsoluteOpacity);
+  Canvas.DrawPath(FPath,R,AbsoluteOpacity);
+
+  if FDirectionLine then
+    case FDirectionPosition of
+      d2DirectionBottom:
+        Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),1);
+      d2DirectionTop:
+        Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),1);
+      d2DirectionLeft:
+        Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),1);
+      d2DirectionRight:
+        Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),1);
+    end;
+
+  if FDirectionMark and (FDirectionLength > 0) then
+  begin
+    Canvas.Fill.Assign(FStroke);
+    Canvas.FillPath(FMarkPath,FMarkPath.GetBounds,AbsoluteOpacity);
+  end;
+
+end;
+
+constructor TD2DirectionRectangle.Create(AOwner: TComponent);
+begin
+  inherited;
+  FDirectionLength:=15;
+  FPath:=TD2PathData.Create;
+  FMarkPath:=TD2PathData.Create;
+end;
+
+destructor TD2DirectionRectangle.Destroy;
+begin
+  FreeAndNil(FMarkPath);
+  FreeAndNil(FPath);
+  inherited;
+end;
+
 //=============== TD2CalloutRectangle ====================================
 
 constructor TD2CalloutRectangle.Create(AOwner:TComponent);

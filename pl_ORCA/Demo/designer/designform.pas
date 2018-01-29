@@ -10,43 +10,47 @@ unit designform;
 interface
 
 uses
-  LResources,  SysUtils, Variants, Classes, db, Graphics, Controls, Forms,
-  Dialogs, orca_scene2d, ZConnection, ZDataset;
+  LResources,  SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, orca_scene2d;
 
 type
 
   { TfrmDesigner }
 
   TfrmDesigner = class(TForm)
-    CheckBox1: TD2CheckBox;
     d2SceneDesigner: TD2Scene;
-    d2SceneInspector: TD2Scene;
-    d2Toolbar: TD2Scene;
     DesignerRoot: TD2Background;
-    EditorStore: TD2Rectangle;
-    Label1: TD2Label;
-    Label2: TD2Label;
-    PopupBox1: TD2PopupBox;
-    PopupBox2: TD2PopupBox;
-    PopupBox3: TD2PopupBox;
-    Rectangle1: TD2Rectangle;
-    Root1: TD2Layout;
-    Inspector1: TD2Inspector;
+    d2Toolbar: TD2Scene;
+    DirectionRectangle1: TD2DirectionRectangle;
     Root2: TD2Background;
+    Rectangle1: TD2Rectangle;
+    Label1: TD2Label;
+    EditorStore: TD2Rectangle;
+    Ellipse1: TD2Ellipse;
+    Label2: TD2Label;
     SpeedButton1: TD2SpeedButton;
     SpeedButton2: TD2SpeedButton;
     SpeedButton3: TD2SpeedButton;
+    PopupBox1: TD2PopupBox;
+    PopupBox2: TD2PopupBox;
+    PopupBox3: TD2PopupBox;
     TrackBar1: TD2TrackBar;
-    TreeViewItem1: TD2TreeViewItem;
-    TreeViewItem2: TD2TreeViewItem;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    Image1: TD2Image;
+    CheckBox1: TD2CheckBox;
+    Line1: TD2Line;
+    d2SceneInspector: TD2Scene;
+    Root1: TD2Layout;
+    Inspector1: TD2Inspector;
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
     procedure PopupBox1Change(Sender: TObject);
     procedure PopupBox2Change(Sender: TObject);
     procedure PopupBox3Change(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
     procedure CheckBox1Change(Sender: TObject);
   private
     { Private declarations }
@@ -68,16 +72,6 @@ begin
   // Set this property at run-time - enable design feature
   d2SceneDesigner.DesignTime := true;
   d2SceneDesigner.DesignChangeSelection := @DoChangeSelected;
-end;
-
-procedure TfrmDesigner.Button1Click(Sender: TObject);
-begin
-
-end;
-
-procedure TfrmDesigner.Button2Click(Sender: TObject);
-begin
-
 end;
 
 procedure TfrmDesigner.SpeedButton3Click(Sender: TObject);
@@ -113,6 +107,37 @@ begin
   TD2Shape(d2SceneDesigner.Selected).StrokeThickness := TrackBar1.Value;
 end;
 
+procedure TfrmDesigner.SpeedButton1Click(Sender: TObject);
+var
+  S: TStream;
+begin
+  if OpenDialog1.Execute then
+  begin
+    S := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
+    try
+      EditorStore.DeleteChildren;
+      EditorStore.LoadFromStream(S);
+    finally
+      S.Free;
+    end;
+  end;
+end;
+
+procedure TfrmDesigner.SpeedButton2Click(Sender: TObject);
+var
+  S: TStream;
+begin
+  SaveDialog1.FileName := OpenDialog1.FileName;
+  if SaveDialog1.Execute then
+  begin
+    S := TFileStream.Create(SaveDialog1.FileName, fmCreate);
+    try
+      EditorStore.SaveToStream(S);
+    finally
+      S.Free;
+    end;
+  end;
+end;
 
 procedure TfrmDesigner.CheckBox1Change(Sender: TObject);
 begin

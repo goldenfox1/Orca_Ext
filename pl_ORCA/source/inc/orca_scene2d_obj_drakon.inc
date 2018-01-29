@@ -49,35 +49,36 @@ var
   t,t2: String;
   fi,fi2: TD2Brush;
   fo,fo2: TD2Font;
+
 begin
   if FNodeType=AValue then Exit;
   FNodeType:=AValue;
-  if FText<>nil
-    then begin
-           t:=FText.Text;
-           fi:=TD2Brush.Create(d2BrushNone,$FF000000);
-           fi.Assign(FText.Fill);
-           fo:=TD2Font.Create;
-           fo.Assign(FText.Font);
-         end
-    else begin
-           t:='';
-           fi:=nil;
-           fo:=nil;
-         end;
-  if FText2<>nil
-    then begin
-           t2:=FText2.Text;
-           fi2:=TD2Brush.Create(d2BrushNone,$FF000000);
-           fi2.Assign(FText2.Fill);
-           fo2:=TD2Font.Create;
-           fo2.Assign(FText2.Font);
-         end
-    else begin
-           t2:='';
-           fi2:=nil;
-           fo2:=nil;
-         end;
+  //if FText<>nil
+  //  then begin
+  //         t:=FText.Text;
+  //         fi:=TD2Brush.Create(d2BrushNone,$FF000000);
+  //         fi.Assign(FText.Fill);
+  //         fo:=TD2Font.Create;
+  //         fo.Assign(FText.Font);
+  //       end
+  //  else begin
+  //         t:='';
+  //         fi:=nil;
+  //         fo:=nil;
+  //       end;
+  //if FText2<>nil
+  //  then begin
+  //         t2:=FText2.Text;
+  //         fi2:=TD2Brush.Create(d2BrushNone,$FF000000);
+  //         fi2.Assign(FText2.Fill);
+  //         fo2:=TD2Font.Create;
+  //         fo2.Assign(FText2.Font);
+  //       end
+  //  else begin
+  //         t2:='';
+  //         fi2:=nil;
+  //         fo2:=nil;
+  //       end;
   case  AValue of     //создаем новый контур
     drAction:    //Действие
       Resource:='DrakonActionStyle';
@@ -137,22 +138,22 @@ begin
          //drNone тип не определен
       Resource:='DrakonNodeStyle';
   end;
-  if FText<>nil then
-    begin
-      FText.Text:=t;
-      FText.Fill.Assign(fi);
-      FText.Font.Assign(fo);
-    end;
-  if FText2<>nil then
-    begin
-      FText2.Text:=t2;
-      FText2.Fill.Assign(fi2);
-      FText2.Font.Assign(fo2);
-    end;
-  FreeAndNil(fi);
-  FreeAndNil(fo);
-  FreeAndNil(fi2);
-  FreeAndNil(fo2);
+  //if FText<>nil then
+  //  begin
+  //    FText.Text:=t;
+  //    FText.Fill.Assign(fi);
+  //    FText.Font.Assign(fo);
+  //  end;
+  //if FText2<>nil then
+  //  begin
+  //    FText2.Text:=t2;
+  //    FText2.Fill.Assign(fi2);
+  //    FText2.Font.Assign(fo2);
+  //  end;
+  //FreeAndNil(fi);
+  //FreeAndNil(fo);
+  //FreeAndNil(fi2);
+  //FreeAndNil(fo2);
 end;
 
 procedure TD2DrakonNode.ApplyStyle;

@@ -1,1 +1,0 @@
-Win32 Win64 OK CT 5.30

@@ -14,7 +14,6 @@
       <Title Value="d2designer"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
-      <Icon Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -32,19 +31,13 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="zcomponent"/>
+        <PackageName Value="pl_orca"/>
       </Item1>
       <Item2>
-        <PackageName Value="FCL"/>
-      </Item2>
-      <Item3>
-        <PackageName Value="pl_orca"/>
-      </Item3>
-      <Item4>
         <PackageName Value="LCL"/>
-      </Item4>
+      </Item2>
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
