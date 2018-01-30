@@ -637,10 +637,24 @@ begin
   R:=GetShapeRect;
   if DirectionLength > 0 then
     case DirectionPosition of
-      d2DirectionTop:R.Top:=R.Top + FDirectionLength;
-      d2DirectionLeft:R.Left:=R.Left + FDirectionLength;
-      d2DirectionBottom:R.Bottom:=R.Bottom - FDirectionLength;
-      d2DirectionRight:R.Right:=R.Right - FDirectionLength;
+      d2DirectionTop:
+        R.Top:=R.Top + FDirectionLength;
+      d2DirectionLeft:
+        R.Left:=R.Left + FDirectionLength;
+      d2DirectionBottom:
+        R.Bottom:=R.Bottom - FDirectionLength;
+      d2DirectionRight:
+        R.Right:=R.Right - FDirectionLength;
+      d2DirectionVertical:
+        begin
+          R.Top:=R.Top + FDirectionLength;
+          R.Bottom:=R.Bottom - FDirectionLength;
+        end;
+      d2DirectionHorizontal:
+        begin
+          R.Left:=R.Left + FDirectionLength;
+          R.Right:=R.Right - FDirectionLength;
+        end;
     end;
   if Sides <> AllSides then
   begin
@@ -698,7 +712,8 @@ begin
     FPath.MoveTo(d2Point(R.Right - x1,R.Top))
   else
   begin
-    if (FDirectionPosition=d2DirectionTop) then
+    if (FDirectionPosition=d2DirectionTop) or
+       (FDirectionPosition=d2DirectionVertical)  then
     begin
       if FDirectionMark and (FDirectionLength>0) then
       begin
@@ -746,7 +761,8 @@ begin
     FPath.MoveTo(d2Point(R.Right,R.Bottom - y1))
   else
   begin
-    if (FDirectionPosition=d2DirectionRight) then
+    if (FDirectionPosition=d2DirectionRight) or
+       (FDirectionPosition=d2DirectionHorizontal) then
     begin
       if FDirectionMark and (FDirectionLength>0) then
       begin
@@ -795,7 +811,8 @@ begin
     FPath.MoveTo(d2Point(R.Left + x1,R.Bottom))
   else
   begin
-    if (FDirectionPosition=d2DirectionBottom) then
+    if (FDirectionPosition=d2DirectionBottom) or
+       (FDirectionPosition=d2DirectionVertical) then
     begin
       if FDirectionMark and (FDirectionLength>0) then
       begin
@@ -842,7 +859,8 @@ begin
   end;
   if (d2SideLeft in FSides) then
   begin
-    if (FDirectionPosition=d2DirectionLeft) then
+    if (FDirectionPosition=d2DirectionLeft) or
+       (FDirectionPosition=d2DirectionHorizontal) then
     begin
       if FDirectionMark and (FDirectionLength > 0) then
       begin
@@ -870,18 +888,29 @@ begin
   Canvas.FillPath(FPath,R,AbsoluteOpacity);
   Canvas.DrawPath(FPath,R,AbsoluteOpacity);
 
+  //рисуем линию
   if FDirectionLine then
     case FDirectionPosition of
       d2DirectionBottom:
-        Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),1);
+        Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
       d2DirectionTop:
-        Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),1);
+        Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
       d2DirectionLeft:
-        Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),1);
+        Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
       d2DirectionRight:
-        Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),1);
+        Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
+      d2DirectionVertical:
+        begin
+          Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
+        end;
+      d2DirectionHorizontal:
+        begin
+          Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
+        end;
     end;
-
+  //рисуем маркер
   if FDirectionMark and (FDirectionLength > 0) then
   begin
     Canvas.Fill.Assign(FStroke);

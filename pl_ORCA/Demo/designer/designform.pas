@@ -11,7 +11,7 @@ interface
 
 uses
   LResources,  SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, orca_scene2d;
+  Dialogs, StdCtrls, orca_scene2d;
 
 type
 
@@ -22,6 +22,11 @@ type
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
     DirectionRectangle1: TD2DirectionRectangle;
+    DirectionRectangle2: TD2DirectionRectangle;
+    DrakonNode1: TD2DrakonNode;
+    Layout1: TD2Layout;
+    Rectangle2: TD2Rectangle;
+    Resources1: TD2Resources;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
     Label1: TD2Label;
@@ -34,6 +39,7 @@ type
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
+    Text1: TD2Text;
     TrackBar1: TD2TrackBar;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
@@ -44,6 +50,7 @@ type
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
     procedure FormCreate(Sender: TObject);
+    procedure Rectangle2Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
     procedure PopupBox1Change(Sender: TObject);
     procedure PopupBox2Change(Sender: TObject);
@@ -72,6 +79,11 @@ begin
   // Set this property at run-time - enable design feature
   d2SceneDesigner.DesignTime := true;
   d2SceneDesigner.DesignChangeSelection := @DoChangeSelected;
+end;
+
+procedure TfrmDesigner.Rectangle2Click(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmDesigner.SpeedButton3Click(Sender: TObject);

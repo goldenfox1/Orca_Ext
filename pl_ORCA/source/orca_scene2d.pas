@@ -488,7 +488,7 @@ type
                vaHorzCenter, vaHorizontal, vaVertical, vaScale, vaFit, vaFitLeft, vaFitRight);
 
   TD2CalloutPosition = (d2CalloutTop, d2CalloutLeft, d2CalloutBottom, d2CalloutRight);
-  TD2DirectionPosition = (d2DirectionTop, d2DirectionLeft, d2DirectionBottom, d2DirectionRight);
+  TD2DirectionPosition = (d2DirectionTop, d2DirectionLeft, d2DirectionBottom, d2DirectionRight, d2DirectionHorizontal ,d2DirectionVertical);
   TD2PathWrap = (d2PathOriginal, d2PathFit, d2PathStretch, d2PathTile);
   TD2ButtonLayout = (d2GlyphLeft, d2GlyphRight, d2GlyphTop, d2GlyphBottom, d2GlyphCenter);
 
