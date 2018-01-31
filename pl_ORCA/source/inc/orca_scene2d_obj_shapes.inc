@@ -934,6 +934,106 @@ begin
   inherited;
 end;
 
+//=============== TD2BevelRectangle ====================================
+
+procedure TD2BevelRectangle.SetBevelLength(const Value: single);
+begin
+  if FBevelLength=Value then exit;
+  FBevelLength:=Value;
+  CreatePath;
+  Repaint;
+end;
+
+procedure TD2BevelRectangle.SetBevelPosition(const Value: TD2BevelPosition);
+begin
+  if FDoubleLine=Value then Exit;
+  FDoubleLine:=Value;
+  CreatePath;
+  Repaint;
+end;
+
+procedure TD2BevelRectangle.SetDoubleLine(Value: boolean);
+begin
+  if FDoubleLine=AValue then Exit;
+  FDoubleLine:=AValue;
+  CreatePath;
+  Repaint;
+end;
+
+procedure TD2BevelRectangle.SetLineIndent(Value: single);
+begin
+  if FLineIndent=Value then Exit;
+  FLineIndent:=Value;
+  Repaint;
+end;
+
+procedure TD2BevelRectangle.CreatePath;
+begin
+
+end;
+
+procedure TD2BevelRectangle.Paint;
+var
+  R:TD2Rect;
+  x1,x2: single;
+begin
+  CreatePath;
+  R:=FPath.GetBounds;
+  Canvas.FillPath(FPath,R,AbsoluteOpacity);
+  Canvas.DrawPath(FPath,R,AbsoluteOpacity);
+
+  //рисуем линии
+  if FDoubleLine then
+    case FBevelPosition of
+      d2BevelNone:
+        begin
+          Canvas.DrawLine(d2Point(R.Left+LineIndent, R.Top),d2Point(R.Left+LineIndent, R.Bottom),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Right-LineIndent, R.Top),d2Point(R.Right-LineIndent, R.Bottom),AbsoluteOpacity);
+        end;
+      d2BevelHorizontal:
+        begin
+          if BevelLength>0
+            then begin
+                   x1=LineIndent+BevelLength;
+                   x2=LineIndent;
+                 end
+            else begin
+                   x1=LineIndent;
+                   x2=LineIndent+BevelLength;
+                 end;
+          Canvas.DrawLine(d2Point(R.Left+x1, R.Top),d2Point(R.Left+x2, R.Bottom),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Right-x2, R.Top),d2Point(R.Right-x1, R.Bottom),AbsoluteOpacity);
+        end;
+      d2BevelVertical:
+        begin
+          if BevelLength>0
+            then begin
+                   x1=LineIndent+BevelLength;
+                   x2=LineIndent;
+                 end
+            else begin
+                   x1=LineIndent;
+                   x2=LineIndent+BevelLength;
+                 end;
+          Canvas.DrawLine(d2Point(R.Left, R.Top+x2),d2Point(R.Right, R.Top+x1),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Left, R.Bottom-x1),d2Point(R.Right, R.Bottom-x2),AbsoluteOpacity);
+        end;
+    end;
+end;
+
+constructor TD2BevelRectangle.Create(AOwner: TComponent);
+begin
+  inherited;
+  FBevelLength:=15;
+  FPath:=TD2PathData.Create;
+end;
+
+destructor TD2BevelRectangle.Destroy;
+begin
+  FreeAndNil(FPath);
+  inherited;
+end;
+
 //=============== TD2CalloutRectangle ====================================
 
 constructor TD2CalloutRectangle.Create(AOwner:TComponent);

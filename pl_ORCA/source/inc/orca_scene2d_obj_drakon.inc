@@ -80,25 +80,25 @@ begin
   //         fo2:=nil;
   //       end;
   case  AValue of     //создаем новый контур
-    drAction:    //Действие
+    drAction:    //+Действие
       Resource:='DrakonActionStyle';
-    drAddress:   //Конец ветки-ссылка на другую ветку
+    drAddress:   //+Конец ветки-ссылка на другую ветку
       Resource:='DrakonAddressStyle';
-    drBeginend:  //Название алгоритма
+    drBeginend:  //+Название алгоритма
       Resource:='DrakonBeginendStyle';
-    drBranch:    //Начало ветки
+    drBranch:    //+Начало ветки
       Resource:='DrakonBranchStyle';
-    drCase:      //Вариант для множественного выбора
+    drCase:      //+Вариант для множественного выбора
       Resource:='DrakonCaseStyle';
-    drComment:   //Комментарий
+    drComment:   //+Комментарий
       Resource:='DrakonCommentStyle';
     drCommentL:  //Комментарий слева
       Resource:='DrakonCommentLStyle';
     drCommentR:  //Комментарий справка ;
       Resource:='DrakonCommentRStyle';
-    drCtrlEnd:   //Конец контрольного срока
+    drCtrlEnd:   //+Конец контрольного срока
       Resource:='DrakonCtrlEndStyle';
-    drCtrlStart: //Начало контрольного срока
+    drCtrlStart: //+Начало контрольного срока
       Resource:='DrakonCtrlStartStyle';
     drDuration:  //Время, длительность
       Resource:='DrakonDurationStyle';

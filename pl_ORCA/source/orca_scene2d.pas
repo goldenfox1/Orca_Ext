@@ -489,6 +489,7 @@ type
 
   TD2CalloutPosition = (d2CalloutTop, d2CalloutLeft, d2CalloutBottom, d2CalloutRight);
   TD2DirectionPosition = (d2DirectionTop, d2DirectionLeft, d2DirectionBottom, d2DirectionRight, d2DirectionHorizontal ,d2DirectionVertical);
+  TD2BevelPosition = (d2BevelHorizontal ,d2BevelVertical,d2BevelNone);
   TD2PathWrap = (d2PathOriginal, d2PathFit, d2PathStretch, d2PathTile);
   TD2ButtonLayout = (d2GlyphLeft, d2GlyphRight, d2GlyphTop, d2GlyphBottom, d2GlyphCenter);
 
@@ -3016,6 +3017,41 @@ TD2DirectionRectangle = class(TD2Rectangle)
     property DirectionLine: boolean read FDirectionLine write SetDirectionLine default false;
     property DirectionMark: boolean read FDirectionMark write SetDirectionMark default false;
     property DirectionPosition: TD2DirectionPosition read FDirectionPosition write SetDirectionPosition default d2DirectionTop;
+
+    property Stroke;
+    property StrokeCap;
+    property StrokeDash;
+    property StrokeJoin;
+    property StrokeThickness;
+  end;
+
+{ TD2BevelRectangle }
+
+TD2BevelRectangle = class(TD2Rectangle)
+  private
+    FBevelPosition: TD2BevelPosition;
+    FBevelLength:single;
+    FDoubleLine: boolean;
+    FLineIndent:single;
+    FPath: TD2PathData;
+
+    procedure SetBevelLength(const Value:single);
+    procedure SetBevelPosition(const Value:TD2BevelPosition);
+    procedure SetDoubleLine(Value: boolean);
+    procedure SetLineIndent(Value: single);
+  protected
+    procedure CreatePath;
+    procedure Paint;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property Fill;
+    property BevelLength:single read FBevelLength write SetBevelLength default 15;
+
+    property BevelPosition: TD2BevelPosition read FBevelPosition write SetBevelPosition default d2BevelNone;
+    property DoubleLine: boolean read FDoubleLine write SetDoubleLine default false;
+    property LineIndent: single read FLineIndent write SetLineIndent default 5;
 
     property Stroke;
     property StrokeCap;
