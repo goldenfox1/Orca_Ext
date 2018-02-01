@@ -18,6 +18,10 @@ type
   { TfrmDesigner }
 
   TfrmDesigner = class(TForm)
+    BevelEffect1: TD2BevelEffect;
+    BevelEffect2: TD2BevelEffect;
+    CalloutRectangle1: TD2CalloutRectangle;
+    Circle1: TD2Circle;
     d2SceneDesigner: TD2Scene;
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
@@ -25,8 +29,9 @@ type
     DirectionRectangle2: TD2DirectionRectangle;
     DrakonNode1: TD2DrakonNode;
     Layout1: TD2Layout;
+    Parallelogram1: TD2Parallelogram;
+    Pie1: TD2Pie;
     Rectangle2: TD2Rectangle;
-    Resources1: TD2Resources;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
     Label1: TD2Label;

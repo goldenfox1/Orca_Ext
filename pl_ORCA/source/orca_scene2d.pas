@@ -489,7 +489,7 @@ type
 
   TD2CalloutPosition = (d2CalloutTop, d2CalloutLeft, d2CalloutBottom, d2CalloutRight);
   TD2DirectionPosition = (d2DirectionTop, d2DirectionLeft, d2DirectionBottom, d2DirectionRight, d2DirectionHorizontal ,d2DirectionVertical);
-  TD2BevelPosition = (d2BevelHorizontal ,d2BevelVertical,d2BevelNone);
+  TD2ShiftDirection = (d2ShiftHorizontal ,d2ShiftVertical);
   TD2PathWrap = (d2PathOriginal, d2PathFit, d2PathStretch, d2PathTile);
   TD2ButtonLayout = (d2GlyphLeft, d2GlyphRight, d2GlyphTop, d2GlyphBottom, d2GlyphCenter);
 
@@ -3027,18 +3027,20 @@ TD2DirectionRectangle = class(TD2Rectangle)
 
 { TD2BevelRectangle }
 
-TD2BevelRectangle = class(TD2Rectangle)
+{ TD2Parallelogram }
+
+TD2Parallelogram = class(TD2Rectangle)
   private
-    FBevelPosition: TD2BevelPosition;
-    FBevelLength:single;
+    FShiftDirection: TD2ShiftDirection;
+    FShiftSize:single;
     FDoubleLine: boolean;
-    FLineIndent:single;
+    FDoubleLineIndent:single;
     FPath: TD2PathData;
 
-    procedure SetBevelLength(const Value:single);
-    procedure SetBevelPosition(const Value:TD2BevelPosition);
+    procedure SetShiftSize(const Value:single);
+    procedure SetShiftDirection(const Value:TD2ShiftDirection);
     procedure SetDoubleLine(Value: boolean);
-    procedure SetLineIndent(Value: single);
+    procedure SetDoubleLineIndent(Value: single);
   protected
     procedure CreatePath;
     procedure Paint;  override;
@@ -3047,11 +3049,10 @@ TD2BevelRectangle = class(TD2Rectangle)
     destructor Destroy;  override;
   published
     property Fill;
-    property BevelLength:single read FBevelLength write SetBevelLength default 15;
-
-    property BevelPosition: TD2BevelPosition read FBevelPosition write SetBevelPosition default d2BevelNone;
+    property ShiftSize:single read FShiftSize write SetShiftSize default 10;
+    property ShiftDirection: TD2ShiftDirection read FShiftDirection write SetShiftDirection default d2ShiftHorizontal;
     property DoubleLine: boolean read FDoubleLine write SetDoubleLine default false;
-    property LineIndent: single read FLineIndent write SetLineIndent default 5;
+    property DoubleLineIndent: single read FDoubleLineIndent write SetDoubleLineIndent default 5;
 
     property Stroke;
     property StrokeCap;
@@ -10767,6 +10768,8 @@ function TreeFromNode(Node: PD2TreeNode): TD2CustomTreeGrid;
 //функция сравнения двух записей в списке соответствия узлов и записей DataSet
 function DBDataNodeKeyCompare(Item1, Item2: Pointer): Integer;
 
+//TD2PathData
+procedure DrawArcWithBezier(Path:TD2PathData; CenterX,CenterY,RadiusX,RadiusY,StartAngle,SweepRange:single; UseMoveTo:boolean);
 
 //=============================================================================
 //=============== GLobal Variables ============================================
@@ -11888,7 +11891,8 @@ initialization
 
   Registerd2Objects('Shapes', [TD2Line, TD2Rectangle, TD2SidesRectangle, TD2BlurRectangle, TD2RoundRect, TD2BlurRoundRect,
                                TD2Ellipse, TD2Circle, TD2Arc, TD2Pie, TD2Text, TD2Path, TD2Image, TD2PaintBox,
-                               TD2ScrollArrowLeft, TD2ScrollArrowRight, TD2CalloutRectangle, TD2DirectionRectangle]);
+                               TD2ScrollArrowLeft, TD2ScrollArrowRight, TD2CalloutRectangle, TD2DirectionRectangle,
+                               TD2Parallelogram]);
 
   Registerd2Objects('Design', [TD2Selection, TD2SelectionPoint, TD2DesignFrame,TD2Inspector]);
 

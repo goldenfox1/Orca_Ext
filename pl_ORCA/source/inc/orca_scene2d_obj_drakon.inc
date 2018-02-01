@@ -104,7 +104,7 @@ begin
       Resource:='DrakonDurationStyle';
     drEnd:       //Конец алгоритма
       Resource:='DrakonEndStyle';
-    drInput:     //Ввод
+    drInput:     //+Ввод
       Resource:='DrakonInputStyle';
     drInsertion: //Вставка
       Resource:='DrakonInsertionStyle';
@@ -118,9 +118,9 @@ begin
       Resource:='DrakonParamsStyle';
     drPause:     //Пауза
       Resource:='DrakonPauseStyle';
-    drProcess:   //Парралельный процесс
+    drProcess:   //+Парралельный процесс
       Resource:='DrakonProcessStyle';
-    drQuestion:  //Вопрос
+    drQuestion:  //+Вопрос
       Resource:='DrakonQuestionStyle';
     drSelect:    //Множественный выбор из нескольких значений
       Resource:='DrakonSelectStyle';
