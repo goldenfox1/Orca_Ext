@@ -92,45 +92,45 @@ begin
       Resource:='DrakonCaseStyle';
     drComment:   //+Комментарий
       Resource:='DrakonCommentStyle';
-    drCommentL:  //Комментарий слева
+    drCommentL:  //+Комментарий слева
       Resource:='DrakonCommentLStyle';
-    drCommentR:  //Комментарий справка ;
+    drCommentR:  //+Комментарий справка ;
       Resource:='DrakonCommentRStyle';
     drCtrlEnd:   //+Конец контрольного срока
       Resource:='DrakonCtrlEndStyle';
     drCtrlStart: //+Начало контрольного срока
       Resource:='DrakonCtrlStartStyle';
-    drDuration:  //Время, длительность
+    drDuration:  //+Время, длительность
       Resource:='DrakonDurationStyle';
-    drEnd:       //Конец алгоритма
+    drEnd:       //+Конец алгоритма
       Resource:='DrakonEndStyle';
     drInput:     //+Ввод
       Resource:='DrakonInputStyle';
-    drInsertion: //Вставка
+    drInsertion: //+Вставка
       Resource:='DrakonInsertionStyle';
-    drLoopBegin: //Начало цикла
+    drLoopBegin: //+Начало цикла
       Resource:='DrakonLoopBeginStyle';
-    drLoopEnd:   //Конец цикла
+    drLoopEnd:   //+Конец цикла
       Resource:='DrakonLoopEndStyle';
-    drOutput:    //Вывод
+    drOutput:    //+Вывод
       Resource:='DrakonOutputStyle';
-    drParams:    //Вхдные параметры
+    drParams:    //+Вхдные параметры
       Resource:='DrakonParamsStyle';
-    drPause:     //Пауза
+    drPause:     //+Пауза
       Resource:='DrakonPauseStyle';
     drProcess:   //+Парралельный процесс
       Resource:='DrakonProcessStyle';
     drQuestion:  //+Вопрос
       Resource:='DrakonQuestionStyle';
-    drSelect:    //Множественный выбор из нескольких значений
+    drSelect:    //+Множественный выбор из нескольких значений
       Resource:='DrakonSelectStyle';
-    drShelf:     //Полка
+    drShelf:     //+Полка
       Resource:='DrakonShelfStyle';
-    drSInput:    //Простой ввод
+    drSInput:    //+Простой ввод
       Resource:='DrakonSInputStyle';
-    drSOutput:   //Простой вывод
+    drSOutput:   //+Простой вывод
       Resource:='DrakonSOutputStyle';
-    drTimer:     //Таймер
+    drTimer:     //+Таймер
       Resource:='DrakonTimerStyle';
     drJunction: //точка соединения линий
       Resource:='DrakonJunctionStyle';

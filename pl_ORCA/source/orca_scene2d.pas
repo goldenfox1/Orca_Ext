@@ -456,7 +456,7 @@ type
 
   //.................................
 
-  TD2LineType = (d2LineNormal, d2LineHorizontal, d2LineVertical);
+  TD2LineType = (d2LineNormal, d2LineHorizontal, d2LineVertical, d2LineLeft, d2LineTop, d2LineRight, d2LineBottom);
   TD2GradientStyle = (d2LinearGradient, d2RadialGradient);
   TD2AniIndicatorStyle = (d2AniIndicatorLine, d2AniIndicatorCircle);
   TD2CloseAlign = (d2ButtonAlignLeft,d2ButtonAlignRight);
@@ -2858,7 +2858,6 @@ TD2Line = class(TD2Shape)
     procedure SetLineType(const Value:TD2LineType);
   protected
   public
-    constructor Create(AOwner: TComponent);  override;
     procedure Paint;  override;
   published
     property Stroke;
@@ -2960,6 +2959,27 @@ TD2BlurRoundRect = class(TD2RoundRect)
     property Softness:single read FSoftness write SetSoftness;
   end;
 
+
+{ TD2Brace }
+
+TD2Brace = class(TD2Line)
+  private
+    FPath: TD2PathData;
+    FyRadius:single;
+    FxRadius:single;
+    procedure SetxRadius(Value: single);
+    procedure SetyRadius(Value: single);
+  protected
+    procedure CreatePath; virtual;
+    procedure Paint;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+  published
+    property xRadius:single read FxRadius write SetxRadius;
+    property yRadius:single read FyRadius write SetyRadius;
+end;
+
 TD2CalloutRectangle = class(TD2Rectangle)
   private
     FPath: TD2PathData;
@@ -2972,7 +2992,7 @@ TD2CalloutRectangle = class(TD2Rectangle)
     procedure SetCalloutPosition(const Value:TD2CalloutPosition);
     procedure SetCalloutOffset(const Value:single);
   protected
-    procedure CreatePath;
+    procedure CreatePath; virtual;
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -2988,9 +3008,7 @@ TD2CalloutRectangle = class(TD2Rectangle)
     property StrokeDash;
     property StrokeJoin;
     property StrokeThickness;
-  end;
-
-{ TD2DirectionRectangle }
+end;
 
 TD2DirectionRectangle = class(TD2Rectangle)
   private
@@ -3006,7 +3024,7 @@ TD2DirectionRectangle = class(TD2Rectangle)
     procedure SetDirectionMark(Value: boolean);
     procedure SetDirectionPosition(const Value:TD2DirectionPosition);
   protected
-    procedure CreatePath;
+    procedure CreatePath; virtual;
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -3023,11 +3041,7 @@ TD2DirectionRectangle = class(TD2Rectangle)
     property StrokeDash;
     property StrokeJoin;
     property StrokeThickness;
-  end;
-
-{ TD2BevelRectangle }
-
-{ TD2Parallelogram }
+end;
 
 TD2Parallelogram = class(TD2Rectangle)
   private
@@ -3042,7 +3056,7 @@ TD2Parallelogram = class(TD2Rectangle)
     procedure SetDoubleLine(Value: boolean);
     procedure SetDoubleLineIndent(Value: single);
   protected
-    procedure CreatePath;
+    procedure CreatePath; virtual;
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -3059,7 +3073,12 @@ TD2Parallelogram = class(TD2Rectangle)
     property StrokeDash;
     property StrokeJoin;
     property StrokeThickness;
-  end;
+end;
+
+TD2Trapezium = class(TD2Parallelogram)
+  protected
+    procedure CreatePath; override;
+end;
 
 TD2Ellipse = class(TD2Shape)
   private
@@ -3074,7 +3093,7 @@ TD2Ellipse = class(TD2Shape)
     property StrokeDash;
     property StrokeJoin;
     property StrokeThickness;
-  end;
+end;
 
 TD2Circle = class(TD2Ellipse)
   private
@@ -3082,7 +3101,7 @@ TD2Circle = class(TD2Ellipse)
     procedure Paint;  override;
   public
   published
-  end;
+end;
 
 TD2Pie = class(TD2Ellipse)
   private
@@ -3098,7 +3117,7 @@ TD2Pie = class(TD2Ellipse)
   published
     property StartAngle:single read FStartAngle write SetStartAngle;
     property EndAngle:single read FEndAngle write SetEndAngle;
-  end;
+end;
 
 TD2Arc = class(TD2Ellipse)
   private
@@ -11892,7 +11911,7 @@ initialization
   Registerd2Objects('Shapes', [TD2Line, TD2Rectangle, TD2SidesRectangle, TD2BlurRectangle, TD2RoundRect, TD2BlurRoundRect,
                                TD2Ellipse, TD2Circle, TD2Arc, TD2Pie, TD2Text, TD2Path, TD2Image, TD2PaintBox,
                                TD2ScrollArrowLeft, TD2ScrollArrowRight, TD2CalloutRectangle, TD2DirectionRectangle,
-                               TD2Parallelogram]);
+                               TD2Parallelogram, TD2Trapezium, TD2Brace]);
 
   Registerd2Objects('Design', [TD2Selection, TD2SelectionPoint, TD2DesignFrame,TD2Inspector]);
 

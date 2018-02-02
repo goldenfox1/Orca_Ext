@@ -20,17 +20,11 @@ type
   TfrmDesigner = class(TForm)
     BevelEffect1: TD2BevelEffect;
     BevelEffect2: TD2BevelEffect;
-    CalloutRectangle1: TD2CalloutRectangle;
-    Circle1: TD2Circle;
+    Brace1: TD2Brace;
     d2SceneDesigner: TD2Scene;
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
-    DirectionRectangle1: TD2DirectionRectangle;
-    DirectionRectangle2: TD2DirectionRectangle;
     DrakonNode1: TD2DrakonNode;
-    Layout1: TD2Layout;
-    Parallelogram1: TD2Parallelogram;
-    Pie1: TD2Pie;
     Rectangle2: TD2Rectangle;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
@@ -44,7 +38,6 @@ type
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
-    Text1: TD2Text;
     TrackBar1: TD2TrackBar;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;

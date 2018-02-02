@@ -126,21 +126,23 @@ end;
 
 
 //=============== TD2Line ================================
-
-constructor TD2Line.Create(AOwner:TComponent);
-begin
-  inherited;
-end;
-
 procedure TD2Line.Paint;
+var R: TD2Rect;
 begin
+  R:=GetShapeRect;
   case FLineType of
+    d2LineTop,
     d2LineHorizontal:
-      Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Right,GetShapeRect.Top),AbsoluteOpacity);
+      Canvas.DrawLine(R.TopLeft,d2Point(R.Right,R.Top),AbsoluteOpacity);
+    d2LineLeft,
     d2LineVertical:
-      Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Left,GetShapeRect.Bottom),AbsoluteOpacity);
-  else
-    Canvas.DrawLine(GetShapeRect.TopLeft,GetShapeRect.BottomRight,AbsoluteOpacity);
+      Canvas.DrawLine(R.TopLeft,d2Point(R.Left,R.Bottom),AbsoluteOpacity);
+    d2LineRight:
+      Canvas.DrawLine(d2Point(R.Right,R.Top),d2Point(R.Right,R.Bottom),AbsoluteOpacity);
+    d2LineBottom:
+      Canvas.DrawLine(d2Point(R.Left,R.Bottom),d2Point(R.Right,R.Bottom),AbsoluteOpacity);
+  else //d2LineNormal:
+    Canvas.DrawLine(R.TopLeft,R.BottomRight,AbsoluteOpacity);
   end;
 end;
 
@@ -591,6 +593,120 @@ begin
   FRecreate:=true;
 end;
 
+{ TD2Brace }
+
+procedure TD2Brace.SetxRadius(Value: single);
+begin
+  if FxRadius=Value then Exit;
+  FxRadius:=Value;
+  Repaint;
+end;
+
+procedure TD2Brace.SetyRadius(Value: single);
+begin
+  if FyRadius=Value then Exit;
+  FyRadius:=Value;
+  Repaint;
+end;
+
+procedure TD2Brace.CreatePath;
+  var
+  x1,x2,y1,y2:single;
+  R:TD2Rect;
+begin
+  R:=GetShapeRect;
+  x1:=xRadius;
+  //if d2RectWidth(R) - (x1 * 2) < 0 then
+  //  x1:=(xRadius * (d2RectWidth(R) / (x1 * 2)));
+  x2:=x1 / 2;
+  y1:=yRadius;
+  //if d2RectHeight(R) - (y1 * 2) < 0 then
+  //  y1:=(yRadius * (d2RectHeight(R) / (y1 * 2)));
+  y2:=y1 / 2;
+
+  FPath.Clear;
+  case FLineType of
+    d2LineTop,
+    d2LineHorizontal:
+      begin
+        R.Top:=R.Top+y1;
+        R.Right:=R.Right-d2RectWidth(R)/2;
+        FPath.MoveTo(d2Point(R.Left, R.Top+y1));
+        FPath.CurveTo(d2Point(R.Left,R.Top+y2),d2Point(R.Left+x2,R.Top),d2Point(R.Left+x1,R.Top));
+        FPath.LineTo(d2Point(R.Right-x1, R.Top));
+        FPath.CurveTo(d2Point(R.Right-x2,R.Top),d2Point(R.Right,R.Top-y2),d2Point(R.Right,R.Top-y1));
+        d2OffsetRect(R,d2RectWidth(R),0);
+        FPath.CurveTo(d2Point(R.Left,R.Top-y2),d2Point(R.Left+x2,R.Top),d2Point(R.Left+x1,R.Top));
+        FPath.LineTo(d2Point(R.Right-x1, R.Top));
+        FPath.CurveTo(d2Point(R.Right-x2,R.Top),d2Point(R.Right,R.Top+y2),d2Point(R.Right,R.Top+y1));
+      end;
+    d2LineBottom:
+      begin
+        R.Top:=R.Bottom-y1;
+        R.Right:=R.Right-d2RectWidth(R)/2;
+        FPath.MoveTo(d2Point(R.Left, R.Top-y1));
+        FPath.CurveTo(d2Point(R.Left,R.Top-y2),d2Point(R.Left+x2,R.Top),d2Point(R.Left+x1,R.Top));
+        FPath.LineTo(d2Point(R.Right-x1, R.Top));
+        FPath.CurveTo(d2Point(R.Right-x2,R.Top),d2Point(R.Right,R.Top+y2),d2Point(R.Right,R.Top+y1));
+        d2OffsetRect(R,d2RectWidth(R),0);
+        FPath.CurveTo(d2Point(R.Left,R.Top+y2),d2Point(R.Left+x2,R.Top),d2Point(R.Left+x1,R.Top));
+        FPath.LineTo(d2Point(R.Right-x1, R.Top));
+        FPath.CurveTo(d2Point(R.Right-x2,R.Top),d2Point(R.Right,R.Top-y2),d2Point(R.Right,R.Top-y1));
+      end;
+    d2LineRight:
+      begin
+        R.Left:=R.Right-x1;
+        R.Bottom:=R.Top+d2RectHeight(R)/2;
+        FPath.MoveTo(d2Point(R.Left-x1, R.Top));
+        FPath.CurveTo(d2Point(R.Left-x2,R.Top),d2Point(R.Left,R.Top+y2),d2Point(R.Left,R.Top+y1));
+        FPath.LineTo(d2Point(R.Left, R.Bottom-y1));
+        FPath.CurveTo(d2Point(R.Left,R.Bottom-y2),d2Point(R.Left+x2,R.Bottom),d2Point(R.Left+x1,R.Bottom));
+        d2OffsetRect(R,0,d2RectHeight(R));
+        FPath.CurveTo(d2Point(R.Left+x2,R.Top),d2Point(R.Left,R.Top+y2),d2Point(R.Left,R.Top+y1));
+        FPath.LineTo(d2Point(R.Left, R.Bottom-y1));
+        FPath.CurveTo(d2Point(R.Left,R.Bottom-y2),d2Point(R.Left-x2,R.Bottom),d2Point(R.Left-x1,R.Bottom));
+      end;
+    else //d2LineNormal, d2LineLeft, d2LineVertical:
+      begin
+        R.Left:=R.Left+x1;
+        R.Bottom:=R.Top+d2RectHeight(R)/2;
+        FPath.MoveTo(d2Point(R.Left+x1, R.Top));
+        FPath.CurveTo(d2Point(R.Left+x2,R.Top),d2Point(R.Left,R.Top+y2),d2Point(R.Left,R.Top+y1));
+        FPath.LineTo(d2Point(R.Left, R.Bottom-y1));
+        FPath.CurveTo(d2Point(R.Left,R.Bottom-y2),d2Point(R.Left-x2,R.Bottom),d2Point(R.Left-x1,R.Bottom));
+        d2OffsetRect(R,0,d2RectHeight(R));
+        FPath.CurveTo(d2Point(R.Left-x2,R.Top),d2Point(R.Left,R.Top+y2),d2Point(R.Left,R.Top+y1));
+        FPath.LineTo(d2Point(R.Left, R.Bottom-y1));
+        FPath.CurveTo(d2Point(R.Left,R.Bottom-y2),d2Point(R.Left+x2,R.Bottom),d2Point(R.Left+x1,R.Bottom));
+      end;
+  end;
+
+end;
+
+procedure TD2Brace.Paint;
+var
+  R:TD2Rect;
+begin
+  CreatePath;
+  R:=FPath.GetBounds;
+  Canvas.DrawPath(FPath,R,AbsoluteOpacity);
+end;
+
+constructor TD2Brace.Create(AOwner: TComponent);
+begin
+  inherited;
+  FPath:=TD2PathData.Create;
+  xRadius:=5;
+  yRadius:=5;
+  LineType:=d2LineNormal;
+end;
+
+destructor TD2Brace.Destroy;
+begin
+  FreeAndNil(FPath);
+  inherited;
+end;
+
 { TD2DirectionRectangle }
 
 procedure TD2DirectionRectangle.SetDirectionLength(const Value: single);
@@ -598,7 +714,7 @@ begin
   if FDirectionLength <> Value then
   begin
     FDirectionLength:=Value;
-    CreatePath;
+    //CreatePath;
     Repaint;
   end
 end;
@@ -622,8 +738,47 @@ begin
   if FDirectionPosition <> Value then
   begin
     FDirectionPosition:=Value;
-    CreatePath;
+    //CreatePath;
     Repaint;
+  end;
+end;
+
+procedure TD2DirectionRectangle.Paint;
+var
+  R:TD2Rect;
+begin
+  CreatePath;
+  R:=FPath.GetBounds;
+  Canvas.FillPath(FPath,R,AbsoluteOpacity);
+  Canvas.DrawPath(FPath,R,AbsoluteOpacity);
+
+  //рисуем линию
+  if FDirectionLine then
+    case FDirectionPosition of
+      d2DirectionBottom:
+        Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
+      d2DirectionTop:
+        Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
+      d2DirectionLeft:
+        Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
+      d2DirectionRight:
+        Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
+      d2DirectionVertical:
+        begin
+          Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
+        end;
+      d2DirectionHorizontal:
+        begin
+          Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
+          Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
+        end;
+    end;
+  //рисуем маркер
+  if FDirectionMark and (FDirectionLength > 0) then
+  begin
+    Canvas.Fill.Assign(FStroke);
+    Canvas.FillPath(FMarkPath,FMarkPath.GetBounds,AbsoluteOpacity);
   end;
 end;
 
@@ -694,7 +849,7 @@ begin
           FPath.LineTo(d2Point(R.Left + x1,R.Top));
         end;
     else
-      FPath.CurveTo(d2Point(R.Left,R.Top + (y2)),d2Point(R.Left + x2,R.Top),d2Point(R.Left + x1,R.Top))
+      FPath.CurveTo(d2Point(R.Left,R.Top + y2),d2Point(R.Left + x2,R.Top),d2Point(R.Left + x1,R.Top))
     end;
   end
   else
@@ -877,46 +1032,6 @@ begin
     end;
     FPath.LineTo(d2Point(R.Left,R.Top + y1));
   end;
-end;
-
-procedure TD2DirectionRectangle.Paint;
-var
-  R:TD2Rect;
-begin
-  CreatePath;
-  R:=FPath.GetBounds;
-  Canvas.FillPath(FPath,R,AbsoluteOpacity);
-  Canvas.DrawPath(FPath,R,AbsoluteOpacity);
-
-  //рисуем линию
-  if FDirectionLine then
-    case FDirectionPosition of
-      d2DirectionBottom:
-        Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
-      d2DirectionTop:
-        Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
-      d2DirectionLeft:
-        Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
-      d2DirectionRight:
-        Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
-      d2DirectionVertical:
-        begin
-          Canvas.DrawLine(d2Point(R.Left, R.Bottom-FDirectionLength),d2Point(R.Right, R.Bottom-FDirectionLength),AbsoluteOpacity);
-          Canvas.DrawLine(d2Point(R.Left, R.Top+FDirectionLength),d2Point(R.Right, R.Top+FDirectionLength),AbsoluteOpacity);
-        end;
-      d2DirectionHorizontal:
-        begin
-          Canvas.DrawLine(d2Point(R.Left+FDirectionLength, R.Top),d2Point(R.Left+FDirectionLength, R.Bottom),AbsoluteOpacity);
-          Canvas.DrawLine(d2Point(R.Right-FDirectionLength, R.Top),d2Point(R.Right-FDirectionLength, R.Bottom),AbsoluteOpacity);
-        end;
-    end;
-  //рисуем маркер
-  if FDirectionMark and (FDirectionLength > 0) then
-  begin
-    Canvas.Fill.Assign(FStroke);
-    Canvas.FillPath(FMarkPath,FMarkPath.GetBounds,AbsoluteOpacity);
-  end;
-
 end;
 
 constructor TD2DirectionRectangle.Create(AOwner: TComponent);
@@ -1612,13 +1727,11 @@ begin
           FPath.LineTo(d2Point(R.Right, R.Bottom-x2));
         end;
     end;
-
 end;
 
 procedure TD2Parallelogram.Paint;
 var
   R:TD2Rect;
-  x1,x2: single;
 begin
   CreatePath;
   R:=FPath.GetBounds;
@@ -1639,6 +1752,655 @@ destructor TD2Parallelogram.Destroy;
 begin
   FreeAndNil(FPath);
   inherited;
+end;
+
+//=============== TD2Trapezium ====================================
+
+procedure TD2Trapezium.CreatePath;
+var
+  x1,x2,y1,y2,x3,y3:single;
+  R:TD2Rect;
+  Off:single;
+begin
+  R:=GetShapeRect;
+  x1:=xRadius;
+  if d2RectWidth(R) - (x1 * 2) < 0 then
+    x1:=(xRadius * (d2RectWidth(R) / (x1 * 2)));
+  x2:=x1 / 2;
+  y1:=yRadius;
+  if d2RectHeight(R) - (y1 * 2) < 0 then
+    y1:=(yRadius * (d2RectHeight(R) / (y1 * 2)));
+  y2:=y1 / 2;
+  FPath.Clear;
+
+  case ShiftDirection of
+    d2ShiftHorizontal:
+
+      //cужение вверх
+      if FShiftSize > 0
+        then  begin
+                //верхниий левый угол
+                FPath.MoveTo(d2Point(R.Left+FShiftSize, R.Top + y1));
+                if d2CornerTopLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left+FShiftSize + x1,R.Top));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left+FShiftSize + x2, R.Top + y1),
+                                            d2Point(R.Left+FShiftSize + x1, R.Top + y2),
+                                            d2Point(R.Left+FShiftSize + x1, R.Top));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left+FShiftSize + x2, R.Top + y1));
+                                FPath.LineTo(d2Point(R.Left+FShiftSize + x1, R.Top + y2));
+                                FPath.LineTo(d2Point(R.Left+FShiftSize + x1, R.Top));
+                              end;
+                          else  FPath.CurveTo(d2Point(R.Left+FShiftSize, R.Top + (y2)),
+                                              d2Point(R.Left+FShiftSize + x2,R.Top),
+                                              d2Point(R.Left+FShiftSize + x1,R.Top))
+                          end;
+                        end
+                  else  begin
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left+FShiftSize,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left+FShiftSize,R.Top));
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Left+FShiftSize + x1,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left+FShiftSize + x1,R.Top));
+                        end;
+
+                //верхняя сторона
+                if d2SideTop in FSides
+                  then FPath.LineTo(d2Point(R.Right-FShiftSize - x1,R.Top))
+                  else FPath.MoveTo(d2Point(R.Right-FShiftSize - x1,R.Top));
+
+                //верхниий правый угол
+                if d2CornerTopRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right-FShiftSize,R.Top + y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right-FShiftSize - x1,R.Top + y2),
+                                            d2Point(R.Right-FShiftSize - x2,R.Top + y1),
+                                            d2Point(R.Right-FShiftSize,R.Top + y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right-FShiftSize - x1,R.Top + y2));
+                                FPath.LineTo(d2Point(R.Right-FShiftSize - x2,R.Top + y1));
+                                FPath.LineTo(d2Point(R.Right-FShiftSize,R.Top + y1));
+                              end;
+                          else FPath.CurveTo(d2Point(R.Right-FShiftSize - x2,R.Top),
+                                             d2Point(R.Right-FShiftSize,R.Top + (y2)),
+                                             d2Point(R.Right-FShiftSize,R.Top + y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Right-FShiftSize,R.Top))
+                            else FPath.MoveTo(d2Point(R.Right-FShiftSize,R.Top));
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right-FShiftSize,R.Top + y1))
+                            else FPath.MoveTo(d2Point(R.Right-FShiftSize,R.Top + y1));
+                        end;
+
+                //правая сторона
+                if d2SideRight in FSides
+                  then FPath.LineTo(d2Point(R.Right, R.Bottom - y1))
+                  else FPath.MoveTo(d2Point(R.Right, R.Bottom - y1));
+
+                //нижний правый угол
+                if d2CornerBottomRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x2,R.Bottom - y1),
+                                            d2Point(R.Right - x1,R.Bottom - y2),
+                                            d2Point(R.Right - x1,R.Bottom));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Right,R.Bottom - (y2)),
+                                               d2Point(R.Right - x2,R.Bottom),
+                                               d2Point(R.Right - x1,R.Bottom))
+                          end;
+                        end
+                  else  begin
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right,R.Bottom));
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Right - x1,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right - x1,R.Bottom));
+                        end;
+                //нижняя сторона
+                if d2SideBottom in FSides
+                  then FPath.LineTo(d2Point(R.Left + x1, R.Bottom))
+                  else FPath.MoveTo(d2Point(R.Left + x1, R.Bottom));
+
+                //нижний левый угол
+                if d2CornerBottomLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x1,R.Bottom - y2),
+                                            d2Point(R.Left + x2,R.Bottom - y1),
+                                            d2Point(R.Left,R.Bottom - y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Left + x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Left + x2,R.Bottom),
+                                               d2Point(R.Left,R.Bottom - (y2)),
+                                               d2Point(R.Left,R.Bottom - y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom));
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom - y1))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom - y1));
+                        end;
+
+                //левая сторона
+                if d2SideLeft in FSides
+                  then FPath.LineTo(d2Point(R.Left+FShiftSize, R.Top + y1));
+              end
+
+        //cужение вниз
+        else  begin
+                //верхниий левый угол
+                FPath.MoveTo(d2Point(R.Left, R.Top + y1));
+                if d2CornerTopLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left + x1,R.Top));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x2, R.Top + y1),
+                                            d2Point(R.Left + x1, R.Top + y2),
+                                            d2Point(R.Left + x1, R.Top));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x2, R.Top + y1));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top + y2));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top));
+                              end;
+                          else  FPath.CurveTo(d2Point(R.Left, R.Top + (y2)),
+                                              d2Point(R.Left + x2,R.Top),
+                                              d2Point(R.Left + x1,R.Top))
+                          end;
+                        end
+                  else  begin
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left,R.Top));
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Left + x1,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left+ x1,R.Top));
+                        end;
+
+                //верхняя сторона
+                if d2SideTop in FSides
+                  then FPath.LineTo(d2Point(R.Right - x1,R.Top))
+                  else FPath.MoveTo(d2Point(R.Right - x1,R.Top));
+
+                //верхниий правый угол
+                if d2CornerTopRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right,R.Top + y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x1,R.Top + y2),
+                                            d2Point(R.Right - x2,R.Top + y1),
+                                            d2Point(R.Right,R.Top + y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x1,R.Top + y2));
+                                FPath.LineTo(d2Point(R.Right - x2,R.Top + y1));
+                                FPath.LineTo(d2Point(R.Right,R.Top + y1));
+                              end;
+                          else FPath.CurveTo(d2Point(R.Right - x2,R.Top),
+                                             d2Point(R.Right,R.Top + (y2)),
+                                             d2Point(R.Right,R.Top + y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top));
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top + y1))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top + y1));
+                        end;
+
+                //правая сторона
+                if d2SideRight in FSides
+                  then FPath.LineTo(d2Point(R.Right+FShiftSize, R.Bottom - y1))
+                  else FPath.MoveTo(d2Point(R.Right+FShiftSize, R.Bottom - y1));
+
+                //нижний правый угол
+                if d2CornerBottomRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right+FShiftSize - x1,R.Bottom));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right+FShiftSize - x2,R.Bottom - y1),
+                                            d2Point(R.Right+FShiftSize - x1,R.Bottom - y2),
+                                            d2Point(R.Right+FShiftSize - x1,R.Bottom));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right+FShiftSize - x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Right+FShiftSize - x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Right+FShiftSize - x1,R.Bottom));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Right+FShiftSize,R.Bottom - (y2)),
+                                               d2Point(R.Right+FShiftSize - x2,R.Bottom),
+                                               d2Point(R.Right+FShiftSize - x1,R.Bottom))
+                          end;
+                        end
+                  else  begin
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right+FShiftSize,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right+FShiftSize,R.Bottom));
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Right+FShiftSize - x1,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right+FShiftSize - x1,R.Bottom));
+                        end;
+                //нижняя сторона
+                if d2SideBottom in FSides
+                  then FPath.LineTo(d2Point(R.Left-FShiftSize + x1, R.Bottom))
+                  else FPath.MoveTo(d2Point(R.Left-FShiftSize + x1, R.Bottom));
+
+                //нижний левый угол
+                if d2CornerBottomLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left-FShiftSize,R.Bottom - y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left-FShiftSize + x1,R.Bottom - y2),
+                                            d2Point(R.Left-FShiftSize + x2,R.Bottom - y1),
+                                            d2Point(R.Left-FShiftSize,R.Bottom - y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left-FShiftSize + x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Left-FShiftSize + x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Left-FShiftSize,R.Bottom - y1));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Left-FShiftSize + x2,R.Bottom),
+                                               d2Point(R.Left-FShiftSize,R.Bottom - (y2)),
+                                               d2Point(R.Left-FShiftSize,R.Bottom - y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Left-FShiftSize,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Left-FShiftSize,R.Bottom));
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left-FShiftSize,R.Bottom - y1))
+                            else FPath.MoveTo(d2Point(R.Left-FShiftSize,R.Bottom - y1));
+                        end;
+
+                //левая сторона
+                if d2SideLeft in FSides
+                  then FPath.LineTo(d2Point(R.Left, R.Top + y1));
+              end;
+
+
+    d2ShiftVertical:
+      //сужение справа
+      if FShiftSize > 0
+        then  begin
+                //верхниий левый угол
+                FPath.MoveTo(d2Point(R.Left, R.Top + y1));
+                if d2CornerTopLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left + x1,R.Top));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x2, R.Top + y1),
+                                            d2Point(R.Left + x1, R.Top + y2),
+                                            d2Point(R.Left + x1, R.Top));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x2, R.Top + y1));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top + y2));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top));
+                              end;
+                          else  FPath.CurveTo(d2Point(R.Left, R.Top + (y2)),
+                                              d2Point(R.Left + x2,R.Top),
+                                              d2Point(R.Left + x1,R.Top))
+                          end;
+                        end
+                  else  begin
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left,R.Top));
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Left + x1,R.Top))
+                            else FPath.MoveTo(d2Point(R.Left+ x1,R.Top));
+                        end;
+
+                //верхняя сторона
+                if d2SideTop in FSides
+                  then FPath.LineTo(d2Point(R.Right - x1,R.Top+FShiftSize))
+                  else FPath.MoveTo(d2Point(R.Right - x1,R.Top+FShiftSize));
+
+                //верхниий правый угол
+                if d2CornerTopRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right,R.Top+FShiftSize + y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x1,R.Top+FShiftSize + y2),
+                                            d2Point(R.Right - x2,R.Top+FShiftSize + y1),
+                                            d2Point(R.Right,R.Top+FShiftSize + y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x1,R.Top+FShiftSize + y2));
+                                FPath.LineTo(d2Point(R.Right - x2,R.Top+FShiftSize + y1));
+                                FPath.LineTo(d2Point(R.Right,R.Top+FShiftSize + y1));
+                              end;
+                          else FPath.CurveTo(d2Point(R.Right - x2,R.Top+FShiftSize),
+                                             d2Point(R.Right,R.Top+FShiftSize + y2),
+                                             d2Point(R.Right,R.Top+FShiftSize + y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top+FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top+FShiftSize));
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top+FShiftSize + y1))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top+FShiftSize + y1));
+                        end;
+
+                //правая сторона
+                if d2SideRight in FSides
+                  then FPath.LineTo(d2Point(R.Right, R.Bottom-FShiftSize - y1))
+                  else FPath.MoveTo(d2Point(R.Right, R.Bottom-FShiftSize - y1));
+
+                //нижний правый угол
+                if d2CornerBottomRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right - x1,R.Bottom-FShiftSize));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x2,R.Bottom-FShiftSize - y1),
+                                            d2Point(R.Right - x1,R.Bottom-FShiftSize - y2),
+                                            d2Point(R.Right - x1,R.Bottom-FShiftSize));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x2,R.Bottom-FShiftSize - y1));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom-FShiftSize - y2));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom-FShiftSize));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Right,R.Bottom-FShiftSize - y2),
+                                               d2Point(R.Right - x2,R.Bottom-FShiftSize),
+                                               d2Point(R.Right - x1,R.Bottom-FShiftSize))
+                          end;
+                        end
+                  else  begin
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Bottom-FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Right,R.Bottom-FShiftSize));
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Right - x1,R.Bottom-FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Right - x1,R.Bottom-FShiftSize));
+                        end;
+                //нижняя сторона
+                if d2SideBottom in FSides
+                  then FPath.LineTo(d2Point(R.Left + x1, R.Bottom))
+                  else FPath.MoveTo(d2Point(R.Left + x1, R.Bottom));
+
+                //нижний левый угол
+                if d2CornerBottomLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x1,R.Bottom - y2),
+                                            d2Point(R.Left + x2,R.Bottom - y1),
+                                            d2Point(R.Left,R.Bottom - y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Left + x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Left,R.Bottom - y1));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Left + x2,R.Bottom),
+                                               d2Point(R.Left,R.Bottom - y2),
+                                               d2Point(R.Left,R.Bottom - y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom));
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom - y1))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom - y1));
+                        end;
+
+                //левая сторона
+                if d2SideLeft in FSides
+                  then FPath.LineTo(d2Point(R.Left, R.Top + y1));
+              end
+
+        //сужение слева
+        else  begin
+                //верхниий левый угол
+                FPath.MoveTo(d2Point(R.Left, R.Top-FShiftSize + y1));
+                if d2CornerTopLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left + x1,R.Top-FShiftSize));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x2, R.Top-FShiftSize + y1),
+                                            d2Point(R.Left + x1, R.Top-FShiftSize + y2),
+                                            d2Point(R.Left + x1, R.Top-FShiftSize));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x2, R.Top-FShiftSize + y1));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top-FShiftSize + y2));
+                                FPath.LineTo(d2Point(R.Left + x1, R.Top-FShiftSize));
+                              end;
+                          else  FPath.CurveTo(d2Point(R.Left, R.Top-FShiftSize + y2),
+                                              d2Point(R.Left + x2,R.Top-FShiftSize),
+                                              d2Point(R.Left + x1,R.Top-FShiftSize))
+                          end;
+                        end
+                  else  begin
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Top-FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Left,R.Top-FShiftSize));
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Left + x1,R.Top-FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Left + x1,R.Top-FShiftSize));
+                        end;
+
+                //верхняя сторона
+                if d2SideTop in FSides
+                  then FPath.LineTo(d2Point(R.Right - x1,R.Top))
+                  else FPath.MoveTo(d2Point(R.Right - x1,R.Top));
+
+                //верхниий правый угол
+                if d2CornerTopRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right,R.Top + y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x1,R.Top + y2),
+                                            d2Point(R.Right - x2,R.Top + y1),
+                                            d2Point(R.Right,R.Top + y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x1,R.Top + y2));
+                                FPath.LineTo(d2Point(R.Right - x2,R.Top + y1));
+                                FPath.LineTo(d2Point(R.Right,R.Top + y1));
+                              end;
+                          else FPath.CurveTo(d2Point(R.Right - x2,R.Top),
+                                             d2Point(R.Right,R.Top + (y2)),
+                                             d2Point(R.Right,R.Top + y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideTop in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top));
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Top + y1))
+                            else FPath.MoveTo(d2Point(R.Right,R.Top + y1));
+                        end;
+
+                //правая сторона
+                if d2SideRight in FSides
+                  then FPath.LineTo(d2Point(R.Right, R.Bottom - y1))
+                  else FPath.MoveTo(d2Point(R.Right, R.Bottom - y1));
+
+                //нижний правый угол
+                if d2CornerBottomRight in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Right - x2,R.Bottom - y1),
+                                            d2Point(R.Right - x1,R.Bottom - y2),
+                                            d2Point(R.Right - x1,R.Bottom));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Right - x2,R.Bottom - y1));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom - y2));
+                                FPath.LineTo(d2Point(R.Right - x1,R.Bottom));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Right,R.Bottom - y2),
+                                               d2Point(R.Right - x2,R.Bottom),
+                                               d2Point(R.Right - x1,R.Bottom))
+                          end;
+                        end
+                  else  begin
+                          if d2SideRight in FSides
+                            then FPath.LineTo(d2Point(R.Right,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right,R.Bottom));
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Right - x1,R.Bottom))
+                            else FPath.MoveTo(d2Point(R.Right - x1,R.Bottom));
+                        end;
+                //нижняя сторона
+                if d2SideBottom in FSides
+                  then FPath.LineTo(d2Point(R.Left + x1, R.Bottom+FShiftSize))
+                  else FPath.MoveTo(d2Point(R.Left + x1, R.Bottom+FShiftSize));
+
+                //нижний левый угол
+                if d2CornerBottomLeft in FCorners
+                  then  begin
+                          case FCornerType of
+                            // d2CornetRound - default
+                            d2CornerBevel:
+                              FPath.LineTo(d2Point(R.Left,R.Bottom+FShiftSize - y1));
+                            d2CornerInnerRound:
+                              FPath.CurveTo(d2Point(R.Left + x1,R.Bottom+FShiftSize - y2),
+                                            d2Point(R.Left + x2,R.Bottom+FShiftSize - y1),
+                                            d2Point(R.Left,R.Bottom+FShiftSize - y1));
+                            d2CornerInnerLine:
+                              begin
+                                FPath.LineTo(d2Point(R.Left + x1,R.Bottom+FShiftSize - y2));
+                                FPath.LineTo(d2Point(R.Left + x2,R.Bottom+FShiftSize - y1));
+                                FPath.LineTo(d2Point(R.Left,R.Bottom+FShiftSize - y1));
+                              end;
+                            else FPath.CurveTo(d2Point(R.Left + x2,R.Bottom+FShiftSize),
+                                               d2Point(R.Left,R.Bottom+FShiftSize - (y2)),
+                                               d2Point(R.Left,R.Bottom+FShiftSize - y1))
+                          end;
+                        end
+                  else  begin
+                          if d2SideBottom in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom+FShiftSize))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom+FShiftSize));
+                          if d2SideLeft in FSides
+                            then FPath.LineTo(d2Point(R.Left,R.Bottom+FShiftSize - y1))
+                            else FPath.MoveTo(d2Point(R.Left,R.Bottom+FShiftSize - y1));
+                        end;
+
+                //левая сторона
+                if d2SideLeft in FSides
+                  then FPath.LineTo(d2Point(R.Left, R.Top-FShiftSize + y1));
+              end;
+  end;
+
+  //рисуем линии
+  if FDoubleLine then
+    case FShiftDirection of
+      d2ShiftHorizontal:
+        begin
+          if ShiftSize>0
+            then begin
+                   x1:=DoubleLineIndent+ShiftSize;
+                   x2:=DoubleLineIndent;
+                 end
+            else begin
+                   x1:=DoubleLineIndent;
+                   x2:=DoubleLineIndent-ShiftSize;
+                 end;
+          FPath.MoveTo(d2Point(R.Left+x1, R.Top));
+          FPath.LineTo(d2Point(R.Left+x2, R.Bottom));
+          FPath.MoveTo(d2Point(R.Right-x1, R.Top));
+          FPath.LineTo(d2Point(R.Right-x2, R.Bottom));
+        end;
+      d2ShiftVertical:
+        begin
+          if ShiftSize>0
+            then begin
+                   x1:=DoubleLineIndent+ShiftSize;
+                   x2:=DoubleLineIndent;
+                 end
+            else begin
+                   x1:=DoubleLineIndent;
+                   x2:=DoubleLineIndent-ShiftSize;
+                 end;
+          FPath.MoveTo(d2Point(R.Left, R.Top+x2));
+          FPath.LineTo(d2Point(R.Right, R.Top+x1));
+          FPath.MoveTo(d2Point(R.Left, R.Bottom-x2));
+          FPath.LineTo(d2Point(R.Right, R.Bottom-x1));
+        end;
+    end;
 end;
 
 //=============== TD2CalloutRectangle ====================================
