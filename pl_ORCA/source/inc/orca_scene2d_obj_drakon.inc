@@ -53,6 +53,13 @@ var
 begin
   if FNodeType=AValue then Exit;
   FNodeType:=AValue;
+  FText:=nil;
+  FText2:=nil;
+  FShape:=nil;
+  FShape2:=nil;
+  FNum:=nil;
+
+
   //if FText<>nil
   //  then begin
   //         t:=FText.Text;
@@ -163,9 +170,8 @@ begin
   S:=FindResource('shape');
   if (S<>nil) and (S is TD2Shape)
     then FShape:=TD2Shape(S)
-    else
-      if (S=nil) and (FResourceLink is TD2Shape)
-        then FShape:=TD2Shape(FResourceLink);
+    else if (S=nil) and (FResourceLink is TD2Shape)
+           then FShape:=TD2Shape(FResourceLink);
   S:=FindResource('shape2');
   if (S<>nil) and (S is TD2Shape)
     then FShape2:=TD2Shape(S);
@@ -175,6 +181,10 @@ begin
   S:=FindResource('text2');
   if (S<>nil) and (S is TD2Text)
     then FText2:=TD2Text(S);
+  S:=FindResource('number');
+  if (S<>nil) and (S is TD2Text)
+    then FNum:=TD2Text(S);
+  Realign;
 end;
 
 constructor TD2DrakonNode.Create(AOwner: TComponent);
@@ -198,5 +208,86 @@ begin
   FNodeRight:= nil;
   inherited;
 end;
+
+procedure TD2DrakonNode.Realign;
+var
+  h,h1,w: single;
+  a:TD2Align;
+
+begin
+
+  if csDestroying in ComponentState then Exit;
+  if FDisableDefaultAlign then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
+  if FText2 <> nil
+    then with FText2 do
+           begin
+             BeginUpdate;
+             a:=FAlign;
+             FAlign:=vaNone;
+             AdjustSize;
+             h1:=FHeight + FPadding.FTop + FPadding.FBottom;
+             FAlign:=a;
+             EndUpdate;
+           end
+    else h1:=0;
+  if FShape2 <> nil
+    then with FShape2 do
+           begin
+             h1:= h1 + FMargins.FTop + FMargins.FBottom;
+             h:= h1 + FPadding.FTop + FPadding.FBottom;
+             FHeight:=h1;
+           end
+    else h:=0;
+  if FText <> nil
+    then with FText do
+         begin
+           BeginUpdate;
+           a:=FAlign;
+           FAlign:=vaNone;
+           AdjustSize;
+           h1:=FHeight + FPadding.FTop + FPadding.FBottom;
+           FAlign:=a;
+           EndUpdate;
+         end
+    else h1:=0;
+  if FShape <> nil then
+  begin
+    if FNodeType=drComment
+      then with FShape do
+             h:= h + h1 + FMargins.FTop + FMargins.FBottom
+      else with FShape do
+           begin
+             h1:= h1 + FMargins.FTop + FMargins.FBottom;
+             h:= h + h1 + FPadding.FTop + FPadding.FBottom;
+             FHeight:=h1;
+           end;
+  end;
+  if h<10 then h:=10;
+  FHeight:=h;
+  inherited;
+end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   

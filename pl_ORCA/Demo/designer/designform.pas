@@ -25,6 +25,7 @@ type
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
     DrakonNode1: TD2DrakonNode;
+    Ellipse2: TD2Ellipse;
     Rectangle2: TD2Rectangle;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
@@ -38,6 +39,7 @@ type
     PopupBox1: TD2PopupBox;
     PopupBox2: TD2PopupBox;
     PopupBox3: TD2PopupBox;
+    Text1: TD2Text;
     TrackBar1: TD2TrackBar;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;

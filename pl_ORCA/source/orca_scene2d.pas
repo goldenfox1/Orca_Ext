@@ -3355,6 +3355,7 @@ TD2DrakonNode=class(TD2Control)
     FText2: TD2Text;              //Указатель на дополнительный текстовый объект иконы
     FShape: TD2Shape;             //Указатель на основной объект контура иконы
     FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
+    FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
     FNodeType: TD2DrakonNodeType; //Тип узла
     FNodeIndex: integer;          //Порядковый № узла на схеме
     FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
@@ -3375,10 +3376,10 @@ TD2DrakonNode=class(TD2Control)
 
  protected
     procedure ApplyStyle;  override;
-
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
+    procedure Realign;  override;
 
     property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
     property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
@@ -3387,7 +3388,9 @@ TD2DrakonNode=class(TD2Control)
   published
     property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
     property NodeText: TD2Text read FText;
+    property NodeText2: TD2Text read FText2;
     property NodeShape: TD2Shape read FShape;
+    property NodeShape2: TD2Shape read FShape2;
 end;
 
 TD2Image = class(TD2VisualObject)

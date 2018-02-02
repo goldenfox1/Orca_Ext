@@ -1984,7 +1984,7 @@ begin
   begin
     Repaint;
     FHeight:=Value;
-    if (FHeight < 0) and (((FScene <> nil) and (FScene.GetDesignTime))) then
+    if (FHeight < 0) and (FScene <> nil) and (FScene.GetDesignTime) then
     begin
       FHeight:=Abs(FHeight);
       FScale.Y:=-FScale.Y;
@@ -2009,7 +2009,7 @@ begin
   begin
     Repaint;
     FWidth:=Value;
-    if (FWidth < 0) and (((FScene <> nil) and (FScene.GetDesignTime))) then
+    if (FWidth < 0) and (FScene <> nil) and (FScene.GetDesignTime) then
     begin
       FWidth:=Abs(FWidth);
       FScale.X:=-FScale.X;
