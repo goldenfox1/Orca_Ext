@@ -3351,8 +3351,17 @@ TD2DrakonEditor = class;
 TD2DrakonNode=class(TD2Control)
   private
     FEditor: TD2DrakonEditor;     //указатель на редактор
-    FText: TD2Text;               //указатель основной текстовый объект иконы
-    FText2: TD2Text;              //Указатель на дополнительный текстовый объект иконы
+
+    FText: String;
+    FText2: String;
+    FTextFont: TD2Font;
+    FTextFill: TD2Brush;
+    FFill: TD2Brush;
+    FStroke: TD2Brush;
+    FStrokeThickness:single;
+
+    FTextShape: TD2Text;               //указатель основной текстовый объект иконы
+    FTextShape2: TD2Text;              //Указатель на дополнительный текстовый объект иконы
     FShape: TD2Shape;             //Указатель на основной объект контура иконы
     FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
     FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
@@ -3362,6 +3371,8 @@ TD2DrakonNode=class(TD2Control)
     FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
     FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
     FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+
+
 
               //Задать связанный узел ниже
     procedure SetNodeDown(AValue: TD2DrakonNode);
@@ -3373,6 +3384,14 @@ TD2DrakonNode=class(TD2Control)
     procedure SetNodeUp(AValue: TD2DrakonNode);
               //Задать тип узела
     procedure SetNodeType(AValue: TD2DrakonNodeType);
+
+    procedure SetFill(AValue: TD2Brush);
+    procedure SetStroke(AValue: TD2Brush);
+    procedure SetStrokeThickness(AValue: single);
+    procedure SetText(AValue: String);
+    procedure SetText2(AValue: String);
+    procedure SetTextFill(AValue: TD2Brush);
+    procedure SetTextFont(AValue: TD2Font);
 
  protected
     procedure ApplyStyle;  override;
@@ -3387,10 +3406,15 @@ TD2DrakonNode=class(TD2Control)
     property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
   published
     property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
-    property NodeText: TD2Text read FText;
-    property NodeText2: TD2Text read FText2;
-    property NodeShape: TD2Shape read FShape;
-    property NodeShape2: TD2Shape read FShape2;
+
+    property Text: String read FText write SetText;
+    property Text2: String read FText2 write SetText2;
+    property TextFont: TD2Font read FTextFont write SetTextFont;
+    property TextFill: TD2Brush read FTextFill write SetTextFill;
+
+    property Fill: TD2Brush read FFill write SetFill;
+    property Stroke: TD2Brush read FStroke write SetStroke;
+    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
 end;
 
 TD2Image = class(TD2VisualObject)

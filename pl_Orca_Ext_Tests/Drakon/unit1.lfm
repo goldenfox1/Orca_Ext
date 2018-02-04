@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 311
+  Left = 299
   Height = 559
   Top = 126
   Width = 693
@@ -20,152 +20,37 @@ object Form1: TForm1
       RotateAngle = 0
       Width = 693
       Height = 559
-      object FramedScrollBox1: TD2FramedScrollBox
-        Position.Point = '(34,22)'
+      object Text1: TD2Text
+        Position.Point = '(128,320)'
         RotateAngle = 0
-        Width = 207
-        Height = 213
-        TabOrder = 0
-      end
-      object CalloutPanel1: TD2CalloutPanel
-        Position.Point = '(86,283)'
-        RotateAngle = 0
-        Width = 149
-        Height = 66
-        Resource = 'CalloutPanel1Style1'
-        TabOrder = 1
-        CalloutWidth = 23
-        CalloutLength = 11
-        CalloutPosition = d2CalloutLeft
-        CalloutOffset = 0
-      end
-      object AniIndicator1: TD2AniIndicator
-        Enabled = False
-        Position.Point = '(437,300)'
-        RotateAngle = 0
-        Width = 94
-        Height = 64
-        Scale.Point = '(1,-1)'
-        TabOrder = 2
-        Style = d2AniIndicatorLine
-      end
-      object Ellipse1: TD2Ellipse
-        Position.Point = '(489,361)'
-        RotateAngle = 0
-        Width = 124
-        Height = 50
-      end
-      object RoundRect1: TD2RoundRect
-        Position.Point = '(443,75)'
-        RotateAngle = 0
-        Width = 132
-        Height = 77
-        object Text1: TD2Text
-          Align = vaClient
-          Position.Point = '(10,10)'
-          RotateAngle = 0
-          Width = 112
-          Height = 57
-          Padding.Rect = '(10,10,10,10)'
-          AutoSize = True
-          Text = 'Проверка текста помещеного в квадрат'
-        end
-      end
-      object CalloutRectangle1: TD2CalloutRectangle
-        Position.Point = '(276,155)'
-        RotateAngle = 0
-        Width = 127
-        Height = 88
-        xRadius = 0
-        yRadius = 0
-        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-        CalloutWidth = 124
-        CalloutLength = 15
-        CalloutPosition = d2CalloutBottom
-        CalloutOffset = 50
+        Width = 230
+        Height = 94
+        Text = 'Проверка текста'
+        Stretch = True
       end
       object Rectangle1: TD2Rectangle
-        Position.Point = '(305,279)'
+        Position.Point = '(424,307)'
         RotateAngle = 0
-        Width = 50
-        Height = 50
-        xRadius = 0
-        yRadius = 0
+        Width = 104
+        Height = 109
+        StrokeDash = d2DashDash
+        StrokeJoin = d2JoinRound
+        StrokeThickness = 5
+        xRadius = 5
+        yRadius = 5
         Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-      end
-      object RoundRect2: TD2RoundRect
-        Position.Point = '(179,430)'
-        RotateAngle = 0
-        Width = 240
-        Height = 49
-      end
-      object DrakonAction1: TD2DrakonAction
-        Position.Point = '(298,349)'
-        RotateAngle = 0
-        Width = 139
-        Height = 42
-        xRadius = 0
-        yRadius = 0
-        Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-        object TD2Text
-          Align = vaClient
-          Position.Point = '(5,5)'
-          RotateAngle = 0
-          Locked = True
-          Width = 129
-          Height = 32
-          Padding.Rect = '(5,5,5,5)'
-        end
-        object TD2Text
-          Align = vaClient
-          Position.Point = '(5,5)'
-          RotateAngle = 0
-          Locked = True
-          Width = 129
-          Height = 32
-          Padding.Rect = '(5,5,5,5)'
-          Text = 'Ghj,s;alkdjf'
-        end
-        object TD2Text
-          Align = vaClient
-          Position.Point = '(5,5)'
-          RotateAngle = 0
-          Locked = True
-          Width = 129
-          Height = 32
-          Padding.Rect = '(5,5,5,5)'
-        end
-      end
-      object Memo1: TD2Memo
-        Position.Point = '(531,210)'
-        RotateAngle = 0
-        Width = 108
-        Height = 82
-        TabOrder = 9
-        WordWrap = True
-        Text = 'проба провбоава жфыдлвожал ж ывла фж ыва фжыва  лыва'
-      end
-      object TextBox1: TD2TextBox
-        Position.Point = '(437,435)'
-        RotateAngle = 0
-        Width = 155
-        Height = 60
-        TabOrder = 10
-        ReadOnly = False
-        Password = False
-        Text = 'проба провбоава жфыдлвожал ж ывла фж ыва фжыва  лыва'
       end
       object DrakonNode1: TD2DrakonNode
-        Position.Point = '(332,82)'
+        Position.Point = '(426,165)'
         RotateAngle = 0
-        Width = 50
-        Height = 50
-        NodeType = drOutput
-        object TD2DrakonIcon
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-        end
+        Width = 85
+        Height = 35
+        Resource = 'DrakonInputStyle'
+        TabOrder = 2
+        NodeType = drInput
+        Text = '1'
+        Text2 = '2'
+        StrokeThickness = 1
       end
     end
   end
