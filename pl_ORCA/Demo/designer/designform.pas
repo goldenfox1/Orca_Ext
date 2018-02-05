@@ -24,7 +24,9 @@ type
     d2SceneDesigner: TD2Scene;
     DesignerRoot: TD2Background;
     d2Toolbar: TD2Scene;
+    DrakonEditor1: TD2DrakonEditor;
     DrakonNode1: TD2DrakonNode;
+    DrakonNode2: TD2DrakonNode;
     Ellipse2: TD2Ellipse;
     Rectangle2: TD2Rectangle;
     Root2: TD2Background;
