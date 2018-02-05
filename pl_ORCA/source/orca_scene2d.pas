@@ -3031,7 +3031,7 @@ TD2DirectionRectangle = class(TD2Rectangle)
     destructor Destroy;  override;
   published
     property Fill;
-    property DirectionLength:single read FDirectionLength write SetDirectionLength default 15;
+    property DirectionLength:single read FDirectionLength write SetDirectionLength default 10;
     property DirectionLine: boolean read FDirectionLine write SetDirectionLine default false;
     property DirectionMark: boolean read FDirectionMark write SetDirectionMark default false;
     property DirectionPosition: TD2DirectionPosition read FDirectionPosition write SetDirectionPosition default d2DirectionTop;
@@ -3392,6 +3392,10 @@ TD2DrakonNode=class(TD2Control)
     procedure SetText2(AValue: String);
     procedure SetTextFill(AValue: TD2Brush);
     procedure SetTextFont(AValue: TD2Font);
+
+    procedure FillChanged(Sender: TObject);
+    procedure FontChanged(Sender: TObject);
+    procedure StrokeChanged(Sender: TObject);
 
  protected
     procedure ApplyStyle;  override;

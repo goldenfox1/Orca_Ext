@@ -1037,7 +1037,7 @@ end;
 constructor TD2DirectionRectangle.Create(AOwner: TComponent);
 begin
   inherited;
-  FDirectionLength:=15;
+  FDirectionLength:=10;
   FPath:=TD2PathData.Create;
   FMarkPath:=TD2PathData.Create;
 end;

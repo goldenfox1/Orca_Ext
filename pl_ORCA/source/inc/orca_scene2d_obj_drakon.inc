@@ -16,13 +16,34 @@ begin
     FEditor.Realign;
 end;
 
+procedure TD2DrakonNode.FontChanged(Sender: TObject);
+begin
+  FUpdateEffects:=true;
+  Realign;
+  Repaint;
+end;
+
+procedure TD2DrakonNode.FillChanged(Sender: TObject);
+begin
+  FUpdateEffects:=true;
+  Realign;
+  Repaint;
+end;
+
 procedure TD2DrakonNode.SetFill(AValue: TD2Brush);
 begin
   FFill.Assign(AValue);
-  if FShape<>nil
+  if (FShape<>nil) and (FNodeType<>drComment)
     then FShape.FFill.Assign(AValue);
   if FShape2<>nil
     then FShape2.FFill.Assign(AValue);
+  Repaint;
+end;
+
+procedure TD2DrakonNode.StrokeChanged(Sender: TObject);
+begin
+  FUpdateEffects:=true;
+  Realign;
   Repaint;
 end;
 
@@ -157,7 +178,6 @@ begin
   if FTextShape=nil then exit;
   FTextShape.Text:=AValue;
   Realign;
-  Repaint;
 end;
 
 procedure TD2DrakonNode.SetText2(AValue: String);
@@ -167,17 +187,16 @@ begin
   if FTextShape2=nil then exit;
   FTextShape2.Text:=AValue;
   Realign;
-  Repaint;
 end;
 
 procedure TD2DrakonNode.SetTextFill(AValue: TD2Brush);
 begin
   FTextFill.Assign(AValue);
   if FTextShape<>nil
-    then FTextShape.FFill.Assign(AValue);
+    then FTextShape.Fill.Assign(AValue);
   if FTextShape2<>nil
-    then FTextShape2.FFill.Assign(AValue);
-  Repaint;
+    then FTextShape2.Fill.Assign(AValue);
+  //Realign;
 end;
 
 procedure TD2DrakonNode.SetTextFont(AValue: TD2Font);
@@ -187,7 +206,7 @@ begin
     then FTextShape.FFont.Assign(AValue);
   if FTextShape2<>nil
     then FTextShape2.FFont.Assign(AValue);
-  Realign;
+  //Realign;
 end;
 
 procedure TD2DrakonNode.ApplyStyle;
@@ -230,11 +249,20 @@ begin
   FText:='';
   FText2:='';
   FTextFont:=TD2Font.Create;
+  FTextFont.OnChanged:=FontChanged;
+
   FTextFill:=TD2Brush.Create(d2BrushSolid,$FF000000);
   FTextFill.SolidColor:=$FF000000;
+  FTextFill.OnChanged:=FillChanged;
+
   FFill:=TD2Brush.Create(d2BrushSolid,$FFE0E0E0);
+  FFill.SolidColor:=$FFE0E0E0;
+  FFill.OnChanged:=FillChanged;
+
   FStroke:=TD2Brush.Create(d2BrushSolid,$FF000000);
   FStroke.SolidColor:=$FF000000;
+  FStroke.OnChanged:=StrokeChanged;
+
   FStrokeThickness:=1;
 end;
 
@@ -290,7 +318,7 @@ begin
            FShape2.FFill.Assign(FFill);
            FShape2.FStroke.Assign(FStroke);
            FShape2.FStrokeThickness:=FStrokeThickness;
-           FShape2.FHeight:=h1;
+           FShape2.Height:=h1;
          end
     else h:=0;
   if FTextShape <> nil
@@ -304,22 +332,20 @@ begin
     else h1:=0;
   if FShape <> nil then
   begin
-    FShape.FFill.Assign(FFill);
     FShape.FStroke.Assign(FStroke);
     FShape.FStrokeThickness:=FStrokeThickness;
     if FNodeType=drComment
-      then with FShape do
-             h:= h + h1 + FMargins.FTop + FMargins.FBottom
-      else with FShape do
-           begin
-             h1:= h1 + FMargins.FTop + FMargins.FBottom;
-             h:= h + h1 + FPadding.FTop + FPadding.FBottom;
-             FHeight:=h1;
+      then h:= h + h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom
+      else begin
+             FShape.FFill.Assign(FFill);
+             h1:= h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom;
+             h:= h + h1 + FShape.FPadding.FTop + FShape.FPadding.FBottom;
+             FShape.Height:=h1;
            end;
   end;
   if h<15 then h:=15;
   if h>1000 then h:=1000;
-  FHeight:=h;
+  Height:=h;
   inherited;
 end;
 
