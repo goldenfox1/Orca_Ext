@@ -3207,110 +3207,6 @@ TD2Text = class(TD2Shape)
     property WordWrap: boolean read FWordWrap write SetWordWrap  default true;
   end;
 
-//Графический Дракон-объект Действие
-TD2DrakonAction = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Конец ветки - ссылка на другую ветку
-TD2DrakonAddress = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Название алгоритма
-TD2DrakonBeginend = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Начало ветки
-TD2DrakonBranch = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Вариант для множественного выбора
-TD2DrakonCase = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Комментарий
-TD2DrakonComment = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Комментарий слева
-TD2DrakonCommentL = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Комментарий справа
-TD2DrakonCommentR = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Начало контрольного срока
-TD2DrakonCtrlStart = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Конец контрольного срока
-TD2DrakonCtrlEnd = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Время, длительность
-TD2DrakonDuration = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Конец алгоритма
-TD2DrakonEnd = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Ввод
-TD2DrakonInput = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Вставка
-TD2DrakonInsertion = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Начало цикла
-TD2DrakonLoopBegin = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Конец цикла
-TD2DrakonLoopEnd = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Вывод
-TD2DrakonOutput = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Вхдные параметры
-TD2DrakonParams = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Пауза
-TD2DrakonPause = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Парралельный процесс
-TD2DrakonProcess = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Вопрос
-TD2DrakonQuestion = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Множественный выбор из нескольких значений
-TD2DrakonSelect = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Полка
-TD2DrakonShelf = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Простой ввод
-TD2DrakonSInput = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Простой вывод
-TD2DrakonSOutput = class (TD2Rectangle)
-End;
-
-//Графический Дракон-объект Таймер
-TD2DrakonTimer = class (TD2Rectangle)
-End;
-
 //Тип узла дракон-схемы
 TD2DrakonNodeType=(
   drNone,      //Не определен
@@ -3343,84 +3239,51 @@ TD2DrakonNodeType=(
   drTimer      //Таймер
 );
 
+TD2DrakonIcon = (
+  driAction,       //Действие
+  driAddress,      //Конец ветки-ссылка на другую ветку
+  driBeginend,     //Название алгоритма
+  driBranch,       //Начало ветки
+  driCase,         //Вариант для множественного выбора
+  driComment,      //Комментарий
+  driCommentL,     //Комментарий слева
+  driCommentR,     //Комментарий справа
+  driCtrlStart,    //Начало контрольного срока
+  driCtrlEnd,      //Конец контрольного срока
+  driDuration,     //Время, длительность
+  driEnd,          //Конец алгоритма
+  driInput,        //Ввод
+  driInsertion,    //Вставка
+  driLoopBegin,    //Начало цикла
+  driLoopEnd,      //Конец цикла
+  driOutput,       //Вывод
+  driParams,       //Вхдные параметры
+  driPause,        //Пауза
+  driProcess,      //Парралельный процесс
+  driQuestion,     //Вопрос
+  driSelect,       //Множественный выбор из нескольких значений
+  driShelf,        //Полка
+  driSInput,       //Простой ввод
+  driSOutput,      //Простой вывод
+  driTimer,        //Таймер
+  driPrimitive,    //примитив
+  driSilhouette,   //силуэт
+  driParallel,     //одновременная работа
+  driMoreParallel //добавить одновременное исполнение
+  );
 
-TD2DrakonEditor = class;
+TD2DrakonIcons = set of TD2DrakonIcon;
 
-{ TD2DrakonNode }
-//Узел дракон-схемы
-TD2DrakonNode=class(TD2Control)
-  private
-    FEditor: TD2DrakonEditor;     //указатель на редактор
+const
+d2DrakonIconsAll = [driAction, driAddress, driBeginend, driBranch, driCase,
+                     driComment, driCommentL, driCommentR, driCtrlStart,
+                     driCtrlEnd, driDuration, driEnd, driInput, driInsertion,
+                     driLoopBegin, driLoopEnd, driOutput, driParams, driPause,
+                     driProcess, driQuestion, driSelect, driShelf, driSInput,
+                     driSOutput, driTimer, driPrimitive, driSilhouette,
+                     driParallel, driMoreParallel];
 
-    FText: String;
-    FText2: String;
-    FTextFont: TD2Font;
-    FTextFill: TD2Brush;
-    FFill: TD2Brush;
-    FStroke: TD2Brush;
-    FStrokeThickness:single;
-
-    FTextShape: TD2Text;               //указатель основной текстовый объект иконы
-    FTextShape2: TD2Text;              //Указатель на дополнительный текстовый объект иконы
-    FShape: TD2Shape;             //Указатель на основной объект контура иконы
-    FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
-    FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
-    FNodeType: TD2DrakonNodeType; //Тип узла
-    FNodeIndex: integer;          //Порядковый № узла на схеме
-    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
-    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
-    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
-    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
-
-
-
-              //Задать связанный узел ниже
-    procedure SetNodeDown(AValue: TD2DrakonNode);
-              //Задать связанный узел слева
-    procedure SetNodeLeft(AValue: TD2DrakonNode);
-              //Задать связанный узел справа
-    procedure SetNodeRight(AValue: TD2DrakonNode);
-              //Задать связанный узел выше
-    procedure SetNodeUp(AValue: TD2DrakonNode);
-              //Задать тип узела
-    procedure SetNodeType(AValue: TD2DrakonNodeType);
-
-    procedure SetFill(AValue: TD2Brush);
-    procedure SetStroke(AValue: TD2Brush);
-    procedure SetStrokeThickness(AValue: single);
-    procedure SetText(AValue: String);
-    procedure SetText2(AValue: String);
-    procedure SetTextFill(AValue: TD2Brush);
-    procedure SetTextFont(AValue: TD2Font);
-
-    procedure FillChanged(Sender: TObject);
-    procedure FontChanged(Sender: TObject);
-    procedure StrokeChanged(Sender: TObject);
-
- protected
-    procedure ApplyStyle;  override;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    procedure Realign;  override;
-
-    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
-    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
-    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
-    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
-  published
-    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
-
-    property Text: String read FText write SetText;
-    property Text2: String read FText2 write SetText2;
-    property TextFont: TD2Font read FTextFont write SetTextFont;
-    property TextFill: TD2Brush read FTextFill write SetTextFill;
-
-    property Fill: TD2Brush read FFill write SetFill;
-    property Stroke: TD2Brush read FStroke write SetStroke;
-    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
-end;
-
+type
 TD2Image = class(TD2VisualObject)
   private
     FBitmap: TD2Bitmap;
@@ -4820,8 +4683,96 @@ TD2FramedScrollBox = class(TD2ScrollBox)
   published
   end;
 
+TD2DrakonEditor = class;
+
+{ TD2DrakonNode }
+//Узел дракон-схемы
+TD2DrakonNode=class(TD2Control)
+  private
+    FEditor: TD2DrakonEditor;     //указатель на редактор
+    FText: String;
+    FText2: String;
+    FTextFont: TD2Font;
+    FTextFill: TD2Brush;
+    FFill: TD2Brush;
+    FStroke: TD2Brush;
+    FStrokeThickness:single;
+    FTextShape: TD2Text;          //указатель основной текстовый объект иконы
+    FTextShape2: TD2Text;         //Указатель на дополнительный текстовый объект иконы
+    FShape: TD2Shape;             //Указатель на основной объект контура иконы
+    FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
+    FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
+    FNodeType: TD2DrakonNodeType; //Тип узла
+    FNodeIndex: integer;          //Порядковый № узла на схеме
+    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
+    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
+    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
+    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+
+              //Задать связанный узел ниже
+    procedure SetNodeDown(AValue: TD2DrakonNode);
+              //Задать связанный узел слева
+    procedure SetNodeLeft(AValue: TD2DrakonNode);
+              //Задать связанный узел справа
+    procedure SetNodeRight(AValue: TD2DrakonNode);
+              //Задать связанный узел выше
+    procedure SetNodeUp(AValue: TD2DrakonNode);
+              //Задать тип узела
+    procedure SetNodeType(AValue: TD2DrakonNodeType);
+
+    procedure SetFill(AValue: TD2Brush);
+    procedure SetStroke(AValue: TD2Brush);
+    procedure SetStrokeThickness(AValue: single);
+    procedure SetText(AValue: String);
+    procedure SetText2(AValue: String);
+    procedure SetTextFill(AValue: TD2Brush);
+    procedure SetTextFont(AValue: TD2Font);
+
+    procedure FillChanged(Sender: TObject);
+    procedure FontChanged(Sender: TObject);
+    procedure StrokeChanged(Sender: TObject);
+
+ protected
+    procedure ApplyStyle;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+    procedure Realign;  override;
+
+    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
+    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
+    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
+    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
+  published
+    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+
+    property Text: String read FText write SetText;
+    property Text2: String read FText2 write SetText2;
+    property TextFont: TD2Font read FTextFont write SetTextFont;
+    property TextFill: TD2Brush read FTextFill write SetTextFill;
+
+    property Fill: TD2Brush read FFill write SetFill;
+    property Stroke: TD2Brush read FStroke write SetStroke;
+    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
+end;
+
 TD2DrakonEditor = class(TD2FramedScrollBox)
 
+end;
+
+{ TD2DrakonPallet }
+
+TD2DrakonPallet = class(TD2FramedScrollBox)
+  private
+    FEditor: TD2DrakonEditor;     //указатель на редактор
+    FIcons:  TD2DrakonIcons;
+    procedure SetEditor(AValue: TD2DrakonEditor);
+    procedure SetIcons(AValue: TD2DrakonIcons);
+  public
+    constructor Create(AOwner: TComponent);  override;
+  published
+    property Editor: TD2DrakonEditor read FEditor write SetEditor;
+    property Icons: TD2DrakonIcons read FIcons write SetIcons default d2DrakonIconsAll;
 end;
 
 TD2FramedVertScrollBox = class(TD2VertScrollBox)
@@ -12008,7 +11959,7 @@ initialization
  **********************************************************************}
   Registerd2Objects('Docking', [TD2DockingPlace, TD2DockingPanel]);
 
-  Registerd2Objects('Drakon', [TD2DrakonNode, TD2DrakonEditor]);
+  Registerd2Objects('Drakon', [TD2DrakonNode, TD2DrakonEditor, TD2DrakonPallet]);
 
 //======================= End part of make by GoldenFox =======================
 //.................................................................................................

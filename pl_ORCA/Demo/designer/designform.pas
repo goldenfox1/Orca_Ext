@@ -18,8 +18,10 @@ type
   { TfrmDesigner }
 
   TfrmDesigner = class(TForm)
+    AngleButton1: TD2AngleButton;
     BevelEffect1: TD2BevelEffect;
     BevelEffect2: TD2BevelEffect;
+    BitmapButton1: TD2BitmapButton;
     Brace1: TD2Brace;
     d2SceneDesigner: TD2Scene;
     DesignerRoot: TD2Background;
@@ -27,7 +29,9 @@ type
     DrakonEditor1: TD2DrakonEditor;
     DrakonNode1: TD2DrakonNode;
     DrakonNode2: TD2DrakonNode;
+    DrakonPallet1: TD2DrakonPallet;
     Ellipse2: TD2Ellipse;
+    PathButton1: TD2PathButton;
     Rectangle2: TD2Rectangle;
     Root2: TD2Background;
     Rectangle1: TD2Rectangle;
@@ -47,10 +51,12 @@ type
     SaveDialog1: TSaveDialog;
     Image1: TD2Image;
     CheckBox1: TD2CheckBox;
+    CheckBox2: TD2CheckBox;
     Line1: TD2Line;
     d2SceneInspector: TD2Scene;
     Root1: TD2Layout;
     Inspector1: TD2Inspector;
+    procedure CheckBox2Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Rectangle2Click(Sender: TObject);
     procedure SpeedButton3Click(Sender: TObject);
@@ -81,6 +87,11 @@ begin
   // Set this property at run-time - enable design feature
   d2SceneDesigner.DesignTime := true;
   d2SceneDesigner.DesignChangeSelection := @DoChangeSelected;
+end;
+
+procedure TfrmDesigner.CheckBox2Change(Sender: TObject);
+begin
+   d2SceneDesigner.DesignTime := CheckBox2.IsChecked;
 end;
 
 procedure TfrmDesigner.Rectangle2Click(Sender: TObject);

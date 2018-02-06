@@ -12,7 +12,7 @@ object Form16: TForm16
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.6.4.0'
+  LCLVersion = '1.8.0.6'
   object d2Scene1: TD2Scene
     Left = 0
     Height = 566
@@ -123,7 +123,7 @@ object Form16: TForm16
         Width = 72
         Height = 28
         OnClick = HudButton3Click
-        TabOrder = 7
+        TabOrder = 6
         StaysPressed = False
         IsPressed = False
         TextAlign = d2TextAlignCenter

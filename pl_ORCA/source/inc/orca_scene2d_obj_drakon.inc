@@ -350,6 +350,26 @@ begin
 end;
 
 
+//==================== TD2DrakonPallet =======================================
+
+procedure TD2DrakonPallet.SetEditor(AValue: TD2DrakonEditor);
+begin
+  if FEditor=AValue then Exit;
+  FEditor:=AValue;
+end;
+
+procedure TD2DrakonPallet.SetIcons(AValue: TD2DrakonIcons);
+begin
+  if FIcons=AValue then Exit;
+  FIcons:=AValue;
+  Realign;
+end;
+
+constructor TD2DrakonPallet.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+
 
 
 
