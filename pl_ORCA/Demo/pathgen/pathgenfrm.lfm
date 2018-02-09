@@ -1,7 +1,7 @@
 object Form16: TForm16
-  Left = 282
+  Left = 328
   Height = 566
-  Top = 155
+  Top = 123
   Width = 870
   Caption = 'ORCA 2D Char to Path'
   ClientHeight = 566
