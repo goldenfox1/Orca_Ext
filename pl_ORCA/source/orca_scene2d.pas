@@ -3238,43 +3238,39 @@ TD2DrakonNodeType=(
 );
 
 TD2DrakonIcon = (
-  driAction,       //Действие
+  driSilhouette,   //силуэт/примитив
   driBranch,       //Начало ветки
+  driAction,       //Действие
+  driQuestion,     //Вопрос
+  driSelect,       //Множественный выбор из нескольких значений
   driCase,         //Вариант для множественного выбора
+  driInsertion,    //Вставка
+  driParams,       //Вхдные параметры
+  driLoop,         //Цикл
   driComment,      //Комментарий
   driCommentL,     //Комментарий слева
   driCommentR,     //Комментарий справа
-  driDuration,     //Время, длительность
+  driParallel,     //одновременная работа
+  driMoreParallel, //добавить одновременное исполнение
   driInput,        //Ввод
-  driInsertion,    //Вставка
-  driLoop,         //Цикл
   driOutput,       //Вывод
-  driParams,       //Вхдные параметры
-  driPause,        //Пауза
-  driProcess,      //Парралельный процесс
-  driQuestion,     //Вопрос
-  driSelect,       //Множественный выбор из нескольких значений
-  driShelf,        //Полка
   driSInput,       //Простой ввод
   driSOutput,      //Простой вывод
+  driProcess,      //Парралельный процесс
+  driShelf,        //Полка
   driTimer,        //Таймер
-  driSilhouette,   //силуэт/примитив
-  driParallel,     //одновременная работа
-  driMoreParallel,  //добавить одновременное исполнение
-  drsZoom,         //масштаб
-  drsHome,         //К началу алгоритма
-  drsProperty      //свойства иконы
+  driDuration,     //Время, длительность
+  driPause,        //Пауза
+  driZoom          //масштаб
   );
 
 TD2DrakonIcons = set of TD2DrakonIcon;
 
 const
-d2DrakonIconsAll = [driAction, driBranch, driCase, driComment,
-                    driCommentL, driCommentR, driDuration, driInput, driInsertion,
-                    driLoop, driOutput, driParams, driPause, driProcess, driQuestion,
-                    driSelect, driShelf, driSInput, driSOutput, driTimer,
-                    driSilhouette, driParallel, driMoreParallel,
-                    drsZoom, drsHome, drsProperty];
+d2DrakonIconsAll = [driSilhouette, driZoom, driBranch, driAction, driQuestion, driSelect,
+                    driCase, driInsertion, driParams, driLoop, driComment, driCommentL,
+                    driCommentR, driParallel, driMoreParallel, driInput, driOutput, driSInput,
+                    driSOutput, driProcess, driShelf, driPause, driTimer, driDuration];
 
 type
 TD2Image = class(TD2VisualObject)
@@ -4725,7 +4721,7 @@ TD2DrakonNode=class(TD2Control)
     procedure FontChanged(Sender: TObject);
     procedure StrokeChanged(Sender: TObject);
 
- protected
+  protected
     procedure ApplyStyle;  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -4750,7 +4746,8 @@ TD2DrakonNode=class(TD2Control)
 end;
 
 TD2DrakonEditor = class(TD2FramedScrollBox)
-
+  public
+    function SetCommand(ACommand: TD2DrakonIcon): boolean;
 end;
 
 
@@ -4777,6 +4774,7 @@ TD2DrakonPallet = class(TD2Layout)
     FMinBtnSize: TD2Point;         //минимальный размер кнопок панели
     FOrientation: TD2Orientation;  //ориентация панели
 
+    procedure ClickHandler(Sender: TObject);
     procedure InitButtons;
     procedure SetEditor(AValue: TD2DrakonEditor);
     procedure SetIcons(AValue: TD2DrakonIcons);

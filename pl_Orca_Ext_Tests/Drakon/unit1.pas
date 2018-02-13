@@ -13,13 +13,12 @@ type
 
   TForm1 = class(TForm)
     D2Scene1: TD2Scene;
-    DrakonAction1: TD2DrakonAction;
-    DrakonNode1: TD2DrakonNode;
+    DrakonEditor1: TD2DrakonEditor;
     DrakonPallet1: TD2DrakonPallet;
-    Rectangle1: TD2Rectangle;
+    DrakonPallet2: TD2DrakonPallet;
     Root1: TD2Background;
-    Text1: TD2Text;
     ValueLabel1: TD2ValueLabel;
+    procedure Root1Click(Sender: TObject);
   private
 
   public
@@ -32,6 +31,13 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TForm1 }
+
+procedure TForm1.Root1Click(Sender: TObject);
+begin
+
+end;
 
 end.
 
