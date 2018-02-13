@@ -15,6 +15,7 @@ type
     D2Scene1: TD2Scene;
     DrakonAction1: TD2DrakonAction;
     DrakonNode1: TD2DrakonNode;
+    DrakonPallet1: TD2DrakonPallet;
     Rectangle1: TD2Rectangle;
     Root1: TD2Background;
     Text1: TD2Text;
