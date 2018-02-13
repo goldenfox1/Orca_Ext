@@ -568,7 +568,7 @@ begin
     TD2TreeTextColumn, TD2TreeProgressColumn, TD2TreeImageColumn,  TD2TreePopupColumn, TD2TreeCheckColumn,
     TD2DBTreeGrid, TD2DBTreeColumn, TD2DBTreeTextColumn, TD2DBTreeCheckColumn, TD2DBTreePopupColumn,
     TD2DBTreeImageColumn, TD2DBTreeProgressColumn,
-    TD2DrakonEditor, TD2DrakonNode, TD2DrakonPallet]);
+    TD2DrakonEditor, TD2DrakonNode, TD2DrakonPallet, TD2DrakonButton]);
 
   RegisterPropertyEditor(TypeInfo(string), TD2DBColumn, 'FieldName', TD2DBColumnFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TD2DBTreeColumn, 'FieldName', TD2DBTreeColumnFieldProperty);
