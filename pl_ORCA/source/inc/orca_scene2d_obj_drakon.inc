@@ -117,38 +117,58 @@ var
     //'Свойства иконы'
     );
 
+
+//==================== TD2DrakonButton =======================================
+
+procedure TD2DrakonButton.ApplyStyle;
+var
+  T:TD2Object;
+begin
+  inherited;
+  T:=FindResource('path');
+  if (T <> nil) and (T is TD2Path) then
+  begin
+    TD2Path(T).WrapMode:=d2PathFit;
+  end;
+end;
+
+//procedure TD2DrakonButton.Click;
+//begin
+//  inherited Click;
+//end;
+
+constructor TD2DrakonButton.Create(AOwner: TComponent);
+begin
+  inherited;
+  CanFocused:=false;
+  Locked:=true;
+  Stored:=false;
+  ShowHint:=True;
+  PathSize:=20;
+  PathLayout:=d2GlyphCenter;
+  PathStroke.Style:=d2BrushNone;
+end;
+
 //==================== TD2DrakonPallet =======================================
 
 procedure TD2DrakonPallet.ClickHandler(Sender: TObject);
 begin
   if FEditor <> nil
     then FEditor.SetCommand(TD2DrakonButton(Sender).Index);
-  TD2DrakonButton(Sender).KillFocus;
 end;
 
 procedure TD2DrakonPallet.InitButtons;
 var
   I:TD2DrakonIcon;
-  Btn:TD2DrakonButton;
 begin
   for I:=Low(Buttons) to High(Buttons) do
   begin
-    Btn:=TD2DrakonButton.Create (Self);
-    Btn.Index:=I;
-    Btn.Enabled:=True;
-    Btn.Locked:=True;
-    Btn.Parent:=Self;
-    Btn.PathSize:=20;
-    Btn.PathLayout:=d2GlyphCenter;
-    Btn.PathStroke.Style:=d2BrushNone;
-    Btn.Path.Data:=DrakonBtnPath[I];
-    Btn.Hint:=DrakonBtnHints[I];
-    Btn.ShowHint:=True;
-    //Btn.Enabled:=False;
-    //Btn.Enabled:=True;
-    Btn.OnClick:=ClickHandler;
-    //Btn.OnMouseDown:=BtnMouseDown;
-    Buttons[I]:=Btn;
+    Buttons[I]:=TD2DrakonButton.Create (Self);
+    Buttons[I].Index:=I;
+    Buttons[I].Parent:=Self;
+    Buttons[I].Path.Data:=DrakonBtnPath[I];
+    Buttons[I].Hint:=DrakonBtnHints[I];
+    Buttons[I].FOnClick := ClickHandler;
   end;
   RealignButtons;
 end;
@@ -236,13 +256,6 @@ var
 begin
   if FIcons=AValue then Exit;
   FIcons:=AValue;
-  //W:=Width;
-  //H:=Height;
-  //for I:=Low(Buttons) to High(Buttons) do
-  //  Buttons[I].Visible:=I in FIcons;
-  //SetSize(W,H);
-  //if (W <> Width) or (H <> Height) then
-  //  SetBounds(Position.X,Position.Y,W,H);
   RealignButtons;
 end;
 
@@ -284,21 +297,6 @@ end;
 destructor TD2DrakonPallet.Destroy;
 begin
   inherited;
-end;
-
-
-//==================== TD2DrakonButton =======================================
-
-procedure TD2DrakonButton.ApplyStyle;
-var
-  T:TD2Object;
-begin
-  inherited;
-  T:=FindResource('path');
-  if (T <> nil) and (T is TD2Path) then
-  begin
-    TD2Path(T).WrapMode:=d2PathFit;
-  end;
 end;
 
 //==================== TD2DrakonNode =======================================

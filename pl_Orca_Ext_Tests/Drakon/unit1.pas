@@ -15,7 +15,6 @@ type
     D2Scene1: TD2Scene;
     DrakonEditor1: TD2DrakonEditor;
     DrakonPallet1: TD2DrakonPallet;
-    DrakonPallet2: TD2DrakonPallet;
     Root1: TD2Background;
     ValueLabel1: TD2ValueLabel;
     procedure Root1Click(Sender: TObject);

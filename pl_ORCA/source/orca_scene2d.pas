@@ -4758,7 +4758,9 @@ TD2DrakonButton = class(TD2PathButton)
     FIndex: TD2DrakonIcon;
   protected
     procedure ApplyStyle; override;
+    //procedure Click;  override;
   public
+    constructor Create(AOwner: TComponent);  override;
     property Index : TD2DrakonIcon read FIndex write FIndex;
 end;
 
