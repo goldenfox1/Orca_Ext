@@ -3212,6 +3212,9 @@ TD2DrakonNodeType=(
   drNone,      //Не определен
   drAction,    //Действие
   drAddress,   //Конец ветки-ссылка на другую ветку
+  drArrowLeft, //Стрелка влево
+  drArrowRight,//Стрелка вправо
+  drArrowDown, //Стрелка вниз
   drBeginend,  //Название алгоритма
   drBranch,    //Начало ветки
   drCase,      //Вариант для множественного выбора
@@ -4672,13 +4675,13 @@ TD2FramedScrollBox = class(TD2ScrollBox)
   published
   end;
 
-TD2DrakonEditor = class;
+TD2CustomDrakonEditor = class;
 
 { TD2DrakonNode }
 //Узел дракон-схемы
 TD2DrakonNode=class(TD2Control)
   private
-    FEditor: TD2DrakonEditor;     //указатель на редактор
+    FEditor: TD2CustomDrakonEditor;     //указатель на редактор
     FText: String;
     FText2: String;
     FTextFont: TD2Font;
@@ -4745,11 +4748,30 @@ TD2DrakonNode=class(TD2Control)
     property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
 end;
 
-TD2DrakonEditor = class(TD2FramedScrollBox)
+{ TD2CustomDrakonEditor}
+TD2CustomDrakonEditor = class(TD2FramedScrollBox)
+  private
+    FNodes: TList;
+  protected
+    procedure CreateSilhouette;
+    procedure ClearNodes;
+    //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
+       //ABounds - габариты узла; AType - тип узла;
+       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
+       //AText, AText2 - текст 1 и 2 на иконе соответственно
+    function CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType; ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
+    //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
+    //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
+    function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
   public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
     function SetCommand(ACommand: TD2DrakonIcon): boolean;
 end;
 
+{ TD2DrakonEditor }
+TD2DrakonEditor = class(TD2CustomDrakonEditor)
+end;
 
 { TD2DrakonButton }
 
@@ -4769,7 +4791,7 @@ end;
 TD2DrakonPallet = class(TD2Layout)
   private
 
-    FEditor: TD2DrakonEditor;      //указатель на редактор
+    FEditor: TD2CustomDrakonEditor;      //указатель на редактор
     FIcons:  TD2DrakonIcons;       //перечень видимых икон
     FInterval: single;
     FLines: byte;                  //кол-во кнопок в 1 ряду
@@ -4778,7 +4800,7 @@ TD2DrakonPallet = class(TD2Layout)
 
     procedure ClickHandler(Sender: TObject);
     procedure InitButtons;
-    procedure SetEditor(AValue: TD2DrakonEditor);
+    procedure SetEditor(AValue: TD2CustomDrakonEditor);
     procedure SetIcons(AValue: TD2DrakonIcons);
     procedure SetInterval(AValue: single);
     procedure SetLines(AValue: byte);
@@ -4791,7 +4813,7 @@ TD2DrakonPallet = class(TD2Layout)
     procedure Realign; override;
     procedure RealignButtons;
   published
-    property Editor: TD2DrakonEditor read FEditor write SetEditor;
+    property Editor: TD2CustomDrakonEditor read FEditor write SetEditor;
     property Icons: TD2DrakonIcons read FIcons write SetIcons default d2DrakonIconsAll;
     property Lines: byte read FLines write SetLines default 2;
     property Interval: single read FInterval write SetInterval default 2.0;

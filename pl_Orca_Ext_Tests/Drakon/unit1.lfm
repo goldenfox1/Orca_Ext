@@ -21,14 +21,7 @@ object Form1: TForm1
       Width = 724
       Height = 551
       OnClick = Root1Click
-      object DrakonEditor1: TD2DrakonEditor
-        Align = vaClient
-        Position.Point = '(66,0)'
-        RotateAngle = 0
-        Width = 658
-        Height = 551
-        TabOrder = 0
-      end
+      Resource = 'Root1Style1'
       object DrakonPallet1: TD2DrakonPallet
         Align = vaLeft
         RotateAngle = 0
@@ -36,6 +29,15 @@ object Form1: TForm1
         Height = 406
         ShowHint = True
         Editor = DrakonEditor1
+      end
+      object DrakonEditor1: TD2DrakonEditor
+        Align = vaClient
+        Position.Point = '(66,0)'
+        RotateAngle = 0
+        Width = 658
+        Height = 551
+        Resource = 'FramedScrollBoxStyle'
+        TabOrder = 1
       end
     end
   end

@@ -132,11 +132,6 @@ begin
   end;
 end;
 
-//procedure TD2DrakonButton.Click;
-//begin
-//  inherited Click;
-//end;
-
 constructor TD2DrakonButton.Create(AOwner: TComponent);
 begin
   inherited;
@@ -243,7 +238,7 @@ begin
           end
 end;
 
-procedure TD2DrakonPallet.SetEditor(AValue: TD2DrakonEditor);
+procedure TD2DrakonPallet.SetEditor(AValue: TD2CustomDrakonEditor);
 begin
   if FEditor=AValue then Exit;
   FEditor:=AValue;
@@ -434,6 +429,12 @@ begin
       Resource:='DrakonTimerStyle';
     drJunction: //точка соединения линий
       Resource:='DrakonJunctionStyle';
+    drArrowLeft: //Стрелка влево
+      Resource:='DrakonArrowLStyle';
+    drArrowRight://Стрелка вправо
+      Resource:='DrakonArrowRStyle';
+    drArrowDown: //Стрелка вниз
+      Resource:='DrakonArrowDStyle';
     else
          //drNone тип не определен
       Resource:='DrakonNodeStyle';
@@ -639,15 +640,128 @@ begin
   inherited;
 end;
 
-//==================== TD2DrakonEditor =======================================
+//==================== TD2CustomDrakonEditor =======================================
+
+ 
+function TD2CustomDrakonEditor.LinkNode(AIndex,ALeft,AUp,ARight,ADown: integer): boolean;
+  //Перемещает и связывает узел с индексом AIndex в списке узлов FNodes с узлами
+  //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
+var I,L,U,R,D: TD2DrakonNode;
+begin
+  Result:=false;
+  //если списка узлов FNodes нет или индексы перемещаемого узла не находятся в списке, то выходим
+  if (FNodes=nil) or (AIndex < 0) or (AIndex >= FNodes.Count) then exit;
+
+  I:=TD2DrakonNode(FNodes.Items[AIndex]);
+  if (ALeft>=0) and (ALeft < FNodes.Count)
+    then L:=TD2DrakonNode(FNodes.Items[ALeft])
+    else L:=nil;
+  if (AUp >= 0) and (AUp < FNodes.Count)
+    then U:=TD2DrakonNode(FNodes.Items[AUp])
+    else U:=nil;
+  if (ARight >= 0) and (ARight < FNodes.Count)
+    then R:=TD2DrakonNode(FNodes.Items[ARight])
+    else R:=nil;
+  if (ADown >= 0) and (ADown < FNodes.Count)
+    then D:=TD2DrakonNode(FNodes.Items[ADown])
+    else D:=nil;
+
+  I.FNodeLeft:=L;
+  I.FNodeUp:=U;
+  I.FNodeRight:=R;
+  I.FNodeDown:=D;
+
+  if L <> nil then L.FNodeRight:=I;
+  if U <> nil then U.FNodeDown:=I;
+  if R <> nil then R.FNodeLeft:=I;
+  if D <> nil then D.FNodeUp:=I;
+
+  Result:=false;
+end;
+
+function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;
+           ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
+//Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
+       //ABounds - Left - X, Top - Y, Right - Width, Bottom - Height; AType - тип узла;
+       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
+       //AText, AText2 - текст 1 и 2 на иконе соответственно
+var N: TD2DrakonNode;
+begin
+  N:=TD2DrakonNode.Create(Self);
+  N.Parent:=Self;
+  N.NodeType:=AType;
+  N.Text:=AText;
+  N.Text2:=AText2;
+  //N.BoundsRect:=ABounds;
+  N.Position.Point:=ABounds.TopLeft;
+  N.Width:=ABounds.Right;
+  Result:=FNodes.Add(N);
+  N.FNodeIndex:=Result;
+  LinkNode(Result, ALeft,AUp,ARight,ADown);
+end;
+
+procedure TD2CustomDrakonEditor.CreateSilhouette;
+var N: TD2DrakonNode;
+begin
+  BeginUpdate;
+
+  ClearNodes;
+  //0 икона начало
+  CreateNode(d2Rect(50,20,130,17.5), drBeginend, -1,-1,-1,-1,'Новый алгоритм', '');
+  //1 стрелка возврата
+  CreateNode(d2Rect(50,60,50,15), drArrowRight, -1, 0,-1,-1,'', '');
+  //2 начало ветки 1
+  CreateNode(d2Rect(50,90,60,32.5), drBranch,   -1, 1,-1,-1,'Ветка 1', '');
+  //3 конец ветки 1
+  CreateNode(d2Rect(50,150,60,32.5), drAddress,  -1, 2,-1,-1,'Ветка 2', '');
+  //4 узел под веткой 1
+  CreateNode(d2Rect(50,210,40,15), drJunction,   -1, 3,-1,-1,'', '');
+  //5 узел слева под веткой 1
+  CreateNode(d2Rect(20,210,40,15), drJunction,     -1,-1, 4,-1,'', '');
+  //6 узел слева над веткой 1
+  CreateNode(d2Rect(20,60,40,15), drJunction,     -1,-1, 1, 5,'', '');
+  //7 узел над веткой 2
+  CreateNode(d2Rect(200,60,40,15), drJunction,  1,-1,-1,-1,'', '');
+  //8 начало ветки 2
+  CreateNode(d2Rect(200,90,60,32.5), drBranch, -1, 7,-1,-1,'Ветка 2', '');
+  //9 икона конец
+  CreateNode(d2Rect(200,150,50,17.5), drEnd,    -1, 8,-1,-1,'Конец', '');
+
+  EndUpdate;
+end;
+
+procedure TD2CustomDrakonEditor.ClearNodes;
+var i: integer;
+begin
+  if FNodes <> nil then
+    for i:=0 to FNodes.Count-1 do
+      TObject(FNodes[i]).Free;
+  FNodes.Clear;
+end;
+
+constructor TD2CustomDrakonEditor.Create(AOwner: TComponent);
+begin
+  inherited;
+  FNodes:=TList.Create;
+  Resource:='FramedScrollBoxStyle';
+end;
+
+destructor TD2CustomDrakonEditor.Destroy;
+var i: integer;
+begin
+  ClearNodes;
+  FNodes.Free;
+  inherited;
+end;
 
 //выполнить команду
-function TD2DrakonEditor.SetCommand(ACommand: TD2DrakonIcon): boolean;
+function TD2CustomDrakonEditor.SetCommand(ACommand: TD2DrakonIcon): boolean;
 begin
   try
     Case ACommand of
       driSilhouette:   //силуэт/примитив
         begin
+          CreateSilhouette;
         end;
       driBranch:       //Начало ветки
         begin
