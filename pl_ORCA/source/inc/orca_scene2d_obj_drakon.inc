@@ -699,21 +699,25 @@ begin
 
           end
     else  begin //обрабатываем иконы
-           if FSelectNode<>nil
-             then  begin
-                     FSelectNode.Align:=vaNone;
-                     FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
-                     FSelectNode.Parent:=Self;
-                     FSelectNode.HitTest:=True;
-                   end;
+           //if FSelectNode<>nil
+           //  then  begin
+           //          FSelectNode.Align:=vaNone;
+           //          FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
+           //          FSelectNode.Parent:=Self;
+           //          FSelectNode.HitTest:=True;
+           //        end;
            if ANode=nil
-              then FSelection.Visible:=False
+              then  begin
+                      FSelection.Visible:=False;
+                      //FSelection.Align:=vaNone;
+                      FSelectNode.Parent:=Self;
+                    end
               else  begin
+                      FSelection.Parent:=ANode;
+                      FSelection.BoundsRect:=ANode.BoundsRect;
                       FSelection.Visible:=True;
-                      FSelection.SetBounds(ANode.Position.X,ANode.Position.Y,ANode.Width,ANode.Height);
-                      ANode.Parent:=FSelection;
-                      ANode.HitTest:=False;
-                      ANode.Align:=vaClient;
+                      //ANode.HitTest:=False;
+
                   end;
           end;
   FSelectNode:=ANode;
@@ -722,9 +726,12 @@ end;
 
 procedure TD2CustomDrakonEditor.SelectionTrack(Sender: TObject);
 begin
-  FSelection.Height:=FSelectNode.Height;
-  if FSelection.Width<FSelectNode.Width
-     then FSelection.Width:=FSelectNode.Width;
+  if FSelection.FPosition.X <> 0
+    then begin
+           FSelectNode.Width:=FSelectNode.Width-FSelection.FPosition.X-FSelection.FPosition.X;
+           FSelectNode.FPosition.X:= FSelectNode.FPosition.X+FSelection.FPosition.X;
+           FSelection.Width:=FSelection.Width-FSelection.FPosition.X;
+         end;
 end;
 
 function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;

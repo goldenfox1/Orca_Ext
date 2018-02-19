@@ -54,6 +54,17 @@ object Form1: TForm1
           Height = 50
           Visible = False
           DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
           GripSize = 5
           HideSelection = False
           Proportional = False
@@ -219,10 +230,10 @@ object Form1: TForm1
           Proportional = True
           SizingVert = False
           object Rectangle1: TD2Rectangle
-            Align = vaClient
+            Position.Point = '(16,24)'
             RotateAngle = 0
-            Width = 72
-            Height = 85
+            Width = 44
+            Height = 43
             xRadius = 0
             yRadius = 0
             Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
