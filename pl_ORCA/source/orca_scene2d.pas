@@ -3321,6 +3321,8 @@ TD2PaintBox = class(TD2VisualObject)
     property OnPaint: TD2PaintEvent read FOnPaint write FOnPaint;
   end;
 
+{ TD2Selection }
+
 TD2Selection = class(TD2VisualObject)
   private
     FParentBounds:boolean;
@@ -3330,6 +3332,8 @@ TD2Selection = class(TD2VisualObject)
     FOnTrack:TNotifyEvent;
     FProportional:boolean;
     FGripSize:single;
+    FSizingHoriz: boolean;
+    FSizingVert: boolean;
     procedure SetHideSelection(const Value:boolean);
     procedure SetMinSize(const Value:integer);
     procedure SetGripSize(const Value:single);
@@ -3350,10 +3354,12 @@ TD2Selection = class(TD2VisualObject)
     procedure MouseLeave;  override;
   published
     property GripSize:single read FGripSize write SetGripSize;
-    property ParentBounds: boolean read FParentBounds write FParentBounds  default true;
+    property ParentBounds: boolean read FParentBounds write FParentBounds default true;
     property HideSelection: boolean read FHideSelection write SetHideSelection;
     property MinSize: integer read FMinSize write SetMinSize  default 15;
     property Proportional: boolean read FProportional write FProportional;
+    property SizingVert: boolean read FSizingVert write FSizingVert default true;
+    property SizingHoriz: boolean read FSizingHoriz write FSizingHoriz default true;
     property OnChange:TNotifyEvent read FOnChange write FOnChange;
     property OnTrack:TNotifyEvent read FOnTrack write FOnTrack;
   end;

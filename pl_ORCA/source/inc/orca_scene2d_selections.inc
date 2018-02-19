@@ -34,6 +34,8 @@ begin
   ParentBounds:=true;
   FMinSize:=15;
   FGripSize:=3;
+  FSizingHoriz:=true;
+  FSizingVert:=true;
 end;
 
 destructor TD2Selection.Destroy;
@@ -206,12 +208,18 @@ begin
       end
       else
       begin
-        Width:=Width + Size.X;
-        Height:=Height + Size.Y;
-        Position.X:=P.X + FDownPos.X;
-        Position.Y:=P.Y + FDownPos.Y;
-        if Width < FMinSize then Width:=FMinSize;
-        if Height < FMinSize then Height:=FMinSize;
+        if FSizingHoriz then
+          begin
+            Width:=Width + Size.X;
+            Position.X:=P.X + FDownPos.X;
+            if Width < FMinSize then Width:=FMinSize;
+          end;
+        if FSizingVert then
+          begin
+            Height:=Height + Size.Y;
+            Position.Y:=P.Y + FDownPos.Y;
+            if Height < FMinSize then Height:=FMinSize;
+          end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
@@ -224,7 +232,8 @@ begin
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
 
-      Width:=Size.X;
+      if FSizingHoriz then
+        Width:=Size.X;
       if FProportional then
       begin
         if Width < FMinSize then Width:=FMinSize;
@@ -235,10 +244,16 @@ begin
       end
       else
       begin
-        Height:=Height + Size.Y;
-        Position.Y:=P.Y + FDownPos.Y;
-        if Width < FMinSize then Width:=FMinSize;
-        if Height < FMinSize then Height:=FMinSize;
+        if FSizingHoriz then
+          begin
+            if Width < FMinSize then Width:=FMinSize;
+          end;
+        if FSizingVert then
+          begin
+            Position.Y:=P.Y + FDownPos.Y;
+            Height:=Height + Size.Y;
+            if Height < FMinSize then Height:=FMinSize;
+          end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
@@ -251,7 +266,8 @@ begin
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
 
-      Width:=Size.X;
+      if FSizingHoriz then
+        Width:=Size.X;
       if FProportional then
       begin
         if Width < FMinSize then Width:=FMinSize;
@@ -261,11 +277,16 @@ begin
       end
       else
       begin
-        Height:=Size.Y;
-        if Width < FMinSize then Width:=FMinSize;
-        if Height < FMinSize then Height:=FMinSize;
+        if FSizingHoriz then
+          begin
+            if Width < FMinSize then Width:=FMinSize;
+          end;
+        if FSizingVert then
+          begin
+            Height:=Size.Y;
+            if Height < FMinSize then Height:=FMinSize;
+          end;
       end;
-
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
     end;
@@ -289,11 +310,17 @@ begin
       end
       else
       begin
-        Width:=Width + Size.X;
-        Position.X:=P.X + FDownPos.X;
-        Height:=Size.Y;
-        if Width < FMinSize then Width:=FMinSize;
-        if Height < FMinSize then Height:=FMinSize;
+        if FSizingHoriz then
+          begin
+            Width:=Width + Size.X;
+            Position.X:=P.X + FDownPos.X;
+            if Width < FMinSize then Width:=FMinSize;
+          end;
+        if FSizingVert then
+          begin
+            Height:=Size.Y;
+            if Height < FMinSize then Height:=FMinSize;
+          end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;

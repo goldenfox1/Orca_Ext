@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 306
+  Left = 313
   Height = 551
-  Top = 116
+  Top = 119
   Width = 724
   Caption = 'Form1'
   ClientHeight = 551
@@ -20,7 +20,6 @@ object Form1: TForm1
       RotateAngle = 0
       Width = 724
       Height = 551
-      OnClick = Root1Click
       Resource = 'Root1Style1'
       object DrakonPallet1: TD2DrakonPallet
         Align = vaLeft
@@ -28,6 +27,207 @@ object Form1: TForm1
         Width = 66
         Height = 406
         ShowHint = True
+        Editor = DrakonEditor1
+      end
+      object DrakonEditor1: TD2DrakonEditor
+        Align = vaClient
+        Position.Point = '(66,0)'
+        RotateAngle = 0
+        Width = 658
+        Height = 551
+        Resource = 'FramedScrollBoxStyle'
+        TabOrder = 1
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 5
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+          SizingHoriz = False
+        end
+        object Selection1: TD2Selection
+          Position.Point = '(329,221)'
+          RotateAngle = 0
+          Width = 72
+          Height = 85
+          CanClipped = False
+          GripSize = 4
+          HideSelection = False
+          Proportional = True
+          SizingVert = False
+          object Rectangle1: TD2Rectangle
+            Align = vaClient
+            RotateAngle = 0
+            Width = 72
+            Height = 85
+            xRadius = 0
+            yRadius = 0
+            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          end
+        end
       end
     end
   end
