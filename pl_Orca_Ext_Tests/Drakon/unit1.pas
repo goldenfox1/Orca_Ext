@@ -13,7 +13,7 @@ type
 
   TForm1 = class(TForm)
     D2Scene1: TD2Scene;
-    DrakonEditor1: TD2DrakonEditor;
+    DrakonNode1: TD2DrakonNode;
     DrakonPallet1: TD2DrakonPallet;
     Root1: TD2Background;
     ValueLabel1: TD2ValueLabel;

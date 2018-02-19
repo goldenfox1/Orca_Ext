@@ -520,7 +520,10 @@ begin
     then FTextShape2:=TD2Text(S);
   S:=FindResource('number');
   if (S<>nil) and (S is TD2Text)
-    then FNum:=TD2Text(S);
+    then  begin
+            FNum:=TD2Text(S);
+            FNum.Visible:=false;
+          end;
   Realign;
 end;
 
@@ -641,7 +644,6 @@ begin
 end;
 
 //==================== TD2CustomDrakonEditor =======================================
-
  
 function TD2CustomDrakonEditor.LinkNode(AIndex,ALeft,AUp,ARight,ADown: integer): boolean;
   //Перемещает и связывает узел с индексом AIndex в списке узлов FNodes с узлами
@@ -679,6 +681,31 @@ begin
   Result:=false;
 end;
 
+procedure TD2CustomDrakonEditor.NodeClick(Sender: TObject);
+begin
+  SelectNode(TD2DrakonNode(Sender));
+end;
+
+procedure TD2CustomDrakonEditor.SelectNode(ANode: TD2DrakonNode);
+begin
+  FSelectNode:=ANode;
+  if FSelectNode.FNodeType in [drNone, drJunction, drArrowDown,drArrowLeft,drArrowRight]
+    then  begin
+
+          end
+    else  begin
+            //FSelection.Position.Point:=FSelectNode.Position.Point;
+            FSelection.Parent:=ANode;
+            FSelection.BoundsRect:=FSelectNode.BoundsRect;
+            FSelection.Visible:=True;
+          end;
+end;
+
+procedure TD2CustomDrakonEditor.SelectionTrack(Sender: TObject);
+begin
+
+end;
+
 function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;
            ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
 //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
@@ -697,6 +724,8 @@ begin
   N.Width:=ABounds.Right;
   Result:=FNodes.Add(N);
   N.FNodeIndex:=Result;
+  N.OnClick:=NodeClick;
+
   LinkNode(Result, ALeft,AUp,ARight,ADown);
 end;
 
@@ -744,6 +773,11 @@ begin
   inherited;
   FNodes:=TList.Create;
   Resource:='FramedScrollBoxStyle';
+  FSelection:=TD2Selection.Create(Self);
+  FSelection.Parent:=Self;
+  FSelection.Visible:=False;
+  FSelection.DesignHide:=True;
+  FSelection.OnTrack:=SelectionTrack;
 end;
 
 destructor TD2CustomDrakonEditor.Destroy;
@@ -751,6 +785,7 @@ var i: integer;
 begin
   ClearNodes;
   FNodes.Free;
+  FSelection.Free;
   inherited;
 end;
 

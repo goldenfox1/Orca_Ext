@@ -4657,8 +4657,6 @@ TD2ScrollBox = class(TD2CustomScrollBox)
     property OnScroll;
 end;
 
-
-
 TD2VertScrollBox = class(TD2ScrollBox)
   private
   protected
@@ -4674,151 +4672,6 @@ TD2FramedScrollBox = class(TD2ScrollBox)
   public
   published
   end;
-
-TD2CustomDrakonEditor = class;
-
-{ TD2DrakonNode }
-//Узел дракон-схемы
-TD2DrakonNode=class(TD2Control)
-  private
-    FEditor: TD2CustomDrakonEditor;     //указатель на редактор
-    FText: String;
-    FText2: String;
-    FTextFont: TD2Font;
-    FTextFill: TD2Brush;
-    FFill: TD2Brush;
-    FStroke: TD2Brush;
-    FStrokeThickness:single;
-    FTextShape: TD2Text;          //указатель основной текстовый объект иконы
-    FTextShape2: TD2Text;         //Указатель на дополнительный текстовый объект иконы
-    FShape: TD2Shape;             //Указатель на основной объект контура иконы
-    FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
-    FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
-    FNodeType: TD2DrakonNodeType; //Тип узла
-    FNodeIndex: integer;          //Порядковый № узла на схеме
-    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
-    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
-    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
-    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
-
-              //Задать связанный узел ниже
-    procedure SetNodeDown(AValue: TD2DrakonNode);
-              //Задать связанный узел слева
-    procedure SetNodeLeft(AValue: TD2DrakonNode);
-              //Задать связанный узел справа
-    procedure SetNodeRight(AValue: TD2DrakonNode);
-              //Задать связанный узел выше
-    procedure SetNodeUp(AValue: TD2DrakonNode);
-              //Задать тип узела
-    procedure SetNodeType(AValue: TD2DrakonNodeType);
-
-    procedure SetFill(AValue: TD2Brush);
-    procedure SetStroke(AValue: TD2Brush);
-    procedure SetStrokeThickness(AValue: single);
-    procedure SetText(AValue: String);
-    procedure SetText2(AValue: String);
-    procedure SetTextFill(AValue: TD2Brush);
-    procedure SetTextFont(AValue: TD2Font);
-
-    procedure FillChanged(Sender: TObject);
-    procedure FontChanged(Sender: TObject);
-    procedure StrokeChanged(Sender: TObject);
-
-  protected
-    procedure ApplyStyle;  override;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    procedure Realign;  override;
-
-    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
-    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
-    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
-    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
-  published
-    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
-
-    property Text: String read FText write SetText;
-    property Text2: String read FText2 write SetText2;
-    property TextFont: TD2Font read FTextFont write SetTextFont;
-    property TextFill: TD2Brush read FTextFill write SetTextFill;
-
-    property Fill: TD2Brush read FFill write SetFill;
-    property Stroke: TD2Brush read FStroke write SetStroke;
-    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
-end;
-
-{ TD2CustomDrakonEditor}
-TD2CustomDrakonEditor = class(TD2FramedScrollBox)
-  private
-    FNodes: TList;
-  protected
-    procedure CreateSilhouette;
-    procedure ClearNodes;
-    //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
-       //ABounds - габариты узла; AType - тип узла;
-       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
-       //AText, AText2 - текст 1 и 2 на иконе соответственно
-    function CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType; ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
-    //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
-    //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
-    function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy;  override;
-    function SetCommand(ACommand: TD2DrakonIcon): boolean;
-end;
-
-{ TD2DrakonEditor }
-TD2DrakonEditor = class(TD2CustomDrakonEditor)
-end;
-
-{ TD2DrakonButton }
-
-TD2DrakonButton = class(TD2PathButton)
-  private
-    FIndex: TD2DrakonIcon;
-  protected
-    procedure ApplyStyle; override;
-    //procedure Click;  override;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    property Index : TD2DrakonIcon read FIndex write FIndex;
-end;
-
-{ TD2DrakonPallet }
-
-TD2DrakonPallet = class(TD2Layout)
-  private
-
-    FEditor: TD2CustomDrakonEditor;      //указатель на редактор
-    FIcons:  TD2DrakonIcons;       //перечень видимых икон
-    FInterval: single;
-    FLines: byte;                  //кол-во кнопок в 1 ряду
-    FMinBtnSize: TD2Point;         //минимальный размер кнопок панели
-    FOrientation: TD2Orientation;  //ориентация панели
-
-    procedure ClickHandler(Sender: TObject);
-    procedure InitButtons;
-    procedure SetEditor(AValue: TD2CustomDrakonEditor);
-    procedure SetIcons(AValue: TD2DrakonIcons);
-    procedure SetInterval(AValue: single);
-    procedure SetLines(AValue: byte);
-    procedure SetOrientation(AValue: TD2Orientation);
-  protected
-    Buttons: array[TD2DrakonIcon] of TD2DrakonButton;
-  public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy; override;
-    procedure Realign; override;
-    procedure RealignButtons;
-  published
-    property Editor: TD2CustomDrakonEditor read FEditor write SetEditor;
-    property Icons: TD2DrakonIcons read FIcons write SetIcons default d2DrakonIconsAll;
-    property Lines: byte read FLines write SetLines default 2;
-    property Interval: single read FInterval write SetInterval default 2.0;
-    property Orientation: TD2Orientation read FOrientation write SetOrientation default d2Vertical;
-end;
 
 TD2FramedVertScrollBox = class(TD2VertScrollBox)
   private
@@ -10436,6 +10289,157 @@ TD2DBTreeGrid = class(TD2CustomDBTreeGrid)
     property OnChecking;    //Прерывание перед измененем состояния отметки узла.
     property OnDragOver;         //Прерывание при перетаскивании над объектом
     property OnDragDrop;         //Прерывание после отпускания кнопки мыши при перетаскивании (если было разрешено падение)
+end;
+
+
+//======================= Drakon Editor ===============================
+TD2CustomDrakonEditor = class;
+
+{ TD2DrakonButton }
+
+TD2DrakonButton = class(TD2PathButton)
+  private
+    FIndex: TD2DrakonIcon;
+  protected
+    procedure ApplyStyle; override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    property Index : TD2DrakonIcon read FIndex write FIndex;
+end;
+
+{ TD2DrakonPallet }
+
+TD2DrakonPallet = class(TD2Layout)
+  private
+    FEditor: TD2CustomDrakonEditor;      //указатель на редактор
+    FIcons:  TD2DrakonIcons;       //перечень видимых икон
+    FInterval: single;
+    FLines: byte;                  //кол-во кнопок в 1 ряду
+    FMinBtnSize: TD2Point;         //минимальный размер кнопок панели
+    FOrientation: TD2Orientation;  //ориентация панели
+
+    procedure ClickHandler(Sender: TObject);
+    procedure InitButtons;
+    procedure SetEditor(AValue: TD2CustomDrakonEditor);
+    procedure SetIcons(AValue: TD2DrakonIcons);
+    procedure SetInterval(AValue: single);
+    procedure SetLines(AValue: byte);
+    procedure SetOrientation(AValue: TD2Orientation);
+  protected
+    Buttons: array[TD2DrakonIcon] of TD2DrakonButton;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy; override;
+    procedure Realign; override;
+    procedure RealignButtons;
+  published
+    property Editor: TD2CustomDrakonEditor read FEditor write SetEditor;
+    property Icons: TD2DrakonIcons read FIcons write SetIcons default d2DrakonIconsAll;
+    property Lines: byte read FLines write SetLines default 2;
+    property Interval: single read FInterval write SetInterval default 2.0;
+    property Orientation: TD2Orientation read FOrientation write SetOrientation default d2Vertical;
+end;
+
+{ TD2DrakonNode }
+//Узел дракон-схемы
+TD2DrakonNode=class(TD2Control)
+  private
+    FEditor: TD2CustomDrakonEditor;     //указатель на редактор
+    FText: String;
+    FText2: String;
+    FTextFont: TD2Font;
+    FTextFill: TD2Brush;
+    FFill: TD2Brush;
+    FStroke: TD2Brush;
+    FStrokeThickness:single;
+    FTextShape: TD2Text;          //указатель основной текстовый объект иконы
+    FTextShape2: TD2Text;         //Указатель на дополнительный текстовый объект иконы
+    FShape: TD2Shape;             //Указатель на основной объект контура иконы
+    FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
+    FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
+    FNodeType: TD2DrakonNodeType; //Тип узла
+    FNodeIndex: integer;          //Порядковый № узла на схеме
+    FNodeUp: TD2DrakonNode;       //Указатель на связанный узел сверху
+    FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
+    FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
+    FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+
+              //Задать связанный узел ниже
+    procedure SetNodeDown(AValue: TD2DrakonNode);
+              //Задать связанный узел слева
+    procedure SetNodeLeft(AValue: TD2DrakonNode);
+              //Задать связанный узел справа
+    procedure SetNodeRight(AValue: TD2DrakonNode);
+              //Задать связанный узел выше
+    procedure SetNodeUp(AValue: TD2DrakonNode);
+              //Задать тип узела
+    procedure SetNodeType(AValue: TD2DrakonNodeType);
+
+    procedure SetFill(AValue: TD2Brush);
+    procedure SetStroke(AValue: TD2Brush);
+    procedure SetStrokeThickness(AValue: single);
+    procedure SetText(AValue: String);
+    procedure SetText2(AValue: String);
+    procedure SetTextFill(AValue: TD2Brush);
+    procedure SetTextFont(AValue: TD2Font);
+
+    procedure FillChanged(Sender: TObject);
+    procedure FontChanged(Sender: TObject);
+    procedure StrokeChanged(Sender: TObject);
+
+  protected
+    procedure ApplyStyle;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+    procedure Realign;  override;
+
+    property NodeUp: TD2DrakonNode read FNodeUp write SetNodeUp; //Указатель на связанный узел сверху
+    property NodeDown: TD2DrakonNode read FNodeDown write SetNodeDown; //Указатель на связанный узел снизу
+    property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
+    property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
+  published
+    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+
+    property Text: String read FText write SetText;
+    property Text2: String read FText2 write SetText2;
+    property TextFont: TD2Font read FTextFont write SetTextFont;
+    property TextFill: TD2Brush read FTextFill write SetTextFill;
+
+    property Fill: TD2Brush read FFill write SetFill;
+    property Stroke: TD2Brush read FStroke write SetStroke;
+    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
+end;
+
+{ TD2CustomDrakonEditor}
+TD2CustomDrakonEditor = class(TD2FramedScrollBox)
+  private
+    FNodes: TList;
+    FSelectNode: TD2DrakonNode;
+    FSelection: TD2Selection;
+  protected
+    procedure CreateSilhouette;
+    procedure ClearNodes;
+    //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
+       //ABounds - габариты узла; AType - тип узла;
+       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
+       //AText, AText2 - текст 1 и 2 на иконе соответственно
+    function CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType; ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
+    //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
+    //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
+    function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
+
+    procedure NodeClick(Sender: TObject);
+    procedure SelectNode(ANode: TD2DrakonNode);
+    procedure SelectionTrack(Sender: TObject);
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+    function SetCommand(ACommand: TD2DrakonIcon): boolean;
+end;
+
+{ TD2DrakonEditor }
+TD2DrakonEditor = class(TD2CustomDrakonEditor)
 end;
 //=============================================================================
 //======================= End part of make by GoldenFox =======================

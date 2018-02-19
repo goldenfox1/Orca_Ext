@@ -28,16 +28,6 @@ object Form1: TForm1
         Width = 66
         Height = 406
         ShowHint = True
-        Editor = DrakonEditor1
-      end
-      object DrakonEditor1: TD2DrakonEditor
-        Align = vaClient
-        Position.Point = '(66,0)'
-        RotateAngle = 0
-        Width = 658
-        Height = 551
-        Resource = 'FramedScrollBoxStyle'
-        TabOrder = 1
       end
     end
   end
