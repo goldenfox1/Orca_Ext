@@ -212,13 +212,21 @@ begin
           begin
             Width:=Width + Size.X;
             Position.X:=P.X + FDownPos.X;
-            if Width < FMinSize then Width:=FMinSize;
+            if Width < FMinSize then
+              begin
+                Position.X:=Position.X-(FMinSize-Width);
+                Width:=FMinSize;
+              end;
           end;
         if FSizingVert then
           begin
             Height:=Height + Size.Y;
             Position.Y:=P.Y + FDownPos.Y;
-            if Height < FMinSize then Height:=FMinSize;
+            if Height < FMinSize then
+              begin
+                Position.Y:=Position.Y-(FMinSize-Height);
+                Height:=FMinSize;
+              end;
           end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
@@ -252,7 +260,11 @@ begin
           begin
             Position.Y:=P.Y + FDownPos.Y;
             Height:=Height + Size.Y;
-            if Height < FMinSize then Height:=FMinSize;
+            if Height < FMinSize then
+              begin
+                Position.Y:=Position.Y-(FMinSize-Height);
+                Height:=FMinSize;
+              end;
           end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
@@ -314,12 +326,20 @@ begin
           begin
             Width:=Width + Size.X;
             Position.X:=P.X + FDownPos.X;
-            if Width < FMinSize then Width:=FMinSize;
+            if Width < FMinSize then
+              begin
+                Position.X:=Position.X-(FMinSize-Width);
+                Width:=FMinSize;
+              end;
           end;
         if FSizingVert then
           begin
             Height:=Size.Y;
-            if Height < FMinSize then Height:=FMinSize;
+            if Height < FMinSize then
+              begin
+                Height:=FMinSize;
+                Position.Y:=Position.Y-(FMinSize-Height);
+              end;
           end;
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
