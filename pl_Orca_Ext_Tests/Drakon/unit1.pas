@@ -17,6 +17,7 @@ type
     DrakonNode1: TD2DrakonNode;
     DrakonPallet1: TD2DrakonPallet;
     Rectangle1: TD2Rectangle;
+    Rectangle2: TD2Rectangle;
     Root1: TD2Background;
     Selection1: TD2Selection;
   private

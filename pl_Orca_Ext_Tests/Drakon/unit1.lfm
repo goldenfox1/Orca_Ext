@@ -54,6 +54,61 @@ object Form1: TForm1
           Height = 50
           Visible = False
           DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
           GripSize = 5
           HideSelection = False
           Proportional = False
@@ -208,24 +263,33 @@ object Form1: TForm1
           SizingVert = False
           SizingHoriz = False
         end
-        object Selection1: TD2Selection
-          Position.Point = '(329,221)'
+        object Rectangle2: TD2Rectangle
+          Position.Point = '(160,217)'
           RotateAngle = 0
-          Width = 72
-          Height = 85
-          CanClipped = False
-          GripSize = 4
-          HideSelection = False
-          Proportional = True
-          SizingVert = False
-          object Rectangle1: TD2Rectangle
-            Align = vaClient
+          Width = 144
+          Height = 155
+          xRadius = 0
+          yRadius = 0
+          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+          object Selection1: TD2Selection
+            Position.Point = '(27,24)'
             RotateAngle = 0
-            Width = 72
-            Height = 85
-            xRadius = 0
-            yRadius = 0
-            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            Width = 71
+            Height = 49
+            CanClipped = False
+            GripSize = 4
+            HideSelection = False
+            Proportional = False
+            object Rectangle1: TD2Rectangle
+              Align = vaClient
+              RotateAngle = 0
+              Width = 71
+              Height = 49
+              HitTest = False
+              xRadius = 0
+              yRadius = 0
+              Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+            end
           end
         end
       end
