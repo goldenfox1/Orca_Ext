@@ -10423,6 +10423,8 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
     FNodes: TList;
     FSelectNode: TD2DrakonNode;
     FSelection: TD2Selection;
+    FPressedNode: TD2DrakonNode;
+    FPressedPos: TD2Point;
   protected
     procedure CreateSilhouette;
     procedure ClearNodes;
@@ -10436,6 +10438,9 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
     function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
 
     procedure NodeClick(Sender: TObject);
+    procedure NodeMouseMove(Sender: TObject; Shift: TShiftState;  X, Y, Dx, Dy:single);
+    procedure NodeMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
+    procedure NodeMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
     procedure SelectNode(ANode: TD2DrakonNode);
     procedure SelectionTrack(Sender: TObject);
   public

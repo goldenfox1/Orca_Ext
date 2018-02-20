@@ -599,7 +599,7 @@ begin
   if FUpdating > 0 then Exit;
 
   if Width < 40
-    then Width:= 40 ;
+    then Width:= 40;
   if FTextShape2 <> nil
     then begin
            FTextShape2.Text:=FText2;
@@ -690,6 +690,36 @@ begin
   SelectNode(TD2DrakonNode(Sender));
 end;
 
+procedure TD2CustomDrakonEditor.NodeMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y, Dx, Dy: single);
+begin
+  if (ssLeft in Shift) and
+     (FPressedNode=Sender) and
+     (TD2DrakonNode(Sender).FPressed) then
+    with TD2DrakonNode(Sender).Position do
+    begin
+      X:=X+(X-FPressedPos.X);
+      Y:=Y+(Y-FPressedPos.Y);
+    end;
+end;
+
+procedure TD2CustomDrakonEditor.NodeMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  if ssLeft in Shift then
+  begin
+    FPressedNode:=TD2DrakonNode(Sender);
+    FPressedPos:=d2Point(X,Y);
+  end;
+end;
+
+procedure TD2CustomDrakonEditor.NodeMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  if Button=mbLeft then
+    FPressedNode:=nil;
+end;
+
 procedure TD2CustomDrakonEditor.SelectNode(ANode: TD2DrakonNode);
 begin
   if FSelectNode=ANode then exit;
@@ -699,25 +729,14 @@ begin
 
           end
     else  begin //обрабатываем иконы
-           //if FSelectNode<>nil
-           //  then  begin
-           //          FSelectNode.Align:=vaNone;
-           //          FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
-           //          FSelectNode.Parent:=Self;
-           //          FSelectNode.HitTest:=True;
-           //        end;
            if ANode=nil
               then  begin
                       FSelection.Visible:=False;
-                      //FSelection.Align:=vaNone;
-                      FSelectNode.Parent:=Self;
                     end
               else  begin
-                      FSelection.Parent:=ANode;
-                      FSelection.BoundsRect:=ANode.BoundsRect;
+                      FSelection.SetBounds(ANode.Position.X,ANode.Position.Y,ANode.Width,ANode.Height);
                       FSelection.Visible:=True;
-                      //ANode.HitTest:=False;
-
+                      FSelection.BringToFront;
                   end;
           end;
   FSelectNode:=ANode;
@@ -726,12 +745,8 @@ end;
 
 procedure TD2CustomDrakonEditor.SelectionTrack(Sender: TObject);
 begin
-  if FSelection.FPosition.X <> 0
-    then begin
-           FSelectNode.Width:=FSelectNode.Width-FSelection.FPosition.X-FSelection.FPosition.X;
-           FSelectNode.FPosition.X:= FSelectNode.FPosition.X+FSelection.FPosition.X;
-           FSelection.Width:=FSelection.Width-FSelection.FPosition.X;
-         end;
+  FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
+  FSelection.BoundsRect:=FSelectNode.BoundsRect;
 end;
 
 function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;
@@ -747,13 +762,14 @@ begin
   N.NodeType:=AType;
   N.Text:=AText;
   N.Text2:=AText2;
-  //N.BoundsRect:=ABounds;
   N.Position.Point:=ABounds.TopLeft;
   N.Width:=ABounds.Right;
   Result:=FNodes.Add(N);
   N.FNodeIndex:=Result;
   N.OnClick:=NodeClick;
-
+  N.OnMouseMove:=NodeMouseMove;
+  N.OnMouseDown:=NodeMouseDown;
+  N.OnMouseUp:=NodeMouseUp;
   LinkNode(Result, ALeft,AUp,ARight,ADown);
 end;
 
@@ -790,6 +806,8 @@ end;
 procedure TD2CustomDrakonEditor.ClearNodes;
 var i: integer;
 begin
+  FSelection.Parent:=Self;
+  FSelection.Visible:=False;
   if FNodes <> nil then
     for i:=0 to FNodes.Count-1 do
       TObject(FNodes[i]).Free;
@@ -806,6 +824,7 @@ begin
   FSelection.Visible:=False;
   FSelection.DesignHide:=True;
   FSelection.SizingVert:=false;
+  FSelection.MinSize:=40;
   FSelection.OnTrack:=SelectionTrack;
   //FSelection.OnMouseMove:=SelectionMouseMove;
 end;

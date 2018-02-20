@@ -1,26 +1,25 @@
 object Form1: TForm1
-  Left = 313
-  Height = 551
-  Top = 119
-  Width = 724
+  Left = 316
+  Height = 538
+  Top = 126
+  Width = 760
   Caption = 'Form1'
-  ClientHeight = 551
-  ClientWidth = 724
+  ClientHeight = 538
+  ClientWidth = 760
   LCLVersion = '1.8.0.6'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 551
+    Height = 538
     Top = 0
-    Width = 724
+    Width = 760
     Align = alClient
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 724
-      Height = 551
-      Resource = 'Root1Style1'
+      Width = 760
+      Height = 538
       object DrakonPallet1: TD2DrakonPallet
         Align = vaLeft
         RotateAngle = 0
@@ -29,14 +28,32 @@ object Form1: TForm1
         ShowHint = True
         Editor = DrakonEditor1
       end
+      object Label1: TD2Label
+        Position.Point = '(8,414)'
+        RotateAngle = 0
+        Width = 53
+        Height = 15
+        TabOrder = 2
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+      end
+      object Label2: TD2Label
+        Position.Point = '(8,444)'
+        RotateAngle = 0
+        Width = 53
+        Height = 15
+        TabOrder = 1
+        TextAlign = d2TextAlignCenter
+        VertTextAlign = d2TextAlignCenter
+      end
       object DrakonEditor1: TD2DrakonEditor
         Align = vaClient
         Position.Point = '(66,0)'
         RotateAngle = 0
-        Width = 658
-        Height = 551
+        Width = 694
+        Height = 538
         Resource = 'FramedScrollBoxStyle'
-        TabOrder = 1
+        TabOrder = 4
         object TD2Selection
           RotateAngle = 0
           Width = 50
@@ -45,277 +62,9 @@ object Form1: TForm1
           DesignHide = True
           GripSize = 3
           HideSelection = False
+          MinSize = 40
           Proportional = False
           SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-<<<<<<< HEAD
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 5
-=======
->>>>>>> Branch_ac1a32a
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 5
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-          SizingHoriz = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingVert = False
-<<<<<<< HEAD
-          object Rectangle1: TD2Rectangle
-            Position.Point = '(16,24)'
-            RotateAngle = 0
-            Width = 44
-            Height = 43
-            xRadius = 0
-            yRadius = 0
-            Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-=======
-          SizingHoriz = False
-        end
-        object Rectangle2: TD2Rectangle
-          Position.Point = '(160,217)'
-          RotateAngle = 0
-          Width = 144
-          Height = 155
-          xRadius = 0
-          yRadius = 0
-          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-          object Selection1: TD2Selection
-            Position.Point = '(27,24)'
-            RotateAngle = 0
-            Width = 71
-            Height = 49
-            CanClipped = False
-            GripSize = 4
-            HideSelection = False
-            Proportional = False
-            object Rectangle1: TD2Rectangle
-              Align = vaClient
-              RotateAngle = 0
-              Width = 71
-              Height = 49
-              HitTest = False
-              xRadius = 0
-              yRadius = 0
-              Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-            end
->>>>>>> Branch_ac1a32a
-          end
         end
       end
     end
