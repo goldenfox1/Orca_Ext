@@ -964,6 +964,7 @@ end;
 
 procedure TD2DockingPanel.DoSplitterMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y, Dx, Dy: single);
+
   procedure Top;
   var h: Single;
   begin
@@ -992,6 +993,7 @@ procedure TD2DockingPanel.DoSplitterMouseMove(Sender: TObject;
            end
       else if not (IsFixed and (FAlign=daRight)) then Position.X:=Position.X+w;
   end;
+
   procedure Bottom;
   begin
     Height:=Height+(Y-FMouseDownPos.Y);

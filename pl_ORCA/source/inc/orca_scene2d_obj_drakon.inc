@@ -562,6 +562,9 @@ begin
   FStroke.OnChanged:=StrokeChanged;
 
   FStrokeThickness:=1;
+
+  FAutoCapture := true;
+  FCursor:= crSizeAll;
 end;
 
 destructor TD2DrakonNode.Destroy;
@@ -685,21 +688,17 @@ begin
   Result:=false;
 end;
 
-procedure TD2CustomDrakonEditor.NodeClick(Sender: TObject);
-begin
-  SelectNode(TD2DrakonNode(Sender));
-end;
-
 procedure TD2CustomDrakonEditor.NodeMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y, Dx, Dy: single);
 begin
   if (ssLeft in Shift) and
      (FPressedNode=Sender) and
      (TD2DrakonNode(Sender).FPressed) then
-    with TD2DrakonNode(Sender).Position do
+    with TD2DrakonNode(Sender) do
     begin
-      X:=X+(X-FPressedPos.X);
-      Y:=Y+(Y-FPressedPos.Y);
+      FMoveNode:=true;
+      Position.X:=Position.X+(X-FPressedPos.X);
+      Position.Y:=Position.Y+(Y-FPressedPos.Y);
     end;
 end;
 
@@ -717,28 +716,36 @@ procedure TD2CustomDrakonEditor.NodeMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: single);
 begin
   if Button=mbLeft then
+  begin
+    if not FMoveNode then
+      SelectNode(TD2DrakonNode(Sender));
+    FMoveNode:=false;
     FPressedNode:=nil;
+  end;
+end;
+
+procedure TD2CustomDrakonEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  inherited;
+  if Button=mbLeft then
+    SelectNode(nil);
 end;
 
 procedure TD2CustomDrakonEditor.SelectNode(ANode: TD2DrakonNode);
 begin
   if FSelectNode=ANode then exit;
   BeginUpdate;
-  if ANode.FNodeType in [drNone, drJunction, drArrowDown,drArrowLeft,drArrowRight]
-    then  begin //обрабатываем узлы, линии, стрелки
+  if ANode=nil
+    then  FSelection.Visible:=False
+    else  if ANode.FNodeType in [drNone, drJunction, drArrowDown,drArrowLeft,drArrowRight]
+            then  begin //обрабатываем узлы, линии, стрелки
 
-          end
-    else  begin //обрабатываем иконы
-           if ANode=nil
-              then  begin
-                      FSelection.Visible:=False;
-                    end
-              else  begin
-                      FSelection.SetBounds(ANode.Position.X,ANode.Position.Y,ANode.Width,ANode.Height);
-                      FSelection.Visible:=True;
-                      FSelection.BringToFront;
+                  end
+            else  begin //обрабатываем иконы
+                    FSelection.SetBounds(ANode.Position.X,ANode.Position.Y,ANode.Width,ANode.Height);
+                    FSelection.Visible:=True;
+                    FSelection.BringToFront;
                   end;
-          end;
   FSelectNode:=ANode;
   EndUpdate;
 end;
@@ -752,9 +759,9 @@ end;
 function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;
            ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
 //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
-       //ABounds - Left - X, Top - Y, Right - Width, Bottom - Height; AType - тип узла;
-       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
-       //AText, AText2 - текст 1 и 2 на иконе соответственно
+   //ABounds - Left - X, Top - Y, Right - Width, Bottom - Height; AType - тип узла;
+   //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
+   //AText, AText2 - текст 1 и 2 на иконе соответственно
 var N: TD2DrakonNode;
 begin
   N:=TD2DrakonNode.Create(Self);
@@ -766,7 +773,7 @@ begin
   N.Width:=ABounds.Right;
   Result:=FNodes.Add(N);
   N.FNodeIndex:=Result;
-  N.OnClick:=NodeClick;
+  //N.OnClick:=NodeClick;
   N.OnMouseMove:=NodeMouseMove;
   N.OnMouseDown:=NodeMouseDown;
   N.OnMouseUp:=NodeMouseUp;
@@ -826,7 +833,7 @@ begin
   FSelection.SizingVert:=false;
   FSelection.MinSize:=40;
   FSelection.OnTrack:=SelectionTrack;
-  //FSelection.OnMouseMove:=SelectionMouseMove;
+  FMoveNode:=false;
 end;
 
 destructor TD2CustomDrakonEditor.Destroy;

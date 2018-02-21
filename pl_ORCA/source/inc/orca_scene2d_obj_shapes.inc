@@ -127,15 +127,25 @@ end;
 
 //=============== TD2Line ================================
 procedure TD2Line.Paint;
-var R: TD2Rect;
+var
+  R: TD2Rect;
+  d: single;
 begin
   R:=GetShapeRect;
   case FLineType of
-    d2LineTop,
     d2LineHorizontal:
-      Canvas.DrawLine(R.TopLeft,d2Point(R.Right,R.Top),AbsoluteOpacity);
-    d2LineLeft,
+      begin
+        d:=R.Top+d2RectHeight(R)/2;
+        Canvas.DrawLine(d2Point(R.Left,d), d2Point(R.Right,d),AbsoluteOpacity);
+      end;
     d2LineVertical:
+      begin
+        d:=R.Left+d2RectWidth(R)/2;
+        Canvas.DrawLine(d2Point(d,R.Top),d2Point(d,R.Bottom),AbsoluteOpacity);
+      end;
+    d2LineTop:
+      Canvas.DrawLine(R.TopLeft,d2Point(R.Right,R.Top),AbsoluteOpacity);
+    d2LineLeft:
       Canvas.DrawLine(R.TopLeft,d2Point(R.Left,R.Bottom),AbsoluteOpacity);
     d2LineRight:
       Canvas.DrawLine(d2Point(R.Right,R.Top),d2Point(R.Right,R.Bottom),AbsoluteOpacity);
@@ -616,12 +626,8 @@ procedure TD2Brace.CreatePath;
 begin
   R:=GetShapeRect;
   x1:=xRadius;
-  //if d2RectWidth(R) - (x1 * 2) < 0 then
-  //  x1:=(xRadius * (d2RectWidth(R) / (x1 * 2)));
   x2:=x1 / 2;
   y1:=yRadius;
-  //if d2RectHeight(R) - (y1 * 2) < 0 then
-  //  y1:=(yRadius * (d2RectHeight(R) / (y1 * 2)));
   y2:=y1 / 2;
 
   FPath.Clear;
@@ -629,6 +635,8 @@ begin
     d2LineTop,
     d2LineHorizontal:
       begin
+        if FLineType=d2LineHorizontal
+          then R.Top:=R.Top+d2RectHeight(R)/2;
         R.Top:=R.Top+y1;
         R.Right:=R.Right-d2RectWidth(R)/2;
         FPath.MoveTo(d2Point(R.Left, R.Top+y1));
@@ -668,6 +676,8 @@ begin
       end;
     else //d2LineNormal, d2LineLeft, d2LineVertical:
       begin
+        if FLineType=d2LineVertical
+          then R.Left:=R.Left+d2RectWidth(R)/2;
         R.Left:=R.Left+x1;
         R.Bottom:=R.Top+d2RectHeight(R)/2;
         FPath.MoveTo(d2Point(R.Left+x1, R.Top));

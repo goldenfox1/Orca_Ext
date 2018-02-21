@@ -36,6 +36,7 @@ begin
   FGripSize:=3;
   FSizingHoriz:=true;
   FSizingVert:=true;
+  FSizingRoundTrip:=false;
 end;
 
 destructor TD2Selection.Destroy;
@@ -174,7 +175,6 @@ begin
       if Assigned(FOnTrack) then FOnTrack(Self);
       Exit;
     end;
-    //OldPos:=Position.Point;
     P:=LocalToAbsolute(FMovePos);
     if Parent <> nil then
       P:=TD2VisualObject(Parent).AbsolutetoLocal(P);
@@ -187,6 +187,8 @@ begin
       if P.Y > TD2VisualObject(Parent).Height then
         P.Y:=TD2VisualObject(Parent).Height;
     end;
+
+    //тянем за левый верхний угол
     if FLeftTop then
     begin
       Repaint;
@@ -210,21 +212,29 @@ begin
       begin
         if FSizingHoriz then
           begin
-            Width:=Width + Size.X;
+            if FSizingRoundTrip
+              then Width:=Width + Size.X + Size.X
+              else Width:=Width + Size.X;
             Position.X:=P.X + FDownPos.X;
             if Width < FMinSize then
               begin
-                Position.X:=Position.X-(FMinSize-Width);
+                if FSizingRoundTrip
+                  then Position.X:=Position.X-(FMinSize-Width)/2
+                  else Position.X:=Position.X-(FMinSize-Width);
                 Width:=FMinSize;
               end;
           end;
         if FSizingVert then
           begin
-            Height:=Height + Size.Y;
+            if FSizingRoundTrip
+              then Height:=Height + Size.Y + Size.Y
+              else Height:=Height + Size.Y;
             Position.Y:=P.Y + FDownPos.Y;
             if Height < FMinSize then
               begin
-                Position.Y:=Position.Y-(FMinSize-Height);
+                if FSizingRoundTrip
+                  then Position.Y:=Position.Y-(FMinSize-Height)/2
+                  else Position.Y:=Position.Y-(FMinSize-Height);
                 Height:=FMinSize;
               end;
           end;
@@ -232,6 +242,8 @@ begin
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
     end;
+
+    //тянем за правый верхний угол
     if FRightTop then
     begin
       Repaint;
@@ -239,11 +251,9 @@ begin
       if Parent <> nil then
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
-
-      if FSizingHoriz then
-        Width:=Size.X;
       if FProportional then
       begin
+        Width:=Size.X;
         if Width < FMinSize then Width:=FMinSize;
         if Width / FRatio < FMinSize then
           Width:=Round(FMinSize * FRatio);
@@ -254,6 +264,7 @@ begin
       begin
         if FSizingHoriz then
           begin
+            Width:=Size.X;
             if Width < FMinSize then Width:=FMinSize;
           end;
         if FSizingVert then
@@ -302,10 +313,13 @@ begin
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
     end;
+
+    //тянем за левый нижний угол
     if FLeftBottom then
     begin
       Repaint;
-      Size:=d2Point((Position.X - (P.X + FDownPos.X)),(P.Y{ + FDownPos.Y)}) - Position.Y);
+      //Size:=d2Point((Position.X - (P.X + FDownPos.X)),(P.Y{ + FDownPos.Y)}) - Position.Y);
+      Size:=d2Point((Position.X - (P.X + FDownPos.X)),(Position.Y - (P.Y + FDownPos.Y)));
       if Parent <> nil then
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
@@ -324,21 +338,32 @@ begin
       begin
         if FSizingHoriz then
           begin
-            Width:=Width + Size.X;
+            if FSizingRoundTrip
+              then Width:=Width + Size.X + Size.X
+              else Width:=Width + Size.X;
             Position.X:=P.X + FDownPos.X;
             if Width < FMinSize then
               begin
-                Position.X:=Position.X-(FMinSize-Width);
+                if FSizingRoundTrip
+                  then Position.X:=Position.X-(FMinSize-Width)/2
+                  else Position.X:=Position.X-(FMinSize-Width);
                 Width:=FMinSize;
               end;
           end;
         if FSizingVert then
           begin
-            Height:=Size.Y;
+            if FSizingRoundTrip
+              then begin
+                     Height:=Height + Size.Y + Size.Y;
+                     Position.Y:=Position.Y-Size.Y;
+                   end
+              else Height:=Height + Size.Y;
             if Height < FMinSize then
               begin
                 Height:=FMinSize;
-                Position.Y:=Position.Y-(FMinSize-Height);
+                //Position.Y:=Position.Y-(FMinSize-Height);
+                if FSizingRoundTrip
+                  then Position.Y:=Position.Y-(FMinSize-Height)/2;
               end;
           end;
       end;

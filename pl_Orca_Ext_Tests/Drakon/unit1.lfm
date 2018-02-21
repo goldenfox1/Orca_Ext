@@ -53,7 +53,7 @@ object Form1: TForm1
         Width = 694
         Height = 538
         Resource = 'FramedScrollBoxStyle'
-        TabOrder = 4
+        TabOrder = 3
         object TD2Selection
           RotateAngle = 0
           Width = 50
@@ -65,6 +65,151 @@ object Form1: TForm1
           MinSize = 40
           Proportional = False
           SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object Rectangle1: TD2Rectangle
+          Cursor = crSizeAll
+          Position.Point = '(492,341)'
+          RotateAngle = 0
+          Width = 65
+          Height = 73
+          xRadius = 0
+          yRadius = 0
+          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
+        end
+        object Line1: TD2Line
+          Position.Point = '(257,346)'
+          RotateAngle = 0
+          Width = 24
+          Height = 118
+          LineType = d2LineVertical
+        end
+        object Brace1: TD2Brace
+          Position.Point = '(359,257)'
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          LineType = d2LineHorizontal
+          xRadius = 5
+          yRadius = 5
+        end
+        object Selection1: TD2Selection
+          Position.Point = '(177,226)'
+          RotateAngle = 0
+          Width = 90
+          Height = 75
+          GripSize = 3
+          HideSelection = False
+          Proportional = False
+          SizingHoriz = False
+          SizingRoundTrip = True
         end
       end
     end

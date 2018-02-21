@@ -3332,8 +3332,9 @@ TD2Selection = class(TD2VisualObject)
     FOnTrack:TNotifyEvent;
     FProportional:boolean;
     FGripSize:single;
-    FSizingHoriz: boolean;
-    FSizingVert: boolean;
+    FSizingHoriz: boolean;  //Изменять размер по горизонтали. Не влияет если Proportional = True
+    FSizingVert: boolean;   //Изменять размер по вертикали. Не влияет если Proportional = True
+    FSizingRoundTrip: boolean;  //изменять размер одновременно в противоположных направлениях
     procedure SetHideSelection(const Value:boolean);
     procedure SetMinSize(const Value:integer);
     procedure SetGripSize(const Value:single);
@@ -3358,8 +3359,9 @@ TD2Selection = class(TD2VisualObject)
     property HideSelection: boolean read FHideSelection write SetHideSelection;
     property MinSize: integer read FMinSize write SetMinSize  default 15;
     property Proportional: boolean read FProportional write FProportional;
-    property SizingVert: boolean read FSizingVert write FSizingVert default true;
-    property SizingHoriz: boolean read FSizingHoriz write FSizingHoriz default true;
+    property SizingVert: boolean read FSizingVert write FSizingVert default true;    //Изменять размер по горизонтали. Не влияет если Proportional = True
+    property SizingHoriz: boolean read FSizingHoriz write FSizingHoriz default true; //Изменять размер по вертикали. Не влияет если Proportional = True
+    property SizingRoundTrip: boolean read FSizingRoundTrip write FSizingRoundTrip default false; //Изменять размер одновременно в противоположных направлениях
     property OnChange:TNotifyEvent read FOnChange write FOnChange;
     property OnTrack:TNotifyEvent read FOnTrack write FOnTrack;
   end;
@@ -10423,26 +10425,27 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
     FNodes: TList;
     FSelectNode: TD2DrakonNode;
     FSelection: TD2Selection;
+    FMoveNode: boolean;
     FPressedNode: TD2DrakonNode;
     FPressedPos: TD2Point;
   protected
     procedure CreateSilhouette;
     procedure ClearNodes;
-    //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
-       //ABounds - габариты узла; AType - тип узла;
-       //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
-       //AText, AText2 - текст 1 и 2 на иконе соответственно
+              //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
+               //ABounds - габариты узла; AType - тип узла;
+               //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
+               //AText, AText2 - текст 1 и 2 на иконе соответственно
     function CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType; ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
-    //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
-    //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
+             //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
+             //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
     function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
 
-    procedure NodeClick(Sender: TObject);
     procedure NodeMouseMove(Sender: TObject; Shift: TShiftState;  X, Y, Dx, Dy:single);
     procedure NodeMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
     procedure NodeMouseUp(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
     procedure SelectNode(ANode: TD2DrakonNode);
     procedure SelectionTrack(Sender: TObject);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single); override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
