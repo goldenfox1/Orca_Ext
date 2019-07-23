@@ -1,12 +1,12 @@
 object Form1: TForm1
-  Left = 316
+  Left = 255
   Height = 538
-  Top = 126
+  Top = 122
   Width = 760
   Caption = 'Form1'
   ClientHeight = 538
   ClientWidth = 760
-  LCLVersion = '1.8.0.6'
+  LCLVersion = '1.8.4.0'
   object D2Scene1: TD2Scene
     Left = 0
     Height = 538
@@ -28,24 +28,6 @@ object Form1: TForm1
         ShowHint = True
         Editor = DrakonEditor1
       end
-      object Label1: TD2Label
-        Position.Point = '(8,414)'
-        RotateAngle = 0
-        Width = 53
-        Height = 15
-        TabOrder = 2
-        TextAlign = d2TextAlignCenter
-        VertTextAlign = d2TextAlignCenter
-      end
-      object Label2: TD2Label
-        Position.Point = '(8,444)'
-        RotateAngle = 0
-        Width = 53
-        Height = 15
-        TabOrder = 1
-        TextAlign = d2TextAlignCenter
-        VertTextAlign = d2TextAlignCenter
-      end
       object DrakonEditor1: TD2DrakonEditor
         Align = vaClient
         Position.Point = '(66,0)'
@@ -53,7 +35,7 @@ object Form1: TForm1
         Width = 694
         Height = 538
         Resource = 'FramedScrollBoxStyle'
-        TabOrder = 3
+        TabOrder = 1
         object TD2Selection
           RotateAngle = 0
           Width = 50
@@ -66,150 +48,18 @@ object Form1: TForm1
           Proportional = False
           SizingVert = False
         end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object Rectangle1: TD2Rectangle
+        object DrakonNode1: TD2DrakonNode
           Cursor = crSizeAll
-          Position.Point = '(492,341)'
+          Position.Point = '(313,288)'
           RotateAngle = 0
-          Width = 65
-          Height = 73
-          xRadius = 0
-          yRadius = 0
-          Sides = [d2SideTop, d2SideLeft, d2SideBottom, d2SideRight]
-        end
-        object Line1: TD2Line
-          Position.Point = '(257,346)'
-          RotateAngle = 0
-          Width = 24
-          Height = 118
-          LineType = d2LineVertical
-        end
-        object Brace1: TD2Brace
-          Position.Point = '(359,257)'
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          LineType = d2LineHorizontal
-          xRadius = 5
-          yRadius = 5
-        end
-        object Selection1: TD2Selection
-          Position.Point = '(177,226)'
-          RotateAngle = 0
-          Width = 90
-          Height = 75
-          GripSize = 3
-          HideSelection = False
-          Proportional = False
-          SizingHoriz = False
-          SizingRoundTrip = True
+          Width = 131
+          Height = 35
+          Resource = 'DrakonOutputStyle'
+          TabOrder = 1
+          NodeType = drOutput
+          Text = 'тест текста'
+          Text2 = 'тестирование'
+          StrokeThickness = 1
         end
       end
     end
