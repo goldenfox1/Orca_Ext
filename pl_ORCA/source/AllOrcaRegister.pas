@@ -25,8 +25,9 @@ uses
 
 type
 
+  { TD2IDEDesigner }
+
   TD2IDEDesigner = class(TD2Designer)
-  private
   public
     procedure SelectObject(ADesigner: TComponent; AObject: TD2Object; MultiSelection: array of TD2Object); override;
     procedure Modified(ADesigner: TComponent); override;
@@ -593,6 +594,7 @@ begin
   RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);
   RegisterComponentEditor(TD2Lang, TD2LangEditor);
 end;
+
 
 initialization
 

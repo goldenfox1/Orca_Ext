@@ -35,10 +35,12 @@ begin
     GvarD2Designer.AddScene(Self);
 
   GvarD2SceneCount:=GvarD2SceneCount + 1;
+  GlobalDesignHook.AddHandlerSetSelection(DoGlobalSetSelection);
 end;
 
 destructor TD2CustomScene.Destroy;
 begin
+  GlobalDesignHook.RemoveHandlerSetSelection(DoGlobalSetSelection);
   if FHovered <> nil then
   begin
     TD2VisualObject(FHovered).RemoveFreeNotify(Self);
@@ -73,6 +75,14 @@ begin
   FreeAndNil(FCanvas);
   RemoveScene(Self);
   inherited;
+end;
+
+procedure TD2CustomScene.DoGlobalSetSelection(const ASelection: TPersistentSelectionList);
+var
+  i: TPersistentSelectionList;
+begin
+  i:=ASelection;
+  i:=nil;
 end;
 
 procedure TD2CustomScene.CreateHandle;
@@ -231,22 +241,25 @@ begin
   AddUpdateRect(d2Rect(0,0,AWidth,AHeight));
 end;
 
-procedure TD2CustomScene.EmbeddedMouseDown(Button:TMouseButton; Shift:TShiftState; X,Y:integer);
+procedure TD2CustomScene.EmbeddedMouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
   MouseDown(Button,Shift,X,Y);
 end;
 
-procedure TD2CustomScene.EmbeddedMouseMove(Shift:TShiftState; X,Y:integer);
+procedure TD2CustomScene.EmbeddedMouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   MouseMove(Shift,X,Y);
 end;
 
-procedure TD2CustomScene.EmbeddedMouseUp(Button:TMouseButton; Shift:TShiftState; X,Y:integer);
+procedure TD2CustomScene.EmbeddedMouseUp(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
   MouseUp(Button,Shift,X,Y);
 end;
 
-function TD2CustomScene.EmbeddedMouseWheel(Shift:TShiftState; WheelDelta:integer):boolean;
+function TD2CustomScene.EmbeddedMouseWheel(Shift: TShiftState;
+  WheelDelta: Integer): Boolean;
 var
   MousePos:TPoint;
 begin
@@ -939,15 +952,15 @@ begin
   THackControl(VCLDragSource).OnEndDrag:=EndDragEvent;
 end;
 
-procedure TD2CustomScene.EndDragEvent(Sender,Target:TObject; X,Y:integer);
+procedure TD2CustomScene.EndDragEvent(Sender, Target: TObject; X, Y: Integer);
 begin
   if TObject(Pointer(VCLDragSource.Tag)) is TD2VisualObject then
     TD2VisualObject(Pointer(VCLDragSource.Tag)).DragEnd;
   VCLDragSource.Tag:=0;
 end;
 
-procedure TD2CustomScene.DoDragOver(Sender,Source:TObject; X,Y:integer; State:TDragState;
-  var Accept:boolean);
+procedure TD2CustomScene.DoDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
 var
   P:TD2Point;
   NewTarget:TD2VisualObject;
@@ -991,8 +1004,7 @@ begin
   if varD2FTarget=nil then Accept:=false;
 end;
 
-procedure TD2CustomScene.DoDragDrop(Sender,Source:TObject;
-  X,Y:integer);
+procedure TD2CustomScene.DoDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
   Data:TD2DragObject;
 begin
@@ -1537,8 +1549,8 @@ begin
   end;
 end;
 
-procedure TD2CustomScene.MouseDown(Button:TMouseButton; Shift:TShiftState;
-  X,Y:integer);
+procedure TD2CustomScene.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
 var
   P:TD2Point;
   R:TD2Rect;
@@ -1755,7 +1767,7 @@ begin
   end;
 end;
 
-procedure TD2CustomScene.MouseMove(Shift:TShiftState; X,Y:integer);
+procedure TD2CustomScene.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
   R:TD2Rect;
   P,P1:TD2Point;
@@ -2083,8 +2095,8 @@ begin
   FDownPos:=FMousePos;
 end;
 
-procedure TD2CustomScene.MouseUp(Button:TMouseButton; Shift:TShiftState; X,
-  Y:integer);
+procedure TD2CustomScene.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
 var
   P:TD2Point;
   Obj:TD2VisualObject;
@@ -2153,8 +2165,8 @@ begin
   end;
 end;
 
-function TD2CustomScene.DoMouseWheel(Shift:TShiftState; WheelDelta:integer;
-   MousePos:TPoint):boolean;
+function TD2CustomScene.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
+  MousePos: TPoint): Boolean;
 var
   Obj:TD2VisualObject;
 begin
@@ -2402,7 +2414,7 @@ begin
     end;
 end;
 
-procedure TD2CustomScene.SetBounds(ALeft,ATop,AWidth,AHeight:integer);
+procedure TD2CustomScene.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
 begin
   inherited;
   if (Canvas <> nil) and (HandleAllocated) then
@@ -3645,8 +3657,8 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragEnter(const dataObj:IDataObject; grfKeyState:DWORD;
-      pt:TPoint; var dwEffect:DWORD):HResult;
+function TD2CustomScene.DragEnter(const dataObj: IDataObject;
+  grfKeyState: DWORD; pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
 begin
   try
     if (Root=nil) and not (Root.IsVisual) then
@@ -3671,7 +3683,8 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragOver(grfKeyState:DWORD; pt:TPoint; var dwEffect:DWORD):HResult;
+function TD2CustomScene.DragOver(grfKeyState: DWORD; pt: TPoint;
+  var dwEffect: DWORD): HResult; stdcall;
 var
   P:TD2Point;
   NewTarget:TD2VisualObject;
@@ -3702,7 +3715,7 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragLeave:HResult;
+function TD2CustomScene.DragLeave: HResult; stdcall;
 begin
   if varD2FTarget <> nil then TD2VisualObject(varD2FTarget).DragLeave;
 
@@ -3713,8 +3726,8 @@ begin
   Result:=S_OK;
 end;
 
-function TD2CustomScene.Drop(const dataObj:IDataObject; grfKeyState:DWORD; pt:TPoint;
-      var dwEffect:DWORD):HResult;
+function TD2CustomScene.Drop(const dataObj: IDataObject; grfKeyState: DWORD;
+  pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
 var
   P:TD2Point;
 begin

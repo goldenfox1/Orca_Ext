@@ -1,12 +1,12 @@
 object Form1: TForm1
-  Left = 255
+  Left = 246
   Height = 538
-  Top = 122
+  Top = 117
   Width = 760
   Caption = 'Form1'
   ClientHeight = 538
   ClientWidth = 760
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.2.0'
   object D2Scene1: TD2Scene
     Left = 0
     Height = 538
@@ -48,6 +48,18 @@ object Form1: TForm1
           Proportional = False
           SizingVert = False
         end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
         object DrakonNode1: TD2DrakonNode
           Cursor = crSizeAll
           Position.Point = '(313,288)'
@@ -55,7 +67,7 @@ object Form1: TForm1
           Width = 131
           Height = 35
           Resource = 'DrakonOutputStyle'
-          TabOrder = 1
+          TabOrder = 2
           NodeType = drOutput
           Text = 'тест текста'
           Text2 = 'тестирование'

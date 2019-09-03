@@ -16,7 +16,8 @@ unit orca_scene2d;
 interface
 
 uses
-  {$IFDEF WINDOWS}
+
+   {$IFDEF WINDOWS}
    Windows, Messages, Registry, ShellAPI, ActiveX, CommCtrl, MultiMon,
    wincodec,
    // DirectX 10
@@ -39,6 +40,7 @@ uses
   DelphiCompat,
   //LclExt,
   {$endif}
+  PropEdits, //Added by GoldenFox
   LCLProc, LCLIntf, LCLType, LMessages, LResources,
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
   StdCtrls, DB, {DBCtrls,} DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList,
@@ -2121,6 +2123,8 @@ TD2Frame = class(TD2VisualObject)
   end;
 
 
+{ TD2CustomScene }
+
 TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$ENDIF})
   private
     {$IFDEF WINDOWS}
@@ -2274,6 +2278,7 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     procedure UnicodeKeyDown(var Key: Word; var Char: System.WideChar; Shift: TShiftState);
     function  DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;  override;
     function  ObjectByPoint(X, Y:single): TD2VisualObject;
+    procedure DoGlobalSetSelection(const ASelection: TPersistentSelectionList);
   public
     FPopupPos: TPoint;
     constructor Create(AOwner: TComponent);  override;
