@@ -59,6 +59,7 @@ type
     procedure PopupBox1Change(Sender: TObject);
     procedure PopupBox2Change(Sender: TObject);
     procedure PopupBox3Change(Sender: TObject);
+    procedure Text1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
@@ -120,6 +121,11 @@ procedure TfrmDesigner.PopupBox3Change(Sender: TObject);
 begin
   if not (d2SceneDesigner.Selected is TD2Shape) then Exit;
   TD2Shape(d2SceneDesigner.Selected).StrokeJoin := TD2StrokeJoin(PopupBox3.ItemIndex);
+end;
+
+procedure TfrmDesigner.Text1Click(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmDesigner.TrackBar1Change(Sender: TObject);

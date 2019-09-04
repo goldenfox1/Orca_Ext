@@ -35,12 +35,23 @@ begin
     GvarD2Designer.AddScene(Self);
 
   GvarD2SceneCount:=GvarD2SceneCount + 1;
-  GlobalDesignHook.AddHandlerSetSelection(DoGlobalSetSelection);
+
+  //-------Added By GoldenFox-------
+  if FDesignTime                                                       //если мы в режиме дизайна
+    then begin                                                           //то
+           FGlobalHook:=true;                                               //установим флаг наличия глобальных хуков
+           GlobalDesignHook.AddHandlerSetSelection(DoGlobalSetSelection);   //установим глобальный обработчик для данной сцены при выделении объектов
+         end
+    else FGlobalHook:=false;
+  //-------End Added By GoldenFox-------
 end;
 
 destructor TD2CustomScene.Destroy;
 begin
-  GlobalDesignHook.RemoveHandlerSetSelection(DoGlobalSetSelection);
+  //-------Added By GoldenFox-------
+  if FGlobalHook                                           //если есть глобальные обработчики
+     then GlobalDesignHook.RemoveAllHandlersForObject(Self); //то удалить все глобальные обработчики данной сцены //Added By GoldenFox
+  //-------End Added By GoldenFox-------
   if FHovered <> nil then
   begin
     TD2VisualObject(FHovered).RemoveFreeNotify(Self);
@@ -78,11 +89,17 @@ begin
 end;
 
 procedure TD2CustomScene.DoGlobalSetSelection(const ASelection: TPersistentSelectionList);
-var
-  i: TPersistentSelectionList;
+//procedure added By GoldenFox
+//Выделяет на сцене объект при его выборе в Инспекторе объектов.
+//Если выбрано несколько объектов, то выделение снимается
 begin
-  i:=ASelection;
-  i:=nil;
+  if (GvarD2Designer = nil) or (GvarD2Designer.DisableSelectGlobalHook) then exit; //если нет глобального дизайнера или запрещена обработка глобального прерывания выбора объекта выходим
+  if (ASelection.Count = 1) and                          //если выделен 1 объект и
+     (ASelection[0] is TD2VisualObject) and                   //выделен визуальный объект и
+     (TD2VisualObject(ASelection[0]).Scene = Id2Scene(Self))  //объект принадлежит текущей сцене
+    then SetSelected(TD2VisualObject(ASelection[0]))        //то выдеделить объект на цене
+    else if Self.Count > 0                                  //иначе если на сцене есть объекты
+           then SetSelected(nil);                               //то снять выделение со всех объектов
 end;
 
 procedure TD2CustomScene.CreateHandle;

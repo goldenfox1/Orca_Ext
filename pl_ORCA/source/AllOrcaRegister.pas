@@ -27,15 +27,17 @@ type
 
   { TD2IDEDesigner }
 
-  TD2IDEDesigner = class(TD2Designer)
+TD2IDEDesigner = class(TD2Designer)
   public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy; override;
     procedure SelectObject(ADesigner: TComponent; AObject: TD2Object; MultiSelection: array of TD2Object); override;
     procedure Modified(ADesigner: TComponent); override;
     function  UniqueName(ADesigner: TComponent; ClassName: string): string; override;
     function  IsSelected(ADesigner: TComponent; const AObject: TObject): boolean; override;
     procedure EditStyle(const Res: TD2Resources; const ASelected: string); override;
     procedure AddObject(AObject: TD2Object); override;
-  end;
+end;
 
 
 {*********************************************************************
@@ -172,13 +174,26 @@ begin
   end;
 end;
 
+constructor TD2IDEDesigner.Create(AOwner: TComponent);
+begin
+  inherited;
+  DisableSelectGlobalHook:=false;
+end;
+
+destructor TD2IDEDesigner.Destroy;
+begin
+  inherited;
+end;
+
 procedure TD2IDEDesigner.SelectObject(ADesigner: TComponent; AObject: TD2Object; MultiSelection: array of TD2Object);
 begin
   if (ADesigner is TCustomForm) and (TCustomform(ADesigner).Designer <> nil) then
   begin
     if TCustomForm(ADesigner).Designer <> nil then
     begin
+      DisableSelectGlobalHook:= true;    //запретить обработку глобального прерывания выбора объекта
       TCustomForm(ADesigner).Designer.SelectOnlyThisComponent(AObject);
+      DisableSelectGlobalHook := false;   //запретить обработку глобального прерывания выбора объекта
     end;
   end;
 end;

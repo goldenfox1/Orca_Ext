@@ -2087,6 +2087,7 @@ TD2Lang = class(TComponent)
 TD2Designer = class(TComponent)
   private
     FScenes: TList;
+    FDisableSelectGlobalHook: boolean; //true - флаг запрета обработки глобального прерывания выбора объекта
   protected
     procedure CallDesignSelect(AObject: TObject);
   public
@@ -2101,6 +2102,7 @@ TD2Designer = class(TComponent)
     procedure DeleteObject(AObject: TD2Object);  virtual;
     function  AddMethod(MethodName: string): TMethod;  virtual;
     function  GetMethodName(Method: TMethod): string;  virtual;
+    property DisableSelectGlobalHook: boolean read FDisableSelectGlobalHook write FDisableSelectGlobalHook default false;
   end;
 
 TD2Frame = class(TD2VisualObject)
@@ -2151,6 +2153,7 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     FDragging, FResizing:boolean;
     FDesignTime:boolean;
     FFill: TD2Brush;
+    FGlobalHook:boolean; //установлены глобальные обработчики для дизайн-мода в IDE
     FTransparency:boolean;
     FSnapToGrid:boolean;
     FSnapToLines:boolean;
@@ -2278,6 +2281,8 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     procedure UnicodeKeyDown(var Key: Word; var Char: System.WideChar; Shift: TShiftState);
     function  DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;  override;
     function  ObjectByPoint(X, Y:single): TD2VisualObject;
+              //Выделяет на сцене объект при его выборе в Инспекторе объектов.
+              //Если выбрано несколько объектов, то выделение снимается
     procedure DoGlobalSetSelection(const ASelection: TPersistentSelectionList);
   public
     FPopupPos: TPoint;
