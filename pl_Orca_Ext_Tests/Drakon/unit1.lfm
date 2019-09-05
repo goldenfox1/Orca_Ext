@@ -1,25 +1,25 @@
 object Form1: TForm1
   Left = 246
-  Height = 538
+  Height = 489
   Top = 117
-  Width = 760
+  Width = 675
   Caption = 'Form1'
-  ClientHeight = 538
-  ClientWidth = 760
-  LCLVersion = '2.0.2.0'
+  ClientHeight = 489
+  ClientWidth = 675
+  LCLVersion = '2.0.4.0'
   object D2Scene1: TD2Scene
     Left = 0
-    Height = 538
+    Height = 489
     Top = 0
-    Width = 760
+    Width = 675
     Align = alClient
     DesignSnapGridShow = False
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
       RotateAngle = 0
-      Width = 760
-      Height = 538
+      Width = 675
+      Height = 489
       object DrakonPallet1: TD2DrakonPallet
         Align = vaLeft
         RotateAngle = 0
@@ -32,8 +32,8 @@ object Form1: TForm1
         Align = vaClient
         Position.Point = '(66,0)'
         RotateAngle = 0
-        Width = 694
-        Height = 538
+        Width = 609
+        Height = 489
         Resource = 'FramedScrollBoxStyle'
         TabOrder = 1
         object TD2Selection
@@ -60,20 +60,112 @@ object Form1: TForm1
           Proportional = False
           SizingVert = False
         end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object Line1: TD2Line
+          Position.Point = '(158,77)'
+          RotateAngle = 0
+          Width = 25
+          Height = 184
+          StrokeThickness = 3
+          LineType = d2LineVertical
+        end
         object DrakonNode1: TD2DrakonNode
           Cursor = crSizeAll
-          Position.Point = '(313,288)'
+          Position.Point = '(145,110)'
           RotateAngle = 0
-          Width = 131
-          Height = 35
-          Resource = 'DrakonOutputStyle'
-          TabOrder = 2
-          NodeType = drOutput
-          Text = 'тест текста'
-          Text2 = 'тестирование'
+          Width = 63
+          Height = 15
+          Resource = 'DrakonSOutputStyle'
+          TabOrder = 9
           StrokeThickness = 1
+          NodeType = drSOutput
         end
       end
     end
+  end
+  object Resources1: TD2Resources
   end
 end

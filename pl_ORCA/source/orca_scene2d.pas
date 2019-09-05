@@ -3219,35 +3219,36 @@ TD2Text = class(TD2Shape)
 
 //Тип узла дракон-схемы
 TD2DrakonNodeType=(
-  drNone,      //Не определен
-  drAction,    //Действие
-  drAddress,   //Конец ветки-ссылка на другую ветку
-  drArrowLeft, //Стрелка влево
-  drArrowRight,//Стрелка вправо
-  drArrowDown, //Стрелка вниз
-  drBeginend,  //Название алгоритма
-  drBranch,    //Начало ветки
-  drCase,      //Вариант для множественного выбора
-  drComment,   //Комментарий
-  drCommentL,  //Комментарий слева
-  drCommentR,  //Комментарий справа
-  drDuration,  //Время, длительность
-  drEnd,       //Конец алгоритма
-  drInput,     //Ввод
-  drInsertion, //Вставка
-  drJunction,  //точка соединения линий
-  drLoopBegin, //Начало цикла
-  drLoopEnd,   //Конец цикла
-  drOutput,    //Вывод
-  drParams,    //Вхдные параметры
-  drPause,     //Пауза
-  drProcess,   //Парралельный процесс
-  drQuestion,  //Вопрос
-  drSelect,    //Множественный выбор из нескольких значений
-  drShelf,     //Полка
-  drSInput,    //Простой ввод
-  drSOutput,   //Простой вывод
-  drTimer      //Таймер
+  drNone,        //Не определен
+  drAction,      //Действие
+  drAddress,     //Конец ветки-ссылка на другую ветку
+  drArrowLeft,   //Стрелка влево
+  drArrowRight,  //Стрелка вправо
+  drArrowDown,   //Стрелка вниз
+  drBeginend,    //Название алгоритма
+  drBranch,      //Начало ветки
+  drCase,        //Вариант для множественного выбора
+  drComment,     //Комментарий
+  drCommentL,    //Комментарий слева
+  drCommentR,    //Комментарий справа
+  drDuration,    //Время, длительность
+  drEnd,         //Конец алгоритма
+  drInput,       //Ввод
+  drInsertion,   //Вставка
+  drJunction,    //точка соединения линий
+  drLoopBegin,   //Начало цикла
+  drLoopEnd,     //Конец цикла
+  drOutput,      //Вывод
+  drParams,      //Вхдные параметры
+  drPause,       //Пауза
+  drProcess,     //Парралельный процесс
+  drQuestion,    //Вопрос да внизу
+  drQuestionRev, //Вопрос нет внизу
+  drSelect,      //Множественный выбор из нескольких значений
+  drShelf,       //Полка
+  drSInput,      //Простой ввод
+  drSOutput,     //Простой вывод
+  drTimer        //Таймер
 );
 
 TD2DrakonIcon = (
@@ -10358,21 +10359,48 @@ TD2DrakonPallet = class(TD2Layout)
     property Orientation: TD2Orientation read FOrientation write SetOrientation default d2Vertical;
 end;
 
-{ TD2DrakonNode }
-//Узел дракон-схемы
-TD2DrakonNode=class(TD2Control)
+
+{ TD2DrakonPrimitive }
+
+//Базовый элемент дракон-схемы
+TD2DrakonPrimitive=class(TD2Control)
   private
-    FEditor: TD2CustomDrakonEditor;     //указатель на редактор
+    FEditor: TD2CustomDrakonEditor; //указатель на редактор
+    FFill: TD2Brush;                //указатель на объект заливки
+    FStroke: TD2Brush;              //указатель на объект обводки
+    FStrokeThickness: single;       //толщина обводки
+    FShape: TD2Shape;               //Указатель на объект контура
+              //задать заливку для шейпа
+    procedure SetFill(AValue: TD2Brush); virtual;
+              //задать обводку для шейпа
+    procedure SetStroke(AValue: TD2Brush); virtual;
+              //задать толщину обводки для шейпа
+    procedure SetStrokeThickness(AValue: single); virtual;
+              //обработчик прерывания при изменении заливки
+    procedure FillChanged(Sender: TObject);
+              //обработчик прерывания при изменении обводки
+    procedure StrokeChanged(Sender: TObject);
+  protected
+    procedure ApplyStyle;  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    //procedure Realign;  override;
+    property Fill: TD2Brush read FFill write SetFill;
+    property Stroke: TD2Brush read FStroke write SetStroke;
+    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
+end;
+
+{ TD2DrakonNode }
+
+//Узел дракон-схемы
+TD2DrakonNode=class(TD2DrakonPrimitive)
+  private
     FText: String;
     FText2: String;
     FTextFont: TD2Font;
     FTextFill: TD2Brush;
-    FFill: TD2Brush;
-    FStroke: TD2Brush;
-    FStrokeThickness:single;
     FTextShape: TD2Text;          //указатель основной текстовый объект иконы
     FTextShape2: TD2Text;         //Указатель на дополнительный текстовый объект иконы
-    FShape: TD2Shape;             //Указатель на основной объект контура иконы
     FShape2: TD2Shape;            //Указатель на дополнительный объект контура иконы
     FNum: TD2Text;                //Указатель на текстовый объект № узла на схеме
     FNodeType: TD2DrakonNodeType; //Тип узла
@@ -10381,6 +10409,13 @@ TD2DrakonNode=class(TD2Control)
     FNodeDown: TD2DrakonNode;     //Указатель на связанный узел снизу
     FNodeLeft: TD2DrakonNode;     //Указатель на связанный узел слева
     FNodeRight: TD2DrakonNode;    //Указатель на связанный узел справа
+
+              //задать заливку для шейпа
+    procedure SetFill(AValue: TD2Brush); override;
+              //задать обводку для шейпа
+    procedure SetStroke(AValue: TD2Brush); override;
+              //задать толщину обводки для шейпа
+    procedure SetStrokeThickness(AValue: single); override;
 
               //Задать связанный узел ниже
     procedure SetNodeDown(AValue: TD2DrakonNode);
@@ -10392,19 +10427,16 @@ TD2DrakonNode=class(TD2Control)
     procedure SetNodeUp(AValue: TD2DrakonNode);
               //Задать тип узела
     procedure SetNodeType(AValue: TD2DrakonNodeType);
-
-    procedure SetFill(AValue: TD2Brush);
-    procedure SetStroke(AValue: TD2Brush);
-    procedure SetStrokeThickness(AValue: single);
+              //Задать текст 1
     procedure SetText(AValue: String);
+              //Задать текст 2
     procedure SetText2(AValue: String);
+              //Задать цвет заливки текста
     procedure SetTextFill(AValue: TD2Brush);
+              //Задать шрифт текста
     procedure SetTextFont(AValue: TD2Font);
-
-    procedure FillChanged(Sender: TObject);
+              //Вызывается при смене шрифта??
     procedure FontChanged(Sender: TObject);
-    procedure StrokeChanged(Sender: TObject);
-
   protected
     procedure ApplyStyle;  override;
   public
@@ -10417,16 +10449,18 @@ TD2DrakonNode=class(TD2Control)
     property NodeLeft: TD2DrakonNode read FNodeLeft write SetNodeLeft; //Указатель на связанный узел слева
     property NodeRight: TD2DrakonNode read FNodeRight write SetNodeRight; //Указатель на связанный узел справа
   published
-    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
+    property Fill;
+    property Stroke;
+    property StrokeThickness;
 
+    property NodeType: TD2DrakonNodeType read FNodeType write SetNodeType;   //Тип узла
     property Text: String read FText write SetText;
     property Text2: String read FText2 write SetText2;
     property TextFont: TD2Font read FTextFont write SetTextFont;
     property TextFill: TD2Brush read FTextFill write SetTextFill;
 
-    property Fill: TD2Brush read FFill write SetFill;
-    property Stroke: TD2Brush read FStroke write SetStroke;
-    property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
+
+
 end;
 
 { TD2CustomDrakonEditor}
@@ -10439,7 +10473,7 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
     FPressedNode: TD2DrakonNode;
     FPressedPos: TD2Point;
   protected
-    procedure CreateSilhouette;
+    procedure CreateSilhouette; virtual;
     procedure ClearNodes;
               //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
                //ABounds - габариты узла; AType - тип узла;
@@ -10459,7 +10493,7 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;
-    function SetCommand(ACommand: TD2DrakonIcon): boolean;
+    function SetCommand(ACommand: TD2DrakonIcon): boolean; virtual;
 end;
 
 { TD2DrakonEditor }

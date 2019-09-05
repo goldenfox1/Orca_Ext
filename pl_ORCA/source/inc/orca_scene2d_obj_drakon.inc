@@ -298,7 +298,130 @@ begin
   inherited;
 end;
 
+//==================== TD2DrakonPrimitive =======================================
+
+constructor TD2DrakonPrimitive.Create(AOwner: TComponent);
+begin
+  inherited;
+  FShape:= nil;
+
+  FFill:=TD2Brush.Create(d2BrushSolid,$FFE0E0E0);
+  FFill.SolidColor:=$FFE0E0E0;
+  FFill.OnChanged:=FillChanged;
+
+  FStroke:=TD2Brush.Create(d2BrushSolid,$FF000000);
+  FStroke.SolidColor:=$FF000000;
+  FStroke.OnChanged:=StrokeChanged;
+
+  FStrokeThickness:=1;
+
+  FAutoCapture := true;
+  FCursor:= crSizeAll;
+end;
+
+procedure TD2DrakonPrimitive.SetStroke(AValue: TD2Brush);
+begin
+  if FShape<>nil
+    then FShape.FStroke.Assign(AValue);
+  FStroke.Assign(AValue);
+  Repaint;
+end;
+
+procedure TD2DrakonPrimitive.SetStrokeThickness(AValue: single);
+begin
+  if FStrokeThickness=AValue then Exit;
+  FStrokeThickness:=AValue;
+  if FShape<>nil
+    then FShape.FStrokeThickness:=AValue;
+  Repaint;
+end;
+
+procedure TD2DrakonPrimitive.SetFill(AValue: TD2Brush);
+begin
+  if FShape<>nil
+    then FShape.FFill.Assign(AValue);
+  FFill.Assign(AValue);
+  Repaint;
+end;
+
+procedure TD2DrakonPrimitive.FillChanged(Sender: TObject);
+begin
+  FUpdateEffects:=true;
+  Realign;
+  Repaint;
+end;
+
+procedure TD2DrakonPrimitive.StrokeChanged(Sender: TObject);
+begin
+  FUpdateEffects:=true;
+  Realign;
+  Repaint;
+end;
+
+procedure TD2DrakonPrimitive.ApplyStyle;
+var S:TD2Object;
+begin
+  inherited;
+  S:=FindResource('shape');
+  if (S<>nil) and (S is TD2Shape)
+    then FShape:=TD2Shape(S)
+    else if (S=nil) and (FResourceLink is TD2Shape)
+           then FShape:=TD2Shape(FResourceLink);
+end;
+
+{
+procedure TD2DrakonPrimitive.Realign;
+var h: single;
+begin
+  if csDestroying in ComponentState then Exit;
+  if FDisableDefaultAlign then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
+
+  if Width < 40
+    then Width:= 40;
+
+  if FShape <> nil then
+  begin
+    FShape.FStroke.Assign(FStroke);
+    FShape.FStrokeThickness:=FStrokeThickness;
+    FShape.FFill.Assign(FFill);
+    FShape.Height:= FShape.FMargins.FTop + FShape.FMargins.FBottom;
+    h:= FShape.Height + FShape.FPadding.FTop + FShape.FPadding.FBottom;
+  end;
+  if h<15 then h:=15;
+  if h>1000 then h:=1000;
+  Height:=h;
+  inherited;
+end;
+ }
+
 //==================== TD2DrakonNode =======================================
+
+procedure TD2DrakonNode.SetFill(AValue: TD2Brush);
+begin
+  if FShape2<>nil
+    then FShape2.FFill.Assign(AValue);
+  if (FShape<>nil) and (FNodeType<>drComment)
+    then FShape.FFill.Assign(AValue);
+  FFill.Assign(AValue);
+  Repaint;
+end;
+
+procedure TD2DrakonNode.SetStroke(AValue: TD2Brush);
+begin
+  if FShape2<>nil
+    then FShape2.FStroke.Assign(AValue);
+  inherited;
+end;
+
+procedure TD2DrakonNode.SetStrokeThickness(AValue: single);
+begin
+  inherited;
+  if FStrokeThickness=AValue then Exit;
+  if FShape2<>nil
+    then FShape2.FStrokeThickness:=AValue;
+end;
 
 //Задать связанный узел ниже
 procedure TD2DrakonNode.SetNodeDown(AValue: TD2DrakonNode);
@@ -310,30 +433,6 @@ begin
 end;
 
 procedure TD2DrakonNode.FontChanged(Sender: TObject);
-begin
-  FUpdateEffects:=true;
-  Realign;
-  Repaint;
-end;
-
-procedure TD2DrakonNode.FillChanged(Sender: TObject);
-begin
-  FUpdateEffects:=true;
-  Realign;
-  Repaint;
-end;
-
-procedure TD2DrakonNode.SetFill(AValue: TD2Brush);
-begin
-  FFill.Assign(AValue);
-  if (FShape<>nil) and (FNodeType<>drComment)
-    then FShape.FFill.Assign(AValue);
-  if FShape2<>nil
-    then FShape2.FFill.Assign(AValue);
-  Repaint;
-end;
-
-procedure TD2DrakonNode.StrokeChanged(Sender: TObject);
 begin
   FUpdateEffects:=true;
   Realign;
@@ -419,8 +518,10 @@ begin
       Resource:='DrakonPauseStyle';
     drProcess:   //+Парралельный процесс
       Resource:='DrakonProcessStyle';
-    drQuestion:  //+Вопрос
+    drQuestion:  //+Вопрос да внизу
       Resource:='DrakonQuestionStyle';
+    drQuestionRev:  //+Вопрос нет внизу
+      Resource:='DrakonQuestionRevStyle';
     drSelect:    //+Множественный выбор из нескольких значений
       Resource:='DrakonSelectStyle';
     drShelf:     //+Полка
@@ -443,27 +544,6 @@ begin
          //drNone тип не определен
       Resource:='DrakonNodeStyle';
   end;
-end;
-
-procedure TD2DrakonNode.SetStroke(AValue: TD2Brush);
-begin
-  FStroke.Assign(AValue);
-  if FShape<>nil
-    then FShape.FStroke.Assign(AValue);
-  if FShape2<>nil
-    then FShape2.FStroke.Assign(AValue);
-  Repaint;
-end;
-
-procedure TD2DrakonNode.SetStrokeThickness(AValue: single);
-begin
-  if FStrokeThickness=AValue then Exit;
-  FStrokeThickness:=AValue;
-  if FShape<>nil
-    then FShape.FStrokeThickness:=AValue;
-  if FShape2<>nil
-    then FShape2.FStrokeThickness:=AValue;
-  Repaint;
 end;
 
 procedure TD2DrakonNode.SetText(AValue: String);
@@ -508,11 +588,6 @@ procedure TD2DrakonNode.ApplyStyle;
 var S:TD2Object;
 begin
   inherited;
-  S:=FindResource('shape');
-  if (S<>nil) and (S is TD2Shape)
-    then FShape:=TD2Shape(S)
-    else if (S=nil) and (FResourceLink is TD2Shape)
-           then FShape:=TD2Shape(FResourceLink);
   S:=FindResource('shape2');
   if (S<>nil) and (S is TD2Shape)
     then FShape2:=TD2Shape(S);
@@ -536,7 +611,6 @@ begin
   inherited;
   FNodeIndex:=-1;
   FNodeType:=drNone;
-  FShape:= nil;
   FShape2:= nil;
   FTextShape:= nil;
   FTextShape2:= nil;
@@ -553,18 +627,6 @@ begin
   FTextFill.SolidColor:=$FF000000;
   FTextFill.OnChanged:=FillChanged;
 
-  FFill:=TD2Brush.Create(d2BrushSolid,$FFE0E0E0);
-  FFill.SolidColor:=$FFE0E0E0;
-  FFill.OnChanged:=FillChanged;
-
-  FStroke:=TD2Brush.Create(d2BrushSolid,$FF000000);
-  FStroke.SolidColor:=$FF000000;
-  FStroke.OnChanged:=StrokeChanged;
-
-  FStrokeThickness:=1;
-
-  FAutoCapture := true;
-  FCursor:= crSizeAll;
 end;
 
 destructor TD2DrakonNode.Destroy;
@@ -650,6 +712,7 @@ begin
   inherited;
 end;
 
+
 //==================== TD2CustomDrakonEditor =======================================
  
 function TD2CustomDrakonEditor.LinkNode(AIndex,ALeft,AUp,ARight,ADown: integer): boolean;
@@ -688,49 +751,6 @@ begin
   Result:=false;
 end;
 
-procedure TD2CustomDrakonEditor.NodeMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y, Dx, Dy: single);
-begin
-  if (ssLeft in Shift) and
-     (FPressedNode=Sender) and
-     (TD2DrakonNode(Sender).FPressed) then
-    with TD2DrakonNode(Sender) do
-    begin
-      FMoveNode:=true;
-      Position.X:=Position.X+(X-FPressedPos.X);
-      Position.Y:=Position.Y+(Y-FPressedPos.Y);
-    end;
-end;
-
-procedure TD2CustomDrakonEditor.NodeMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: single);
-begin
-  if ssLeft in Shift then
-  begin
-    FPressedNode:=TD2DrakonNode(Sender);
-    FPressedPos:=d2Point(X,Y);
-  end;
-end;
-
-procedure TD2CustomDrakonEditor.NodeMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: single);
-begin
-  if Button=mbLeft then
-  begin
-    if not FMoveNode then
-      SelectNode(TD2DrakonNode(Sender));
-    FMoveNode:=false;
-    FPressedNode:=nil;
-  end;
-end;
-
-procedure TD2CustomDrakonEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
-begin
-  inherited;
-  if Button=mbLeft then
-    SelectNode(nil);
-end;
-
 procedure TD2CustomDrakonEditor.SelectNode(ANode: TD2DrakonNode);
 begin
   if FSelectNode=ANode then exit;
@@ -748,12 +768,6 @@ begin
                   end;
   FSelectNode:=ANode;
   EndUpdate;
-end;
-
-procedure TD2CustomDrakonEditor.SelectionTrack(Sender: TObject);
-begin
-  FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
-  FSelection.BoundsRect:=FSelectNode.BoundsRect;
 end;
 
 function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType;
@@ -819,30 +833,6 @@ begin
     for i:=0 to FNodes.Count-1 do
       TObject(FNodes[i]).Free;
   FNodes.Clear;
-end;
-
-constructor TD2CustomDrakonEditor.Create(AOwner: TComponent);
-begin
-  inherited;
-  FNodes:=TList.Create;
-  Resource:='FramedScrollBoxStyle';
-  FSelection:=TD2Selection.Create(Self);
-  FSelection.Parent:=Self;
-  FSelection.Visible:=False;
-  FSelection.DesignHide:=True;
-  FSelection.SizingVert:=false;
-  FSelection.MinSize:=40;
-  FSelection.OnTrack:=SelectionTrack;
-  FMoveNode:=false;
-end;
-
-destructor TD2CustomDrakonEditor.Destroy;
-var i: integer;
-begin
-  ClearNodes;
-  FNodes.Free;
-  FSelection.Free;
-  inherited;
 end;
 
 //выполнить команду
@@ -929,8 +919,78 @@ begin
   end;
 end;
 
+constructor TD2CustomDrakonEditor.Create(AOwner: TComponent);
+begin
+  inherited;
+  FNodes:=TList.Create;
+  Resource:='FramedScrollBoxStyle';
+  FSelection:=TD2Selection.Create(Self);
+  FSelection.Parent:=Self;
+  FSelection.Visible:=False;
+  FSelection.DesignHide:=True;
+  FSelection.SizingVert:=false;
+  FSelection.MinSize:=40;
+  FSelection.OnTrack:=SelectionTrack;
+  FMoveNode:=false;
+end;
 
+destructor TD2CustomDrakonEditor.Destroy;
+var i: integer;
+begin
+  ClearNodes;
+  FNodes.Free;
+  FSelection.Free;
+  inherited;
+end;
 
+procedure TD2CustomDrakonEditor.NodeMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y, Dx, Dy: single);
+begin
+  if (ssLeft in Shift) and
+     (FPressedNode=Sender) and
+     (TD2DrakonNode(Sender).FPressed) then
+    with TD2DrakonNode(Sender) do
+    begin
+      FMoveNode:=true;
+      Position.X:=Position.X+(X-FPressedPos.X);
+      Position.Y:=Position.Y+(Y-FPressedPos.Y);
+    end;
+end;
+
+procedure TD2CustomDrakonEditor.NodeMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  if ssLeft in Shift then
+  begin
+    FPressedNode:=TD2DrakonNode(Sender);
+    FPressedPos:=d2Point(X,Y);
+  end;
+end;
+
+procedure TD2CustomDrakonEditor.NodeMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  if Button=mbLeft then
+  begin
+    if not FMoveNode then
+      SelectNode(TD2DrakonNode(Sender));
+    FMoveNode:=false;
+    FPressedNode:=nil;
+  end;
+end;
+
+procedure TD2CustomDrakonEditor.SelectionTrack(Sender: TObject);
+begin
+  FSelectNode.SetBounds(FSelection.Position.X,FSelection.Position.Y,FSelection.Width,FSelection.Height);
+  FSelection.BoundsRect:=FSelectNode.BoundsRect;
+end;
+
+procedure TD2CustomDrakonEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+begin
+  inherited;
+  if Button=mbLeft then
+    SelectNode(nil);
+end;
 
 
 
