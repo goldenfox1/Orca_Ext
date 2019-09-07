@@ -26,7 +26,6 @@ type
     DrakonNode1: TD2DrakonNode;
     DrakonPallet1: TD2DrakonPallet;
     Line1: TD2Line;
-    Resources1: TD2Resources;
     Root1: TD2Background;
 
   private

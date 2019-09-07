@@ -144,6 +144,18 @@ object Form1: TForm1
           Proportional = False
           SizingVert = False
         end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
         object Line1: TD2Line
           Position.Point = '(158,77)'
           RotateAngle = 0
@@ -159,13 +171,11 @@ object Form1: TForm1
           Width = 63
           Height = 15
           Resource = 'DrakonSOutputStyle'
-          TabOrder = 9
+          TabOrder = 11
           StrokeThickness = 1
           NodeType = drSOutput
         end
       end
     end
-  end
-  object Resources1: TD2Resources
   end
 end

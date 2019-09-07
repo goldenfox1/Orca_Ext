@@ -10382,9 +10382,11 @@ TD2DrakonPrimitive=class(TD2Control)
     procedure StrokeChanged(Sender: TObject);
   protected
     procedure ApplyStyle;  override;
+    procedure FreeStyle;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     //procedure Realign;  override;
+    procedure UpdateResource;  override;
     property Fill: TD2Brush read FFill write SetFill;
     property Stroke: TD2Brush read FStroke write SetStroke;
     property StrokeThickness:single read FStrokeThickness write SetStrokeThickness;
@@ -10439,6 +10441,7 @@ TD2DrakonNode=class(TD2DrakonPrimitive)
     procedure FontChanged(Sender: TObject);
   protected
     procedure ApplyStyle;  override;
+    procedure FreeStyle;  override;
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy;  override;

@@ -1,0 +1,66 @@
+object Form1: TForm1
+  Left = 952
+  Height = 240
+  Top = 143
+  Width = 320
+  Caption = 'Form1'
+  ClientHeight = 240
+  ClientWidth = 320
+  LCLVersion = '2.0.4.0'
+  object D2Scene1: TD2Scene
+    Left = 0
+    Height = 240
+    Top = 0
+    Width = 320
+    Align = alClient
+    DesignSnapGridShow = False
+    DesignSnapToGrid = False
+    DesignSnapToLines = True
+    object Root1: TD2Background
+      RotateAngle = 0
+      Width = 320
+      Height = 240
+      object Button1: TD2Button
+        Position.Point = '(50,44)'
+        RotateAngle = 0
+        Width = 80
+        Height = 22
+        TabOrder = 0
+        StaysPressed = False
+        IsPressed = False
+        TextAlign = d2TextAlignCenter
+      end
+      object DrakonEditor1: TD2DrakonEditor
+        Position.Point = '(62,91)'
+        RotateAngle = 0
+        Width = 208
+        Height = 133
+        Resource = 'FramedScrollBoxStyle'
+        TabOrder = 1
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object DrakonNode1: TD2DrakonNode
+          Cursor = crSizeAll
+          Position.Point = '(54,46)'
+          RotateAngle = 0
+          Width = 50
+          Height = 29
+          Resource = 'DrakonShelfStyle'
+          TabOrder = 1
+          StrokeThickness = 1
+          NodeType = drShelf
+        end
+      end
+    end
+  end
+end

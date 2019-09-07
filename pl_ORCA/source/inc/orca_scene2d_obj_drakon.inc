@@ -319,6 +319,11 @@ begin
   FCursor:= crSizeAll;
 end;
 
+procedure TD2DrakonPrimitive.UpdateResource;
+begin
+  inherited;
+end;
+
 procedure TD2DrakonPrimitive.SetStroke(AValue: TD2Brush);
 begin
   if FShape<>nil
@@ -367,6 +372,12 @@ begin
     then FShape:=TD2Shape(S)
     else if (S=nil) and (FResourceLink is TD2Shape)
            then FShape:=TD2Shape(FResourceLink);
+end;
+
+procedure TD2DrakonPrimitive.FreeStyle;
+begin
+  FShape:=nil;
+  inherited;
 end;
 
 {
@@ -604,6 +615,15 @@ begin
             FNum.Visible:=false;
           end;
   Realign;
+end;
+
+procedure TD2DrakonNode.FreeStyle;
+begin
+  FShape2:=nil;
+  FTextShape:=nil;
+  FTextShape2:=nil;
+  FNum:=nil;
+  inherited;
 end;
 
 constructor TD2DrakonNode.Create(AOwner: TComponent);
