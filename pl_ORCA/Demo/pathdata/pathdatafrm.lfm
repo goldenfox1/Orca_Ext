@@ -1,7 +1,7 @@
 object Form15: TForm15
-  Left = 484
+  Left = 486
   Height = 520
-  Top = 239
+  Top = 175
   Width = 566
   Caption = 'ORCA 2D Path'
   ClientHeight = 520
@@ -11,7 +11,7 @@ object Form15: TForm15
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '2.0.4.0'
   object d2Scene1: TD2Scene
     Left = 0
     Height = 520
@@ -53,8 +53,8 @@ object Form15: TForm15
         TextLabel.TabOrder = 0
         TextLabel.TextAlign = d2TextAlignFar
         TextLabel.VertTextAlign = d2TextAlignCenter
-        TextLabel.Text = 'Stroke Width:'
         TextLabel.WordWrap = False
+        TextLabel.Text = 'Stroke Width:'
         TrackBar.Align = vaVertCenter
         TrackBar.Position.Point = '(0,2)'
         TrackBar.RotateAngle = 0

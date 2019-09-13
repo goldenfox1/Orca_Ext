@@ -298,12 +298,31 @@ begin
   inherited;
 end;
 
-//==================== TD2DrakonPrimitive =======================================
 
-constructor TD2DrakonPrimitive.Create(AOwner: TComponent);
+//==================== TD2DrakonNode =======================================
+
+constructor TD2DrakonNode.Create(AOwner: TComponent);
 begin
   inherited;
+  FEditor:= nil;
+  FNodeIndex:=-1;
+  FNodeType:=drNone;
   FShape:= nil;
+  FShape2:= nil;
+  FTextShape:= nil;
+  FTextShape2:= nil;
+  FNodeDown:= nil;
+  FNodeLeft:= nil;
+  FNodeRight:= nil;
+  FNodeUp:= nil;
+  FText:='';
+  FText2:='';
+  FTextFont:=TD2Font.Create;
+  FTextFont.OnChanged:=FontChanged;
+
+  FTextFill:=TD2Brush.Create(d2BrushSolid,$FF000000);
+  FTextFill.SolidColor:=$FF000000;
+  FTextFill.OnChanged:=FillChanged;
 
   FFill:=TD2Brush.Create(d2BrushSolid,$FFE0E0E0);
   FFill.SolidColor:=$FFE0E0E0;
@@ -317,130 +336,80 @@ begin
 
   FAutoCapture := true;
   FCursor:= crSizeAll;
+
 end;
 
-procedure TD2DrakonPrimitive.UpdateResource;
+destructor TD2DrakonNode.Destroy;
 begin
+  FTextFont.Free;
+  FTextFill.Free;
+  FFill.Free;
+  FStroke.Free;
+  FEditor:= nil;
+  FNodeDown:= nil;
+  FNodeUp:= nil;
+  FNodeLeft:= nil;
+  FNodeRight:= nil;
   inherited;
 end;
 
-procedure TD2DrakonPrimitive.SetStroke(AValue: TD2Brush);
-begin
-  if FShape<>nil
-    then FShape.FStroke.Assign(AValue);
-  FStroke.Assign(AValue);
-  Repaint;
-end;
-
-procedure TD2DrakonPrimitive.SetStrokeThickness(AValue: single);
-begin
-  if FStrokeThickness=AValue then Exit;
-  FStrokeThickness:=AValue;
-  if FShape<>nil
-    then FShape.FStrokeThickness:=AValue;
-  Repaint;
-end;
-
-procedure TD2DrakonPrimitive.SetFill(AValue: TD2Brush);
-begin
-  if FShape<>nil
-    then FShape.FFill.Assign(AValue);
-  FFill.Assign(AValue);
-  Repaint;
-end;
-
-procedure TD2DrakonPrimitive.FillChanged(Sender: TObject);
+procedure TD2DrakonNode.FillChanged(Sender: TObject);
 begin
   FUpdateEffects:=true;
   Realign;
   Repaint;
 end;
 
-procedure TD2DrakonPrimitive.StrokeChanged(Sender: TObject);
+procedure TD2DrakonNode.StrokeChanged(Sender: TObject);
 begin
   FUpdateEffects:=true;
   Realign;
   Repaint;
 end;
 
-procedure TD2DrakonPrimitive.ApplyStyle;
-var S:TD2Object;
+function TD2DrakonNode.GetIsLine: boolean;
 begin
-  inherited;
-  S:=FindResource('shape');
-  if (S<>nil) and (S is TD2Shape)
-    then FShape:=TD2Shape(S)
-    else if (S=nil) and (FResourceLink is TD2Shape)
-           then FShape:=TD2Shape(FResourceLink);
-end;
-
-procedure TD2DrakonPrimitive.FreeStyle;
-begin
-  FShape:=nil;
-  inherited;
-end;
-
-{
-procedure TD2DrakonPrimitive.Realign;
-var h: single;
-begin
-  if csDestroying in ComponentState then Exit;
-  if FDisableDefaultAlign then Exit;
-  if FDisableAlign then Exit;
-  if FUpdating > 0 then Exit;
-
-  if Width < 40
-    then Width:= 40;
-
-  if FShape <> nil then
-  begin
-    FShape.FStroke.Assign(FStroke);
-    FShape.FStrokeThickness:=FStrokeThickness;
-    FShape.FFill.Assign(FFill);
-    FShape.Height:= FShape.FMargins.FTop + FShape.FMargins.FBottom;
-    h:= FShape.Height + FShape.FPadding.FTop + FShape.FPadding.FBottom;
+    case  FNodeType of     //создаем новый контур
+      drArrowLeft,   //Стрелка влево
+      drArrowRight,  //Стрелка вправо
+      drLineTwo,     //Двойная горизонтальая линия
+      drLineHor,     //Горизонтальая линия
+      drLineVer:     //Вертикальная линия
+        GetIsLine:=true;
+    else             //все остальные
+      GetIsLine:=false;
   end;
-  if h<15 then h:=15;
-  if h>1000 then h:=1000;
-  Height:=h;
-  inherited;
 end;
- }
-
-//==================== TD2DrakonNode =======================================
 
 procedure TD2DrakonNode.SetFill(AValue: TD2Brush);
 begin
-  if FShape2<>nil
-    then FShape2.FFill.Assign(AValue);
   if (FShape<>nil) and (FNodeType<>drComment)
     then FShape.FFill.Assign(AValue);
+  if FShape2<>nil
+    then FShape2.FFill.Assign(AValue);
   FFill.Assign(AValue);
   Repaint;
 end;
 
 procedure TD2DrakonNode.SetStroke(AValue: TD2Brush);
 begin
+  if FShape<>nil
+    then FShape.FStroke.Assign(AValue);
   if FShape2<>nil
     then FShape2.FStroke.Assign(AValue);
-  inherited;
+  FStroke.Assign(AValue);
+  Repaint;
 end;
 
 procedure TD2DrakonNode.SetStrokeThickness(AValue: single);
 begin
-  inherited;
   if FStrokeThickness=AValue then Exit;
+  FStrokeThickness:=AValue;
+  if FShape<>nil
+    then FShape.FStrokeThickness:=AValue;
   if FShape2<>nil
     then FShape2.FStrokeThickness:=AValue;
-end;
-
-//Задать связанный узел ниже
-procedure TD2DrakonNode.SetNodeDown(AValue: TD2DrakonNode);
-begin
-  if FNodeDown=AValue then Exit;
-  FNodeDown:=AValue;
-  if FEditor <> nil then
-    FEditor.Realign;
+  Repaint;
 end;
 
 procedure TD2DrakonNode.FontChanged(Sender: TObject);
@@ -459,15 +428,6 @@ begin
     FEditor.Realign;
 end;
 
-//Задать связанный узел справа
-procedure TD2DrakonNode.SetNodeRight(AValue: TD2DrakonNode);
-begin
-  if FNodeRight=AValue then Exit;
-  FNodeRight:=AValue;
-  if FEditor <> nil then
-    FEditor.Realign;
-end;
-
 //Задать связанный узел выше
 procedure TD2DrakonNode.SetNodeUp(AValue: TD2DrakonNode);
 begin
@@ -477,71 +437,80 @@ begin
     FEditor.Realign;
 end;
 
+//Задать связанный узел справа
+procedure TD2DrakonNode.SetNodeRight(AValue: TD2DrakonNode);
+begin
+  if FNodeRight=AValue then Exit;
+  FNodeRight:=AValue;
+  if FEditor <> nil then
+    FEditor.Realign;
+end;
+
+//Задать связанный узел ниже
+procedure TD2DrakonNode.SetNodeDown(AValue: TD2DrakonNode);
+begin
+  if FNodeDown=AValue then Exit;
+  FNodeDown:=AValue;
+  if FEditor <> nil then
+    FEditor.Realign;
+end;
+
 //Задать тип узела
 procedure TD2DrakonNode.SetNodeType(AValue: TD2DrakonNodeType);
-var
-  t,t2: String;
-  fi,fi2: TD2Brush;
-  fo,fo2: TD2Font;
-
 begin
   if FNodeType=AValue then Exit;
   FNodeType:=AValue;
-  FTextShape:=nil;
-  FTextShape2:=nil;
-  FShape:=nil;
-  FShape2:=nil;
-  FNum:=nil;
+  FreeStyle;
   case  AValue of     //создаем новый контур
-    drAction:    //+Действие
+    drAction:    //Действие
       Resource:='DrakonActionStyle';
-    drAddress:   //+Конец ветки-ссылка на другую ветку
+    drAddress:   //Конец ветки-ссылка на другую ветку
       Resource:='DrakonAddressStyle';
-    drBeginend:  //+Название алгоритма
-      Resource:='DrakonBeginendStyle';
-    drBranch:    //+Начало ветки
+    drBegin:     //Название алгоритма
+      Resource:='DrakonBeginStyle';
+    drBranch:    //Начало ветки
       Resource:='DrakonBranchStyle';
-    drCase:      //+Вариант для множественного выбора
+    drCase:      //Вариант для множественного выбора
       Resource:='DrakonCaseStyle';
-    drComment:   //+Комментарий
+    drComment:   //Комментарий
       Resource:='DrakonCommentStyle';
-    drCommentL:  //+Комментарий слева
+    drCommentL:  //Комментарий слева
       Resource:='DrakonCommentLStyle';
-    drCommentR:  //+Комментарий справка ;
+    drCommentR:  //Комментарий справка ;
       Resource:='DrakonCommentRStyle';
-    drDuration:  //+Время, длительность
+    drDuration:  //Время, длительность
       Resource:='DrakonDurationStyle';
-    drEnd:       //+Конец алгоритма
+    drEnd:       //Конец алгоритма
       Resource:='DrakonEndStyle';
-    drInput:     //+Ввод
+    drInput:     //Ввод
       Resource:='DrakonInputStyle';
-    drInsertion: //+Вставка
+    drInsertion: //Вставка
       Resource:='DrakonInsertionStyle';
-    drLoopBegin: //+Начало цикла
+    drLoopBegin: //Начало цикла
       Resource:='DrakonLoopBeginStyle';
-    drLoopEnd:   //+Конец цикла
+    drLoopEnd:   //Конец цикла
       Resource:='DrakonLoopEndStyle';
-    drOutput:    //+Вывод
+    drOutput:    //Вывод
       Resource:='DrakonOutputStyle';
-    drParams:    //+Вхдные параметры
+    drParams:    //Вхдные параметры
       Resource:='DrakonParamsStyle';
-    drPause:     //+Пауза
+    drPause:     //Пауза
       Resource:='DrakonPauseStyle';
-    drProcess:   //+Парралельный процесс
+    drProcess:   //Парралельный процесс
       Resource:='DrakonProcessStyle';
-    drQuestion:  //+Вопрос да внизу
+    drQuestion:  //Вопрос да внизу
       Resource:='DrakonQuestionStyle';
-    drQuestionRev:  //+Вопрос нет внизу
+    drQuestionRev:  //Вопрос нет внизу
       Resource:='DrakonQuestionRevStyle';
-    drSelect:    //+Множественный выбор из нескольких значений
+    drSelect:    //Множественный выбор из нескольких значений
       Resource:='DrakonSelectStyle';
-    drShelf:     //+Полка
+    drShelf:     //Полка
       Resource:='DrakonShelfStyle';
-    drSInput:    //+Простой ввод
+    drSInput:    //Простой ввод
       Resource:='DrakonSInputStyle';
-    drSOutput:   //+Простой вывод
+    drSOutput:   //Простой вывод
       Resource:='DrakonSOutputStyle';
-    drTimer:     //+Таймер
+    drTimer:     //Таймер
       Resource:='DrakonTimerStyle';
     drJunction: //точка соединения линий
       Resource:='DrakonJunctionStyle';
@@ -549,10 +518,13 @@ begin
       Resource:='DrakonArrowLStyle';
     drArrowRight://Стрелка вправо
       Resource:='DrakonArrowRStyle';
-    drArrowDown: //Стрелка вниз
-      Resource:='DrakonArrowDStyle';
-    else
-         //drNone тип не определен
+    drLineTwo:   //Двойная горизонтальая линия
+      Resource:='DrakonLineTwoStyle';
+    drLineHor:   //Горизонтальая линия
+      Resource:='DrakonLineHorStyle';
+    drLineVer:   //Вертикальная линия
+      Resource:='DrakonLineVerStyle';
+    else  //drNone тип не определен
       Resource:='DrakonNodeStyle';
   end;
 end;
@@ -599,6 +571,11 @@ procedure TD2DrakonNode.ApplyStyle;
 var S:TD2Object;
 begin
   inherited;
+  S:=FindResource('shape');
+  if (S<>nil) and (S is TD2Shape)
+    then FShape:=TD2Shape(S)
+    else if (S=nil) and (FResourceLink is TD2Shape)
+           then FShape:=TD2Shape(FResourceLink);
   S:=FindResource('shape2');
   if (S<>nil) and (S is TD2Shape)
     then FShape2:=TD2Shape(S);
@@ -619,42 +596,11 @@ end;
 
 procedure TD2DrakonNode.FreeStyle;
 begin
+  FShape:=nil;
   FShape2:=nil;
   FTextShape:=nil;
   FTextShape2:=nil;
   FNum:=nil;
-  inherited;
-end;
-
-constructor TD2DrakonNode.Create(AOwner: TComponent);
-begin
-  inherited;
-  FNodeIndex:=-1;
-  FNodeType:=drNone;
-  FShape2:= nil;
-  FTextShape:= nil;
-  FTextShape2:= nil;
-  FNodeDown:= nil;
-  FNodeLeft:= nil;
-  FNodeRight:= nil;
-  FNodeUp:= nil;
-  FText:='';
-  FText2:='';
-  FTextFont:=TD2Font.Create;
-  FTextFont.OnChanged:=FontChanged;
-
-  FTextFill:=TD2Brush.Create(d2BrushSolid,$FF000000);
-  FTextFill.SolidColor:=$FF000000;
-  FTextFill.OnChanged:=FillChanged;
-
-end;
-
-destructor TD2DrakonNode.Destroy;
-begin
-  FNodeDown:= nil;
-  FNodeUp:= nil;
-  FNodeLeft:= nil;
-  FNodeRight:= nil;
   inherited;
 end;
 
@@ -683,52 +629,132 @@ begin
   if FDisableAlign then Exit;
   if FUpdating > 0 then Exit;
 
-  if Width < 40
-    then Width:= 40;
-  if FTextShape2 <> nil
-    then begin
-           FTextShape2.Text:=FText2;
-           FTextShape2.FFont.Assign(FTextFont);
-           FTextShape2.FFill.Assign(FTextFill);
-           h1:=AdjustHeight(FTextShape2) + FTextShape2.FPadding.FTop + FTextShape2.FPadding.FBottom;
-           if h1<15 then h1:=15;
-         end
-    else h1:=0;
-  if FShape2 <> nil
-    then begin
-           h1:= h1 + FShape2.FMargins.FTop + FShape2.FMargins.FBottom;
-           h:= h1 + FShape2.FPadding.FTop + FShape2.FPadding.FBottom;
-           FShape2.FFill.Assign(FFill);
-           FShape2.FStroke.Assign(FStroke);
-           FShape2.FStrokeThickness:=FStrokeThickness;
-           FShape2.Height:=h1;
-         end
-    else h:=0;
-  if FTextShape <> nil
-    then begin
-           FTextShape.Text:=FText;
-           FTextShape.FFont.Assign(FTextFont);
-           FTextShape.FFill.Assign(FTextFill);
-           h1:=AdjustHeight(FTextShape) + FTextShape.FPadding.FTop + FTextShape.FPadding.FBottom;
-           if h1<15 then h1:=15;
-         end
-    else h1:=0;
-  if FShape <> nil then
-  begin
-    FShape.FStroke.Assign(FStroke);
-    FShape.FStrokeThickness:=FStrokeThickness;
-    if FNodeType=drComment
-      then h:= h + h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom
-      else begin
-             FShape.FFill.Assign(FFill);
-             h1:= h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom;
-             h:= h + h1 + FShape.FPadding.FTop + FShape.FPadding.FBottom;
-             FShape.Height:=h1;
-           end;
-  end;
-  if h<15 then h:=15;
-  if h>1000 then h:=1000;
-  Height:=h;
+  case FNodeType of
+    drJunction:  //точка соединения
+      if FEditor<>nil
+      then  begin
+              FWidth:=FEditor.FMinSizes.Junctions.X;
+              FHeight:=FEditor.FMinSizes.Junctions.Y;
+            end
+      else  begin
+              FWidth:=9;
+              FHeight:=9;
+            end;
+    drLineVer:   //Вертикальная линия
+      if FEditor<>nil
+      then  begin
+              if FHeight < FEditor.FMinSizes.Lines.X
+                then FHeight:=FEditor.FMinSizes.Lines.X;
+              FWidth:=FEditor.FMinSizes.Lines.Y;
+            end
+      else  begin
+              if FHeight < 15
+                then FHeight:= 15;
+              FWidth:=9;
+            end;
+    drLineHor,     //Горизонтальая линия
+    drLineTwo:     //Двойная горизонтальая линия
+      if FEditor<>nil
+      then  begin
+              FHeight:=FEditor.FMinSizes.Lines.Y;
+              if FWidth < FEditor.FMinSizes.Lines.X
+                then FWidth:=FEditor.FMinSizes.Lines.X;
+            end
+      else  begin
+              FHeight:=9;
+              if FWidth < 15
+                then FWidth:= 15;
+            end;
+
+    drArrowLeft,   //Стрелка влево
+    drArrowRight:  //Стрелка вправо
+      if FEditor<>nil
+      then  begin
+              FHeight:=FEditor.FMinSizes.Arrows.Y;
+              if FWidth < FEditor.FMinSizes.Arrows.X
+                then FWidth:=FEditor.FMinSizes.Arrows.X;
+            end
+      else  begin
+              FHeight:=9;
+              if FWidth < 30
+                then FWidth:= 30;
+            end;
+
+    else         //остальные иконы
+      begin
+        if FEditor<>nil
+          then  begin
+                  if FWidth < FEditor.FMinSizes.Icons.X
+                    then FWidth:=FEditor.FMinSizes.Icons.X;
+                end
+          else  if FWidth < 40
+                  then FWidth:= 40;
+        if FTextShape2 <> nil
+          then begin
+                 FTextShape2.FText:=FText2;
+                 FTextShape2.FFont.Assign(FTextFont);
+                 FTextShape2.FFill.Assign(FTextFill);
+                 h1:=AdjustHeight(FTextShape2) + FTextShape2.FPadding.FTop + FTextShape2.FPadding.FBottom;
+                 if FEditor<>nil
+                   then  begin
+                           if h1<FEditor.FMinSizes.Icons.Y
+                              then h1:=FEditor.FMinSizes.Icons.Y;
+                         end
+                   else  begin
+                           if h1<15
+                             then h1:=15;
+                           end;
+                   end
+          else h1:=0;
+        if FShape2 <> nil
+          then begin
+                 h1:= h1 + FShape2.FMargins.FTop + FShape2.FMargins.FBottom;
+                 h:= h1 + FShape2.FPadding.FTop + FShape2.FPadding.FBottom;
+                 FShape2.FFill.Assign(FFill);
+                 FShape2.FStroke.Assign(FStroke);
+                 FShape2.FStrokeThickness:=FStrokeThickness;
+                 FShape2.FHeight:=h1;
+               end
+          else h:=0;
+        if FTextShape <> nil
+          then begin
+                 FTextShape.FText:=FText;
+                 FTextShape.FFont.Assign(FTextFont);
+                 FTextShape.FFill.Assign(FTextFill);
+                 h1:=AdjustHeight(FTextShape) + FTextShape.FPadding.FTop + FTextShape.FPadding.FBottom;
+                 if FEditor<>nil
+                   then  begin
+                           if h1<FEditor.FMinSizes.Icons.Y
+                              then h1:=FEditor.FMinSizes.Icons.Y;
+                         end
+                   else  if h1<15
+                           then h1:=15;
+               end
+          else h1:=0;
+        if FShape <> nil then
+        begin
+          FShape.FStroke.Assign(FStroke);
+          FShape.FStrokeThickness:=FStrokeThickness;
+          if FNodeType=drComment
+            then h:= h + h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom
+            else begin
+                   FShape.FFill.Assign(FFill);
+                   h1:= h1 + FShape.FMargins.FTop + FShape.FMargins.FBottom;
+                   h:= h + h1 + FShape.FPadding.FTop + FShape.FPadding.FBottom;
+                   FShape.FHeight:=h1;
+                 end;
+        end;
+        if FEditor<>nil
+                   then  begin
+                           if h<FEditor.FMinSizes.Icons.Y
+                              then h:=FEditor.FMinSizes.Icons.Y;
+                         end
+                   else  if h<15
+                           then h:=15;
+        if h>1000 then h:=1000;
+        FHeight:=h;
+      end;
+    end;
   inherited;
 end;
 
@@ -741,8 +767,9 @@ function TD2CustomDrakonEditor.LinkNode(AIndex,ALeft,AUp,ARight,ADown: integer):
 var I,L,U,R,D: TD2DrakonNode;
 begin
   Result:=false;
-  //если списка узлов FNodes нет или индексы перемещаемого узла не находятся в списке, то выходим
-  if (FNodes=nil) or (AIndex < 0) or (AIndex >= FNodes.Count) then exit;
+  //если списка узлов FNodes нет или индекс перемещаемого узла не находится в списке, то выходим
+  if (FNodes=nil) or (AIndex < 0) or (AIndex >= FNodes.Count)
+    then exit;
 
   I:=TD2DrakonNode(FNodes.Items[AIndex]);
   if (ALeft>=0) and (ALeft < FNodes.Count)
@@ -768,7 +795,7 @@ begin
   if R <> nil then R.FNodeLeft:=I;
   if D <> nil then D.FNodeUp:=I;
 
-  Result:=false;
+  Result:=true;
 end;
 
 procedure TD2CustomDrakonEditor.SelectNode(ANode: TD2DrakonNode);
@@ -777,7 +804,7 @@ begin
   BeginUpdate;
   if ANode=nil
     then  FSelection.Visible:=False
-    else  if ANode.FNodeType in [drNone, drJunction, drArrowDown,drArrowLeft,drArrowRight]
+    else  if ANode.FNodeType in [drNone, drJunction, drLineVer, drLineHor, drLineTwo, drArrowLeft,drArrowRight]
             then  begin //обрабатываем узлы, линии, стрелки
 
                   end
@@ -798,50 +825,21 @@ function TD2CustomDrakonEditor.CreateNode(ABounds: TD2Rect; AType: TD2DrakonNode
    //AText, AText2 - текст 1 и 2 на иконе соответственно
 var N: TD2DrakonNode;
 begin
-  N:=TD2DrakonNode.Create(Self);
-  N.Parent:=Self;
-  N.NodeType:=AType;
-  N.Text:=AText;
-  N.Text2:=AText2;
-  N.Position.Point:=ABounds.TopLeft;
-  N.Width:=ABounds.Right;
+  N:=TD2DrakonNode.Create(nil);
+  N.FPosition.Point:=ABounds.TopLeft;
+  N.FWidth:=ABounds.Right;
+  N.FText:=AText;
+  N.FText2:=AText2;
+  N.FOnMouseMove:=NodeMouseMove;
+  N.FOnMouseDown:=NodeMouseDown;
+  N.FOnMouseUp:=NodeMouseUp;
+  AddObject(N);
   Result:=FNodes.Add(N);
   N.FNodeIndex:=Result;
-  //N.OnClick:=NodeClick;
-  N.OnMouseMove:=NodeMouseMove;
-  N.OnMouseDown:=NodeMouseDown;
-  N.OnMouseUp:=NodeMouseUp;
   LinkNode(Result, ALeft,AUp,ARight,ADown);
-end;
-
-procedure TD2CustomDrakonEditor.CreateSilhouette;
-var N: TD2DrakonNode;
-begin
-  BeginUpdate;
-
-  ClearNodes;
-  //0 икона начало
-  CreateNode(d2Rect(50,20,130,17.5), drBeginend, -1,-1,-1,-1,'Новый алгоритм', '');
-  //1 стрелка возврата
-  CreateNode(d2Rect(50,60,50,15), drArrowRight, -1, 0,-1,-1,'', '');
-  //2 начало ветки 1
-  CreateNode(d2Rect(50,90,60,32.5), drBranch,   -1, 1,-1,-1,'Ветка 1', '');
-  //3 конец ветки 1
-  CreateNode(d2Rect(50,150,60,32.5), drAddress,  -1, 2,-1,-1,'Ветка 2', '');
-  //4 узел под веткой 1
-  CreateNode(d2Rect(50,210,40,15), drJunction,   -1, 3,-1,-1,'', '');
-  //5 узел слева под веткой 1
-  CreateNode(d2Rect(20,210,40,15), drJunction,     -1,-1, 4,-1,'', '');
-  //6 узел слева над веткой 1
-  CreateNode(d2Rect(20,60,40,15), drJunction,     -1,-1, 1, 5,'', '');
-  //7 узел над веткой 2
-  CreateNode(d2Rect(200,60,40,15), drJunction,  1,-1,-1,-1,'', '');
-  //8 начало ветки 2
-  CreateNode(d2Rect(200,90,60,32.5), drBranch, -1, 7,-1,-1,'Ветка 2', '');
-  //9 икона конец
-  CreateNode(d2Rect(200,150,50,17.5), drEnd,    -1, 8,-1,-1,'Конец', '');
-
-  EndUpdate;
+  N.FEditor:=Self;
+  N.NodeType:=AType;
+  N.ApplyResource;
 end;
 
 procedure TD2CustomDrakonEditor.ClearNodes;
@@ -952,6 +950,11 @@ begin
   FSelection.MinSize:=40;
   FSelection.OnTrack:=SelectionTrack;
   FMoveNode:=false;
+
+  FMinSizes.Arrows:=d2Point(30,9);
+  FMinSizes.Junctions:=d2Point(9,9);
+  FMinSizes.Lines:=d2Point(15,9);
+  FMinSizes.Icons:=d2Point(40,15);
 end;
 
 destructor TD2CustomDrakonEditor.Destroy;
@@ -1012,9 +1015,124 @@ begin
     SelectNode(nil);
 end;
 
+procedure TD2CustomDrakonEditor.Realign;
+begin
+  if csDestroying in ComponentState then Exit;
+  if csLoading in ComponentState then Exit;
+  if ContentLayout=nil then Exit;
+  if FDisableAlign then Exit;
+  if FUpdating > 0 then Exit;
+  RealignNodes;
+  inherited;
+end;
+
+procedure TD2CustomDrakonEditor.CreateSilhouette;
+var N: TD2DrakonNode;
+begin
+  BeginUpdate;
+
+  ClearNodes;
 
 
+  //0 икона начало
+  CreateNode(d2Rect(0,0,120,0), drBegin, -1,-1,-1,-1,'Новый алгоритм', '');
+  //1 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1, 0,-1,-1,'', '');
+  //2 узел над веткой 1
+  CreateNode(d2Rect(0,0,9,9), drJunction, -1,1,-1,-1,'', '');
+  //3 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,2,-1,-1,'', '');
+  //4 начало ветки 1
+  CreateNode(d2Rect(0,0,50,15), drBranch,   -1,3,-1,-1,'Ветка 1', '');
+  //5 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,4,-1,-1,'', '');
+  //6 конец ветки 1
+  CreateNode(d2Rect(0,0,50,15), drAddress,  -1,5,-1,-1,'Ветка 2', '');
+  //7 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,6,-1,-1,'', '');
+  //8 узел под веткой 1
+  CreateNode(d2Rect(0,0,9,9), drJunction,   -1,7,-1,-1,'', '');
+  //9 линия влево
+  CreateNode(d2Rect(0,0,15,9), drLineHor, -1,-1,8,-1,'', '');
+  //10 узел слева под веткой 1
+  CreateNode(d2Rect(0,0,9,9), drJunction, -1,-1,9,-1,'', '');
+  //11 линия слева вверрх
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,-1,-1,10,'', '');
+  //12 узел слева над веткой 1
+  CreateNode(d2Rect(0,0,9,9), drJunction,     -1,-1,-1,11,'', '');
+  //13 Стрелка вправо
+  CreateNode(d2Rect(0,0,30,9), drArrowRight, 12,-1,2,-1,'', '');
+  //14 линия вправо
+  CreateNode(d2Rect(0,0,15,9), drLineHor, 2,-1,-1,-1,'', '');
+  //15 узел над веткой 2
+  CreateNode(d2Rect(0,0,9,9), drJunction,  14,-1,-1,-1,'', '');
+  //16 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,15,-1,-1,'', '');
+  //17 начало ветки 2
+  CreateNode(d2Rect(0,0,50,15), drBranch, -1, 16,-1,-1,'Ветка 2', '');
+  //18 линия вниз
+  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,17,-1,-1,'', '');
+  //19 икона конец
+  CreateNode(d2Rect(0,0,50,15), drEnd, -1,18,-1,-1,'Конец', '');
 
+  //20 линия вправо
+  CreateNode(d2Rect(0,0,15,9), drLineHor, 0,-1,-1,-1,'', '');
+  //21 параметры
+  CreateNode(d2Rect(0,0,50,15), drParams,   20,-1,-1,-1,'Параметр 1 Параметр 2 Параметр 3', '');
+  //22 линия вправо
+  CreateNode(d2Rect(0,0,15,9), drLineHor, 21,-1,-1,-1,'', '');
+  //23 параметры
+  CreateNode(d2Rect(0,0,50,15), drCommentR,   22,-1,-1,-1,'Комментарий 1 Комментарий 2 Комментарий 3', '');
+
+
+  EndUpdate;
+end;
+
+procedure TD2CustomDrakonEditor.RealignNodes;
+var
+  i: integer;
+  b, d: TD2DrakonNode;
+  R: TD2Rect;
+  h,w: single;
+  a: boolean;
+begin
+  if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
+  i:=0;
+  while (i<FNodes.Count) and (TD2DrakonNode(FNodes[i]).NodeType<>drBegin) do Inc(i); //ищем икону "начало"
+  if i=FNodes.Count then exit; //если не найдена икона начало выходим
+  //BeginUpdate;
+
+  b:=TD2DrakonNode(FNodes[i]);
+  h:=b.Height;
+  d:=b;
+  while (d.FNodeRight<>nil) do
+  begin
+    d:=d.FNodeRight;
+    h:=Max(h,d.Height); //ищем наибольшую высоту из икон начало, параметры и коммент (если есть)
+  end;
+  if d<>b //если справо от начала что-то есть
+    then begin
+           d:=b;
+           w:=0;
+           repeat
+             R:=d.BoundsRect;
+             if d.IsLine
+               then d2RectCenter(R,d2Rect(w, 0, w + FMinSizes.Lines.X, h)) //ставим на место линию
+               else d2RectCenter(R,d2Rect(w, 0, w + d.FWidth, h)); //ставим на место иконку
+             a:=d.FDisableAlign;
+             d.BoundsRect:=R;
+             w:=d.FPosition.FX+d.FWidth;
+             d:=d.FNodeRight;
+           until (d=nil)
+         end
+    else begin
+           b.Position.X:=0;
+           b.Position.Y:=0;
+         end;
+
+
+  //EndUpdate;
+end;
 
 
 

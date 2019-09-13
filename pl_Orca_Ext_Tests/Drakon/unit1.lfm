@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 246
+  Left = 202
   Height = 489
   Top = 117
   Width = 675
@@ -122,8 +122,8 @@ object Form1: TForm1
         end
         object TD2Selection
           RotateAngle = 0
-          Width = 50
-          Height = 50
+          Width = 133
+          Height = 66
           Visible = False
           DesignHide = True
           GripSize = 3
@@ -131,49 +131,6 @@ object Form1: TForm1
           MinSize = 40
           Proportional = False
           SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object TD2Selection
-          RotateAngle = 0
-          Width = 50
-          Height = 50
-          Visible = False
-          DesignHide = True
-          GripSize = 3
-          HideSelection = False
-          MinSize = 40
-          Proportional = False
-          SizingVert = False
-        end
-        object Line1: TD2Line
-          Position.Point = '(158,77)'
-          RotateAngle = 0
-          Width = 25
-          Height = 184
-          StrokeThickness = 3
-          LineType = d2LineVertical
-        end
-        object DrakonNode1: TD2DrakonNode
-          Cursor = crSizeAll
-          Position.Point = '(145,110)'
-          RotateAngle = 0
-          Width = 63
-          Height = 15
-          Resource = 'DrakonSOutputStyle'
-          TabOrder = 11
-          StrokeThickness = 1
-          NodeType = drSOutput
         end
       end
     end
