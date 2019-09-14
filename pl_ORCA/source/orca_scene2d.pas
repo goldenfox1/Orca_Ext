@@ -2697,7 +2697,8 @@ TD2PathAnimation = class(TD2Animation)
 
 TD2PathSwitcher = class(TD2Animation)
   private
-    FPath, FPropertyName: AnsiString;
+    //FPath,
+    FPropertyName: AnsiString;
     FPathTrue: string;
     FPathFalse: string;
     procedure SetPathFalse(const Value:string);
@@ -10453,17 +10454,21 @@ TD2DrakonEditorSizes = packed record
 end;
 
 { TD2CustomDrakonEditor}
+//Редактор дракон-схем
 TD2CustomDrakonEditor = class(TD2FramedScrollBox)
   private
-    FNodes: TList;
-    FSelectNode: TD2DrakonNode;
-    FSelection: TD2Selection;
-    FMinSizes: TD2DrakonEditorSizes;//Минимальные размеры элементов дракон-схемы
-    FMoveNode: boolean;
-    FPressedNode: TD2DrakonNode;
-    FPressedPos: TD2Point;
+    FNodes: TList;                   //коллекция узлов дракок-схемы
+    FLines: TList;                   //коллекция линий дракон-схемы
+    FSelectNode: TD2DrakonNode;      //Указатель на выделенный эл-т дракон схемы
+    FSelection: TD2Selection;        //Указатель на рамку выделенния
+    FMinSizes: TD2DrakonEditorSizes; //Минимальные размеры элементов дракон-схемы
+    FMoveNode: boolean;              //Флаг перепещения узла
+    FPressedNode: TD2DrakonNode;     //Указатель на узел, на котором выполнен клик мышью
+    FPressedPos: TD2Point;           //Координаты, где было выполнено нажатие кнопки мыши
   protected
+              //Очищает все и строит новый силуэт
     procedure CreateSilhouette; virtual;
+              //Удаляет все узлы и линии со схемы
     procedure ClearNodes;
               //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
                //ABounds - габариты узла; AType - тип узла;
@@ -10473,7 +10478,7 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
              //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
              //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
     function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
-
+              //Перестроить схему
     procedure RealignNodes;
 
     procedure NodeMouseMove(Sender: TObject; Shift: TShiftState;  X, Y, Dx, Dy:single);

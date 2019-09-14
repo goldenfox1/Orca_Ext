@@ -548,7 +548,6 @@ end;
 
 procedure TD2CustomDBTreeGrid.OnDataSetScrolled(aDataSet: TDataSet; Distance: Integer);
 //прерывание при перемещении на другую запись в DataSet
-var i: integer;
 begin
   if not FBuildTree and  (FDataController.DataSet <> nil) then
   begin

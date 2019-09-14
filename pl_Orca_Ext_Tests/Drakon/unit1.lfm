@@ -122,6 +122,42 @@ object Form1: TForm1
         end
         object TD2Selection
           RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object TD2Selection
+          RotateAngle = 0
           Width = 133
           Height = 66
           Visible = False
@@ -131,6 +167,16 @@ object Form1: TForm1
           MinSize = 40
           Proportional = False
           SizingVert = False
+        end
+        object DockingPanel1: TD2DockingPanel
+          Position.Point = '(0,132)'
+          RotateAngle = 0
+          Width = 120
+          Height = 130
+          TabOrder = 11
+          TextAlign = d2TextAlignCenter
+          MinHeight = 42
+          MinWidth = 42
         end
       end
     end

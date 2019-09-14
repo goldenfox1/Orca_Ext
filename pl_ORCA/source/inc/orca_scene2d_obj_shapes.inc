@@ -1094,9 +1094,8 @@ end;
 
 procedure TD2Parallelogram.CreatePath;
 var
-  x1,x2,y1,y2,x3,y3:single;
+  x1,x2,y1,y2:single;
   R:TD2Rect;
-  Off:single;
 begin
   R:=GetShapeRect;
   x1:=xRadius;
@@ -1768,9 +1767,8 @@ end;
 
 procedure TD2Trapezium.CreatePath;
 var
-  x1,x2,y1,y2,x3,y3:single;
+  x1,x2,y1,y2:single;
   R:TD2Rect;
-  Off:single;
 begin
   R:=GetShapeRect;
   x1:=xRadius;

@@ -249,9 +249,6 @@ begin
 end;
 
 procedure TD2DrakonPallet.SetIcons(AValue: TD2DrakonIcons);
-var
-  I:TD2DrakonIcon;
-  W,H:single;
 begin
   if FIcons=AValue then Exit;
   FIcons:=AValue;
@@ -554,7 +551,7 @@ begin
     then FTextShape.Fill.Assign(AValue);
   if FTextShape2<>nil
     then FTextShape2.Fill.Assign(AValue);
-  //Realign;
+  Realign;
 end;
 
 procedure TD2DrakonNode.SetTextFont(AValue: TD2Font);
@@ -564,7 +561,7 @@ begin
     then FTextShape.FFont.Assign(AValue);
   if FTextShape2<>nil
     then FTextShape2.FFont.Assign(AValue);
-  //Realign;
+  Realign;
 end;
 
 procedure TD2DrakonNode.ApplyStyle;
@@ -616,7 +613,7 @@ var
       with AText do
       begin
         Canvas.Font.Assign(FFont);
-        R:=d2Rect(0,0,Width,1000);
+        R:=d2Rect(0,0,FWidth,1000);
         Canvas.MeasureText(R,R,FText,true,d2TextAlignNear,d2TextAlignNear);
         Result:=R.Bottom;
       end
@@ -843,14 +840,25 @@ begin
 end;
 
 procedure TD2CustomDrakonEditor.ClearNodes;
+//Удаляет все узлы и линии со схемы
 var i: integer;
 begin
   FSelection.Parent:=Self;
   FSelection.Visible:=False;
+  //удалим все линии если есть
+  if FLines <> nil then
+  begin
+    for i:=0 to FLines.Count-1 do
+      TObject(FLines[i]).Free;
+    FLines.Clear; //очистим коллекцию линий
+  end;
+  //удалим все узлы если есть
   if FNodes <> nil then
+  begin
     for i:=0 to FNodes.Count-1 do
       TObject(FNodes[i]).Free;
-  FNodes.Clear;
+    FNodes.Clear;  //очистим коллекцию узлов
+  end;
 end;
 
 //выполнить команду
@@ -933,6 +941,7 @@ begin
         end;
     end;
   finally
+    Realign;
     Result:=true;
   end;
 end;
@@ -941,6 +950,7 @@ constructor TD2CustomDrakonEditor.Create(AOwner: TComponent);
 begin
   inherited;
   FNodes:=TList.Create;
+  FLines:=TList.Create;
   Resource:='FramedScrollBoxStyle';
   FSelection:=TD2Selection.Create(Self);
   FSelection.Parent:=Self;
@@ -958,9 +968,9 @@ begin
 end;
 
 destructor TD2CustomDrakonEditor.Destroy;
-var i: integer;
 begin
   ClearNodes;
+  FLines.Free;
   FNodes.Free;
   FSelection.Free;
   inherited;
@@ -1027,74 +1037,52 @@ begin
 end;
 
 procedure TD2CustomDrakonEditor.CreateSilhouette;
-var N: TD2DrakonNode;
+  var b,i,u: integer;
 begin
-  BeginUpdate;
+  //BeginUpdate;
 
   ClearNodes;
 
 
   //0 икона начало
-  CreateNode(d2Rect(0,0,120,0), drBegin, -1,-1,-1,-1,'Новый алгоритм', '');
-  //1 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1, 0,-1,-1,'', '');
-  //2 узел над веткой 1
-  CreateNode(d2Rect(0,0,9,9), drJunction, -1,1,-1,-1,'', '');
-  //3 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,2,-1,-1,'', '');
-  //4 начало ветки 1
-  CreateNode(d2Rect(0,0,50,15), drBranch,   -1,3,-1,-1,'Ветка 1', '');
-  //5 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,4,-1,-1,'', '');
-  //6 конец ветки 1
-  CreateNode(d2Rect(0,0,50,15), drAddress,  -1,5,-1,-1,'Ветка 2', '');
-  //7 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,6,-1,-1,'', '');
-  //8 узел под веткой 1
-  CreateNode(d2Rect(0,0,9,9), drJunction,   -1,7,-1,-1,'', '');
-  //9 линия влево
-  CreateNode(d2Rect(0,0,15,9), drLineHor, -1,-1,8,-1,'', '');
-  //10 узел слева под веткой 1
-  CreateNode(d2Rect(0,0,9,9), drJunction, -1,-1,9,-1,'', '');
-  //11 линия слева вверрх
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,-1,-1,10,'', '');
-  //12 узел слева над веткой 1
-  CreateNode(d2Rect(0,0,9,9), drJunction,     -1,-1,-1,11,'', '');
-  //13 Стрелка вправо
-  CreateNode(d2Rect(0,0,30,9), drArrowRight, 12,-1,2,-1,'', '');
-  //14 линия вправо
-  CreateNode(d2Rect(0,0,15,9), drLineHor, 2,-1,-1,-1,'', '');
-  //15 узел над веткой 2
-  CreateNode(d2Rect(0,0,9,9), drJunction,  14,-1,-1,-1,'', '');
-  //16 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,15,-1,-1,'', '');
-  //17 начало ветки 2
-  CreateNode(d2Rect(0,0,50,15), drBranch, -1, 16,-1,-1,'Ветка 2', '');
-  //18 линия вниз
-  CreateNode(d2Rect(0,0,9,15), drLineVer, -1,17,-1,-1,'', '');
-  //19 икона конец
-  CreateNode(d2Rect(0,0,50,15), drEnd, -1,18,-1,-1,'Конец', '');
+  b:=CreateNode(d2Rect(0,0,120,0), drBegin, -1,-1,-1,-1,'Новый алгоритм', '');
 
-  //20 линия вправо
-  CreateNode(d2Rect(0,0,15,9), drLineHor, 0,-1,-1,-1,'', '');
-  //21 параметры
-  CreateNode(d2Rect(0,0,50,15), drParams,   20,-1,-1,-1,'Параметр 1 Параметр 2 Параметр 3', '');
-  //22 линия вправо
-  CreateNode(d2Rect(0,0,15,9), drLineHor, 21,-1,-1,-1,'', '');
-  //23 параметры
-  CreateNode(d2Rect(0,0,50,15), drCommentR,   22,-1,-1,-1,'Комментарий 1 Комментарий 2 Комментарий 3', '');
+  //1 узел над веткой 1
+  u:=CreateNode(d2Rect(0,0,9,9), drJunction, -1,b,-1,-1,'', '');
 
+  //2 начало ветки 1
+  i:=CreateNode(d2Rect(0,0,50,15), drBranch,   -1,u,-1,-1,'Ветка 1', '');
+  //3 конец ветки 1
+  i:=CreateNode(d2Rect(0,0,50,15), drAddress,  -1,i,-1,-1,'Ветка 2', '');
+  //4 узел под веткой 1
+  i:=CreateNode(d2Rect(0,0,9,9), drJunction,   -1,i,-1,-1,'', '');
+  //5 узел слева под веткой 1
+  i:=CreateNode(d2Rect(0,0,9,9), drJunction, -1,-1,i,-1,'', '');
+  //6 узел слева над веткой 1
+  i:=CreateNode(d2Rect(0,0,9,9), drJunction,     -1,-1,u,i,'', '');
+  //7 узел над веткой 2
+  i:=CreateNode(d2Rect(0,0,9,9), drJunction,  u,-1,-1,-1,'', '');
+  //8 начало ветки 2
+  i:=CreateNode(d2Rect(0,0,50,15), drBranch, -1, i,-1,-1,'Ветка 2', '');
+  //9 икона конец
+  i:=CreateNode(d2Rect(0,0,50,15), drEnd, -1,i,-1,-1,'Конец', '');
 
-  EndUpdate;
+  //10 параметры
+  i:=CreateNode(d2Rect(0,0,60,15), drParams,   b,-1,-1,-1,'Параметр1 Параметр2 Параметр3', '');
+  //11 комментарий справа к параметрам
+  i:=CreateNode(d2Rect(0,0,50,15), drCommentR,   i,-1,-1,-1,'Комментарий 1 Комментарий 2 Комментарий 3', '');
+  //12 комментарий слева к названию алгоритма
+  i:=CreateNode(d2Rect(0,0,50,15), drCommentL,   -1,-1,b,-1,'Комментарий 1 Комментарий 2 Комментарий 3', '');
+
+  //EndUpdate;
+
 end;
 
 procedure TD2CustomDrakonEditor.RealignNodes;
 var
   i: integer;
   b, d: TD2DrakonNode;
-  R: TD2Rect;
-  h,w: single;
-  a: boolean;
+  h,x,lh: single;
 begin
   if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
   i:=0;
@@ -1102,34 +1090,35 @@ begin
   if i=FNodes.Count then exit; //если не найдена икона начало выходим
   //BeginUpdate;
 
-  b:=TD2DrakonNode(FNodes[i]);
-  h:=b.Height;
+  b:=TD2DrakonNode(FNodes[i]); //узел "начало"
+  h:=b.Height; //текущая наибольшая высота икон в горизонтали узла "начало"
+  //ищем наибольшую высоту икон в горизонтали узла "начало" справа от него (если есть)
   d:=b;
   while (d.FNodeRight<>nil) do
   begin
     d:=d.FNodeRight;
-    h:=Max(h,d.Height); //ищем наибольшую высоту из икон начало, параметры и коммент (если есть)
+    h:=Max(h,d.Height);
   end;
-  if d<>b //если справо от начала что-то есть
-    then begin
-           d:=b;
-           w:=0;
-           repeat
-             R:=d.BoundsRect;
-             if d.IsLine
-               then d2RectCenter(R,d2Rect(w, 0, w + FMinSizes.Lines.X, h)) //ставим на место линию
-               else d2RectCenter(R,d2Rect(w, 0, w + d.FWidth, h)); //ставим на место иконку
-             a:=d.FDisableAlign;
-             d.BoundsRect:=R;
-             w:=d.FPosition.FX+d.FWidth;
-             d:=d.FNodeRight;
-           until (d=nil)
-         end
-    else begin
-           b.Position.X:=0;
-           b.Position.Y:=0;
-         end;
+  //продалжаем искать наибольшую высоту икон в горизонтали узла "начало" слева от него (если есть)
+  d:=b;
+  while (d.NodeLeft<>nil) do
+  begin
+    d:=d.NodeLeft;
+    h:=Max(h,d.Height);
+  end;
 
+  h:=h/2; //находим середину горизонтали узла "начало"
+  x:=0;   //левая координата текущей иконы
+  repeat
+    d.SetBounds(x, h-d.FHeight/2, d.FWidth, d.FHeight); //ставим на место текущую иконку
+    x:= d.FPosition.FX + d.FWidth + FMinSizes.Lines.X;  //коорд. х следующей справа иконы
+    d:= d.FNodeRight;
+  until (d=nil);
+
+
+  lh:=FMinSizes.Lines.Y/2; //половина толщины линии
+
+    //todo: дописать построение узлов
 
   //EndUpdate;
 end;

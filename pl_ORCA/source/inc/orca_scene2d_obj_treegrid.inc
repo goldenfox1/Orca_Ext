@@ -21,8 +21,8 @@
 { TD2TreeCellControl }
 
 procedure TD2TreeCellControl.Realign;
-var
-  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
+//var
+//  SelectLevel: Integer;        // > 0, если выбран текущий узел или ребенок / внук и т. Д. Выбранного узла. > 0 if current node is selected or child/grandchild etc. of a selected node
 begin
   if csDestroying in ComponentState then Exit;
   if FDisableDefaultAlign then Exit;
@@ -40,7 +40,7 @@ begin
               if FIndent <> nil then
               begin
                 FIndent.Visible := true; //включаем отсуп
-                SelectLevel := DetermineLineArrayAndSelectLevel(FNode, FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
+                //SelectLevel := DetermineLineArrayAndSelectLevel(FNode, FLineArray);  //определяем уровень вложенности и создаем массив линий дерева
 
                 //экспандер
                 if FExpander <> nil then
@@ -2069,7 +2069,9 @@ end;
 
 procedure TD2CustomTreeGrid.InterruptValidation;
 //прервать валидацию???
+{$ifdef EnableThreadSupport}
 var WasValidating: Boolean;
+{$endif}
 begin
   DoStateChange([tsStopValidation], [tsUseCache]);
   {$ifdef EnableThreadSupport}
@@ -4181,10 +4183,10 @@ function TD2CustomTreeGrid.DoSetOffsetXY(Value: TD2Point;
 var
   DeltaX: Single;
   DeltaY: Single;
-  DWPStructure: THandle;//HDWP;
-  I: Integer;
-  P: TD2Point;
-  R: TD2Rect;
+  //DWPStructure: THandle;//HDWP;
+  //I: Integer;
+  //P: TD2Point;
+  //R: TD2Rect;
 
 begin
   {$ifdef DEBUG_VTV}Logger.EnterMethod([lcScroll],'DoSetOffsetXY');{$endif}
@@ -6869,10 +6871,10 @@ end;
 
 procedure TD2CustomTreeGrid.ClearSelection;
 //Очистить массив выбора узлов
-var
-  Node: PD2TreeNode;
-  R: TD2Rect;
-  Counter: Integer;
+//var
+  //Node: PD2TreeNode;
+  //R: TD2Rect;
+  //Counter: Integer;
 begin
   if not FSelectionLocked and (FSelectionCount > 0) and not (csDestroying in ComponentState) then
   begin
@@ -7114,8 +7116,8 @@ end;
 procedure TD2CustomTreeGrid.DeleteNode(Node: PD2TreeNode; Reindex: Boolean);
 //Удаление узла Node и всех его детей и их детей и т.д.
 var
-  LastTop,
-  LastLeft: Single;
+  //LastTop,
+  //LastLeft: Single;
   LastParent: PD2TreeNode;
   WasInSynchMode: Boolean;
   ParentClearing: Boolean;
@@ -7137,8 +7139,8 @@ begin
         StructureChange(LastParent, crChildDeleted);
     end;
 
-    LastLeft := -HScrollBarValue;
-    LastTop := VScrollBarValue;
+    //LastLeft := -HScrollBarValue;
+    //LastTop := VScrollBarValue;
 
     if vsSelected in Node.States then
     begin
@@ -10409,7 +10411,7 @@ var
   R: TD2Rect;
   Run: PD2TreeNode;
   UseColumns,
-  HScrollBarVisible: Boolean;
+  //HScrollBarVisible: Boolean;
   ScrolledVertically,
   ScrolledHorizontally: Boolean;
 
@@ -10862,19 +10864,21 @@ procedure TD2CustomTreeGrid.ToggleNode(Node: PD2TreeNode);
 // Changes a node's expand state to the opposite state.
 
 var
-  Child,
-  FirstVisible: PD2TreeNode;
-  HeightDelta,      //дельта изменения общей высоты
-  StepsR1: Single;
-  StepsR2: Single;
-  Steps: Single;
+
+  //FirstVisible,
+  Child: PD2TreeNode;
+  //Steps,
+  //StepsR1,
+  //StepsR2,
+  HeightDelta: Single;      //дельта изменения общей высоты
+
   TogglingTree,
-  ChildrenInView,
-  NeedFullInvalidate,
-  NeedUpdate,
-  NodeInView,
-  PosHoldable,
-  TotalFit: Boolean;   //флаг полного помещения развернутого узела (с детьми) в видимую область грида
+  //ChildrenInView,
+  //NeedFullInvalidate,
+  NeedUpdate: Boolean;
+  //NodeInView,
+  //PosHoldable,
+  //TotalFit: Boolean;   //флаг полного помещения развернутого узела (с детьми) в видимую область грида
   ToggleData: TD2ToggleAnimationData;
 
   //--------------- local function --------------------------------------------
@@ -10934,13 +10938,13 @@ begin
   Assert(Assigned(Node), 'Node must not be nil.');
 
   TogglingTree := tsToggling in FStates;   //сохраним состояние флага сворачивания/разворачивания узлов у грида
-  ChildrenInView := False;
+  //ChildrenInView := False;
   HeightDelta := 0;
-  NeedFullInvalidate := False;
+  //NeedFullInvalidate := False;
   NeedUpdate := False;
-  NodeInView := False;
-  PosHoldable := False;
-  TotalFit := False;
+  //NodeInView := False;
+  //PosHoldable := False;
+  //TotalFit := False;
   // Нам не нужно переключать состояние развертывания, если узел удаляется, иначе
   // некоторые обновления (например, количество видимых узлов) делаются дважды с рискованными результатами.
   // We don't need to switch the expand state if the node is being deleted otherwise some
@@ -11093,7 +11097,7 @@ begin
               begin
                 R1 := GetDisplayRect(Node, NoColumn, False);
                 Mode2 := tamNoScroll;
-                TotalFit := HeightDelta + NodeHeight[Node] <= ClientHeight; //если развернутый узел (с детьми) полностью помещается в видимую область грида, то установим флаг
+                //TotalFit := HeightDelta + NodeHeight[Node] <= ClientHeight; //если развернутый узел (с детьми) полностью помещается в видимую область грида, то установим флаг
 
                 if toChildrenAbove in FOptions.FPaintOptions //если детей нужно показать выше родителя
                   then  begin
@@ -11101,13 +11105,13 @@ begin
                           //чтобы пользователь не запутался. Поэтому нужно прокрутить представление, когда выполняется расширение.
                           // The main goal with toChildrenAbove being set is to keep the nodes visual position so the user does
                           // not get confused. Therefore we need to scroll the view when the expanding is done.
-                          PosHoldable := TotalFit and (FRangeY - ClientHeight >= 0) ;
-                          ChildrenInView := (R1.Top - HeightDelta) >= 0;
-                          NodeInView := R1.Bottom <= ClientHeight;
+                          //PosHoldable := TotalFit and (FRangeY - ClientHeight >= 0) ;
+                          //ChildrenInView := (R1.Top - HeightDelta) >= 0;
+                          //NodeInView := R1.Bottom <= ClientHeight;
                         end
                   else  begin //иначе детей показываем ниже родителя
-                          PosHoldable := TotalFit;
-                          ChildrenInView := R1.Bottom + HeightDelta <= ClientHeight;
+                          //PosHoldable := TotalFit;
+                          //ChildrenInView := R1.Bottom + HeightDelta <= ClientHeight;
                         end;
 
                 R1.Bottom := ClientHeight;

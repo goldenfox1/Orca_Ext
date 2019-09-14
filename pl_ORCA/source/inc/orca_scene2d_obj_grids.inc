@@ -530,7 +530,7 @@ end;
 
 procedure TD2Column.UpdateSelected;
 var
-  i,m:integer;
+  i:integer;
 begin
   if Grid=nil then Exit;
   if Grid.ReadOnly then Exit;

@@ -20,6 +20,7 @@ type
 
   TForm1 = class(TForm)
     D2Scene1: TD2Scene;
+    DockingPanel1: TD2DockingPanel;
     DrakonEditor1: TD2MyDrakonEditor;
     DrakonPallet1: TD2DrakonPallet;
     Root1: TD2Background;

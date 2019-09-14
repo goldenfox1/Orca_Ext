@@ -84,7 +84,7 @@ begin
 end;
 
 destructor TD2VisualObject.Destroy;
-var i: integer;
+//var i: integer;
 begin
   //if FTabList <> nil then
   //  for i:=0 to FTabList.Count-1 do
