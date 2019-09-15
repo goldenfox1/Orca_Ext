@@ -1079,48 +1079,160 @@ begin
 end;
 
 procedure TD2CustomDrakonEditor.RealignNodes;
+
+  //возвращает узел "начало" в текущем редакторе
+  function GetBeginNode: TD2DrakonNode;
+  var i: integer;
+  begin
+    GetBeginNode:=nil;
+    if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
+    i:=0;
+    while (i<FNodes.Count) and (TD2DrakonNode(FNodes[i]).NodeType<>drBegin) do Inc(i); //ищем икону "начало"
+    if i=FNodes.Count then exit; //если не найдена икона начало выходим
+    GetBeginNode:=TD2DrakonNode(FNodes[i]); //узел "начало"
+  end;
+
+  //Возвращает самый левый узел в линии начиная от nNode
+  //    sLineBound - вход: коорд.Y верхней границы для всей линии
+  //                 выход: коорд.Y нижней границы для всей линии
+  //     sLineHalf - выход: коорд.Y середины линии
+  //    sLeftWidth - выход: ширина всех узлов слева от nNode включая линии
+  function GetLineLeftNode(nNode:TD2DrakonNode; var sLineBound, sLineHalf, sLeftWidth: single): TD2DrakonNode;
+  var
+    d: TD2DrakonNode;
+    h: single;
+  begin
+    if nNode.FNodeType<>drJunction //если это узел,
+      then h:=nNode.FHeight          //то текущая наибольшая высота в горизонтали - высота узла nNode
+      else h:=0;                      //иначе текущая наибольшая высота в горизонтали - 0
+    //ищем наибольшую высоту икон в горизонтали иконы nNode справа от неё (если есть)
+    d:= nNode;
+    while (d.FNodeRight<>nil) do
+    begin
+      d:=d.FNodeRight;
+      if d.FNodeType<>drJunction
+        then h:=Max(h,d.FHeight);
+    end;
+
+    //продалжаем искать наибольшую высоту икон в горизонтали узла nNode слева от него (если есть)
+    //и определим ширину всех узлов слева от узла nNode
+    sLeftWidth:=0; //текущая ширина всех узлов слева от "начало"
+    d:= nNode;
+    while (d.NodeLeft<>nil) do
+    begin
+      d:=d.NodeLeft;
+      if d.FNodeType<>drJunction
+        then begin
+               h:=Max(h,d.FHeight);
+               sLeftWidth:= sLeftWidth + d.FWidth + FMinSizes.Lines.X;
+             end
+        else sLeftWidth:= sLeftWidth + FMinSizes.Lines.X;
+    end;
+    GetLineLeftNode:=d;
+    sLineHalf:=sLineBound+h/2;
+    sLineBound:=sLineBound+h;
+  end;
+
+  //Возвращает макс. ширину узлов в вертикали начиная от nNode до самого нижнего узла
+  //    в sMaxLeftWidth - макс. ширина узлов слева от nNode включая линии
+  function GetMaxWith(nNode:TD2DrakonNode; var sMaxLeftWidth: single): single;
+  var
+    d,l: TD2DrakonNode;
+    w,wt: single;
+  begin
+    w:=0; //текущая макс. ширина узлов в основной линии ветки
+    sMaxLeftWidth:=0; //текущая макс. ширина суммы всех узлов справа от основной линии
+    d:= nNode;
+    while (d<>nil) do
+    begin
+      if d.FNodeType<>drJunction then
+      begin
+        w:=Max(w,d.FWidth);
+        //ищем наибольшую сумм ширин иконок слева, включая линии, для всей вертикали кроме соединительных точек
+        if (d.FNodeLeft<>nil) then
+        begin
+          wt:=0;
+          l:=d;
+          while (l.FNodeLeft<>nil) do
+            begin
+              l:=l.FNodeLeft;
+              if l.FNodeType<>drJunction
+                then wt:= wt + l.FWidth + FMinSizes.Lines.X
+                else wt:= wt + FMinSizes.Lines.X;
+            end;
+          sMaxLeftWidth:=Max(sMaxLeftWidth,wt);
+        end;
+      end;
+      d:=d.FNodeDown;
+    end;
+    GetMaxWith:=w;
+  end;
+
 var
-  i: integer;
-  b, d: TD2DrakonNode;
-  h,x,lh: single;
+  n_Begin,              // узел "начало"
+  n_LeftTop,            // левый верхний узел
+  d,l: TD2DrakonNode;   // указатели на текущие узлы
+
+  s_BeginLineHeight,    // максимальная высота линии узла "начало"
+  s_BeginLineLeftWidth, // ширина всех узлов слева от узла "начало", в т.ч. горизонт. линии
+  s_Width,              // ширина узлов в основной линии ветки
+  s_WidthLeft,          // макс. ширина всех узлов справа от узлов основной линии , в т.ч. горизонт. линии
+  x,y,
+  s_BranchHalf,         //коорд.X середины основной линии ветки
+  h,w,
+  lh: single;
+
 begin
-  if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
-  i:=0;
-  while (i<FNodes.Count) and (TD2DrakonNode(FNodes[i]).NodeType<>drBegin) do Inc(i); //ищем икону "начало"
-  if i=FNodes.Count then exit; //если не найдена икона начало выходим
-  //BeginUpdate;
+  n_Begin:=GetBeginNode; //узел "начало"
+  if n_Begin=nil then exit; //если узел "начало" не найден, то выходим
+  y:=0;
+  n_LeftTop:=GetLineLeftNode(n_Begin, y, h, s_BeginLineLeftWidth ); //самый левый верхний узел схемы,
+  //y - нижняя граница горизонтали h - середина горизонтали узла "начало"
 
-  b:=TD2DrakonNode(FNodes[i]); //узел "начало"
-  h:=b.Height; //текущая наибольшая высота икон в горизонтали узла "начало"
-  //ищем наибольшую высоту икон в горизонтали узла "начало" справа от него (если есть)
-  d:=b;
-  while (d.FNodeRight<>nil) do
-  begin
-    d:=d.FNodeRight;
-    h:=Max(h,d.Height);
-  end;
-  //продалжаем искать наибольшую высоту икон в горизонтали узла "начало" слева от него (если есть)
-  d:=b;
-  while (d.NodeLeft<>nil) do
-  begin
-    d:=d.NodeLeft;
-    h:=Max(h,d.Height);
-  end;
+  s_Width:=GetMaxWith(n_Begin.FNodeDown, s_WidthLeft); //ищем наиболее широкую икону в 1-ой ветке
+  s_WidthLeft:=s_WidthLeft+FMinSizes.Lines.Y+FMinSizes.Lines.Y; //добавляем к ширине слева промежуток (ширина линии) и ширину линии вверх
 
-  h:=h/2; //находим середину горизонтали узла "начало"
-  x:=0;   //левая координата текущей иконы
+  s_BranchHalf:= max(n_Begin.FWidth/2+s_BeginLineLeftWidth, s_Width/2 + s_WidthLeft); //середина основной линии 1-ой ветки
+
+  //Выстраиваем линию "начало"
+  x:=s_BranchHalf-n_Begin.FWidth/2-s_BeginLineLeftWidth; //коорд. Х первого узла линии "начало"
+  d:=n_LeftTop;
   repeat
-    d.SetBounds(x, h-d.FHeight/2, d.FWidth, d.FHeight); //ставим на место текущую иконку
-    x:= d.FPosition.FX + d.FWidth + FMinSizes.Lines.X;  //коорд. х следующей справа иконы
+    d.SetBounds(x, h-d.FHeight/2, d.FWidth,d.FHeight); //ставим на место текущий узел
+    x:= x + d.FWidth + FMinSizes.Lines.X;  //коорд. х следующей справа иконы
     d:= d.FNodeRight;
   until (d=nil);
+
+
+  //Выстраимваем 1-ю ветку
+  d:=n_Begin.FNodeDown;
+  while d<>nil do
+    begin
+      y:=y+FMinSizes.Lines.X; //к нижней границе добавим мин.длину линии
+      d.SetWidth(s_Width);
+      GetLineLeftNode(d,y,h,w);
+      x:=s_BranchHalf-d.FWidth/2;
+      d.SetBounds(x, h-d.FHeight/2, d.FWidth, d.FHeight);
+      l:=d.FNodeLeft;
+      while (l<>nil) do
+        begin
+          x:=x-l.FWidth;
+          l.SetBounds(x, h-l.FHeight/2, l.FWidth, l.FHeight);
+          l:=l.FNodeLeft;
+        end;
+      d:=d.FNodeDown;
+    end;
+
+
+
+
+
 
 
   lh:=FMinSizes.Lines.Y/2; //половина толщины линии
 
     //todo: дописать построение узлов
 
-  //EndUpdate;
 end;
 
 

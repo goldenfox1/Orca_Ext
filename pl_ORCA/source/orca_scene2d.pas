@@ -10457,8 +10457,8 @@ end;
 //Редактор дракон-схем
 TD2CustomDrakonEditor = class(TD2FramedScrollBox)
   private
-    FNodes: TList;                   //коллекция узлов дракок-схемы
-    FLines: TList;                   //коллекция линий дракон-схемы
+    FNodes: TList;                   //коллекция узлов
+    FLines: TList;                   //коллекция линий
     FSelectNode: TD2DrakonNode;      //Указатель на выделенный эл-т дракон схемы
     FSelection: TD2Selection;        //Указатель на рамку выделенния
     FMinSizes: TD2DrakonEditorSizes; //Минимальные размеры элементов дракон-схемы
@@ -10479,7 +10479,7 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
              //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
     function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;
               //Перестроить схему
-    procedure RealignNodes;
+    procedure RealignNodes; virtual;
 
     procedure NodeMouseMove(Sender: TObject; Shift: TShiftState;  X, Y, Dx, Dy:single);
     procedure NodeMouseDown(Sender: TObject; Button: TMouseButton;  Shift: TShiftState; X, Y:single);
