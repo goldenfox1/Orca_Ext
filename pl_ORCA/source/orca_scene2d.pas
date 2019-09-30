@@ -10383,6 +10383,7 @@ TD2DrakonNode=class(TD2Control)
     FNum: TD2Text;                  //Указатель на текстовый объект № узла на схеме
     FNodeType: TD2DrakonNodeType;   //Тип узла
     FNodeIndex: integer;            //Порядковый № узла на схеме
+    FNodeLine: TList;               //указатель на линию схемы, к которой принадлежит узел
     FNodeUp: TD2DrakonNode;         //Указатель на связанный узел сверху
     FNodeDown: TD2DrakonNode;       //Указатель на связанный узел снизу
     FNodeLeft: TD2DrakonNode;       //Указатель на связанный узел слева
@@ -10465,16 +10466,25 @@ TD2CustomDrakonEditor = class(TD2FramedScrollBox)
     FMoveNode: boolean;              //Флаг перепещения узла
     FPressedNode: TD2DrakonNode;     //Указатель на узел, на котором выполнен клик мышью
     FPressedPos: TD2Point;           //Координаты, где было выполнено нажатие кнопки мыши
+
   protected
-              //Очищает все и строит новый силуэт
-    procedure CreateSilhouette; virtual;
+             //Возвращает узел "начало" в текущем редакторе
+    function GetBeginNode: TD2DrakonNode;
+
               //Удаляет все узлы и линии со схемы
     procedure ClearNodes;
-              //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
+              //Удаляет подядковый № линии у всех узлов и очищает коллекцию линий
+    procedure ClearNodeLines;
+              //Очищает и заново формирует коллекцию линий начиная от узла "начало" - ABeginNode.
+              //Если ABeginNode=nil, то сначала находит узел "начало"
+    procedure CreateNodeLines(var ABeginNode: TD2DrakonNode);
+               //Добавляет новый узел в поле редактора. Возвращает индекс в списке FNodes
                //ABounds - габариты узла; AType - тип узла;
                //ALeft,AUp,ARight,ADown - индексы в списке FNodes узлов, связанных с создаваемым узлом, соотвественно слева, сверху, справа и снизу
                //AText, AText2 - текст 1 и 2 на иконе соответственно
     function CreateNode(ABounds: TD2Rect; AType: TD2DrakonNodeType; ALeft,AUp,ARight,ADown: integer; AText, AText2: String): integer;
+              //Очищает все и строит новый силуэт
+    procedure CreateSilhouette; virtual;
              //Связывает (вставляет между) узел с индексом AIndex в списке узлов FNodes с узлами
              //с индексами ALeft,AUp,ARight,ADown, соотвественно слева, сверху, справа и снизу.
     function LinkNode(AIndex, ALeft, AUp, ARight, ADown: integer): boolean;

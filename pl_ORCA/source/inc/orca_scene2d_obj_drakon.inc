@@ -845,13 +845,7 @@ var i: integer;
 begin
   FSelection.Parent:=Self;
   FSelection.Visible:=False;
-  //удалим все линии если есть
-  if FLines <> nil then
-  begin
-    for i:=0 to FLines.Count-1 do
-      TObject(FLines[i]).Free;
-    FLines.Clear; //очистим коллекцию линий
-  end;
+
   //удалим все узлы если есть
   if FNodes <> nil then
   begin
@@ -859,6 +853,25 @@ begin
       TObject(FNodes[i]).Free;
     FNodes.Clear;  //очистим коллекцию узлов
   end;
+  ClearNodeLines;  //очистим коллекцию линий
+end;
+
+procedure TD2CustomDrakonEditor.ClearNodeLines;
+var i: integer;
+begin
+  //у всех узлов, если есть, очистим поле принадлежности к линнии
+  if (FNodes<>nil) and (FNodes.Count>0) then
+    for i:=0 to FNodes.Count-1 do
+      TD2DrakonNode(FNodes[i]).FNodeLine:=nil;
+
+  //удалим все линии если есть
+  if (FLines<>nil) and (FLines.Count>0) then
+  begin
+    for i:=0 to FLines.Count-1 do
+      TObject(FLines[i]).Free;
+    FLines.Clear; //очистим коллекцию линий
+  end;
+
 end;
 
 //выполнить команду
@@ -1036,13 +1049,23 @@ begin
   inherited;
 end;
 
+//Возвращает узел "начало" в текущем редакторе
+function TD2CustomDrakonEditor.GetBeginNode: TD2DrakonNode;
+var i: integer;
+begin
+  GetBeginNode:=nil;
+  if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
+  i:=0;
+  while (i<FNodes.Count) and (TD2DrakonNode(FNodes[i]).NodeType<>drBegin) do Inc(i); //ищем икону "начало"
+  if i=FNodes.Count then exit; //если не найдена икона начало выходим
+  GetBeginNode:=TD2DrakonNode(FNodes[i]); //узел "начало"
+end;
+
 procedure TD2CustomDrakonEditor.CreateSilhouette;
   var b,i,u: integer;
 begin
   //BeginUpdate;
-
   ClearNodes;
-
 
   //0 икона начало
   b:=CreateNode(d2Rect(0,0,120,0), drBegin, -1,-1,-1,-1,'Новый алгоритм', '');
@@ -1079,18 +1102,6 @@ begin
 end;
 
 procedure TD2CustomDrakonEditor.RealignNodes;
-
-  //возвращает узел "начало" в текущем редакторе
-  function GetBeginNode: TD2DrakonNode;
-  var i: integer;
-  begin
-    GetBeginNode:=nil;
-    if (FNodes=nil) or (FNodes.Count<=0) then exit; //если нет узлов схемы, то выходим
-    i:=0;
-    while (i<FNodes.Count) and (TD2DrakonNode(FNodes[i]).NodeType<>drBegin) do Inc(i); //ищем икону "начало"
-    if i=FNodes.Count then exit; //если не найдена икона начало выходим
-    GetBeginNode:=TD2DrakonNode(FNodes[i]); //узел "начало"
-  end;
 
   //Возвращает самый левый узел в линии начиная от nNode
   //    sLineBound - вход: коорд.Y верхней границы для всей линии
@@ -1185,6 +1196,8 @@ var
 begin
   n_Begin:=GetBeginNode; //узел "начало"
   if n_Begin=nil then exit; //если узел "начало" не найден, то выходим
+  if FLines.Count<1 then CreateNodeLines(n_Begin); //если линий нет, то сформируем их
+
   y:=0;
   n_LeftTop:=GetLineLeftNode(n_Begin, y, h, s_BeginLineLeftWidth ); //самый левый верхний узел схемы,
   //y - нижняя граница горизонтали h - середина горизонтали узла "начало"
@@ -1235,6 +1248,12 @@ begin
 
 end;
 
+
+procedure TD2CustomDrakonEditor.CreateNodeLines(var ABeginNode: TD2DrakonNode);
+begin
+  ClearNodeLines;
+  if ABeginNode=nil then ABeginNode:=GetBeginNode;
+end;
 
 
 
