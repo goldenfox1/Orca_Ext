@@ -857,6 +857,7 @@ begin
 end;
 
 procedure TD2CustomDrakonEditor.ClearNodeLines;
+//Удаляет подядковый № линии у всех узлов и очищает коллекцию линий
 var i: integer;
 begin
   //у всех узлов, если есть, очистим поле принадлежности к линнии
@@ -1250,6 +1251,8 @@ end;
 
 
 procedure TD2CustomDrakonEditor.CreateNodeLines(var ABeginNode: TD2DrakonNode);
+//Очищает и заново формирует коллекцию линий начиная от узла "начало" - ABeginNode.
+//Если ABeginNode=nil, то сначала находит узел "начало"
 begin
   ClearNodeLines;
   if ABeginNode=nil then ABeginNode:=GetBeginNode;

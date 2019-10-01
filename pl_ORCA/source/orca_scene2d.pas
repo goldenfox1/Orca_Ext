@@ -10458,8 +10458,8 @@ end;
 //Редактор дракон-схем
 TD2CustomDrakonEditor = class(TD2FramedScrollBox)
   private
-    FNodes: TList;                   //коллекция узлов
-    FLines: TList;                   //коллекция линий
+    FNodes: TList;                   //Коллекция узлов
+    FLines: TList;                   //Коллекция вертикальных линий
     FSelectNode: TD2DrakonNode;      //Указатель на выделенный эл-т дракон схемы
     FSelection: TD2Selection;        //Указатель на рамку выделенния
     FMinSizes: TD2DrakonEditorSizes; //Минимальные размеры элементов дракон-схемы
