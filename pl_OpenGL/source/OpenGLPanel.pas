@@ -47,7 +47,7 @@ type
     FAutoResizeViewport: boolean;
     FCanvas: TCanvas; // only valid at designtime
     FDebugContext: boolean;
-    FDoubleBuffered: boolean;
+    //FDoubleBuffered: boolean;
     FFrameDiffTime: integer;
     FOnMakeCurrent: TOpenGlCtrlMakeCurrentEvent;
     FOnPaint: TNotifyEvent;
