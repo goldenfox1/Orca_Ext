@@ -138,18 +138,28 @@ type
     function Read(pv :Pointer;cb :DWORD;pcbRead :PDWORD) :HRESULT; virtual; stdcall;
     function Write(pv :Pointer;cb :DWORD;pcbWritten :PDWORD):HRESULT; virtual; stdcall;
     //function Seek(dlibMove:Largeint; dwOrigin:Longint; out libNewPosition:Largeint):HResult; virtual; stdcall;
-    function Seek(dlibMove:QWord; dwOrigin:Longint; out libNewPosition:QWord):HResult; virtual; stdcall;
+    //function Seek(dlibMove:QWord; dwOrigin:Longint; out libNewPosition:QWord):HResult; virtual; stdcall;
+    function Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult; virtual; stdcall;
     //function SetSize(libNewSize:Largeint):HResult; virtual; stdcall;
     function SetSize(libNewSize:QWord):HResult; virtual; stdcall;
     //function CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult; virtual; stdcall;
     function CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult; virtual; stdcall;
-    function Commit(grfCommitFlags:Longint):HResult; virtual; stdcall;
+    //function Commit(grfCommitFlags:Longint):HResult; virtual; stdcall;
+    function Commit(grfCommitFlags : DWORD) : HRESULT; virtual; stdcall;
+
     function Revert:HResult; virtual; stdcall;
     //function LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
-    function LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
+    //function LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
+    function LockRegion(libOffset: LargeUInt; cb: LargeUInt; dwLockType: DWORD): HRESULT; virtual; stdcall;
+
     //function UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
-    function UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
-    function Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult; virtual; stdcall;
+    //function UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
+    function UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT; virtual; stdcall;
+
+    //function Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult; virtual; stdcall;
+    function Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT; virtual; stdcall;
+
+
     function Clone(out stm:IStream):HResult; virtual; stdcall;
     property Stream:TStream read FStream;
     property StreamOwnership:TStreamOwnership read FOwnership write FOwnership;
@@ -226,25 +236,29 @@ begin
   end;
 end;
 
-function TMyStreamAdapter.Commit(grfCommitFlags:Longint):HResult;
+//function TMyStreamAdapter.Commit(grfCommitFlags:Longint):HResult;
+function TMyStreamAdapter.Commit(grfCommitFlags: DWORD): HRESULT;
 begin
   Result:=S_OK;
 end;
 
 //function TMyStreamAdapter.LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
-function TMyStreamAdapter.LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
+//function TMyStreamAdapter.LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
+function TMyStreamAdapter.LockRegion(libOffset: LargeUInt; cb:LargeUInt; dwLockType: DWORD): HRESULT;
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
 //function TMyStreamAdapter.UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
-function TMyStreamAdapter.UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
+//function TMyStreamAdapter.UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
+function TMyStreamAdapter.UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT;
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
 //function TMyStreamAdapter.Seek(dlibMove:Largeint; dwOrigin:longint; out libNewPosition:Largeint):HResult;
-function TMyStreamAdapter.Seek(dlibMove:QWord; dwOrigin:longint; out libNewPosition:QWord):HResult;
+//function TMyStreamAdapter.Seek(dlibMove:QWord; dwOrigin:longint; out libNewPosition:QWord):HResult;
+function TMyStreamAdapter.Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult;
 var
   xNPos:LargeInt;
 begin
@@ -331,7 +345,8 @@ begin
   Result:=Ft;
 end;
 
-function TMyStreamAdapter.Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult;
+//function TMyStreamAdapter.Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult;
+function TMyStreamAdapter.Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT;
 begin
   Result:=S_OK;
   try
