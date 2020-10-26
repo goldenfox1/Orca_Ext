@@ -128,12 +128,10 @@ begin
     { group }
     c:=0;
     cc:=0;
-    //if Assigned(FScene) and (FScene.GetRoot <> nil) then
-    if Assigned(Parent)then
+    if Assigned(FScene) and (FScene.GetRoot <> nil) then
     begin
       List:=TList.Create;
-      //FScene.GetRoot.AddControlsToList(List);
-      Parent.AddControlsToList(List);
+      FScene.GetRoot.AddControlsToList(List);
       for i:=0 to List.Count - 1 do
         if (TD2Object(List[i]) is TD2RadioButton) and {(TD2Object(List[i]) <> Self) and}
            (TD2RadioButton(List[i]).GroupName=GroupName) then

@@ -36,6 +36,7 @@ object Form1: TForm1
           IsChecked = False
           TextAlign = d2TextAlignNear
           Text = 'RadioButton1'
+          GroupName = '1'
         end
         object RadioButton2: TD2RadioButton
           Align = vaTop
@@ -47,6 +48,7 @@ object Form1: TForm1
           IsChecked = False
           TextAlign = d2TextAlignNear
           Text = 'RadioButton2'
+          GroupName = '1'
         end
         object RadioButton3: TD2RadioButton
           Align = vaTop
@@ -58,6 +60,7 @@ object Form1: TForm1
           IsChecked = False
           TextAlign = d2TextAlignNear
           Text = 'RadioButton1'
+          GroupName = '1'
         end
         object RadioButton4: TD2RadioButton
           Align = vaTop
@@ -69,6 +72,7 @@ object Form1: TForm1
           IsChecked = False
           TextAlign = d2TextAlignNear
           Text = 'RadioButton3'
+          GroupName = '1'
         end
       end
       object GroupBox2: TD2GroupBox
