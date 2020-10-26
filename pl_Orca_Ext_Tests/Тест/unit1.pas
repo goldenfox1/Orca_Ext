@@ -13,6 +13,9 @@ type
 
   TForm1 = class(TForm)
     D2Scene1: TD2Scene;
+    GroupBox1: TD2GroupBox;
+    RadioButton1: TD2RadioButton;
+    Root1: TD2Background;
   private
 
   public

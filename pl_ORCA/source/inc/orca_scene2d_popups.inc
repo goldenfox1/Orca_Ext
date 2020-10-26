@@ -864,7 +864,7 @@ begin
   inherited ;
 end;
 
-function MessagePopup(const ACaption,AMessage:WideString; AType:TD2MessageType;
+function MessagePopup(const ACaption,AMessage:{Wide}String; AType:TD2MessageType;
   Buttons:TD2MessageButtons; const AOwner:Id2Scene; const Target:TD2VisualObject=nil;
   const ADisableScene:boolean=true;
   const ABitmap:TD2Bitmap=nil;
@@ -954,7 +954,8 @@ begin
       Padding.Rect:=d2Rect(30,10,30,0);
       if I <> nil then
         Padding.Left:=Padding.Rect.Left + I.width + 10;
-      TextW:=ACaption;
+      //TextW:=ACaption;
+      Text:=ACaption;
       TextAlign:=d2TextAlignNear;
       Font.Size:=Font.Size * 1.4;
     end;
@@ -967,7 +968,8 @@ begin
       Padding.Rect:=d2Rect(30,0,30,0);
       if I <> nil then
         Padding.Left:=Padding.Rect.Left + I.width + 10;
-      TextW:=AMessage;
+      //TextW:=AMessage;
+      Text:=AMessage;
       TextAlign:=d2TextAlignNear;
     end;
     L:=TD2Layout.Create(PopupCtrl);

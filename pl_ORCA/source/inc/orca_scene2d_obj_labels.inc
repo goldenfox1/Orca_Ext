@@ -54,6 +54,7 @@ begin
   S:=FindResource('text');
   if (S <> nil) and (S is TD2Text) then
   begin
+    FTextObj:=TD2Text(S);
     TD2Text(S).TextW:=FText;
     TD2Text(S).HorzTextAlign:=FTextAlign;
     TD2Text(S).VertTextAlign:=FVertTextAlign;

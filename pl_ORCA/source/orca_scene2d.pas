@@ -967,6 +967,8 @@ Id2Scene = interface
     function  HideKeyboardForControl(AObject: TD2Object):boolean;
   end;
 
+{ TD2WideStrings }
+
 TD2WideStrings = class(TPersistent)
   private
     FUpdateCount: Integer;
@@ -978,6 +980,7 @@ TD2WideStrings = class(TPersistent)
     procedure ReadData(Reader:TReader);
     procedure SetCommaText(const Value:WideString);
     procedure SetValue(const Name, Value:WideString);
+    //procedure SetValue(const Name: WideString; AValue: WideString);
     procedure WriteData(Writer:TWriter);
     function  GetValueFromIndex(Index: Integer): WideString;
     procedure SetValueFromIndex(Index: Integer; const Value:WideString);
@@ -1033,7 +1036,8 @@ TD2WideStrings = class(TPersistent)
     property  Text: WideString read GetTextStr write SetTextStr stored true;
     function  Items(AIndex: integer): WideString;
     procedure SetItem(index:integer; AText: wideString);
-    function  Add(const S: WideString): Integer;  virtual;
+    function  Add(const S: String): Integer;  virtual; overload;
+    function  Add(const S: WideString): Integer;  virtual; overload;
     procedure Delete(Index: Integer);  virtual;
     procedure Clear;  virtual;
     property Count: Integer read GetCount;
@@ -3440,6 +3444,7 @@ TD2TextControl = class(TD2Control)
     FVertTextAlign: TD2TextAlign;
     FFontFill: TD2Brush;
     FWordWrap:boolean;
+    FTextObj: TD2Text;                       //объект текст
     function  GetText:WideString; overload;  // 5555
     function  GetText:String; overload;      // 5555
     procedure SetFont(const Value:TD2Font);
@@ -3851,6 +3856,8 @@ TD2RadioButton = class(TD2TextControl)
     procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
     function GetData: Variant;  override;
     procedure SetData(const Value:Variant);  override;
+    function AdjustHeight: single;  //найти вертикальный размер текста
+
   published
     property IsPressed: boolean read FIsPressed;
     property IsChecked: boolean read FIsChecked write SetIsChecked;
@@ -10814,7 +10821,7 @@ procedure Blur(const Canvas: TD2Canvas; const Bitmap: TD2Bitmap; const Radius:in
 
 function ComposeCaretPos(ALine, APos : integer) : TCaretPosition;
 
-function MessagePopup(const ACaption, AMessage: WideString; AType: TD2MessageType;
+function MessagePopup(const ACaption, AMessage: {Wide}String; AType: TD2MessageType;
                       Buttons: TD2MessageButtons; const AOwner: Id2Scene;
                       const Target: TD2VisualObject = nil;
                       const ADisableScene: boolean = true;
@@ -10922,9 +10929,12 @@ uses math, typinfo,IntfGraphics;
 const
   ModalResults: array[TD2MessageButton] of Integer = (
     mrYes, mrNo, mrOk, mrCancel, mrAbort, mrRetry, mrIgnore, mrAll, mrNoToAll, mrYesToAll, 0);
-  MessageButtonNames: array[TD2MessageButton] of WideString = (
-    'Yes', 'No', 'OK', 'Cancel', 'Abort', 'Retry', 'Ignore',
-    'All', 'NoToAll', 'YesToAll', 'Help');
+  //MessageButtonNames: array[TD2MessageButton] of WideString = (
+    //'Yes', 'No', 'OK', 'Cancel', 'Abort', 'Retry', 'Ignore',
+    //'All', 'NoToAll', 'YesToAll', 'Help');
+  MessageButtonNames: array[TD2MessageButton] of String = (
+    'Да', 'Нет', 'OK', 'Отмена', 'Прервать', 'Повторить', 'Пропустить',
+    'Все', 'Нет для всех', 'Да для всех', 'Помодь');
 
 type
 

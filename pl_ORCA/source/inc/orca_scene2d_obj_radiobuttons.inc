@@ -40,6 +40,22 @@ begin
       IsChecked:=false;
 end;
 
+function TD2RadioButton.AdjustHeight: single;
+//function AdjustHeight(AText: TD2Text): single;
+var
+  R: TD2Rect;
+begin
+  if (FTextObj <> nil) and (FTextObj.Canvas <> nil) and (FTextObj.FText <> '') then
+    with FTextObj do
+    begin
+      Canvas.Font.Assign(FFont);
+      R:=d2Rect(0,0,FWidth,1000);
+      Canvas.MeasureText(R,R,FText,true,d2TextAlignNear,d2TextAlignNear);
+      Result:=R.Bottom;
+    end
+  else Result:=0;
+end;
+
 procedure TD2RadioButton.ApplyStyle;
 begin
   inherited;
@@ -112,12 +128,14 @@ begin
     { group }
     c:=0;
     cc:=0;
-    if Assigned(FScene) and (FScene.GetRoot <> nil) then
+    //if Assigned(FScene) and (FScene.GetRoot <> nil) then
+    if Assigned(Parent)then
     begin
       List:=TList.Create;
-      FScene.GetRoot.AddControlsToList(List);
+      //FScene.GetRoot.AddControlsToList(List);
+      Parent.AddControlsToList(List);
       for i:=0 to List.Count - 1 do
-        if (TD2Object(List[i]) is TD2RadioButton) and (TD2Object(List[i]) <> Self) and
+        if (TD2Object(List[i]) is TD2RadioButton) and {(TD2Object(List[i]) <> Self) and}
            (TD2RadioButton(List[i]).GroupName=GroupName) then
         begin
           if TD2RadioButton(List[i]).IsChecked then

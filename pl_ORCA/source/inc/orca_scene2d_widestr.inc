@@ -30,19 +30,26 @@ begin
   inherited;
 end;
 
-function TD2WideStrings.CompareStrings(const S1,S2:WideString):integer;
+function TD2WideStrings.CompareStrings(const S1, S2: WideString): Integer;
 begin
   Result:=0;
 end;
 
-procedure TD2WideStrings.Delete(Index:integer);
+procedure TD2WideStrings.Delete(Index: Integer);
 begin
 end;
 
-function TD2WideStrings.Add(const S:WideString):integer;
+function TD2WideStrings.Add(const S: WideString): Integer;
 begin
   Result:=GetCount;
   Insert(Result,S);
+end;
+
+function TD2WideStrings.Add(const S: String): Integer;
+var ss:WideString;
+begin
+  ss:=UTF8Decode(S);
+  Add(ss);
 end;
 
 function TD2WideStrings.Items(AIndex:integer):WideString;
@@ -50,7 +57,8 @@ begin
   Result:=Strings[AIndex];
 end;
 
-function TD2WideStrings.AddObject(const S:WideString; AObject:TObject):integer;
+function TD2WideStrings.AddObject(const S: WideString; AObject: TObject
+  ): Integer;
 begin
   Result:=Add(S);
   PutObject(Result,AObject);
@@ -152,7 +160,7 @@ begin
   System.Inc(FUpdateCount);
 end;
 
-procedure TD2WideStrings.clear;
+procedure TD2WideStrings.Clear;
 begin
 
 end;
@@ -179,7 +187,7 @@ begin
   if FUpdateCount=0 then SetUpdateState(False);
 end;
 
-function TD2WideStrings.Equals(Strings:TD2WideStrings):boolean;
+function TD2WideStrings.Equals(Strings: TD2WideStrings): Boolean;
 var
   I,Count:integer;
 begin
@@ -191,12 +199,12 @@ begin
   Result:=True;
 end;
 
-procedure TD2WideStrings.Error(const Msg:String; Data:integer);
+procedure TD2WideStrings.Error(const Msg: String; Data: Integer);
 begin
 
 end;
 
-procedure TD2WideStrings.Exchange(Index1,Index2:integer);
+procedure TD2WideStrings.Exchange(Index1, Index2: Integer);
 var
   TempObject:TObject;
   TempString:WideString;
@@ -214,7 +222,7 @@ begin
   end;
 end;
 
-function TD2WideStrings.GetCapacity:integer;
+function TD2WideStrings.GetCapacity: Integer;
 begin
   Result:=Count;
 end;
@@ -245,7 +253,7 @@ begin
   end;
 end;
 
-function TD2WideStrings.GetName(Index:integer):WideString;
+function TD2WideStrings.GetName(Index: Integer): WideString;
 var
   P:integer;
 begin
@@ -255,7 +263,7 @@ begin
            else Result:='';
 end;
 
-function TD2WideStrings.GetObject(Index:integer):TObject;
+function TD2WideStrings.GetObject(Index: Integer): TObject;
 begin
   Result:=nil;
 end;
@@ -288,14 +296,15 @@ begin
   end;
 end;
 
-function TD2WideStrings.GetValueFromIndex(Index:integer):WideString;
+function TD2WideStrings.GetValueFromIndex(Index: Integer): WideString;
 begin
   if Index >= 0 then
     Result:=Copy(Get(Index),Length(Names[Index]) + 2,System.MaxInt) else
     Result:='';
 end;
 
-procedure TD2WideStrings.SetValueFromIndex(Index:integer; const Value:WideString);
+procedure TD2WideStrings.SetValueFromIndex(Index: Integer;
+  const Value: WideString);
 begin
   if Value <> '' then
   begin
@@ -306,7 +315,7 @@ begin
     if Index >= 0 then Delete(Index);
 end;
 
-procedure TD2WideStrings.sort;
+procedure TD2WideStrings.Sort;
 begin
 end;
 
@@ -319,7 +328,7 @@ begin
             else Result:='';
 end;
 
-function TD2WideStrings.IndexOf(const S:WideString):integer;
+function TD2WideStrings.IndexOf(const S: WideString): Integer;
 begin
   for Result:=0 to GetCount - 1 do
   begin
@@ -328,7 +337,7 @@ begin
   Result:=-1;
 end;
 
-function TD2WideStrings.IndexOfName(const Name:WideString):integer;
+function TD2WideStrings.IndexOfName(const Name: WideString): Integer;
 var
   P:integer;
   S:WideString;
@@ -342,7 +351,7 @@ begin
   Result:=-1;
 end;
 
-function TD2WideStrings.IndexOfValue(const Name:WideString):integer;
+function TD2WideStrings.IndexOfValue(const Name: WideString): Integer;
 var
   P:integer;
   S:WideString;
@@ -356,14 +365,15 @@ begin
   Result:=-1;
 end;
 
-function TD2WideStrings.IndexOfObject(AObject:TObject):integer;
+function TD2WideStrings.IndexOfObject(AObject: TObject): Integer;
 begin
   for Result:=0 to GetCount - 1 do
     if GetObject(Result)=AObject then Exit;
   Result:=-1;
 end;
 
-procedure TD2WideStrings.InsertObject(Index:integer; const S:WideString; AObject:TObject);
+procedure TD2WideStrings.InsertObject(Index: Integer; const S: WideString;
+  AObject: TObject);
 begin
   Insert(Index,S);
   PutObject(Index,AObject);
@@ -416,7 +426,7 @@ begin
   end;
 end;
 
-procedure TD2WideStrings.Move(CurIndex,NewIndex:integer);
+procedure TD2WideStrings.Move(CurIndex, NewIndex: Integer);
 var
   TempObject:TObject;
   TempString:WideString;
@@ -435,7 +445,7 @@ begin
   end;
 end;
 
-procedure TD2WideStrings.Put(Index:integer; const S:WideString);
+procedure TD2WideStrings.Put(Index: Integer; const S: WideString);
 var
   TempObject:TObject;
 begin
@@ -444,7 +454,7 @@ begin
   InsertObject(Index,S,TempObject);
 end;
 
-procedure TD2WideStrings.PutObject(Index:integer; AObject:TObject);
+procedure TD2WideStrings.PutObject(Index: Integer; AObject: TObject);
 begin
 end;
 
@@ -499,11 +509,11 @@ begin
   Stream.WriteBuffer(PWideChar(SW)^,2 * Length(SW));
 end;
 
-procedure TD2WideStrings.SetCapacity(NewCapacity:integer);
+procedure TD2WideStrings.SetCapacity(NewCapacity: Integer);
 begin
 end;
 
-procedure TD2WideStrings.SetCaseSensitive(const Value:boolean);
+procedure TD2WideStrings.SetCaseSensitive(const Value: Boolean);
 begin
   if Value <> FCaseSensitive then
   begin
@@ -551,7 +561,7 @@ begin
   Strings[index]:=AText;
 end;
 
-procedure TD2WideStrings.SetSorted(const Value:boolean);
+procedure TD2WideStrings.SetSorted(const Value: Boolean);
 begin
   if FSorted <> Value then
   begin
@@ -595,7 +605,7 @@ begin
   end;
 end;
 
-procedure TD2WideStrings.SetUpdateState(Updating:boolean);
+procedure TD2WideStrings.SetUpdateState(Updating: Boolean);
 begin
 end;
 

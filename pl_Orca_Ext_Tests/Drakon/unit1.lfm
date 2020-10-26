@@ -1,12 +1,12 @@
 object Form1: TForm1
-  Left = 202
+  Left = 292
   Height = 489
-  Top = 117
+  Top = 124
   Width = 675
   Caption = 'Form1'
   ClientHeight = 489
   ClientWidth = 675
-  LCLVersion = '2.0.4.0'
+  LCLVersion = '2.0.10.0'
   object D2Scene1: TD2Scene
     Left = 0
     Height = 489
@@ -17,12 +17,10 @@ object Form1: TForm1
     DesignSnapToGrid = False
     DesignSnapToLines = True
     object Root1: TD2Background
-      RotateAngle = 0
       Width = 675
       Height = 489
       object DrakonPallet1: TD2DrakonPallet
         Align = vaLeft
-        RotateAngle = 0
         Width = 66
         Height = 406
         ShowHint = True
@@ -31,13 +29,11 @@ object Form1: TForm1
       object DrakonEditor1: TD2DrakonEditor
         Align = vaClient
         Position.Point = '(66,0)'
-        RotateAngle = 0
         Width = 609
         Height = 489
         Resource = 'FramedScrollBoxStyle'
-        TabOrder = 2
+        TabOrder = 1
         object TD2Selection
-          RotateAngle = 0
           Width = 50
           Height = 50
           Visible = False
@@ -47,6 +43,29 @@ object Form1: TForm1
           MinSize = 40
           Proportional = False
           SizingVert = False
+        end
+        object TD2Selection
+          Width = 50
+          Height = 50
+          Visible = False
+          DesignHide = True
+          GripSize = 3
+          HideSelection = False
+          MinSize = 40
+          Proportional = False
+          SizingVert = False
+        end
+        object DrakonNode1: TD2DrakonNode
+          Cursor = crSizeAll
+          Position.Point = '(155,176)'
+          Width = 90
+          Height = 63
+          Resource = 'DrakonInputStyle'
+          TabOrder = 2
+          StrokeThickness = 1
+          NodeType = drInput
+          Text = 'Проба текста'
+          Text2 = 'Проба текста'
         end
       end
     end
