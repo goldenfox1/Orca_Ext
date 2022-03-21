@@ -126,7 +126,21 @@ end;
 
 
 //=============== TD2Line ================================
+constructor TD2Line.Create(AOwner: TComponent); //Added by GoldenFox
+begin
+  inherited;
+end;											   
 procedure TD2Line.Paint;
+{ //Deleted by GoldenFox
+begin				  
+  case FLineType of			  
+    d2LineHorizontal: Canvas.DrawLine(GetShapeRect.TopLeft, d2Point(GetShapeRect.Right, GetShapeRect.Top), AbsoluteOpacity);
+			   
+    d2LineVertical: Canvas.DrawLine(GetShapeRect.TopLeft, d2Point(GetShapeRect.Left, GetShapeRect.Bottom), AbsoluteOpacity);
+  else    Canvas.DrawLine(GetShapeRect.TopLeft, GetShapeRect.BottomRight, AbsoluteOpacity);
+  end;
+}
+//----- Added by GoldenFox --------
 var
   R: TD2Rect;
   d: single;
@@ -154,6 +168,7 @@ begin
   else //d2LineNormal:
     Canvas.DrawLine(R.TopLeft,R.BottomRight,AbsoluteOpacity);
   end;
+//----- End of part bt GoldenFox ------  
 end;
 
 procedure TD2Line.SetLineType(const Value:TD2LineType);
@@ -602,6 +617,8 @@ begin
   inherited;
   FRecreate:=true;
 end;
+
+//----- Added by GoldenFox --------
 
 { TD2Brace }
 
@@ -2410,6 +2427,8 @@ begin
         end;
     end;
 end;
+
+//----- End of part bt GoldenFox ------
 
 //=============== TD2CalloutRectangle ====================================
 
