@@ -3281,6 +3281,7 @@ TD2Selection = class(TD2VisualObject)
     FSizingHoriz: boolean;  //Изменять размер по горизонтали. Не влияет если Proportional = True
     FSizingVert: boolean;   //Изменять размер по вертикали. Не влияет если Proportional = True
     FSizingRoundTrip: boolean;  //изменять размер одновременно в противоположных направлениях
+	
     procedure SetHideSelection(const Value:boolean);
     procedure SetMinSize(const Value:integer);
     procedure SetGripSize(const Value:single);

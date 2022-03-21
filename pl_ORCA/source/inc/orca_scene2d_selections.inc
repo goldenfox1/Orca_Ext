@@ -249,8 +249,9 @@ begin
                 Height:=FMinSize;
               end;
           end;
-      end;
 //------- End of part by GoldenFox ------
+      end;
+
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
     end;
