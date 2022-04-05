@@ -16,16 +16,16 @@ begin
 end;
 
 destructor TD2Resources.Destroy;
-var i: integer;
+var i: integer;	//Added by GoldenFox
 begin
   if FRoot <> nil then
     FreeAndNil(FRoot);
-  if FSceneList <> nil then
-  begin
-    for i:=0 to FSceneList.Count-1 do
-      TObject(FSceneList[i]).Free;
+  if FSceneList <> nil then	//Added by GoldenFox
+  begin	//Added by GoldenFox
+    for i:=0 to FSceneList.Count-1 do	//Added by GoldenFox
+      TObject(FSceneList[i]).Free;	//Added by GoldenFox
     FreeAndNil(FSceneList);
-  end;
+  end;	//Added by GoldenFox
   FreeAndNil(FResource);
   inherited;
 end;

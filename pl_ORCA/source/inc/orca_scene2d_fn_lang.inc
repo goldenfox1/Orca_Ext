@@ -88,8 +88,8 @@ begin
 end;
 
 function Translate(const AText:WideString):WideString;
-//var
-  //Idx:integer;
+//var	//Deleted by GoldenFox
+  //Idx:integer;	//Deleted by GoldenFox
 begin
   if AText='' then
   begin

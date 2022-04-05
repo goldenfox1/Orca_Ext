@@ -1569,8 +1569,8 @@ begin
 end;
 
 procedure TD2CanvasD2D.DrawEllipse(const ARect:TD2Rect; const AOpacity:single);
-//var
-//  R:TD2Rect;
+//var	//Deleted by GoldenFox
+//  R:TD2Rect;	//Deleted by GoldenFox
 begin
   if FStroke.Style <> d2BrushNone then
   begin
@@ -1605,8 +1605,8 @@ var
   TextRange:TDWrite_TextRange;
   TextLayout:IDWriteTextLayout;
   TextFormat:IDWriteTextFormat;
-  //R:TD2Rect;
-  //S:TD2FontStyle;
+  //R:TD2Rect;	//Deleted by GoldenFox
+  //S:TD2FontStyle;	//Deleted by GoldenFox
   WS:WideString;
 begin
   if (FFill.Style <> d2BrushNone) and (AText <> '') then
@@ -1659,8 +1659,8 @@ var
   TextLayout:IDWriteTextLayout;
   TextMetrics:TDWrite_TextMetrics;
   TextFormat:IDWriteTextFormat;
-  //R:TD2Rect;
-  //S:TD2FontStyle;
+  //R:TD2Rect;	//Deleted by GoldenFox
+  //S:TD2FontStyle;	//Deleted by GoldenFox
   WS:WideString;
 begin
   if not WordWrap then
@@ -1710,12 +1710,12 @@ begin
 end;
 
 procedure TD2CanvasD2D.DrawThumbnail(const ABitmap:TD2Bitmap; const Width,Height:single);
-//var
-//  xscale:single;
+//var	//Deleted by GoldenFox
+//  xscale:single;	//Deleted by GoldenFox
 begin
 //  UpdateBitmap(ABitmap);
   if ABitmap.Handle=0 then Exit;
-  //xscale:=Width / ABitmap.Width;
+  //xscale:=Width / ABitmap.Width;	//Deleted by GoldenFox
   if FBitmap <> nil then
   begin
 //    Fgraphics.ScaleTransform(xscale,xscale);
@@ -2135,8 +2135,8 @@ var
   TextRange:TDWrite_TextRange;
   TextLayout:IDWriteTextLayout;
   TextFormat:IDWriteTextFormat;
-  //R:TD2Rect;
-  //S:TD2FontStyle;
+  //R:TD2Rect;	//Deleted by GoldenFox
+  //S:TD2FontStyle;	//Deleted by GoldenFox
   WS:WideString;
   MyRenderer:TD2TextRendering;
 begin

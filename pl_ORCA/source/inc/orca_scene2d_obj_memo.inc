@@ -50,9 +50,10 @@ begin
   end;
 end;
 
-//=============== TD2Memo ===============================================
+//=============== TD2CustomMemo ===============================================
 
-constructor TD2CustomMemo.Create(AOwner:TComponent);
+//constructor TD2Memo.Create(AOwner:TComponent);	//Deleted by GoldenFox
+constructor TD2CustomMemo.Create(AOwner:TComponent);	//Added by GoldenFox
 begin
   inherited Create(AOwner);
   FTextAlign:=d2TextAlignNear;
@@ -105,7 +106,8 @@ begin
   Width:=100;
 end;
 
-destructor TD2CustomMemo.Destroy;
+//destructor TD2Memo.Destroy;	//Deleted by GoldenFox
+destructor TD2CustomMemo.Destroy;	//Added by GoldenFox
 begin
   if FUnwrapLines <> nil then
     FUnwrapLines.Free;
@@ -118,7 +120,8 @@ begin
   inherited;
 end;
 
-procedure TD2CustomMemo.EnterFocus;
+//procedure TD2Memo.EnterFocus;	//Deleted by GoldenFox
+procedure TD2CustomMemo.EnterFocus;	//Added by GoldenFox
 begin
   inherited;
   FNeedChange:=false;
@@ -140,7 +143,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.Killfocus;
+//procedure TD2Memo.Killfocus;	//Deleted by GoldenFox
+procedure TD2CustomMemo.Killfocus;	//Added by GoldenFox
 begin
   FScene.HideKeyboardForControl(Self);
   inherited;
@@ -148,7 +152,8 @@ begin
   Change;
 end;
 
-function TD2CustomMemo.TextWidth(const Str:WideString):single;
+//function TD2Memo.TextWidth(const Str:WideString):single;	//Deleted by GoldenFox
+function TD2CustomMemo.TextWidth(const Str:WideString):single;	//Added by GoldenFox
 var
   R:TD2Rect;
 begin
@@ -159,7 +164,8 @@ begin
   Result:=d2RectWidth(R);
 end;
 
-function TD2CustomMemo.GetPositionPoint(ACaretPos :TCaretPosition):TD2Point;
+//function TD2Memo.GetPositionPoint(ACaretPos :TCaretPosition):TD2Point;	//Deleted by GoldenFox
+function TD2CustomMemo.GetPositionPoint(ACaretPos :TCaretPosition):TD2Point;	//Added by GoldenFox
 var
   WholeTextWidth :single;
   EditRectWidth :single;
@@ -193,7 +199,8 @@ begin
   Result.X:=Result.X - HScrollBarValue;
 end;
 
-function TD2CustomMemo.GetPointPosition(Pt :TD2Point):TCaretPosition;
+//function TD2Memo.GetPointPosition(Pt :TD2Point):TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetPointPosition(Pt :TD2Point):TCaretPosition;	//Added by GoldenFox
 var
   CurX:double;
   TmpX,
@@ -271,7 +278,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);
+//procedure TD2Memo.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);	//Deleted by GoldenFox
+procedure TD2CustomMemo.KeyDown(var Key:Word; var KeyChar:System.WideChar; Shift:TShiftState);	//Added by GoldenFox
 var
   TmpS:WideString;
   OldCaretPosition:TCaretPosition;
@@ -421,7 +429,8 @@ begin
   UpdateCaretPosition(true);
 end;
 
-procedure TD2CustomMemo.MouseDown(Button:TMouseButton; Shift:TShiftState; x,y:single);
+//procedure TD2Memo.MouseDown(Button:TMouseButton; Shift:TShiftState; x,y:single);	//Deleted by GoldenFox
+procedure TD2CustomMemo.MouseDown(Button:TMouseButton; Shift:TShiftState; x,y:single);	//Added by GoldenFox
 begin
   inherited;
   if (Button=mbLeft) and  (ssDouble in Shift) then
@@ -442,7 +451,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.ContentPos:TD2Point;
+//function TD2Memo.ContentPos:TD2Point;	//Deleted by GoldenFox
+function TD2CustomMemo.ContentPos:TD2Point;	//Added by GoldenFox
 var
   T:TD2Object;
 begin
@@ -453,16 +463,18 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.DoContentPaint(Sender:TObject; const Canvas:TD2Canvas; const ARect:TD2Rect);
+//procedure TD2Memo.DoContentPaint(Sender:TObject; const Canvas:TD2Canvas; const ARect:TD2Rect);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoContentPaint(Sender:TObject; const Canvas:TD2Canvas; const ARect:TD2Rect);	//Added by GoldenFox
 var
   R,TmpRect:TD2Rect;
   LSelArea :TSelArea;
   CurSelRect :integer;
   SaveIndex:integer;
-  {CurChar,}CurLine,LEndLine:integer;
+  //CurChar,CurLine,LEndLine:integer;	//Deleted by GoldenFox
+  CurLine,LEndLine:integer;	//Added by GoldenFox
   TmpPt :TD2Point;
   LPageSize :single;
-  //LLeftTopCharPt :TD2Point;
+  //LLeftTopCharPt :TD2Point;	//Deleted by GoldenFox
 begin
   with Canvas do
   begin
@@ -478,8 +490,8 @@ begin
     Canvas.Font.Assign(Font);
     LPageSize:=GetPageSize;
 
-    //LLeftTopCharPt.X:=TmpRect.Left;
-    //LLeftTopCharPt.Y:=TmpRect.Top;
+    //LLeftTopCharPt.X:=TmpRect.Left;	//Deleted by GoldenFox
+    //LLeftTopCharPt.Y:=TmpRect.Top;	//Deleted by GoldenFox
 
     CurLine:=trunc(VScrollBarValue / GetLineHeight);
     if round(VScrollBarValue / GetLineHeight) + LPageSize - 1 < Lines.Count-1 then
@@ -512,7 +524,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.ApplyStyle;
+//procedure TD2Memo.ApplyStyle;	//Deleted by GoldenFox
+procedure TD2CustomMemo.ApplyStyle;	//Added by GoldenFox
 var
   T:TD2Object;
 begin
@@ -533,7 +546,8 @@ begin
     FFontFill.Assign(TD2BrushObject(T).Brush);
 end;
 
-procedure TD2CustomMemo.UpdateHScrlBarByCaretPos;
+//procedure TD2Memo.UpdateHScrlBarByCaretPos;	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdateHScrlBarByCaretPos;	//Added by GoldenFox
 var
   LEdiTD2Rect:TD2Rect;
   LCaretLinePos :integer;
@@ -569,16 +583,17 @@ begin
     HScrollBar.Value:=TextWidth(Copy(Lines[LCaretLine],1,FFirstVisibleChar-1));
 end;
 
-procedure TD2CustomMemo.MouseMove(Shift:TShiftState; x,y,dx,dy:single);
-//var
-  //LEdiTD2Rect :TD2Rect;
+//procedure TD2Memo.MouseMove(Shift:TShiftState; x,y,dx,dy:single);	//Deleted by GoldenFox
+procedure TD2CustomMemo.MouseMove(Shift:TShiftState; x,y,dx,dy:single);	//Added by GoldenFox
+//var						//Deleted by GoldenFox
+  //LEdiTD2Rect :TD2Rect;	//Deleted by GoldenFox
 begin
   inherited;
   FOldMPt:=d2Point(x,y);
 
   if FLMouseSelecting then
   begin
-    //LEdiTD2Rect:=ContentRect;
+    //LEdiTD2Rect:=ContentRect;	//Deleted by GoldenFox
 
 {    if y < LEdiTD2Rect.Top then
       VScrollBar.AutoScrollUp:=true
@@ -594,8 +609,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.MouseUp(Button:TMouseButton; Shift:TShiftState;
-  x,y:single);
+//procedure TD2Memo.MouseUp(Button:TMouseButton; Shift:TShiftState; x,y:single); 	//Deleted by GoldenFox
+procedure TD2CustomMemo.MouseUp(Button:TMouseButton; Shift:TShiftState;  x,y:single);	//Added by GoldenFox
 begin
   inherited;
   FLMouseSelecting:=false;
@@ -603,22 +618,24 @@ begin
     FSelected:=false;
 end;
 
-procedure TD2CustomMemo.CopyToClipboard;
-//var
-  //Data:THandle;
-  //DataPtr:Pointer;
-  //Size:Cardinal;
-  //S:WideString;
+//procedure TD2Memo.CopyToClipboard;	//Deleted by GoldenFox
+procedure TD2CustomMemo.CopyToClipboard;	//Added by GoldenFox
+//var					//Deleted by GoldenFox
+  //Data:THandle;		//Deleted by GoldenFox
+  //DataPtr:Pointer;	//Deleted by GoldenFox
+  //Size:Cardinal;		//Deleted by GoldenFox
+  //S:WideString;		//Deleted by GoldenFox
 begin
   if SelText <> '' then
     Clipbrd.Clipboard.AsText:=UTF8Encode(SelText);
 end;
 
-procedure TD2CustomMemo.PasteFromClipboard;
+//procedure TD2Memo.PasteFromClipboard;	//Deleted by GoldenFox
+procedure TD2CustomMemo.PasteFromClipboard;	//Added by GoldenFox
 var
   WasSelection :boolean;
-  //Data:THandle;
-  //Insertion:WideString;
+  //Data:THandle;			//Deleted by GoldenFox
+  //Insertion:WideString;	//Deleted by GoldenFox
 begin
   if ReadOnly then Exit;
   try
@@ -638,7 +655,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.CreatePopupMenu;
+//procedure TD2Memo.CreatePopupMenu;		//Deleted by GoldenFox
+procedure TD2CustomMemo.CreatePopupMenu;	//Added by GoldenFox
 var
   TmpItem:TMenuItem;
 begin
@@ -698,27 +716,32 @@ begin
   FPopupMenu.Items.Add(TmpItem);
 end;
 
-procedure TD2CustomMemo.DoCut(Sender:TObject);
+//procedure TD2Memo.DoCut(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoCut(Sender:TObject);	//Added by GoldenFox
 begin
   CutToClipboard;
 end;
 
-procedure TD2CustomMemo.DoCopy(Sender:TObject);
+//procedure TD2Memo.DoCopy(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoCopy(Sender:TObject);	//Added by GoldenFox
 begin
   CopyToClipboard;
 end;
 
-procedure TD2CustomMemo.DoDelete(Sender:TObject);
+//procedure TD2Memo.DoDelete(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoDelete(Sender:TObject);	//Added by GoldenFox
 begin
   ClearSelection;
 end;
 
-procedure TD2CustomMemo.DoPaste(Sender:TObject);
+//procedure TD2Memo.DoPaste(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoPaste(Sender:TObject);	//Added by GoldenFox
 begin
   PasteFromClipboard;
 end;
 
-procedure TD2CustomMemo.UpdatePopupMenuItems;
+//procedure TD2Memo.UpdatePopupMenuItems;	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdatePopupMenuItems;	//Added by GoldenFox
 var
   SelTextEmpty:boolean;
 begin
@@ -731,7 +754,8 @@ begin
   FPopupMenu.Items.Find('Select All').Enabled:=SelText <> TextW;
 end;
 
-function TD2CustomMemo.GetNextWordBeging(StartPosition:TCaretPosition):TCaretPosition;
+//function TD2Memo.GetNextWordBeging(StartPosition:TCaretPosition):TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetNextWordBeging(StartPosition:TCaretPosition):TCaretPosition;	//Added by GoldenFox
 var
   SpaceFound,
   WordFound:boolean;
@@ -774,7 +798,8 @@ begin
   end
 end;
 
-function TD2CustomMemo.GetPrivWordBeging(StartPosition:TCaretPosition):TCaretPosition;
+//function TD2Memo.GetPrivWordBeging(StartPosition:TCaretPosition):TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetPrivWordBeging(StartPosition:TCaretPosition):TCaretPosition;	//Added by GoldenFox
 var
   WordFound:boolean;
   LLineText :WideString;
@@ -810,19 +835,22 @@ begin
 end;
 
 
-procedure TD2CustomMemo.ClearSelection;
+//procedure TD2Memo.ClearSelection;	//Deleted by GoldenFox
+procedure TD2CustomMemo.ClearSelection;	//Added by GoldenFox
 begin
   if not ReadOnly then
     DeleteFrom(GetSelBeg,SelLength,[doMoveCaret,doCanUndo]);
 end;
 
-procedure TD2CustomMemo.CutToClipboard;
+//procedure TD2Memo.CutToClipboard;	//Deleted by GoldenFox
+procedure TD2CustomMemo.CutToClipboard;	//Added by GoldenFox
 begin
   CopyToClipboard;
   ClearSelection;
 end;
 
-procedure TD2CustomMemo.SelectAll;
+//procedure TD2Memo.SelectAll;	//Deleted by GoldenFox
+procedure TD2CustomMemo.SelectAll;	//Added by GoldenFox
 begin
   FSelStart:=TextPosToPos(Length(FText));
   FSelEnd:=ComposeCaretPos(0,0);
@@ -831,12 +859,14 @@ begin
   Repaint;
 end;
 
-procedure TD2CustomMemo.DoSelectAll(Sender:TObject);
+//procedure TD2Memo.DoSelectAll(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoSelectAll(Sender:TObject);	//Added by GoldenFox
 begin
   SelectAll;
 end;
 
-procedure TD2CustomMemo.DrawPasswordChar(SymbolRect:TD2Rect; Selected:boolean);
+//procedure TD2Memo.DrawPasswordChar(SymbolRect:TD2Rect; Selected:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DrawPasswordChar(SymbolRect:TD2Rect; Selected:boolean);	//Added by GoldenFox
 var
   LRect :TD2Rect;
 begin
@@ -844,13 +874,15 @@ begin
   Canvas.Font.Assign(Font);
 end;
 
-function TD2CustomMemo.CanAutoSize(var NewWidth,NewHeight:integer):boolean;
+//function TD2Memo.CanAutoSize(var NewWidth,NewHeight:integer):boolean;	//Deleted by GoldenFox
+function TD2CustomMemo.CanAutoSize(var NewWidth,NewHeight:integer):boolean;	//Added by GoldenFox
 begin
   Result:=True;
   NewHeight:=Round(GetLineHeight + ContentRect.Top*2);
 end;
 
-procedure TD2CustomMemo.SelectWord;
+//procedure TD2Memo.SelectWord;	//Deleted by GoldenFox
+procedure TD2CustomMemo.SelectWord;	//Added by GoldenFox
 begin
   FSelStart:=GetPrivWordBeging(CaretPosition);
   FSelEnd:=GetNextWordBeging(CaretPosition);
@@ -858,7 +890,8 @@ begin
   Repaint;
 end;
 
-procedure TD2CustomMemo.Change;
+//procedure TD2Memo.Change;	//Deleted by GoldenFox
+procedure TD2CustomMemo.Change;	//Added by GoldenFox
 begin
   if FNeedChange then
   begin
@@ -869,7 +902,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.ContextMenu(const ScreenPosition:TD2Point);
+//procedure TD2Memo.ContextMenu(const ScreenPosition:TD2Point);	//Deleted by GoldenFox
+procedure TD2CustomMemo.ContextMenu(const ScreenPosition:TD2Point);	//Added by GoldenFox
 begin
   inherited;
   if csDesigning in ComponentState then Exit;
@@ -879,7 +913,8 @@ begin
   FPopupMenu.Popup(round(ScreenPosition.X),round(ScreenPosition.Y));
 end;
 
-procedure TD2CustomMemo.FontChanged(Sender:TObject);
+//procedure TD2Memo.FontChanged(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.FontChanged(Sender:TObject);	//Added by GoldenFox
 begin
   inherited;
   if not (csLoading in ComponentState) then
@@ -891,7 +926,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.SetText(const Value:WideString);
+//procedure TD2Memo.SetText(const Value:WideString);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetText(const Value:WideString);	//Added by GoldenFox
 begin
   if not ValidText(Value) then Exit;
 
@@ -919,24 +955,28 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.SetText(const Value:String);
+//procedure TD2Memo.SetText(const Value:String);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetText(const Value:String);	//Added by GoldenFox
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
   SetText(ss);
 end;
 
-Function TD2CustomMemo.GetText:WideString;
+//Function TD2Memo.GetText:WideString;	//Deleted by GoldenFox
+Function TD2CustomMemo.GetText:WideString;	//Added by GoldenFox
 begin
   Result:=Ftext;
 end;
 
-Function TD2CustomMemo.GetText:string;
+//Function TD2Memo.GetText:string;	//Deleted by GoldenFox
+Function TD2CustomMemo.GetText:string;	//Added by GoldenFox
 begin
   Result:=UTF8Encode(Ftext);
 end;
 
-procedure TD2CustomMemo.SetCaretPosition(const Value:TCaretPosition);
+//procedure TD2Memo.SetCaretPosition(const Value:TCaretPosition);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetCaretPosition(const Value:TCaretPosition);	//Added by GoldenFox
 begin
   if Value.Line > Lines.Count-1 then
     FCaretPosition.Line:=Lines.Count-1
@@ -957,23 +997,27 @@ begin
   UpdateCaretPosition(true);
 end;
 
-procedure TD2CustomMemo.SetSelLength(const Value:integer);
+//procedure TD2Memo.SetSelLength(const Value:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetSelLength(const Value:integer);	//Added by GoldenFox
 begin
   FSelEnd:=TextPosToPos(PosToTextPos(FSelStart)+value);
 end;
 
-procedure TD2CustomMemo.SetSelStart(const Value:integer);
+//procedure TD2Memo.SetSelStart(const Value:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetSelStart(const Value:integer);	//Added by GoldenFox
 begin
   FSelStart:=TextPosToPos(value);
 end;
 
-procedure TD2CustomMemo.SetAutoSelect(const Value:boolean);
+//procedure TD2Memo.SetAutoSelect(const Value:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetAutoSelect(const Value:boolean);	//Added by GoldenFox
 begin
   if FAutoSelect <> Value then
     FAutoSelect:=Value;
 end;
 
-function TD2CustomMemo.GetSelStart:integer;
+//function TD2Memo.GetSelStart:integer;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelStart:integer;	//Added by GoldenFox
 begin
   if FSelected then
     Result:=PosToTextPos(GetSelBeg)
@@ -981,7 +1025,8 @@ begin
     Result:=PosToTextPos(CaretPosition);
 end;
 
-function TD2CustomMemo.GetSelArea:TSelArea;
+//function TD2Memo.GetSelArea:TSelArea;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelArea:TSelArea;	//Added by GoldenFox
 var
   BegLine,EndLine,CurLine :integer;
   LPageSize :single;
@@ -1038,7 +1083,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetSelLength:integer;
+//function TD2Memo.GetSelLength:integer;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelLength:integer;	//Added by GoldenFox
 begin
   if FSelected then
     Result:=PosToTextPos(GetSelEnd)-PosToTextPos(GetSelBeg)
@@ -1046,7 +1092,8 @@ begin
     Result:=0;
 end;
 
-function TD2CustomMemo.GetSelText:WideString;
+//function TD2Memo.GetSelText:WideString;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelText:WideString;	//Added by GoldenFox
 var
   LSelStart,
   LSelLength :integer;
@@ -1059,16 +1106,17 @@ begin
     Result:='';
 end;
 
-procedure TD2CustomMemo.SetCharCase(const Value:TEditCharCase);
-//var
-  //TmpS:WideString;
+//procedure TD2Memo.SetCharCase(const Value:TEditCharCase);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetCharCase(const Value:TEditCharCase);	//Added by GoldenFox
+//var					//Deleted by GoldenFox
+  //TmpS:WideString;	//Deleted by GoldenFox
 begin
   if FCharCase <> Value then
   begin
     FCharCase:=Value;
     if TextW <> '' then
     begin
-      //TmpS:=TextW;
+      //TmpS:=TextW;	//Deleted by GoldenFox
 {      case Value of
         vgecUpperCase:TextW:=WideString(CharUpper(PChar(TmpS)));
         vgecLowerCase:TextW:=WideString(CharLower(PChar(TmpS)));
@@ -1077,7 +1125,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.SetHideSelection(const Value:boolean);
+//procedure TD2Memo.SetHideSelection(const Value:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetHideSelection(const Value:boolean);	//Added by GoldenFox
 begin
   if FHideSelection <> Value then
   begin
@@ -1086,7 +1135,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.SetMaxLength(const Value:integer);
+//procedure TD2Memo.SetMaxLength(const Value:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetMaxLength(const Value:integer);	//Added by GoldenFox
 begin
   if FMaxLength <> Value then
   begin
@@ -1094,12 +1144,14 @@ begin
   end;
 end;
 
-function TD2CustomMemo.ValidText(NewText:WideString):boolean;
+//function TD2Memo.ValidText(NewText:WideString):boolean;	//Deleted by GoldenFox
+function TD2CustomMemo.ValidText(NewText:WideString):boolean;	//Added by GoldenFox
 begin
   Result:=true;
 end;
 
-procedure TD2CustomMemo.SetTextAlignment(const Value:TAlignment);
+//procedure TD2Memo.SetTextAlignment(const Value:TAlignment);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetTextAlignment(const Value:TAlignment);	//Added by GoldenFox
 begin
   if FTextAlignment <> Value then
   begin
@@ -1108,7 +1160,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.UpdateCaretPosition(UpdateScrllBars :boolean);
+//procedure TD2Memo.UpdateCaretPosition(UpdateScrllBars :boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdateCaretPosition(UpdateScrllBars :boolean);	//Added by GoldenFox
 var
   TmpPt :TD2Point;
   TmpRect :TD2Rect;
@@ -1127,7 +1180,8 @@ begin
   SetCaretColor(FFontFill.SolidColor);
 end;
 
-function TD2CustomMemo.GetLineRealEnd(AStartPos :TCaretPosition; PText :PWideString) :TCaretPosition;
+//function TD2Memo.GetLineRealEnd(AStartPos :TCaretPosition; PText :PWideString) :TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLineRealEnd(AStartPos :TCaretPosition; PText :PWideString) :TCaretPosition;	//Added by GoldenFox
 begin
   Result.Line:=AStartPos.Line;
   while (Result.Line+1 <= Lines.Count-1) and
@@ -1140,19 +1194,21 @@ begin
     Result.Pos:=0;
 end;
 
-function TD2CustomMemo.FillLocalLinesBegs(PText:PWideString; ABegChar,AEndChar :integer; TmpLinesBegs :PLinesBegs):integer;
+//function TD2Memo.FillLocalLinesBegs(PText:PWideString; ABegChar,AEndChar :integer; TmpLinesBegs :PLinesBegs):integer;	//Deleted by GoldenFox
+function TD2CustomMemo.FillLocalLinesBegs(PText:PWideString; ABegChar,AEndChar :integer; TmpLinesBegs :PLinesBegs):integer;	//Added by GoldenFox
 var
   WStartChar,WSaveChar,WCurChar:integer;
-  LCurChar{,LSaveChar}:integer;
+  //LCurChar,LSaveChar:integer;	//Deleted by GoldenFox
+  LCurChar:integer;	//Added by GoldenFox
   TmpS :WideString;
   TmpSWidth,WWidth:single;
-  //LTmpWidth:single;
+  //LTmpWidth:single;	//Deleted by GoldenFox
   LEditRectWidth :single;
   Tok:WideString;
   LLongestLineWidth :single;
-  //CurLineIsEmpty :boolean;
+  //CurLineIsEmpty :boolean;	//Deleted by GoldenFox
   LWidth:single;
-  //i:integer;
+  //i:integer;	//Deleted by GoldenFox
   LLocalWidesLineWidth:integer;
 begin
   Result:=0;
@@ -1163,8 +1219,8 @@ begin
 
   LCurChar:=ABegChar;
   TmpS:='';
-  //LTmpWidth:=0;
-  //CurLineIsEmpty:=true;
+  //LTmpWidth:=0;	//Deleted by GoldenFox
+  //CurLineIsEmpty:=true;	//Deleted by GoldenFox
 
   with ContentRect do
     LEditRectWidth:=Right-Left;
@@ -1175,7 +1231,7 @@ begin
   begin
     if (PText^[LCurChar]=#13) or (PText^[LCurChar]=#10) then
     begin
-      //LSaveChar:=LCurChar - 1; // before #13
+      //LSaveChar:=LCurChar - 1; // before #13	//Deleted by GoldenFox
       if (PText^[LCurChar]=#13) and (LCurChar + 1 <= Length(PText^)) then
         if PText^[LCurChar + 1]=#10 then
           Inc(LCurChar);
@@ -1213,12 +1269,12 @@ begin
       TmpLinesBegs^[Length(TmpLinesBegs^)-1]:=LCurChar + 1;
 
       TmpS:='';
-      //LTmpWidth:=0;
-      //CurLineIsEmpty:=true;
+      //LTmpWidth:=0;	//Deleted by GoldenFox
+      //CurLineIsEmpty:=true;	//Deleted by GoldenFox
     end
     else
     begin
-      //CurLineIsEmpty:=false;
+      //CurLineIsEmpty:=false;	//Deleted by GoldenFox
       TmpS:=TmpS + PText^[LCurChar];
     end;
     Inc(LCurChar);
@@ -1254,20 +1310,22 @@ begin
     Result:=0;
 end;
 
-procedure TD2CustomMemo.UpdateLines;
+//procedure TD2Memo.UpdateLines;	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdateLines;	//Added by GoldenFox
 const
   Sep:WideString=' ,-.;:'#65292;
 var
   WStartChar,WSaveChar,WCurChar:integer;
-  LCurChar{,LSaveChar}:integer;
+  //LCurChar,LSaveChar:integer;	//Deleted by GoldenFox
+  LCurChar:integer;	//Added by GoldenFox
   TmpS :WideString;
   TmpSWidth,WWidth:single;
-  //LTmpWidth:single;
+  //LTmpWidth:single;	//Deleted by GoldenFox
   LEditRectWidth :single;
   Tok,LText:WideString;
   LLongestLineWidth :single;
-  //CurLineIsEmpty :boolean;
-  //i:integer;
+  //CurLineIsEmpty :boolean;	//Deleted by GoldenFox
+  //i:integer;	//Deleted by GoldenFox
 begin
   FWidesLineIndex:=0;
   SetLength(FLinesBegs,0);
@@ -1284,15 +1342,15 @@ begin
   LText:=TextW;
   TmpS:='';
   LCurChar:=1;
-  //LTmpWidth:=0;
-  //CurLineIsEmpty:=true;
+  //LTmpWidth:=0;	//Deleted by GoldenFox
+  //CurLineIsEmpty:=true;	//Deleted by GoldenFox
   FLinesBegs[0]:=1;
   LLongestLineWidth:=0;
   while LCurChar <= Length(LText) do
   begin
     if (LText[LCurChar]=#13) or (LText[LCurChar]=#10) then
     begin
-      //LSaveChar:=LCurChar - 1; // before #13
+      //LSaveChar:=LCurChar - 1; // before #13	//Deleted by GoldenFox
       if (LText[LCurChar]=#13) and (LCurChar + 1 <= Length(LText)) then
         if LText[LCurChar + 1]=#10 then
           Inc(LCurChar);
@@ -1330,12 +1388,12 @@ begin
       FLinesBegs[Length(FLinesBegs) - 1]:=LCurChar + 1;
 
       TmpS:='';
-      //LTmpWidth:=0;
-      //CurLineIsEmpty:=true;
+      //LTmpWidth:=0;	//Deleted by GoldenFox
+      //CurLineIsEmpty:=true;	//Deleted by GoldenFox
     end
     else
     begin
-      //CurLineIsEmpty:=false;
+      //CurLineIsEmpty:=false;	//Deleted by GoldenFox
       TmpS:=TmpS + LText[LCurChar];
     end;
     Inc(LCurChar);
@@ -1367,7 +1425,8 @@ begin
       FWidesLineIndex:=Length(FLinesBegs) - 1;
 end;
 
-procedure TD2CustomMemo.UpdateRngLinesBegs(PText:PWideString; AUpdBegLine,AUpdEndLine,AUpdBegChar,AUpdEndChar,ACharDelta,AOldWideslLineWidth:integer);
+//procedure TD2Memo.UpdateRngLinesBegs(PText:PWideString; AUpdBegLine,AUpdEndLine,AUpdBegChar,AUpdEndChar,ACharDelta,AOldWideslLineWidth:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdateRngLinesBegs(PText:PWideString; AUpdBegLine,AUpdEndLine,AUpdBegChar,AUpdEndChar,ACharDelta,AOldWideslLineWidth:integer);	//Added by GoldenFox
 var
   LUpdEndChar,
   LNewWidesLineIndex,
@@ -1415,7 +1474,8 @@ begin
     Realign;
 end;
 
-procedure TD2CustomMemo.InsertAfter(Position:TCaretPosition; S:WideString; Options :TInsertOptions);
+//procedure TD2Memo.InsertAfter(Position:TCaretPosition; S:WideString; Options :TInsertOptions);	//Deleted by GoldenFox
+procedure TD2CustomMemo.InsertAfter(Position:TCaretPosition; S:WideString; Options :TInsertOptions);	//Added by GoldenFox
 var
   LText :WideString;
   Insertion :WideString;
@@ -1479,7 +1539,8 @@ begin
     Realign;
 end;
 
-procedure TD2CustomMemo.DeleteFrom(Position :TCaretPosition; ALength:integer; Options :TDeleteOptions);
+//procedure TD2Memo.DeleteFrom(Position :TCaretPosition; ALength:integer; Options :TDeleteOptions);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DeleteFrom(Position :TCaretPosition; ALength:integer; Options :TDeleteOptions);	//Added by GoldenFox
 var
   LUpdBegLine,LUpdEndLine,
   LUpdBegChar,LUpdEndChar :integer;
@@ -1543,17 +1604,20 @@ begin
     Realign;
 end;
 
-procedure TD2CustomMemo.DoUndo(Sender:TObject);
+//procedure TD2Memo.DoUndo(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DoUndo(Sender:TObject);	//Added by GoldenFox
 begin
   UnDo;
 end;
 
-procedure TD2CustomMemo.UnDo;
+//procedure TD2Memo.UnDo;	//Deleted by GoldenFox
+procedure TD2CustomMemo.UnDo;	//Added by GoldenFox
 begin
   FActionStack.RollBackAction;
 end;
 
-function TD2CustomMemo.GetContentBounds:TD2Rect;
+//function TD2Memo.GetContentBounds:TD2Rect;	//Deleted by GoldenFox
+function TD2CustomMemo.GetContentBounds:TD2Rect;	//Added by GoldenFox
 begin
   Result:=inherited GetContentBounds;
   if FWordWrap then
@@ -1570,12 +1634,14 @@ begin
   UpdateHScrlBarByCaretPos;
 end;
 
-procedure TD2CustomMemo.SetLines(const Value:TD2WideStrings);
+//procedure TD2Memo.SetLines(const Value:TD2WideStrings);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetLines(const Value:TD2WideStrings);	//Added by GoldenFox
 begin
   FLines.Assign(Value);
 end;
 
-function TD2CustomMemo.TextPosToPos(APos :integer) :TCaretPosition;
+//function TD2Memo.TextPosToPos(APos :integer) :TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.TextPosToPos(APos :integer) :TCaretPosition;	//Added by GoldenFox
 var
   CurRangeBeg,CurRangeEnd :integer;
   TmpI :integer;
@@ -1632,39 +1698,46 @@ begin
     Result.Pos:=APos-FLinesBegs[Result.Line]+1;
 end;
 
-procedure TD2CustomMemo.MoveCaretLeft;
+//procedure TD2Memo.MoveCaretLeft;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretLeft;	//Added by GoldenFox
 begin
   MoveCareteBy(-1);
 end;
 
-procedure TD2CustomMemo.MoveCaretRight;
+//procedure TD2Memo.MoveCaretRight;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretRight;	//Added by GoldenFox
 begin
   MoveCareteBy(1);
 end;
 
-procedure TD2CustomMemo.MoveCareteBy(Delta :integer);
+//procedure TD2Memo.MoveCareteBy(Delta :integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCareteBy(Delta :integer);	//Added by GoldenFox
 begin
   CaretPosition:=GetPositionShift(CaretPosition,Delta);
 end;
 
-procedure TD2CustomMemo.VScrollChange(Sender:TObject);
+//procedure TD2Memo.VScrollChange(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.VScrollChange(Sender:TObject);	//Added by GoldenFox
 begin
   inherited ;
   UpdateCaretPosition(false);
 end;
 
-function TD2CustomMemo.GetLineHeight:single;
+//function TD2Memo.GetLineHeight:single;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLineHeight:single;	//Added by GoldenFox
 begin
   Result:=round(FFont.Size * (1.25));
 end;
 
-procedure TD2CustomMemo.HScrlBarChange(Sender:TObject);
+//procedure TD2Memo.HScrlBarChange(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2CustomMemo.HScrlBarChange(Sender:TObject);	//Added by GoldenFox
 begin
   Repaint;
   UpdateCaretPosition(false);
 end;
 
-procedure TD2CustomMemo.UpdateVScrlBarByCaretPos;
+//procedure TD2Memo.UpdateVScrlBarByCaretPos;	//Deleted by GoldenFox
+procedure TD2CustomMemo.UpdateVScrlBarByCaretPos;	//Added by GoldenFox
 var
   LCaretPosLine :integer;
   LPageSize :single;
@@ -1679,7 +1752,8 @@ begin
     VScrollBar.Value:=(LCaretPosLine - LPageSize + 1) * GetLineHeight;
 end;
 
-procedure TD2CustomMemo.SetWordWrap(const Value:boolean);
+//procedure TD2Memo.SetWordWrap(const Value:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetWordWrap(const Value:boolean);	//Added by GoldenFox
 begin
   if FWordWrap <> Value then
   begin
@@ -1691,8 +1765,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.GetLineBounds(LineIndex:integer; var LineBeg,
-  LineLength:integer);
+//procedure TD2Memo.GetLineBounds(LineIndex:integer; var LineBeg,LineLength:integer);	//Deleted by GoldenFox	//Deleted by GoldenFox
+procedure TD2CustomMemo.GetLineBounds(LineIndex:integer; var LineBeg,LineLength:integer);	//Added by GoldenFox
 begin
   if Length(FLinesBegs)=0 then
   begin
@@ -1716,7 +1790,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetLineCount:integer;
+//function TD2Memo.GetLineCount:integer;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLineCount:integer;	//Added by GoldenFox
 begin
   if TextW <> '' then
     Result:=Length(FLinesBegs)
@@ -1724,7 +1799,8 @@ begin
     Result:=0;
 end;
 
-function TD2CustomMemo.GetLine(Index:integer):WideString;
+//function TD2Memo.GetLine(Index:integer):WideString;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLine(Index:integer):WideString;	//Added by GoldenFox
 begin
   Result:=GetLineInternal(Index);
   if Length(Result) > 0 then
@@ -1735,7 +1811,8 @@ begin
       Delete(Result,Length(Result),1);
 end;
 
-procedure TD2CustomMemo.InsertLine(Index:integer; const S:WideString);
+//procedure TD2Memo.InsertLine(Index:integer; const S:WideString);	//Deleted by GoldenFox
+procedure TD2CustomMemo.InsertLine(Index:integer; const S:WideString);	//Added by GoldenFox
 begin
   if Index < GetLineCount then
     InsertAfter(ComposeCaretPos(Index,0),S+#13+#10,[])
@@ -1748,7 +1825,8 @@ begin
       InsertAfter(ComposeCaretPos(Index,0),S,[]);
 end;
 
-procedure TD2CustomMemo.DeleteLine(Index:integer);
+//procedure TD2Memo.DeleteLine(Index:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.DeleteLine(Index:integer);	//Added by GoldenFox
 begin
   if Index=GetLineCount - 1 then
     DeleteFrom(ComposeCaretPos(Index-1,Length(GetLineInternal(Index-1))){LLineBeg-1} ,Length(GetLineInternal(Index))+1,[])
@@ -1756,12 +1834,14 @@ begin
     DeleteFrom(ComposeCaretPos(Index,0){LLineBeg},Length(GetLineInternal(Index))+1,[]);
 end;
 
-procedure TD2CustomMemo.ClearLines;
+//procedure TD2Memo.ClearLines;	//Deleted by GoldenFox
+procedure TD2CustomMemo.ClearLines;	//Added by GoldenFox
 begin
   TextW:='';
 end;
 
-procedure TD2CustomMemo.SelectAtMousePoint;
+//procedure TD2Memo.SelectAtMousePoint;	//Deleted by GoldenFox
+procedure TD2CustomMemo.SelectAtMousePoint;	//Added by GoldenFox
 var
   TmpPt :TD2Point;
   LEdiTD2Rect :TD2Rect;
@@ -1787,13 +1867,15 @@ begin
   Repaint;
 end;
 
-function TD2CustomMemo.GetPageSize:single;
+//function TD2Memo.GetPageSize:single;	//Deleted by GoldenFox
+function TD2CustomMemo.GetPageSize:single;	//Added by GoldenFox
 begin
   with ContentRect do
     Result:=(Bottom-Top) / GetLineHeight;
 end;
 
-function TD2CustomMemo.GetLineWidth(LineNum:integer):single;
+//function TD2Memo.GetLineWidth(LineNum:integer):single;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLineWidth(LineNum:integer):single;	//Added by GoldenFox
 begin
   if (LineNum >= 0) and (LineNum <= Lines.Count-1) then
   begin
@@ -1803,7 +1885,8 @@ begin
     Result:=0;
 end;
 
-function TD2CustomMemo.PosToTextPos(APostion:TCaretPosition):integer;
+//function TD2Memo.PosToTextPos(APostion:TCaretPosition):integer;	//Deleted by GoldenFox
+function TD2CustomMemo.PosToTextPos(APostion:TCaretPosition):integer;	//Added by GoldenFox
 var
   LTmpLine :integer;
 begin
@@ -1830,7 +1913,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetLineInternal(Index:integer):WideString;
+//function TD2Memo.GetLineInternal(Index:integer):WideString;	//Deleted by GoldenFox
+function TD2CustomMemo.GetLineInternal(Index:integer):WideString;	//Added by GoldenFox
 var
   LLineBeg,LLineLength :integer;
 begin
@@ -1838,7 +1922,8 @@ begin
   Result:=Copy(TextW,LLineBeg,LLineLength);
 end;
 
-procedure TD2CustomMemo.GoToTextBegin;
+//procedure TD2Memo.GoToTextBegin;	//Deleted by GoldenFox
+procedure TD2CustomMemo.GoToTextBegin;	//Added by GoldenFox
 begin
   with FCaretPosition do
   begin
@@ -1847,7 +1932,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.GoToTextEnd;
+//procedure TD2Memo.GoToTextEnd;	//Deleted by GoldenFox
+procedure TD2CustomMemo.GoToTextEnd;	//Added by GoldenFox
 begin
   with FCaretPosition do
   begin
@@ -1859,7 +1945,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.GoToLineEnd;
+//procedure TD2Memo.GoToLineEnd;	//Deleted by GoldenFox
+procedure TD2CustomMemo.GoToLineEnd;	//Added by GoldenFox
 begin
   with FCaretPosition do
   begin
@@ -1868,7 +1955,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.GoToLineBegin;
+//procedure TD2Memo.GoToLineBegin;	//Deleted by GoldenFox
+procedure TD2CustomMemo.GoToLineBegin;	//Added by GoldenFox
 begin
   with FCaretPosition do
   begin
@@ -1876,7 +1964,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetSelBeg:TCaretPosition;
+//function TD2Memo.GetSelBeg:TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelBeg:TCaretPosition;	//Added by GoldenFox
 begin
   if FSelStart.Line < FSelEnd.Line then
     Result:=FSelStart
@@ -1890,7 +1979,8 @@ begin
         Result:=FSelEnd;
 end;
 
-function TD2CustomMemo.GetSelEnd:TCaretPosition;
+//function TD2Memo.GetSelEnd:TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetSelEnd:TCaretPosition;	//Added by GoldenFox
 begin
   if FSelStart.Line > FSelEnd.Line then
     Result:=FSelStart
@@ -1904,7 +1994,8 @@ begin
         Result:=FSelEnd;
 end;
 
-procedure TD2CustomMemo.SelectAtPos(APos:TCaretPosition);
+//procedure TD2Memo.SelectAtPos(APos:TCaretPosition);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SelectAtPos(APos:TCaretPosition);	//Added by GoldenFox
 begin
   if not FSelected then begin
     FSelStart:=APos;
@@ -1915,7 +2006,8 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetPositionShift(APos:TCaretPosition;
+//function TD2Memo.GetPositionShift(APos:TCaretPosition;	//Deleted by GoldenFox
+function TD2CustomMemo.GetPositionShift(APos:TCaretPosition;	//Added by GoldenFox
   Delta:integer):TCaretPosition;
 var
   LNewPos :TCaretPosition;
@@ -1981,7 +2073,8 @@ begin
   Result:=LNewPos;
 end;
 
-procedure TD2CustomMemo.RestorePositions;
+//procedure TD2Memo.RestorePositions;	//Deleted by GoldenFox
+procedure TD2CustomMemo.RestorePositions;	//Added by GoldenFox
 begin
   if FOldCaretPos >= 0 then
     CaretPosition:=TextPosToPos(FOldCaretPos);
@@ -1992,7 +2085,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.StorePositions;
+//procedure TD2Memo.StorePositions;	//Deleted by GoldenFox
+procedure TD2CustomMemo.StorePositions;	//Added by GoldenFox
 begin
   FOldCaretPos:=PosToTextPos(CaretPosition);
   if FSelected then begin
@@ -2001,7 +2095,8 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.MoveCaretVertical(LineDelta:integer);
+//procedure TD2Memo.MoveCaretVertical(LineDelta:integer);	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretVertical(LineDelta:integer);	//Added by GoldenFox
 var
   NewLine,NewY,OldX :integer;
 begin
@@ -2021,27 +2116,32 @@ begin
   end;
 end;
 
-procedure TD2CustomMemo.MoveCaretDown;
+//procedure TD2Memo.MoveCaretDown;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretDown;	//Added by GoldenFox
 begin
   MoveCaretVertical(1);
 end;
 
-procedure TD2CustomMemo.MoveCaretUp;
+//procedure TD2Memo.MoveCaretUp;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretUp;	//Added by GoldenFox
 begin
   MoveCaretVertical(-1);
 end;
 
-procedure TD2CustomMemo.MoveCaretPageDown;
+//procedure TD2Memo.MoveCaretPageDown;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretPageDown;	//Added by GoldenFox
 begin
   MoveCaretVertical(round(GetPageSize));
 end;
 
-procedure TD2CustomMemo.MoveCaretPageUp;
+//procedure TD2Memo.MoveCaretPageUp;	//Deleted by GoldenFox
+procedure TD2CustomMemo.MoveCaretPageUp;	//Added by GoldenFox
 begin
   MoveCaretVertical(-round(GetPageSize));
 end;
 
-function TD2CustomMemo.GetWidestLine:integer;
+//function TD2Memo.GetWidestLine:integer;	//Deleted by GoldenFox
+function TD2CustomMemo.GetWidestLine:integer;	//Added by GoldenFox
 var
   i :integer;
   LWidth,LMaxWidth :single;
@@ -2059,13 +2159,14 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetShowSelection:boolean;
+//function TD2Memo.GetShowSelection:boolean;	//Deleted by GoldenFox
+function TD2CustomMemo.GetShowSelection:boolean;	//Added by GoldenFox
 begin
   Result:=IsFocused or not HideSelection;
 end;
 
-procedure TD2CustomMemo.MouseWheel(Shift:TShiftState; WheelDelta:integer;
-  var Handled:boolean);
+//procedure TD2Memo.MouseWheel(Shift:TShiftState; WheelDelta:integer; var Handled:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.MouseWheel(Shift:TShiftState; WheelDelta:integer; var Handled:boolean);	//Added by GoldenFox
 begin
   inherited;
   if (VScrollBar <> nil) and (VScrollBar.Visible) then
@@ -2074,34 +2175,40 @@ begin
   end;
 end;
 
-function TD2CustomMemo.GetData:Variant;
+//function TD2Memo.GetData:Variant;	//Deleted by GoldenFox
+function TD2CustomMemo.GetData:Variant;	//Added by GoldenFox
 begin
   Result:=TextW;
 end;
 
-procedure TD2CustomMemo.SetData(const Value:Variant);
+//procedure TD2Memo.SetData(const Value:Variant);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetData(const Value:Variant);	//Added by GoldenFox
 begin
   TextW:=Value;
 end;
 
-procedure TD2CustomMemo.SetFont(const Value:TD2Font);
+//procedure TD2Memo.SetFont(const Value:TD2Font);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetFont(const Value:TD2Font);	//Added by GoldenFox
 begin
   FFont.Assign(Value);
 end;
 
-procedure TD2CustomMemo.SetTextAlign(const Value:TD2TextAlign);
+//procedure TD2Memo.SetTextAlign(const Value:TD2TextAlign);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetTextAlign(const Value:TD2TextAlign);	//Added by GoldenFox
 begin
   FTextAlign:=Value;
 end;
 
-procedure TD2CustomMemo.SetUpdateState(Updating:boolean);
+//procedure TD2Memo.SetUpdateState(Updating:boolean);	//Deleted by GoldenFox
+procedure TD2CustomMemo.SetUpdateState(Updating:boolean);	//Added by GoldenFox
 begin
   FUpdating:=Updating;
   if not Updating then
     Realign;
 end;
 
-function TD2CustomMemo.GetUnwrapLines:TD2WideStrings;
+//function TD2Memo.GetUnwrapLines:TD2WideStrings;	//Deleted by GoldenFox
+function TD2CustomMemo.GetUnwrapLines:TD2WideStrings;	//Added by GoldenFox
 begin
   if FUnwrapLines=nil then
     FUnwrapLines:=TD2WideStringList.Create;

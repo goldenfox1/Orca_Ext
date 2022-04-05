@@ -180,13 +180,13 @@ begin
           FDash[0]:=1;
           FDash[1]:=1;
         end;
-      d2DashDotDash:
-        begin
-          FDashOffset:=0;
-          SetLength(FDash,2);
-          FDash[0]:=1;
-          FDash[1]:=1 * 3;
-        end;
+      d2DashDotDash:			//Added by GoldenFox
+        begin					//Added by GoldenFox
+          FDashOffset:=0;		//Added by GoldenFox
+          SetLength(FDash,2);	//Added by GoldenFox
+          FDash[0]:=1;			//Added by GoldenFox
+          FDash[1]:=1 * 3;		//Added by GoldenFox
+        end;					//Added by GoldenFox
       d2DashDashDot:
         begin
           FDashOffset:=0;

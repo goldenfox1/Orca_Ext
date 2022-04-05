@@ -5,7 +5,7 @@
  This unit is part of CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
-//=============== TD2CustomTrack ==============================================
+//=============== TD2CustomTrack =============================================
 
 constructor TD2CustomTrack.Create(AOwner:TComponent);
 begin

@@ -54,7 +54,7 @@ begin
   S:=FindResource('text');
   if (S <> nil) and (S is TD2Text) then
   begin
-    FTextObj:=TD2Text(S);
+    FTextObj:=TD2Text(S);	//Added by GoldenFox
     TD2Text(S).TextW:=FText;
     TD2Text(S).HorzTextAlign:=FTextAlign;
     TD2Text(S).VertTextAlign:=FVertTextAlign;
@@ -171,9 +171,10 @@ begin
     TD2Text(T).WordWrap:=Value;
 end;
 
-//=============== TD2Label =========================================
+//=============== TD2CustomLabel =========================================
 
-constructor TD2CustomLabel.Create(AOwner:TComponent);
+//constructor TD2Label.Create(AOwner:TComponent);	//Deleted by GoldenFox
+constructor TD2CustomLabel.Create(AOwner:TComponent);	//Added by GoldenFox
 begin
   inherited;
   FAutoTranslate:=true;
@@ -183,7 +184,8 @@ begin
   HitTest:=false;
 end;
 
-procedure TD2CustomLabel.ApplyStyle;
+//procedure TD2Label.ApplyStyle;	//Deleted by GoldenFox
+procedure TD2CustomLabel.ApplyStyle;	//Added by GoldenFox
 var
   T:TD2Object;
   S:TD2Align;
@@ -211,7 +213,8 @@ begin
   end;
 end;
 
-procedure TD2CustomLabel.SetWordWrap(const Value:boolean);
+//procedure TD2Label.SetWordWrap(const Value:boolean);	//Deleted by GoldenFox
+procedure TD2CustomLabel.SetWordWrap(const Value:boolean);	//Added by GoldenFox
 var
   T:TD2Object;
 begin
@@ -224,7 +227,8 @@ begin
   end;
 end;
 
-procedure TD2CustomLabel.SetAutoSize(const Value:boolean);
+//procedure TD2Label.SetAutoSize(const Value:boolean);	//Deleted by GoldenFox
+procedure TD2CustomLabel.SetAutoSize(const Value:boolean);	//Added by GoldenFox
 begin
   if FAutoSize <> Value then
   begin
@@ -236,7 +240,8 @@ begin
   end;
 end;
 
-procedure TD2CustomLabel.SetText(const Value:String); // 7777
+//procedure TD2Label.SetText(const Value:String); // 7777	//Deleted by GoldenFox
+procedure TD2CustomLabel.SetText(const Value:String); 	//Added by GoldenFox
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);

@@ -19,16 +19,21 @@ begin
 end;
 
 destructor TD2AniThread.Destroy;
-var i: integer;
+var i: integer;	//Added by GoldenFox
 begin
-  if FAniList <> nil then
-    for i:=0 to FAniList.Count-1 do
-      TObject(FAniList[i]).Free;
+  if FAniList <> nil then	//Added by GoldenFox
+    for i:=0 to FAniList.Count-1 do	//Added by GoldenFox
+      TObject(FAniList[i]).Free;	//Added by GoldenFox
   FAniList.Free;
   inherited;
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);
+//begin
+//  OneStep;
+//end;
+
+//procedure TD2AniThread.OneStep;
 var
   i:integer;
   NewTime:single;
@@ -37,8 +42,12 @@ begin
   if NewTime <= FTime then Exit;
   FDeltaTime:=NewTime - FTime;
   FTime:=NewTime;
-  i := 0;
-  while i < FAniList.Count do
+  //if FAniList.Count > 0 then	//Deleted by GoldenFox
+  //begin	//Deleted by GoldenFox
+  //  i:=FAniList.Count - 1;	//Deleted by GoldenFox
+  //  while i >= 0 do	//Deleted by GoldenFox
+  i := 0;	//Added by GoldenFox
+  while i < FAniList.Count do	//Added by GoldenFox
   begin
     if TD2Animation(FAniList[i]).FRunning then
     begin
@@ -53,7 +62,11 @@ begin
               end
         else TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
     end;
-    Inc(i);
+    
+	//Dec(i);	//Added by GoldenFox
+      //if i >= FAniList.Count then i:=FAniList.Count - 1;	//Added by GoldenFox	
+    //end;  
+	Inc(i);	//Added by GoldenFox						  
   end;
 end;
 
@@ -492,7 +505,7 @@ end;
 procedure TD2GradientAnimation.ProcessAnimation;
 var
   i:integer;
-  //G:TD2Gradient;
+  //G:TD2Gradient;	//Deleted by GoldenFox
 begin
   if FInstance <> nil then
   begin
@@ -678,7 +691,8 @@ end;
 
 procedure TD2BitmapAnimation.ProcessAnimation;
 var
-  Persistent{,Path}:string;
+  //Persistent,Path:string;	//Deleted by GoldenFox
+  Persistent:string;	//Added by GoldenFox
   Value:TObject;
 begin
   if (Parent <> nil) and (FPropertyName <> '')  then
@@ -686,7 +700,7 @@ begin
     if FInstance=nil then
     begin
       FInstance:=Parent;
-      //Path:=FPropertyName;
+      //Path:=FPropertyName;	//Deleted by GoldenFox
       while Pos('.',FPropertyName) > 0 do
       begin
         Persistent:=d2GetToken(FPropertyName,'.');
@@ -759,7 +773,8 @@ end;
 
 procedure TD2BitmapListAnimation.ProcessAnimation;
 var
-  Persistent{,Path}:string;
+  //Persistent,Path:string;	//Deleted by GoldenFox
+  Persistent:string;	//Added by GoldenFox
   Value:TObject;
   LeftPos,CurrentIndex:integer;
   NowValue:single;
@@ -769,7 +784,7 @@ begin
     if FInstance=nil then
     begin
       FInstance:=Parent;
-      //Path:=FPropertyName;
+      //Path:=FPropertyName;	//Deleted by GoldenFox
       while Pos('.',FPropertyName) > 0 do
       begin
         Persistent:=d2GetToken(FPropertyName,'.');
@@ -1047,6 +1062,23 @@ begin
   Duration:=0.001;
 end;
 
+{	//Deleted by GoldenFox
+destructor TD2PathSwitcher.Destroy;
+begin
+  inherited;
+end;
+
+procedure TD2PathSwitcher.Start;
+begin
+  inherited;
+end;
+
+procedure TD2PathSwitcher.ProcessAnimation;
+begin
+  inherited;
+end;								   
+}	
+ 
 procedure TD2PathSwitcher.SetPathFalse(const Value:string);
 begin
   FPathFalse:=Value;

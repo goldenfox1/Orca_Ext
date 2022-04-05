@@ -36,22 +36,22 @@ begin
 
   GvarD2SceneCount:=GvarD2SceneCount + 1;
 
-  //-------Added By GoldenFox-------
+//----------- Block added by GoldenFox -----------
   if FDesignTime                                                       //если мы в режиме дизайна
     then begin                                                           //то
            FGlobalHook:=true;                                               //установим флаг наличия глобальных хуков
            GlobalDesignHook.AddHandlerSetSelection(DoGlobalSetSelection);   //установим глобальный обработчик для данной сцены при выделении объектов
          end
     else FGlobalHook:=false;
-  //-------End Added By GoldenFox-------
+//-------- End block added by GoldenFox ----------
 end;
 
 destructor TD2CustomScene.Destroy;
 begin
-  //-------Added By GoldenFox-------
+//----------- Block added by GoldenFox -----------
   if FGlobalHook                                           //если есть глобальные обработчики
      then GlobalDesignHook.RemoveAllHandlersForObject(Self); //то удалить все глобальные обработчики данной сцены //Added By GoldenFox
-  //-------End Added By GoldenFox-------
+//-------- End block added by GoldenFox ----------
   if FHovered <> nil then
   begin
     TD2VisualObject(FHovered).RemoveFreeNotify(Self);
@@ -88,8 +88,8 @@ begin
   inherited;
 end;
 
-procedure TD2CustomScene.DoGlobalSetSelection(const ASelection: TPersistentSelectionList);
-//procedure added By GoldenFox
+//----------- Block added by GoldenFox -----------
+procedure TD2CustomScene.DoGlobalSetSelection(const ASelection: TPersistentSelectionList); //procedure added By GoldenFox
 //Выделяет на сцене объект при его выборе в Инспекторе объектов.
 //Если выбрано несколько объектов, то выделение снимается
 begin
@@ -101,6 +101,7 @@ begin
     else if Self.Count > 0                                  //иначе если на сцене есть объекты
            then SetSelected(nil);                               //то снять выделение со всех объектов
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2CustomScene.CreateHandle;
 {$IFDEF UNIX}
@@ -258,8 +259,7 @@ begin
   AddUpdateRect(d2Rect(0,0,AWidth,AHeight));
 end;
 
-procedure TD2CustomScene.EmbeddedMouseDown(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TD2CustomScene.EmbeddedMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   MouseDown(Button,Shift,X,Y);
 end;
@@ -269,14 +269,12 @@ begin
   MouseMove(Shift,X,Y);
 end;
 
-procedure TD2CustomScene.EmbeddedMouseUp(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TD2CustomScene.EmbeddedMouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   MouseUp(Button,Shift,X,Y);
 end;
 
-function TD2CustomScene.EmbeddedMouseWheel(Shift: TShiftState;
-  WheelDelta: Integer): Boolean;
+function TD2CustomScene.EmbeddedMouseWheel(Shift: TShiftState; WheelDelta: Integer): Boolean;
 var
   MousePos:TPoint;
 begin
@@ -976,8 +974,8 @@ begin
   VCLDragSource.Tag:=0;
 end;
 
-procedure TD2CustomScene.DoDragOver(Sender, Source: TObject; X, Y: Integer;
-  State: TDragState; var Accept: Boolean);
+procedure TD2CustomScene.DoDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; 
+  var Accept: Boolean);
 var
   P:TD2Point;
   NewTarget:TD2VisualObject;
@@ -993,20 +991,25 @@ begin
     Data.Source:=Source;
 
   P:=d2Point(X,Y);
-  NewTarget:=Root.Visual.FindTarget(FShift, P, Data);
+  
+  {	//Deleted by GoldenFox
+  NewTarget:=Root.Visual.FindTarget(P,Data);
 
-  //if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
-  //begin
-  //  if varD2FTarget <> nil then
-  //    TD2VisualObject(varD2FTarget).DragLeave;
-  //  varD2FTarget:=nil;
-  //  Accept:=false;
-  //  Exit;
-  //end;
-
+  if (VCLDragSource <> nil) and (NewTarget=TD2Object(VCLDragSource.Tag)) then
+  begin
+    if varD2FTarget <> nil then
+      TD2VisualObject(varD2FTarget).DragLeave;
+    varD2FTarget:=nil;
+    Accept:=false;
+    Exit;
+  end;
+  }
+  
+  NewTarget:=Root.Visual.FindTarget(FShift, P, Data);	//Added by GoldenFox
   if varD2FTarget <> nil then
   begin
-    TD2VisualObject(varD2FTarget).DragOver(Data, FShift, P, Accept);
+    //TD2VisualObject(varD2FTarget).DragOver(Data,P,Accept);	//Deleted by GoldenFox
+	TD2VisualObject(varD2FTarget).DragOver(Data, FShift, P, Accept);	//Added by GoldenFox
   end;
   if (NewTarget <> varD2FTarget) then
   begin
@@ -1021,7 +1024,8 @@ begin
   if varD2FTarget=nil then Accept:=false;
 end;
 
-procedure TD2CustomScene.DoDragDrop(Sender, Source: TObject; X, Y: Integer);
+procedure TD2CustomScene.DoDragDrop(Sender, Source: TObject; 
+  X, Y: Integer);
 var
   Data:TD2DragObject;
 begin
@@ -1032,7 +1036,8 @@ begin
       Data.Source:=TD2Object(VCLDragSource.Tag)
     else
       Data.Source:=Source;
-    TD2VisualObject(varD2FTarget).DragDrop(Data, FShift, d2Point(X,Y));
+    //TD2VisualObject(varD2FTarget).DragDrop(Data,d2Point(X,Y));	//Deleted by GoldenFox
+	TD2VisualObject(varD2FTarget).DragDrop(Data, FShift, d2Point(X,Y));	//Added by GoldenFox
   end;
   varD2FTarget:=nil;
 end;
@@ -1566,8 +1571,8 @@ begin
   end;
 end;
 
-procedure TD2CustomScene.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
-  Y: Integer);
+procedure TD2CustomScene.MouseDown(Button: TMouseButton; Shift: TShiftState; 
+  X,Y: Integer);
 var
   P:TD2Point;
   R:TD2Rect;
@@ -1764,23 +1769,31 @@ begin
   if not FDesignTime then
   begin
     Obj:=TD2VisualObject(ObjectByPoint(FMousePos.X,FMousePos.Y));
-    if (Obj <> nil)
-      then  begin
-              if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG))
-                then  BeginResize
-                else  begin
-                        P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
-                        TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
-                        if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) and //если у объекта режим автоматического старта перетаскивания
-                           (FDragged=nil)                                       //и еще нет перетаскиваемых объектов
-                          //then TD2VisualObject(Obj).BeginAutoDrag;
-                          then  begin
-                                  FDragged:=Obj;            //сохраним объект как ожидающий перетаскивания
-                                  FDragStartPos:=FMousePos; //сохраним начальную позицию курсора после нажатия кл.мыши
-                                end;
-                      end;
-            end
-    else BeginDrag;
+    if (Obj <> nil) then  
+	  begin
+        if (TD2VisualObject(Obj).QueryInterface(Id2SizeGrip,SG)=0) and (Assigned(SG)) then  
+		  begin
+		    BeginResize;
+		  end
+        else 
+		  begin
+            P:=Obj.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
+            TD2VisualObject(Obj).MouseDown(Button,Shift,P.X,P.Y);
+            if (TD2VisualObject(Obj).FDragMode=d2DragAutomatic) and //если у объекта режим автоматического старта перетаскивания
+               (FDragged=nil)                                       //и еще нет перетаскиваемых объектов
+              //then 	//Deleted by GoldenFox
+			    //begin	//Deleted by GoldenFox
+				  //TD2VisualObject(Obj).BeginAutoDrag;	//Deleted by GoldenFox
+				//end;	//Deleted by GoldenFox
+            then  	//Added by GoldenFox
+			  begin	//Added by GoldenFox
+			    FDragged:=Obj;            //сохраним объект как ожидающий перетаскивания	//Added by GoldenFox
+			    FDragStartPos:=FMousePos; //сохраним начальную позицию курсора после нажатия кл.мыши	//Added by GoldenFox
+			  end;
+          end;
+      end
+    else 
+	  BeginDrag;
   end;
 end;
 
@@ -1791,7 +1804,7 @@ var
   Obj:TD2VisualObject;
   SG:Id2SizeGrip;
   NewCursor:TCursor;
-  //i:integer;
+  //i:integer;	//Deleted by GoldenFox
 begin
   inherited ;
   NewCursor:=FLoadCursor;
@@ -2046,6 +2059,7 @@ begin
   { event }
   if not FDesignTime then
   begin
+  //----------- Block added by GoldenFox -----------
     //FDragged: TD2VisualObject;
     //FDragStartPos: TPoint;         //начальная позиция курсора после нажатия кл.мыши
     if (ssLeft in Shift)   //если нажата ЛКМ
@@ -2061,6 +2075,7 @@ begin
                 end;
             end
       else FDragged := nil;
+	//-------- End block added by GoldenFox ----------
     if (FCaptured <> nil) then
     begin
       P:=FCaptured.AbsoluteToLocal(d2Point(FMousePos.X,FMousePos.Y));
@@ -2352,13 +2367,13 @@ end;
 
 procedure TD2CustomScene.UTF8KeyPress(var UTF8Key:TUTF8Char);
 var
-  //S:System.WideChar;
+  //S:System.WideChar;	//Deleted by GoldenFox
   K:word;
   C:System.WideChar;
 begin
   K:=0;
-  //C:=UTF8ToUTF16(UTF8Key)[1];
-  C:=UTF8Decode(UTF8Key)[1];
+  //C:=UTF8ToUTF16(UTF8Key)[1];	//Deleted by GoldenFox
+  C:=UTF8Decode(UTF8Key)[1];	//Added by GoldenFox
   case C of
         #3:// ctrl+c
           begin
@@ -2503,6 +2518,7 @@ var
   OldSel:TD2VisualObject;
   InsertPos:TD2Point;
 
+//----------- Block added by GoldenFox -----------
   //установка координат добавляемого объекта внутри клиентской области
   procedure SetObjPos(var Pos: TD2Point);
   var CR: TRect;
@@ -2532,6 +2548,7 @@ var
     TD2VisualObject(Obj).Position.X:=Pos.X;
     TD2VisualObject(Obj).Position.Y:=Pos.Y;
   end;
+//-------- End block added by GoldenFox ----------
 
 begin
   if GetClass(ClassName) <> nil then
@@ -2565,16 +2582,16 @@ begin
           begin
             if GetPropInfo(Obj.ClassInfo,'Text',[tkString,tkLString,tkWString]) <> nil then
               SetStrProp(Obj,'Text',Copy(Obj.ClassName,4,Length(Obj.ClassName)));
-
-            if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
+			//if (Owner is TWinControl) and (FPopupPos.X > 0) then	//Deleted by GoldenFox
+            if (Owner is TWinControl) then	//Added by GoldenFox
             begin
               if Pos('Item',Obj.ClassName)=0 then
               begin
                 P:=ScreenToClient(FPopupPos);
                 InsertPos:=OldSel.AbsoluteToLocal(d2Point(P.X,P.Y));
-                //TD2VisualObject(Obj).Position.X:=InsertPos.X;
-                //TD2VisualObject(Obj).Position.Y:=InsertPos.Y;
-                SetObjPos(InsertPos);
+                //TD2VisualObject(Obj).Position.X:=InsertPos.X;	//Deleted by GoldenFox
+                //TD2VisualObject(Obj).Position.Y:=InsertPos.Y;	//Deleted by GoldenFox
+                SetObjPos(InsertPos);	//Added by GoldenFox
               end;
             end;
             FPopupPos:=Point(-1,-1);
@@ -2605,14 +2622,14 @@ begin
             end;
             if Obj.IsVisual then
             begin
-              if (Owner is TWinControl) {and (FPopupPos.X > 0)} then
+              //if (Owner is TWinControl) and (FPopupPos.X > 0) then	//Deleted by GoldenFox
+			  if (Owner is TWinControl) then	//Added by GoldenFox
               begin
                 P:=TWinControl(Owner).ScreenToClient(FPopupPos);
                 InsertPos:=d2Point(P.X,P.Y);
-                //TD2VisualObject(Obj).Position.X:=P.X;
-                //TD2VisualObject(Obj).Position.Y:=P.Y;
-                SetObjPos(InsertPos);
-
+                //TD2VisualObject(Obj).Position.X:=P.X;	//Deleted by GoldenFox
+                //TD2VisualObject(Obj).Position.Y:=P.Y;	//Deleted by GoldenFox
+                SetObjPos(InsertPos);	//Added by GoldenFox
               end;
               FPopupPos:=Point(-1,-1);
               FSelected:=TD2VisualObject(Obj);
@@ -3674,8 +3691,9 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragEnter(const dataObj: IDataObject;
-  grfKeyState: DWORD; pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
+function TD2CustomScene.DragEnter(const dataObj: IDataObject; grfKeyState: DWORD; 
+//      pt:TPoint; var dwEffect:DWORD):HResult;	//Deleted by GoldenFox
+  pt: TPoint; var dwEffect: DWORD): HResult; stdcall;	//Added by GoldenFox
 begin
   try
     if (Root=nil) and not (Root.IsVisual) then
@@ -3700,8 +3718,8 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragOver(grfKeyState: DWORD; pt: TPoint;
-  var dwEffect: DWORD): HResult; stdcall;
+//function TD2CustomScene.DragOver(grfKeyState:DWORD; pt:TPoint; var dwEffect:DWORD):HResult;	//Deleted by GoldenFox
+function TD2CustomScene.DragOver(grfKeyState: DWORD; pt: TPoint;  var dwEffect: DWORD): HResult; stdcall;	//Added by GoldenFox
 var
   P:TD2Point;
   NewTarget:TD2VisualObject;
@@ -3711,7 +3729,8 @@ begin
     Result:=S_OK;
     with ScreenToClient(pt) do
       P:=d2Point(X,Y);
-    NewTarget:=Root.Visual.FindTarget(FShift, P, GetDataObject);
+    //NewTarget:=Root.Visual.FindTarget(P,GetDataObject);	//Deleted by GoldenFox
+	NewTarget:=Root.Visual.FindTarget(FShift, P, GetDataObject);	//Added by GoldenFox
     if (NewTarget <> varD2FTarget) then
     begin
       if varD2FTarget <> nil then  TD2VisualObject(varD2FTarget).DragLeave;
@@ -3732,7 +3751,8 @@ begin
   end;
 end;
 
-function TD2CustomScene.DragLeave: HResult; stdcall;
+//function TD2CustomScene.DragLeave:HResult;	//Deleted by GoldenFox
+function TD2CustomScene.DragLeave: HResult; stdcall;	//Added by GoldenFox
 begin
   if varD2FTarget <> nil then TD2VisualObject(varD2FTarget).DragLeave;
 
@@ -3743,8 +3763,9 @@ begin
   Result:=S_OK;
 end;
 
-function TD2CustomScene.Drop(const dataObj: IDataObject; grfKeyState: DWORD;
-  pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
+function TD2CustomScene.Drop(const dataObj: IDataObject; grfKeyState: DWORD; pt: TPoint; 
+      //var dwEffect:DWORD):HResult;	//Deleted by GoldenFox
+  var dwEffect: DWORD): HResult; stdcall;	//Added by GoldenFox
 var
   P:TD2Point;
 begin
@@ -3754,7 +3775,8 @@ begin
     begin
       with ScreenToClient(pt) do
         P:=d2Point(X,Y);
-      TD2VisualObject(varD2FTarget).DragDrop(GetDataObject, FShift, P);
+      //TD2VisualObject(varD2FTarget).DragDrop(GetDataObject,P);	//Deleted by GoldenFox
+	  TD2VisualObject(varD2FTarget).DragDrop(GetDataObject, FShift, P);	//Added by GoldenFox
     end;
     if (FDropTargetHelper <> nil) then
       FDropTargetHelper.Drop(DataObj,pt,dwEffect)

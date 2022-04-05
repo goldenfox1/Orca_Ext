@@ -137,29 +137,26 @@ type
     destructor Destroy;  override;
     function Read(pv :Pointer;cb :DWORD;pcbRead :PDWORD) :HRESULT; virtual; stdcall;
     function Write(pv :Pointer;cb :DWORD;pcbWritten :PDWORD):HRESULT; virtual; stdcall;
-    //function Seek(dlibMove:Largeint; dwOrigin:Longint; out libNewPosition:Largeint):HResult; virtual; stdcall;
-    //function Seek(dlibMove:QWord; dwOrigin:Longint; out libNewPosition:QWord):HResult; virtual; stdcall;
-    function Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult; virtual; stdcall;
-    //function SetSize(libNewSize:Largeint):HResult; virtual; stdcall;
-    function SetSize(libNewSize:QWord):HResult; virtual; stdcall;
-    //function CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult; virtual; stdcall;
-    function CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult; virtual; stdcall;
-    //function Commit(grfCommitFlags:Longint):HResult; virtual; stdcall;
-    function Commit(grfCommitFlags : DWORD) : HRESULT; virtual; stdcall;
-
+    //function Seek(dlibMove:Largeint; dwOrigin:Longint; out libNewPosition:Largeint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    //function Seek(dlibMove:QWord; dwOrigin:Longint; out libNewPosition:QWord):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult; virtual; stdcall;	//Added by GoldenFox
+    //function SetSize(libNewSize:Largeint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function SetSize(libNewSize:QWord):HResult; virtual; stdcall;	//Added by GoldenFox
+    //function CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult; virtual; stdcall;	//Added by GoldenFox
+    //function Commit(grfCommitFlags:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function Commit(grfCommitFlags : DWORD) : HRESULT; virtual; stdcall;	//Added by GoldenFox
     function Revert:HResult; virtual; stdcall;
-    //function LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
-    //function LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
-    function LockRegion(libOffset: LargeUInt; cb: LargeUInt; dwLockType: DWORD): HRESULT; virtual; stdcall;
+    //function LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    //function LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function LockRegion(libOffset: LargeUInt; cb: LargeUInt; dwLockType: DWORD): HRESULT; virtual; stdcall;	//Added by GoldenFox
 
-    //function UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;
-    //function UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;
-    function UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT; virtual; stdcall;
+    //function UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    //function UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT; virtual; stdcall;	//Added by GoldenFox
 
-    //function Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult; virtual; stdcall;
-    function Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT; virtual; stdcall;
-
-
+    //function Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult; virtual; stdcall;	//Deleted by GoldenFox
+    function Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT; virtual; stdcall;	//Added by GoldenFox
     function Clone(out stm:IStream):HResult; virtual; stdcall;
     property Stream:TStream read FStream;
     property StreamOwnership:TStreamOwnership read FOwnership write FOwnership;
@@ -184,8 +181,8 @@ begin
   inherited Destroy;
 end;
 
-//function TMyStreamAdapter.SetSize(libNewSize:Largeint):HResult;
-function TMyStreamAdapter.SetSize(libNewSize:QWord):HResult;
+//function TMyStreamAdapter.SetSize(libNewSize:Largeint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.SetSize(libNewSize:QWord):HResult;	//Added by GoldenFox
 begin
   try
     FStream.Size:=libNewSize;
@@ -236,29 +233,29 @@ begin
   end;
 end;
 
-//function TMyStreamAdapter.Commit(grfCommitFlags:Longint):HResult;
-function TMyStreamAdapter.Commit(grfCommitFlags: DWORD): HRESULT;
+//function TMyStreamAdapter.Commit(grfCommitFlags:Longint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.Commit(grfCommitFlags: DWORD): HRESULT;	//Added by GoldenFox
 begin
   Result:=S_OK;
 end;
 
-//function TMyStreamAdapter.LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
-//function TMyStreamAdapter.LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
-function TMyStreamAdapter.LockRegion(libOffset: LargeUInt; cb:LargeUInt; dwLockType: DWORD): HRESULT;
+//function TMyStreamAdapter.LockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;	//Deleted by GoldenFox
+//function TMyStreamAdapter.LockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.LockRegion(libOffset: LargeUInt; cb:LargeUInt; dwLockType: DWORD): HRESULT;	//Added by GoldenFox
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
-//function TMyStreamAdapter.UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;
-//function TMyStreamAdapter.UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;
-function TMyStreamAdapter.UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT;
+//function TMyStreamAdapter.UnlockRegion(libOffset:Largeint; cb:Largeint; dwLockType:Longint):HResult;	//Deleted by GoldenFox
+//function TMyStreamAdapter.UnlockRegion(libOffset:QWord; cb:QWord; dwLockType:Longint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.UnlockRegion(libOffset:LargeUInt; cb:LargeUInt; dwLockType:DWORD): HRESULT;	//Added by GoldenFox
 begin
   Result:=STG_E_INVALIDFUNCTION;
 end;
 
-//function TMyStreamAdapter.Seek(dlibMove:Largeint; dwOrigin:longint; out libNewPosition:Largeint):HResult;
-//function TMyStreamAdapter.Seek(dlibMove:QWord; dwOrigin:longint; out libNewPosition:QWord):HResult;
-function TMyStreamAdapter.Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult;
+//function TMyStreamAdapter.Seek(dlibMove:Largeint; dwOrigin:longint; out libNewPosition:Largeint):HResult;	//Deleted by GoldenFox
+//function TMyStreamAdapter.Seek(dlibMove:QWord; dwOrigin:longint; out libNewPosition:QWord):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.Seek(dlibMove: LargeInt; dwOrigin: DWORD; out libNewPosition: LargeUInt): HResult;	//Added by GoldenFox
 var
   xNPos:LargeInt;
 begin
@@ -277,8 +274,8 @@ begin
 end;
 
 
-//function TMyStreamAdapter.CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult;
-function TMyStreamAdapter.CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult;
+//function TMyStreamAdapter.CopyTo(stm:IStream; cb:Largeint; out cbRead:Largeint; out cbWritten:Largeint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.CopyTo(stm:IStream; cb:QWord; out cbRead:QWord; out cbWritten:QWord):HResult;	//Added by GoldenFox
 const
   MaxBufSize=1024 * 1024;
 var
@@ -345,8 +342,8 @@ begin
   Result:=Ft;
 end;
 
-//function TMyStreamAdapter.Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult;
-function TMyStreamAdapter.Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT;
+//function TMyStreamAdapter.Stat(out statstg:TStatStg; grfStatFlag:Longint):HResult;	//Deleted by GoldenFox
+function TMyStreamAdapter.Stat(out statstg: TStatStg; grfStatFlag: DWORD): HRESULT;	//Added by GoldenFox
 begin
   Result:=S_OK;
   try
@@ -953,7 +950,7 @@ procedure TD2CanvasGdiPlus.SetClipRects(const ARects:array of TD2Rect);
 var
   i:integer;
   R:TGPRegion;
-  //GM:TGPMatrix;
+  //GM:TGPMatrix;	//Deleted by GoldenFox
 begin
   R:=TGPRegion.Create;
   R.MakeEmpty;
@@ -982,7 +979,7 @@ end;
 
 procedure TD2CanvasGdiPlus.ApplyFill(ARect:TD2Rect; const AOpacity:single);
 var
-  //C:TD2Color;
+  //C:TD2Color;	//Deleted by GoldenFox
   i:integer;
   count:integer;
   B:TD2Bitmap;
@@ -1230,9 +1227,9 @@ procedure TD2CanvasGdiPlus.IntFillRect(R:TD2Rect;
   Opacity:single);
 var
   Save:cardinal;
-  //GPR:TGPRectF;
+  //GPR:TGPRectF;	//Deleted by GoldenFox
   Visual:TD2VisualObject;
-  //M:TD2Matrix;
+  //M:TD2Matrix;	//Deleted by GoldenFox
   SaveOpacity:single;
   SaveStroke:TD2Brush;
   SaveStrokeThickness:single;
@@ -1275,7 +1272,7 @@ var
   Save:cardinal;
   Rg:TGPRegion;
   Visual:TD2VisualObject;
-  //M:TD2Matrix;
+  //M:TD2Matrix;	//Deleted by GoldenFox
   SaveOpacity:single;
   SaveStroke:TD2Brush;
   SaveStrokeThickness:single;
@@ -1548,7 +1545,7 @@ end;
 procedure TD2CanvasGdiPlus.DrawEllipse(const ARect:TD2Rect; const AOpacity:single);
 var
   R:TD2Rect;
-  //P:TGPGraphicsPath;
+  //P:TGPGraphicsPath;	//Deleted by GoldenFox
 begin
   if FStroke.Style <> d2BrushNone then
   begin
@@ -1769,7 +1766,7 @@ var
   FGraphics:TGPGraphics;
   Bits:Cardinal;
   i:integer;
-  //SP,CP1,CP2:TD2Point;
+  //SP,	//Deleted by GoldenFox
   CP1,CP2:TD2Point;
   Data:TPathData;
   SavePoints:PGPPointF;
@@ -1811,7 +1808,7 @@ begin
     begin
       if PByteArray(Data.Types)[i]=PathPointTypeStart then
       begin
-        //SP:=d2Point(Data.Points^.X,Data.Points^.Y);
+        //SP:=d2Point(Data.Points^.X,Data.Points^.Y);	//Deleted by GoldenFox
         Path.MoveTo(d2Point(Data.Points^.X,Data.Points^.Y));
       end;
 

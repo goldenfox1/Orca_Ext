@@ -12,6 +12,10 @@ const
   Z=2;
   W=3;
 
+{*********************************************************************
+                      This part make by GoldenFox
+**********************************************************************}
+
 //Вычисляет значение A1 * A2 / A3
 function d2MulDiv(A1, A2, A3:single):single;
 begin
@@ -29,6 +33,8 @@ procedure d2DecFloat(var A1:single; A2:single = 1.0);
 begin
   A1:= A1 - A2;
 end;
+
+{------------------- End part of make by GoldenFox -------------------}
 
 //Возвращает наибольшее из A1 и A2
 function d2MaxFloat(A1,A2:single):single;
@@ -324,9 +330,13 @@ begin
   Result.y:=v.y;
 end;
 
+{function d2PointToString(R:TD2Point):Ansistring;	//Deleted by GoldenFox
+begin
+  Result:='(' + d2FloatToStr(R.X) + ',' + d2FloatToStr(R.Y) + ')';
+end;}
 //Возвращает стоковое представление точки P вида '(X,Y)', где X и Y
 //строковые представления значений P.X и P.Y соответственно
-function d2PointToString(P:TD2Point):Ansistring;
+function d2PointToString(P:TD2Point):Ansistring;	//Added by GoldenFox
 begin
   Result:='(' + d2FloatToStr(P.X) + ',' + d2FloatToStr(P.Y) + ')';
 end;

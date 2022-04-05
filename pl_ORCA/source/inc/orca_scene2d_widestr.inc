@@ -45,7 +45,8 @@ begin
   Insert(Result,S);
 end;
 
-function TD2WideStrings.Add(const S: String): Integer;
+
+function TD2WideStrings.Add(const S: String): Integer;	//function Added by GoldenFox
 var ss:WideString;
 begin
   ss:=UTF8Decode(S);
@@ -57,8 +58,7 @@ begin
   Result:=Strings[AIndex];
 end;
 
-function TD2WideStrings.AddObject(const S: WideString; AObject: TObject
-  ): Integer;
+function TD2WideStrings.AddObject(const S: WideString; AObject: TObject): Integer;
 begin
   Result:=Add(S);
   PutObject(Result,AObject);
@@ -303,8 +303,7 @@ begin
     Result:='';
 end;
 
-procedure TD2WideStrings.SetValueFromIndex(Index: Integer;
-  const Value: WideString);
+procedure TD2WideStrings.SetValueFromIndex(Index: Integer; const Value: WideString);
 begin
   if Value <> '' then
   begin
@@ -372,8 +371,7 @@ begin
   Result:=-1;
 end;
 
-procedure TD2WideStrings.InsertObject(Index: Integer; const S: WideString;
-  AObject: TObject);
+procedure TD2WideStrings.InsertObject(Index: Integer; const S: WideString; AObject: TObject);
 begin
   Insert(Index,S);
   PutObject(Index,AObject);
@@ -876,12 +874,12 @@ end;
 procedure TD2WideStringList.QuickSort(L,R:integer);
 var
   I,J:integer;
-  //P:WideString;
+  //P:WideString;	//Deleted by GoldenFox
 begin
   repeat
     I:=L;
     J:=R;
-    //P:=FList[(L + R) shr 1].FString;
+    //P:=FList[(L + R) shr 1].FString;	//Deleted by GoldenFox
     repeat
       {$IFDEF KS_COMPILER6_UP}
       while WideCompareText(FList[I].FString,P) < 0 do System.Inc(I);

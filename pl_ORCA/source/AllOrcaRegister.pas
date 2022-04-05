@@ -25,12 +25,12 @@ uses
 
 type
 
-  { TD2IDEDesigner }
+  { TD2IDEDesigner } //Added by GoldenFox
 
 TD2IDEDesigner = class(TD2Designer)
   public
-    constructor Create(AOwner: TComponent);  override;
-    destructor Destroy; override;
+    constructor Create(AOwner: TComponent);  override;	//Added by GoldenFox
+    destructor Destroy; override; //Added by GoldenFox
     procedure SelectObject(ADesigner: TComponent; AObject: TD2Object; MultiSelection: array of TD2Object); override;
     procedure Modified(ADesigner: TComponent); override;
     function  UniqueName(ADesigner: TComponent; ClassName: string): string; override;
@@ -174,6 +174,9 @@ begin
   end;
 end;
 
+{*********************************************************************
+                      This part make by GoldenFox
+**********************************************************************}
 constructor TD2IDEDesigner.Create(AOwner: TComponent);
 begin
   inherited;
@@ -184,6 +187,7 @@ destructor TD2IDEDesigner.Destroy;
 begin
   inherited;
 end;
+{------------------- End part of make by GoldenFox -------------------}
 
 procedure TD2IDEDesigner.SelectObject(ADesigner: TComponent; AObject: TD2Object; MultiSelection: array of TD2Object);
 begin
@@ -191,9 +195,9 @@ begin
   begin
     if TCustomForm(ADesigner).Designer <> nil then
     begin
-      DisableSelectGlobalHook:= true;    //запретить обработку глобального прерывания выбора объекта
+      DisableSelectGlobalHook:= true;    //запретить обработку глобального прерывания выбора объекта 	//Added by GoldenFox
       TCustomForm(ADesigner).Designer.SelectOnlyThisComponent(AObject);
-      DisableSelectGlobalHook := false;   //запретить обработку глобального прерывания выбора объекта
+      DisableSelectGlobalHook := false;   //запретить обработку глобального прерывания выбора объекта	//Added by GoldenFox
     end;
   end;
 end;
@@ -303,7 +307,7 @@ end;
 
 procedure TD2PathDataProperty.Edit;
 var
-  //S: string;
+  //S: string;	//Deleted by GoldenFox
   EditDlg: TD2PathDataDesigner;
 begin
   EditDlg := TD2PathDataDesigner.Create(Application);
@@ -423,8 +427,8 @@ begin
 end;
 
 procedure TD2TriggerProperty.GetValues(Proc: TGetStrProc);
-//var
-  //i: Integer;
+//var				//Deleted by GoldenFox
+  //i: Integer;		//Deleted by GoldenFox
 begin
   try
     Proc('IsMouseOver=true');

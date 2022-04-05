@@ -529,8 +529,8 @@ begin
 end;
 
 procedure TD2Popup.ClosePopup;
-//var
-  //Idx,i:integer;
+//var	//Deleted by GoldenFox
+  //Idx,i:integer;	//Deleted by GoldenFox
 begin
   if FAnimating then Exit;
   if (PlacementScene=d2PlacementSceneNew) and (FPopupScene=nil) then Exit;
@@ -864,7 +864,7 @@ begin
   inherited ;
 end;
 
-function MessagePopup(const ACaption,AMessage:{Wide}String; AType:TD2MessageType;
+function MessagePopup(const ACaption,AMessage:{Wide}String; AType:TD2MessageType;	//Edit by GoldenFox
   Buttons:TD2MessageButtons; const AOwner:Id2Scene; const Target:TD2VisualObject=nil;
   const ADisableScene:boolean=true;
   const ABitmap:TD2Bitmap=nil;
@@ -954,8 +954,8 @@ begin
       Padding.Rect:=d2Rect(30,10,30,0);
       if I <> nil then
         Padding.Left:=Padding.Rect.Left + I.width + 10;
-      //TextW:=ACaption;
-      Text:=ACaption;
+      //TextW:=ACaption;	//Deleted by GoldenFox
+      Text:=ACaption;	//Added by GoldenFox
       TextAlign:=d2TextAlignNear;
       Font.Size:=Font.Size * 1.4;
     end;
@@ -968,8 +968,8 @@ begin
       Padding.Rect:=d2Rect(30,0,30,0);
       if I <> nil then
         Padding.Left:=Padding.Rect.Left + I.width + 10;
-      //TextW:=AMessage;
-      Text:=AMessage;
+      //TextW:=AMessage;	//Deleted by GoldenFox
+      Text:=AMessage;	//Added by GoldenFox
       TextAlign:=d2TextAlignNear;
     end;
     L:=TD2Layout.Create(PopupCtrl);

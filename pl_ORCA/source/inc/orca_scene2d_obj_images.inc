@@ -58,7 +58,8 @@ begin
   D.Free;
 end;
 
-procedure TD2ImageControl.DragOver(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2ImageControl.DragOver(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2ImageControl.DragOver(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point; var Accept:boolean);
 begin
   inherited;
@@ -69,7 +70,8 @@ begin
     (Data.Source is TD2Image);
 end;
 
-procedure TD2ImageControl.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2ImageControl.DragDrop(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2ImageControl.DragDrop(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point);
 begin
   inherited;

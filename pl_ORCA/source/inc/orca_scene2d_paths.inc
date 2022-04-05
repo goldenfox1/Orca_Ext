@@ -945,7 +945,7 @@ end;
 procedure TD2PathData.AddArcSd2(const P1,Radius:TD2Point; Angle:single; const LargeFlag,SweepFlag:boolean; const P2:TD2Point);
 var
   i:integer;
-  //m_radii_ok:boolean;
+  //m_radii_ok:boolean;	//Deleted by GoldenFox
   v ,p ,n ,sq ,
   rx ,ry ,
   x0 ,y0 ,
@@ -979,7 +979,7 @@ begin
   y2:=P2.Y;
   angle:=d2DegToRad(Angle);
 
-  //m_radii_ok:=true;
+  //m_radii_ok:=true;	//Deleted by GoldenFox
 
   if rx < 0.0 then
    rx:=-rx;
@@ -1016,8 +1016,8 @@ begin
     prx:=rx * rx;
     pry:=ry * ry;
 
-    //if radii_check > 10.0 then
-    //  m_radii_ok:=false;
+    //if radii_check > 10.0 then	//Deleted by GoldenFox
+    //  m_radii_ok:=false;	//Deleted by GoldenFox
 
   end;
 

@@ -8,8 +8,9 @@
 
 //=============== TD2Brush ===================================================================}
 
-constructor TD2Brush.Create(const ADefaultStyle: TD2BrushStyle;
-  const ADefaultColor: TD2Color);
+//constructor TD2Brush.Create;	//Deleted by GoldenFox
+constructor TD2Brush.Create(const ADefaultStyle: TD2BrushStyle;	//Added by GoldenFox
+  const ADefaultColor: TD2Color);	//Added by GoldenFox
 begin
   inherited Create;
   FDefaultStyle:=ADefaultStyle;

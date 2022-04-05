@@ -345,9 +345,11 @@ end;
 
 { Property animation }
 
+//procedure TD2Object.AnimateColor(const APropertyName,NewValue:string;	//Deleted by GoldenFox
+//  Duration:single=0.2; AType:TD2AnimationType=d2AnimationIn; AInterpolation:TD2InterpolationType=d2InterpolationLinear);	//Deleted by GoldenFox
 procedure TD2Object.AnimateColor(const APropertyName: string;
-  const NewValue: string; Duration: single; AType: TD2AnimationType;
-  AInterpolation: TD2InterpolationType);
+  const NewValue: string; Duration: single; AType: TD2AnimationType;	//Added by GoldenFox
+  AInterpolation: TD2InterpolationType);	//Added by GoldenFox
 var
   A:TD2ColorAnimation;
 begin
@@ -463,10 +465,10 @@ end;
 procedure TD2Object.StartTriggerAnimation(AInstance:TD2Object; ATrigger:string);
 var
   i:integer;
-  //c:integer;
+  //c:integer;	//Deleted by GoldenFox
 begin
-  //if FChildren <> nil then
-  //  c:= FChildren.Count;
+  //if FChildren <> nil then	//Deleted by GoldenFox
+  //  c:= FChildren.Count;	//Deleted by GoldenFox
   StopTriggerAnimation(AInstance);
   if FChildren <> nil then
     for i:=0 to FChildren.Count - 1 do
@@ -909,12 +911,12 @@ begin
   end;
 end;
 
-function TD2Object.GetTagString: string;
+function TD2Object.GetTagString: string;	//Added by GoldenFox
 begin
   Result:= FTagString;
 end;
 
-procedure TD2Object.SetTagString(const Value: string);
+procedure TD2Object.SetTagString(const Value: string);	//Added by GoldenFox
 begin
   FTagString:=Value;
 end;

@@ -86,9 +86,9 @@ end;
 destructor TD2VisualObject.Destroy;
 //var i: integer;
 begin
-  //if FTabList <> nil then
-  //  for i:=0 to FTabList.Count-1 do
-  //    TD2Object(FTabList[i]).Free;
+  //if FTabList <> nil then	//Deleted by GoldenFox
+  //  for i:=0 to FTabList.Count-1 do	//Deleted by GoldenFox
+  //    TD2Object(FTabList[i]).Free;	//Deleted by GoldenFox
   FreeAndNil(FTabList);
   if FEffectBitmap <> nil then
     FreeAndNil(FEffectBitmap);
@@ -523,7 +523,8 @@ begin
     Result:=false;
 end;
 
-function TD2VisualObject.FindTarget(Shift: TShiftState; const APoint:TD2Point; const Data:TD2DragObject):TD2VisualObject;
+//function TD2VisualObject.FindTarget(Shift: TShiftState; const APoint:TD2Point; const Data:TD2DragObject):TD2VisualObject;	//Deleted by GoldenFox
+function TD2VisualObject.FindTarget(const APoint:TD2Point; const Data:TD2DragObject):TD2VisualObject;	//Added by GoldenFox
 var
   i:integer;
   Obj,NewObj:TD2VisualObject;
@@ -550,7 +551,8 @@ begin
       //if ClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Delete by GoldenFox
 	  if DragClipChildren and not PointInObject(APoint.X, APoint.Y) then Continue;		//Added by GoldenFox
 
-      NewObj:=Obj.FindTarget(Shift,APoint,Data);
+      //NewObj:=Obj.FindTarget(APoint,Data);	//Deleted by GoldenFox
+	  NewObj:=Obj.FindTarget(Shift,APoint,Data);	//Added by GoldenFox
       if NewObj <> nil then
       begin
         Result:=NewObj;
@@ -560,7 +562,8 @@ begin
 
   Result:=nil;
   Accept:=false;
-  DragOver(Data,Shift,APoint,Accept);
+  //DragOver(Data,APoint,Accept);	//Deleted by GoldenFox
+  DragOver(Data,Shift,APoint,Accept);	//Added by GoldenFox
   if PointInObject(APoint.X,APoint.Y) and CheckHitTest(HitTest) and (Accept) then
     Result:=Self;
 end;
@@ -1765,22 +1768,25 @@ begin
     OnDragLeave(Self);
 end;
 
+//procedure TD2VisualObject.DragOver(const Data:TD2DragObject; const Point:TD2Point; var Accept:boolean);	//Deleted by GoldenFox
 procedure TD2VisualObject.DragOver(const Data: TD2DragObject;
-  Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);
+  Shift: TShiftState; const Point: TD2Point; var Accept: Boolean);	//Added by GoldenFox
 begin
   if Assigned(OnDragOver) then
-    OnDragOver(Self,Data,Shift,Point,Accept);
+    //OnDragOver(Self,Data,Point,Accept);	//Deleted by GoldenFox
+	OnDragOver(Self,Data,Shift,Point,Accept);	//Added by GoldenFox
 end;
 
-procedure TD2VisualObject.DragDrop(const Data: TD2DragObject;
-  Shift: TShiftState; const Point: TD2Point);
+procedure TD2VisualObject.DragDrop(const Data:TD2DragObject; const Point:TD2Point);	//Deleted by GoldenFox
+procedure TD2VisualObject.DragDrop(const Data: TD2DragObject;Shift: TShiftState; const Point: TD2Point);	//Added by GoldenFox
 begin
   FIsDragOver:=false;
   Repaint;
   StartTriggerAnimation(Self,'IsDragOver');
   ApplyTriggerEffect(Self,'IsDragOver');
   if Assigned(OnDragDrop) then
-    OnDragDrop(Self,Data,Shift,Point);
+    //OnDragDrop(Self,Data,Point);	//Deleted by GoldenFox
+    OnDragDrop(Self,Data,Shift,Point);	//Added by GoldenFox
 end;
 
 procedure TD2VisualObject.DragEnd;

@@ -40,8 +40,9 @@ begin
       IsChecked:=false;
 end;
 
-function TD2RadioButton.AdjustHeight: single;
-//function AdjustHeight(AText: TD2Text): single;
+//function AdjustHeight(AText: TD2Text): single;	//Deleted by GoldenFox
+function TD2RadioButton.AdjustHeight: single;	//function Added by GoldenFox
+
 var
   R: TD2Rect;
 begin
@@ -133,7 +134,8 @@ begin
       List:=TList.Create;
       FScene.GetRoot.AddControlsToList(List);
       for i:=0 to List.Count - 1 do
-        if (TD2Object(List[i]) is TD2RadioButton) and {(TD2Object(List[i]) <> Self) and}
+        //if (TD2Object(List[i]) is TD2RadioButton) and (TD2Object(List[i]) <> Self) and	//Deleted by GoldenFox
+		if (TD2Object(List[i]) is TD2RadioButton) and	//Added by GoldenFox
            (TD2RadioButton(List[i]).GroupName=GroupName) then
         begin
           if TD2RadioButton(List[i]).IsChecked then

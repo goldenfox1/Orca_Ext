@@ -229,14 +229,14 @@ begin
 end;
 
 destructor TD2ListBox.Destroy;
-var i: integer;
+var i: integer;	//Added by GoldenFox
 begin
   if FSelections <> nil then
-  begin
-    for i:=0 to FSelections.Count-1 do
-      TObject(FSelections[i]).Free;
+  begin	//Added by GoldenFox
+    for i:=0 to FSelections.Count-1 do	//Added by GoldenFox
+      TObject(FSelections[i]).Free;	//Added by GoldenFox
     FSelections.Free;
-  end;
+  end;	//Added by GoldenFox
   FOddFill.Free;
   inherited;
 end;
@@ -356,7 +356,7 @@ var
   i:integer;
   P:TD2Point;
   R:TD2Rect;
-  //Sel:boolean;
+  //Sel:boolean;	//Deleted by GoldenFox
   SelRects:array of TD2Rect;
   Clone:TD2VisualObject;
   Vis:boolean;
@@ -365,7 +365,7 @@ begin
   if FSelection=nil then Exit;
   // calc rects
   Vis:=true;
-  //Sel:=false;
+  //Sel:=false;	//Deleted by GoldenFox
   SetLength(SelRects,0);
   for i:=0 to Count - 1 do
   begin
@@ -383,7 +383,7 @@ begin
         SetLength(SelRects,Length(SelRects) + 1);
         SelRects[High(SelRects)]:=R;
       end;
-      //Sel:=true;
+      //Sel:=true;	//Deleted by GoldenFox
     end;
   end;
   // Create selection list
@@ -1304,8 +1304,9 @@ end;
 
 procedure TD2ImageListBox.AddFile(const AFile:string);
 var
-  {Dir,}Ext:string;
-  //SR:TSearchRec;
+  //Dir,Ext:string;	//Deleted by GoldenFox
+  Ext:string;		//Added by GoldenFox
+  //SR:TSearchRec;	//Deleted by GoldenFox
   Item:TD2ListBoxItem;
   Thumb:TD2Image;
 begin
@@ -1465,7 +1466,8 @@ begin
     FResource:='ListBoxStyle';
 end;
 
-procedure TD2ListBox.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2ListBox.DragDrop(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2ListBox.DragDrop(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point);
 var
   Obj:TD2ListBoxItem;
@@ -1491,7 +1493,8 @@ begin
   end;
 end;
 
-procedure TD2ListBox.DragOver(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2ListBox.DragOver(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2ListBox.DragOver(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point; var Accept:boolean);
 var
   Obj:TD2ListBoxItem;

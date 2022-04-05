@@ -289,11 +289,11 @@ destructor TD2TreeView.Destroy;
 var i: integer;
 begin
   if FSelections <> nil then
-  begin
-    for i:=0 to FSelections.Count-1 do
-      TObject(FSelections[i]).Free;
+  begin	//Added by GoldenFox
+    for i:=0 to FSelections.Count-1 do	//Added by GoldenFox
+      TObject(FSelections[i]).Free;	//Added by GoldenFox
     FreeAndNil(FSelections);
-  end;
+  end;	//Added by GoldenFox
   //if FGlobalList <> nil then
   //begin
   //  for i:=0 to FGlobalList.Count-1 do
@@ -336,7 +336,7 @@ var
   procedure AlignItem(AItem:TD2TreeViewItem);
   var
     i:integer;
-    //P:TD2Point;
+    //P:TD2Point;	//Deleted by GoldenFox
   begin
     AItem.GlobalIndex:=GlobalIdx;
     GlobalIdx:=GlobalIdx + 1;
@@ -398,7 +398,7 @@ var
   i:integer;
   P:TD2Point;
   R:TD2Rect;
-  //Sel:boolean;
+  //Sel:boolean;	//Deleted by GoldenFox
   SelRects:array of TD2Rect;
   Clone:TD2VisualObject;
   Vis:boolean;
@@ -406,7 +406,7 @@ begin
   if FSelection=nil then Exit;
   // calc rects
   Vis:=true;
-  //Sel:=false;
+  //Sel:=false;	//Deleted by GoldenFox
   SetLength(SelRects,0);
   for i:=0 to GlobalCount - 1 do
   begin
@@ -423,7 +423,7 @@ begin
         SetLength(SelRects,Length(SelRects) + 1);
         SelRects[High(SelRects)]:=R;
       end;
-      //Sel:=true;
+      //Sel:=true;	//Deleted by GoldenFox
     end;
   end;
   // Create selection list
@@ -521,9 +521,9 @@ var
   end;
 var
   i:integer;
-  //C:integer;
-  //P:TD2Point;
-  //Sel:TD2TreeViewItem;
+  //C:integer;	//Deleted by GoldenFox
+  //P:TD2Point;	//Deleted by GoldenFox
+  //Sel:TD2TreeViewItem;	//Deleted by GoldenFox
 begin
   Result:=LocalRect;
   UpdateGlobalIndexes;
@@ -633,7 +633,8 @@ begin
   inherited ;
 end;
 
-procedure TD2TreeView.DragOver(const Data: TD2DragObject; Shift: TShiftState;
+//procedure TD2TreeView.DragOver(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2TreeView.DragOver(const Data: TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point: TD2Point; var Accept: Boolean);
 var
   Obj:TD2TreeViewItem;
@@ -665,7 +666,8 @@ begin
     Accept:=false;
 end;
 
-procedure TD2TreeView.DragDrop(const Data: TD2DragObject; Shift: TShiftState;
+//procedure TD2TreeView.DragDrop(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2TreeView.DragDrop(const Data: TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point: TD2Point);
 var
   Obj:TD2TreeViewItem;

@@ -29,7 +29,7 @@ end;
 function TD2BrushDialog.Execute:boolean;
 var
   Dialog:TD2BrushDesign;
-  //EditBrush:TD2Brush;
+  //EditBrush:TD2Brush;	//Deleted by GoldenFox
 begin
   Dialog:=TD2BrushDesign.Create(Application);
   Dialog.brushList.Visible:=ShowBrushList;

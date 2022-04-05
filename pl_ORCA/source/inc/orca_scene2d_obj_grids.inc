@@ -6,8 +6,37 @@
 ***********************************************************************}
 
 //=============== TD2HeaderItem ==================================================
+{
+constructor TD2HeaderItem.Create(AOwner:TComponent);	//Deleted by GoldenFox
+begin
+  inherited;
+  CanFocused:=false;
+  TextAlign:=d2TextAlignNear;
+  DragMode:=d2DragAutomatic;
+  FSplitter:=TD2VisualObject.Create(Self);
+  FSplitter.Parent:=Self;
+  FSplitter.Width:=3;
+  FSplitter.Align:=vaRight;
+  FSplitter.Locked:=true;
+  FSplitter.Stored:=false;
+  FSplitter.HitTest:=true;
+  FSplitter.AutoCapture:=true;
+  FSplitter.Cursor:=crHSplit;
+  FSplitter.OnMouseMove:=DoSplitterMouseMove;
+  FLeftSplitter:=TD2VisualObject.Create(Self);
+  FLeftSplitter.Parent:=Self;
+  FLeftSplitter.Width:=3;
+  FLeftSplitter.Align:=vaLeft;
+  FLeftSplitter.Locked:=true;
+  FLeftSplitter.Stored:=false;
+  FLeftSplitter.HitTest:=true;	
+  FLeftSplitter.AutoCapture:=true;
+  FLeftSplitter.Cursor:=crHSplit;
+  FLeftSplitter.OnMouseMove:=DoLeftSplitterMouseMove;
+end;
+}
 
-constructor TD2HeaderItem.Create(AOwner:TComponent);
+constructor TD2HeaderItem.Create(AOwner:TComponent);	//Added by GoldenFox
 begin
   inherited;
   CanFocused:=false;
@@ -17,7 +46,7 @@ begin
   FIsSortedDown:=false;      //true - сортировка от большего к меньшему
 end;
 
-procedure TD2HeaderItem.SetIsSortedDown(AValue: boolean);
+procedure TD2HeaderItem.SetIsSortedDown(AValue: boolean);	//Added by GoldenFox
 begin
   if FIsSortedDown=AValue then Exit;
   FIsSortedDown:=AValue;
@@ -26,7 +55,7 @@ begin
   StartTriggerAnimation(Self,'IsSortedDown');
 end;
 
-procedure TD2HeaderItem.SetIsSortedUp(AValue: boolean);
+procedure TD2HeaderItem.SetIsSortedUp(AValue: boolean);	//Added by GoldenFox
 begin
   if FIsSortedUp=AValue then Exit;
   FIsSortedUp:=AValue;
@@ -35,7 +64,7 @@ begin
   StartTriggerAnimation(Self,'IsSortedUp');
 end;
 
-procedure TD2HeaderItem.ApplyStyle;
+procedure TD2HeaderItem.ApplyStyle;	//Added by GoldenFox
 var S: TD2Object;
 begin
   inherited;
@@ -48,7 +77,7 @@ begin
   end;
 end;
 
-procedure TD2HeaderItem.FreeStyle;
+procedure TD2HeaderItem.FreeStyle;	//Added by GoldenFox
 begin
   FSplitter:=nil;
   inherited;
@@ -58,21 +87,84 @@ procedure TD2HeaderItem.DoSplitterMouseMove(Sender:TObject;
   Shift:TShiftState; X,Y,Dx,Dy:single);
 var
   NewSize:single;
-  H: TD2Header;
 begin
   if TD2HackVisualObject(FSplitter).FPressed then
   begin
     NewSize:=AbsoluteToLocal(FSplitter.LocalToAbsolute(d2Point(X,Y))).X;
     if NewSize < 0 then NewSize:=0;
-    H:=Header;
-    if (H <> nil) and (Assigned(H.OnResizeItem))  //если есть заголовок и у него установлен обраотчик прерывания изменения размера
-      then H.OnResizeItem(Self, NewSize);           //то вызвать прерывание
-    Width := NewSize;                             //установить новый размер после обработки прерывания
-    if H <> nil then Header.Realign;              //перестроить заголовок если есть
+	//if (Parent <> nil) and (Parent is TD2Header) then	//Deleted by GoldenFox
+    //begin	//Deleted by GoldenFox
+    //  if Assigned(TD2Header(Parent).OnResizeItem) then	//Deleted by GoldenFox
+    //    TD2Header(Parent).OnResizeItem(Self,NewSize);	//Deleted by GoldenFox
+    //end;	//Deleted by GoldenFox
+    //Width:=NewSize;	//Deleted by GoldenFox
+    //if (Parent <> nil) and (Parent is TD2Header) then	//Deleted by GoldenFox
+    //  TD2Header(Parent).Realign;	//Deleted by GoldenFox
+	
+    if (Header <> nil) and (Assigned(Header.OnResizeItem))  //если есть заголовок и у него установлен обраотчик прерывания изменения размера	//Added by GoldenFox
+      then Header.OnResizeItem(Self, NewSize);           //то вызвать прерывание	//Added by GoldenFox
+    Width := NewSize;                             //установить новый размер после обработки прерывания	//Added by GoldenFox
+    if Header <> nil then Header.Realign;              //перестроить заголовок если есть	//Added by GoldenFox
   end;
 end;
 
-procedure TD2HeaderItem.MouseDown(Button: TMouseButton; Shift: TShiftState; X,  Y: single);
+{	//Deleted by GoldenFox
+procedure TD2HeaderItem.DoLeftSplitterMouseMove(Sender:TObject;
+  Shift:TShiftState; X,Y,Dx,Dy:single);
+var
+  P:TD2Point;
+  LeftItem:TD2HeaderItem;
+begin
+  if (Index > 0) and TD2HackVisualObject(FLeftSplitter).FPressed then
+  begin
+    if (Parent <> nil) and (Parent is TD2Header) then
+      LeftItem:=TD2HeaderItem(TD2Header(Parent).Children[Index - 1]);
+    if LeftItem=nil then Exit;
+    P:=FLeftSplitter.LocalToAbsolute(d2Point(X,Y));
+    P:=LeftItem.FSplitter.AbsoluteToLocal(P);
+    TD2HackVisualObject(LeftItem.FSplitter).FPressed:=true;
+    LeftItem.DoSplitterMouseMove(Sender,Shift,P.X,P.Y,0,0);
+    TD2HackVisualObject(LeftItem.FSplitter).FPressed:=false;
+  end;
+end;
+}
+{	//Deleted by GoldenFox
+procedure TD2HeaderItem.DragDrop(const Data:TD2DragObject;
+  const Point:TD2Point);
+var
+  NewIndex,OldIndex:integer;
+begin
+  inherited;
+  NewIndex:=Index;
+  OldIndex:=TD2Object(Data.Source).Index;
+  TD2Object(Data.Source).Index:=Index;
+  if (Header <> nil) and Assigned(Header.OnRealignItem) then
+    Header.OnRealignItem(TD2Object(Data.Source),OldIndex,NewIndex);
+end;
+}
+{	//Deleted by GoldenFox
+procedure TD2HeaderItem.DragEnd;
+begin
+  inherited;
+end;
+}
+{	//Deleted by GoldenFox
+procedure TD2HeaderItem.DragOver(const Data:TD2DragObject;
+  const Point:TD2Point; var Accept:boolean);
+begin
+  Accept:=(Data.Source is TD2HeaderItem) and (TD2HeaderItem(Data.Source).Header=Header) and (DragMode <> d2DragManual);
+end;
+}
+{	//Deleted by GoldenFox
+function TD2HeaderItem.Header:TD2Header;
+begin
+  if (Parent <> nil) and (Parent is TD2Header) then
+    Result:=TD2Header(Parent)
+  else
+    Result:=nil;
+end;
+}																				  
+procedure TD2HeaderItem.MouseDown(Button: TMouseButton; Shift: TShiftState; X,  Y: single);	//procedure Added by GoldenFox
 var
    i: integer;
    H: TD2Header;
@@ -92,11 +184,10 @@ begin
           H.FItemsWidth:=H.FItemsWidth + Width; //вычисляем общую ширину полей заголовка
           Sides:=Sides+[d2SideLeft];            //у всех полей включим левую границу
         end;
-
     end;
 end;
 
-procedure TD2HeaderItem.MouseMove(Shift: TShiftState; X, Y, Dx, Dy: single);
+procedure TD2HeaderItem.MouseMove(Shift: TShiftState; X, Y, Dx, Dy: single);	//procedure Added by GoldenFox
 var
   idx,st,t: integer;
   H: TD2Header;
@@ -108,7 +199,6 @@ begin
   FIsPositioning:=true;                        //начат процесс изменения позиции
   BringToFront;              //текущее поле переместим вверх
   Position.X:=Position.X+(X-FMouseDownPos.X); //новая позиция поля
-
   idx:=FNewIndex;  //текущий индекс поля заголовка
   if Position.X<H.FOffset+H.Margins.Left+Padding.Left-1 then          //если левая граница поля выходит за границу заголовка
     Position.X:=H.FOffset+H.Margins.Left+Padding.Left-1;       //выровнять поле влево по заголовку
@@ -143,7 +233,7 @@ begin
   end;
 end;
 
-procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+procedure TD2HeaderItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);	//procedure Added by GoldenFox
 var
   H: TD2Header;
 begin
@@ -159,9 +249,9 @@ begin
   FIsPositioning:=false;                        //закончен процесс изменения позиции
 end;
 
-function TD2HeaderItem.Header:TD2Header;
+function TD2HeaderItem.Header:TD2Header;	//function Added by GoldenFox
 var
-  P: TD2Object;
+  P: TD2Object;							
 begin
   P := Parent;
   while (P <> nil) do
@@ -176,14 +266,13 @@ begin
   Result := nil;
 end;
 
-procedure TD2HeaderItem.Click;
+procedure TD2HeaderItem.Click;	//procedure Added by GoldenFox
 begin
   if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderClick) //если закончен процесс изменения позиции
     then Header.FGrid.FOnHeaderClick(Self);
   inherited;
 end;
-
-procedure TD2HeaderItem.DblClick;
+procedure TD2HeaderItem.DblClick;	//procedure Added by GoldenFox
 begin
   if not FIsPositioning and Assigned(Header.FGrid.FOnHeaderDblClick) //если закончен процесс изменения позиции
     then Header.FGrid.FOnHeaderDblClick(Self);
@@ -192,43 +281,20 @@ end;
 
 //=============== TD2Header ===================================================
 
-function TD2Header.GetItem(Index: integer): TD2HeaderItem;
-begin
-  if FContent<>nil
-    then Result := TD2HeaderItem(FContent.Children[Index])
-    else Result := nil;
-end;
-
-function TD2Header.GetItemsCount: integer;
-begin
-  if FContent<>nil
-    then Result := FContent.ChildrenCount
-    else Result := 0;
-end;
-
-procedure TD2Header.ApplyStyle;
-var S: TD2Object;
-begin
-  inherited;
-  S := FindResource('background');
-  if (S <> nil) and (S.IsVisual) then
-    FBackground := S.Visual;
-end;
-
-procedure TD2Header.FreeStyle;
-begin
-  FBackground:=nil;
-  inherited;
-end;
-
 constructor TD2Header.Create(AOwner:TComponent);
 begin
   inherited;
   ClipChildren:=true;
+  //FSides:=AllSides;	//Deleted by GoldenFox
+  //FLastItem:=TD2HeaderItem.Create(Self);	//Deleted by GoldenFox
+  //FLastItem.Parent:=Self;	//Deleted by GoldenFox
+  //FLastItem.Stored:=false;	//Deleted by GoldenFox
+  //FLastItem.Locked:=true;	//Deleted by GoldenFox
+  //FLastItem.Width:=50;	//Deleted by GoldenFox
+  //FLastItem.DragMode:=d2DragManual;	//Deleted by GoldenFox
   Width := 100;
   Height := 21;
   Margins.Rect:=d2Rect(1,2,1,2);
-
   FContent := TD2Content.Create(Self);
   FContent.Parent := Self;
   FContent.Align := vaClient;
@@ -238,7 +304,60 @@ begin
   FContent.Stored := false;
 end;
 
-destructor TD2Header.Destroy;
+function TD2Header.GetItem(Index: integer): TD2HeaderItem;
+begin
+  //Result:=TD2HeaderItem(Children[Index]);	//Deleted by GoldenFox
+  if FContent<>nil	//Added by GoldenFox
+    then Result := TD2HeaderItem(FContent.Children[Index])	//Added by GoldenFox
+    else Result := nil;	//Added by GoldenFox
+end;
+
+function TD2Header.ItemClass: string;
+begin
+  Result := 'TD2HeaderItem';
+end;
+
+//procedure TD2Header.Paint;	//procedure Deleted by GoldenFox
+//var
+//  R:TD2Rect;
+//begin
+//  inherited Paint;
+//  if Assigned(Scene) and Scene.GetDesignTime and not Locked and not FInPaintTo then
+//  begin
+//    R:=LocalRect;
+//    d2InflateRect(R,-0.5,-0.5);
+//    Canvas.StrokeThickness:=1;
+//    Canvas.StrokeDash:=d2DashDash;
+//    Canvas.Stroke.Style:=d2BrushSolid;
+//    Canvas.Stroke.SolidColor:=$A0909090;
+//    Canvas.DrawRect(R,0,0,AllCorners,AbsoluteOpacity);
+//    Canvas.StrokeDash:=d2DashSolid;
+//  end;							  
+//end;
+
+function TD2Header.GetItemsCount: integer;	//function Added by GoldenFox
+begin
+  if FContent<>nil
+    then Result := FContent.ChildrenCount
+    else Result := 0;
+end;
+
+procedure TD2Header.ApplyStyle;	//procedureAdded by GoldenFox
+var S: TD2Object;
+begin
+  inherited;
+  S := FindResource('background');
+  if (S <> nil) and (S.IsVisual) then
+    FBackground := S.Visual;
+end;
+
+procedure TD2Header.FreeStyle;	//procedure Added by GoldenFox
+begin
+  FBackground:=nil;
+  inherited;
+end;
+
+destructor TD2Header.Destroy;	//destructor Added by GoldenFox
 begin
   if FContent<>nil then
   begin
@@ -248,7 +367,7 @@ begin
   inherited;
 end;
 
-procedure TD2Header.AddObject(AObject: TD2Object);
+procedure TD2Header.AddObject(AObject: TD2Object);	//procedure Added by GoldenFox
 begin
   if (FContent <> nil) and (AObject is TD2HeaderItem)
     then begin
@@ -268,34 +387,94 @@ var
     if not Control.Visible then Exit;
     with R do
     begin
-      Control.SetBounds(Left, Top, Control.Width, Bottom-Top);
+      //Control.SetBounds(Left,Top,Control.Width,Height);	//Deleted by GoldenFox
+	  Control.SetBounds(Left, Top, Control.Width, Bottom-Top);	//Added by GoldenFox
+	  //if Control <> FLastItem then  	//Deleted by GoldenFox
       Left:=Left + Control.Width;
     end;
   end;
-
+  {																	
+  procedure DoAlign;	//procedure Deleted by GoldenFox
+  var
+    I,J:integer;
+    Control:TD2VisualObject;
+  begin
+    for I:=0 to ChildrenCount - 1 do
+    begin
+      if not (TD2VisualObject(Children[I]) is TD2HeaderItem) then Continue;
+      DoPosition(TD2VisualObject(Children[I]));
+      // sides
+      TD2HeaderItem(Children[I]).Sides:=FSides;
+      // corners
+      TD2HeaderItem(Children[I]).xRadius:=Radius;
+      TD2HeaderItem(Children[I]).yRadius:=Radius;
+      if I=0 then
+      begin
+        TD2HeaderItem(Children[I]).Corners:=[d2CornerTopLeft];
+        TD2HeaderItem(Children[I]).Sides:=TD2HeaderItem(Children[I]).Sides + (FSides * [d2SideLeft]) - [d2SideRight];
+      end
+      else
+      if Children[I]=FLastItem then
+      begin
+        TD2HeaderItem(Children[I]).Corners:=[d2CornerTopRight];
+        TD2HeaderItem(Children[I]).Sides:=TD2HeaderItem(Children[I]).Sides + [d2SideLeft];
+      end
+      else
+      begin
+        TD2HeaderItem(Children[I]).Corners:=[];
+		TD2HeaderItem(Children[I]).Sides:=TD2HeaderItem(Children[I]).Sides + [d2SideLeft] - [d2SideRight];
+      end;
+    end;
+  end;															   
+  }			  
 begin
+  //inherited ; 	//Deleted by GoldenFox
   if csDestroying in ComponentState then Exit;
   if FDisableAlign then Exit;
-  inherited ;
-  if ItemsCount <= 0 then Exit;
+  inherited;	//Added by GoldenFox
+  //if ChildrenCount=0 then Exit;	//Deleted by GoldenFox
+  if ItemsCount <= 0 then Exit;	//Added by GoldenFox
   FDisableAlign := true;
   try
+	//FChildren.Remove(FLastItem);	//Deleted by GoldenFox
+    //FChildren.Add(FLastItem);		//Deleted by GoldenFox
     R := d2Rect(FOffset, 0, FWidth, FHeight);
-    for i := 0 to ItemsCount - 1 do          //для всех полей заголовка
-    begin
-      DoPosition(TD2VisualObject(Items[i]));   //позиционируем поле согласно индекса
-      Items[i].Sides := [d2SideRight];         //включаем только правую границу полей
-    end;
+	//R:=Margins.MarginRect(R);				//Deleted by GoldenFox
+    //DoAlign;								//Deleted by GoldenFox
+    //if R.Left > R.Right then				//Deleted by GoldenFox
+    //  FLastItem.Width:=0					//Deleted by GoldenFox
+    //else									//Deleted by GoldenFox
+    //  FLastItem.Width:=R.Right - R.Left;	//Deleted by GoldenFox
+	for i := 0 to ItemsCount - 1 do          //для всех полей заголовка					//Added by GoldenFox
+    begin																				//Added by GoldenFox
+      DoPosition(TD2VisualObject(Items[i]));   //позиционируем поле согласно индекса	//Added by GoldenFox
+      Items[i].Sides := [d2SideRight];         //включаем только правую границу полей	//Added by GoldenFox	  
+    end;																				//Added by GoldenFox
   finally
     FDisableAlign:=false;
   end;
 end;
 
-function TD2Header.ItemClass: string;
+{
+procedure TD2Header.SetRadius(const Value:single);	//procedure Deleted by GoldenFox
 begin
-  Result := 'TD2HeaderItem';
+  if FRadius <> Value then
+  begin
+    FRadius:=Value;
+    Realign;
+  end;
 end;
-
+}
+{
+procedure TD2Header.SetSides(const Value:TD2Sides);	//procedure Deleted by GoldenFox
+begin
+  if FSides <> Value then
+  begin
+    FSides:=Value;
+    Realign;
+  end;
+end;
+}
 //=============== TD2Column =========================================
 
 constructor TD2Column.Create(AOwner:TComponent);
@@ -305,12 +484,12 @@ begin
   Width:=100;
   HitTest:=false;
   CanFocused:=false;
-  FGrid:= GetGrid;
-  FCellControls:= TList.Create;
-  FClipChildren:= true;
+  FGrid:= GetGrid;				//Added by GoldenFox
+  FCellControls:= TList.Create;	//Added by GoldenFox
+  FClipChildren:= true;			//Added by GoldenFox
 end;
 
-destructor TD2Column.Destroy;
+destructor TD2Column.Destroy;	//destructor Added by GoldenFox
 var i: integer;
 begin
   if FCellControls <> nil then
@@ -319,25 +498,40 @@ begin
       TD2Control(FCellControls.Items[i]).Free;
     FCellControls.Free;
   end;
-
-  inherited Destroy;
+  inherited Destroy;								
 end;
 
 function TD2Column.CreateCellControl:TD2Control;
 begin
-  Result:=GetCellClass.Create(Self);
-  Result.Parent:=Self;
-  Result.HitTest:=false;
-  Result.Visible:=false;
-  Result.Locked:=true;
-  Result.Stored:=false;
-  Result.CanFocused:=false;
-  Result.OnCanFocused:=DoCanFocused;
-  Result.OnEnterFocus:=DoEnterFocus;
-  Result.OnKillFocus:=DoKillFocus;
-  Result.OnKeyDown:=DoKeyDown;
+  //Result:=TD2TextCell.Create(Self);				//Deleted by GoldenFox
+  //TD2TextCell(Result).OnChange:=DoTextChanged;	//Deleted by GoldenFox  
+  Result:=GetCellClass.Create(Self);	//Added by GoldenFox
+  Result.Parent:=Self;					//Added by GoldenFox
+  Result.HitTest:=false;				//Added by GoldenFox
+  Result.Visible:=false;				//Added by GoldenFox
+  Result.Locked:=true;					//Added by GoldenFox
+  Result.Stored:=false;					//Added by GoldenFox
+  Result.CanFocused:=false;				//Added by GoldenFox
+  Result.OnCanFocused:=DoCanFocused;	//Added by GoldenFox
+  Result.OnEnterFocus:=DoEnterFocus;	//Added by GoldenFox
+  Result.OnKillFocus:=DoKillFocus;		//Added by GoldenFox
+  Result.OnKeyDown:=DoKeyDown;			//Added by GoldenFox
 end;
 
+{
+procedure TD2Column.DoTextChanged(Sender:TObject);	//procedure Deleted by GoldenFox
+begin
+  if Grid=nil then Exit;
+  if FUpdateColumn then Exit;
+  if FDisableChange then Exit;
+  with d2StringToPoint(TD2Object(Sender).TagString) do
+  begin
+    Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+    if Assigned(Grid.FOnEdititingDone) then
+      Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));
+  end;
+end;
+}
 procedure TD2Column.DoCanFocused(Sender:TObject; var ACanFocused:boolean);
 begin
   if Grid=nil then Exit;
@@ -349,11 +543,12 @@ end;
 procedure TD2Column.DoEnterFocus(Sender:TObject);
 begin
   if Grid=nil then Exit;
-  Grid.FocusedColumn:=Index;
+  //Grid.ColumnIndex:=Index;	//Deleted by GoldenFox
+  Grid.FocusedColumn:=Index;	//Added by GoldenFox
   FSaveData:=TD2Object(Sender).Data;
 end;
 
-procedure TD2Column.DoKillFocus(Sender: TObject);
+procedure TD2Column.DoKillFocus(Sender: TObject);	//procedure Added by GoldenFox
 begin
   if TD2Object(Sender).IsVisual then
     with TD2VisualObject(Sender) do
@@ -369,10 +564,10 @@ begin
   if (KeyChar <> #0) and (Grid <> nil) and not Grid.CanEditAcceptKey(KeyChar) then
     KeyChar:=#0;
   if (Key=VK_RETURN) and (Grid <> nil) then
-  begin
-    Key:=VK_UNKNOWN;
+  begin					//Added by GoldenFox
+    Key:=VK_UNKNOWN;	//Added by GoldenFox
     Grid.SetFocus;
-  end;
+  end;					//Added by GoldenFox
   if (Key=VK_ESCAPE) and (Grid <> nil) then
   begin
     FDisableChange:=true;
@@ -381,7 +576,7 @@ begin
     finally
       FDisableChange:=false;
     end;
-    Key:=VK_UNKNOWN;
+    Key:=VK_UNKNOWN;	//Added by GoldenFox
     Grid.Reset;
   end;
   if (Key=VK_UP) or (Key=VK_DOWN) and (Grid <> nil) then
@@ -391,23 +586,24 @@ begin
   end;
 end;
 
-procedure TD2Column.CellSetFocus(ARow: integer);
+procedure TD2Column.CellSetFocus(ARow: integer);	//procedure Added by GoldenFox
 begin
   //виртуальный метод определяется в потомках
 end;
 
-procedure TD2Column.SetWidth(const Value: single);
+procedure TD2Column.SetWidth(const Value: single);	//procedure Added by GoldenFox
 begin
   inherited SetWidth(Value);
   if Grid<>nil then Grid.Realign;
 end;
 
-function TD2Column.GetCellClass: TD2CellClass;
+function TD2Column.GetCellClass: TD2CellClass;	//procedure Added by GoldenFox
 begin
   Result:=TD2Control;
 end;
 
-function TD2Column.GetGrid: TD2CustomGrid;
+//function TD2Column.Grid:TD2CustomGrid;	//Deleted by GoldenFox
+function TD2Column.GetGrid: TD2CustomGrid;	//Added by GoldenFox
 var
   P:TD2Object;
 begin
@@ -428,9 +624,12 @@ procedure TD2Column.ClearColumn;
 var
   i:integer;
 begin
-  for i:=0 to FCellControls.Count - 1 do
-    TD2Control(FCellControls.Items[i]).Free;
-  FCellControls.Clear;
+  //for i:=0 to High(FCellControls) do		//Deleted by GoldenFox
+  for i:=0 to FCellControls.Count - 1 do	//Added by GoldenFox
+    //FCellControls[i].Free;					//Deleted by GoldenFox
+    TD2Control(FCellControls.Items[i]).Free;	//Added by GoldenFox
+  //SetLength(FCellControls,0);			//Deleted by GoldenFox	
+  FCellControls.Clear;					//Added by GoldenFox
 end;
 
 function TD2Column.CellControlByPoint(X,Y:single):TD2Control;
@@ -442,13 +641,19 @@ begin
   if Grid=nil then Exit;
 
   P:=Grid.LocalToAbsolute(d2Point(X,Y));
-  for i:=0 to FCellControls.Count - 1 do
-    with TD2Control(FCellControls.Items[i]) do
-      if Visible and (pointInObject(P.X,P.Y)) then
-      begin
-        Result:=TD2Control(FCellControls.Items[i]);
-        Exit;
-      end;
+  //for i:=0 to High(FCellControls) do		//Deleted by GoldenFox
+  //  if FCellControls[i].Visible and (FCellControls[i].pointInObject(P.X,P.Y)) then	//Deleted by GoldenFox
+  //  begin							//Deleted by GoldenFox
+  //    Result:=FCellControls[i];	//Deleted by GoldenFox
+  //	    Exit;					//Deleted by GoldenFox
+  //    end;						//Deleted by GoldenFox
+  for i:=0 to FCellControls.Count - 1 do			//Added by GoldenFox
+    with TD2Control(FCellControls.Items[i]) do		//Added by GoldenFox
+	  if Visible and (pointInObject(P.X,P.Y)) then	//Added by GoldenFox
+      begin											//Added by GoldenFox
+        Result:=TD2Control(FCellControls.Items[i]);	//Added by GoldenFox
+        Exit;										//Added by GoldenFox
+      end;											//Added by GoldenFox
 end;
 
 function TD2Column.CellControlByRow(Row:integer):TD2Control;
@@ -457,70 +662,84 @@ var
 begin
   Result:=nil;
   if Grid=nil then Exit;
-  for i:=0 to FCellControls.Count - 1 do
-    with TD2Control(FCellControls.Items[i]) do
-      if Visible and (trunc(d2StringToPoint(TagString).Y)=Row) then
-      begin
-        Result:=TD2Control(FCellControls.Items[i]);
+  //for i:=0 to High(FCellControls) do	//Deleted by GoldenFox
+  //  if (FCellControls[i].Visible) and	//Deleted by GoldenFox (trunc(d2StringToPoint(FCellControls[i].TagString).Y)=Row) then	//Deleted by GoldenFox
+  //  begin	//Deleted by GoldenFox
+  //    Result:=FCellControls[i];	//Deleted by GoldenFox
+  
+  
+  for i:=0 to FCellControls.Count - 1 do		//Added by GoldenFox
+    with TD2Control(FCellControls.Items[i]) do	//Added by GoldenFox
+      if Visible and (trunc(d2StringToPoint(TagString).Y)=Row) then	//Added by GoldenFox
+      begin											//Added by GoldenFox
+        Result:=TD2Control(FCellControls.Items[i]);	//Added by GoldenFox
         Exit;
       end;
 end;
 
-procedure TD2Column.Realign;
+procedure TD2Column.Realign;	//procedure Added by GoldenFox
 begin
   inherited Realign;
   if FGrid<>nil then FGrid.Realign;
 end;
 
-function TD2CustomGrid.GetTopRow:integer;
-begin
-  if FVScrollBar = nil
-    then Result:=0
-    else Result:=trunc(FVScrollBar.Value / FRowHeight);
-end;
-
-function TD2CustomGrid.GetTopRowY: single;
-begin
-  Result:= TopRow * FRowHeight;
-end;
-
 procedure TD2Column.UpdateColumn;
 var
-  i,C,m:integer;
-  //V:Variant;
-  //cc: TD2Control;
+  i,C:integer;
+  m:integer;	//Added by GoldenFox
+  //V:Variant;	//Deleted by GoldenFox
 begin
   if Grid=nil then Exit;
   FUpdateColumn:=true;
   try
-    m:= Min(Grid.RowCount,Grid.VisibleRows);
-    C:= FCellControls.Count;
+    m:= Min(Grid.RowCount,Grid.VisibleRows);	//Added by GoldenFox
+    C:= FCellControls.Count;	//Added by GoldenFox
     { Create controls }
-    if C < m
-       then begin
-              for i:= C to m - 1 do
-              //begin
-              //  cc:=CreateCellControl;
-              //  InitCellControl(cc);
-              //  FCellControls.Add(cc);
-              //end;
-                FCellControls.Add(CreateCellControl);
-            end
-    else
+	//if Length(FCellControls) < Min(Grid.RowCount,Grid.VisibleRows)	//Deleted by GoldenFox //then	//Deleted by GoldenFox
+    //begin	//Deleted by GoldenFox
+    //  C:=High(FCellControls);	//Deleted by GoldenFox
+    //  SetLength(FCellControls,Min(Grid.RowCount,Grid.VisibleRows));	//Deleted by GoldenFox
+    //  for i:=C + 1 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do	//Deleted by GoldenFox
+    //  begin	//Deleted by GoldenFox
+    //    FCellControls[i]:=CreateCellControl;	//Deleted by GoldenFox
+    //    FCellControls[i].Parent:=Self;	//Deleted by GoldenFox
+    //    FCellControls[i].HitTest:=false;	//Deleted by GoldenFox
+    //    FCellControls[i].Visible:=false;	//Deleted by GoldenFox
+    //    FCellControls[i].Locked:=true;	//Deleted by GoldenFox
+    //    FCellControls[i].Stored:=false;	//Deleted by GoldenFox
+    //    FCellControls[i].OnCanFocused:=DoCanFocused;	//Deleted by GoldenFox
+    //    FCellControls[i].OnEnterFocus:=DoEnterFocus;	//Deleted by GoldenFox
+    //    FCellControls[i].OnKeyDown:=DoKeyDown;	//Deleted by GoldenFox
+    //  end;	//Deleted by GoldenFox
+    //end;	//Deleted by GoldenFox
+	if C < m											//Added by GoldenFox
+      then begin							   			//Added by GoldenFox
+             for i:= C to m - 1 do						//Added by GoldenFox
+               FCellControls.Add(CreateCellControl);	//Added by GoldenFox
+           end											//Added by GoldenFox
+      else												//Added by GoldenFox
     { Hide if need }
-    for i:=m to FCellControls.Count-1 do
-      TD2Control(FCellControls.Items[i]).Visible:=false;
+	//if Length(FCellControls) > Min(Grid.RowCount,Grid.VisibleRows)	//Deleted by GoldenFox //then	//Deleted by GoldenFox
+    //begin	//Deleted by GoldenFox
+    //  for i:=Min(Grid.RowCount,Grid.VisibleRows) to High(FCellControls) do	//Deleted by GoldenFox
+    //    FCellControls[i].Visible:=false;	//Deleted by GoldenFox
+    //end;				//Deleted by GoldenFox
+	    for i:=m to FCellControls.Count-1 do	//Added by GoldenFox
+		  TD2Control(FCellControls.Items[i]).Visible:=false;	//Added by GoldenFox
 
     { Update Data }
-    for i:=0 to m - 1 do
+    //for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do	//Deleted by GoldenFox
+	for i:=0 to m - 1 do	//Added by GoldenFox
     begin
       if Grid.TopRow + i >= Grid.RowCount then Break;
-      TD2Control(FCellControls.Items[i]).Visible:=true;
-      TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);
-      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));
-      //V:=Grid.GetValue(Index,Grid.TopRow + i);
-      //TD2Control(FCellControls.Items[i]).Data:=V;
-      TD2Control(FCellControls.Items[i]).Data:=Grid.GetValue(Index,Grid.TopRow + i);
+	  //V:=Grid.GetValue(Index,Grid.TopRow + i);	//Deleted by GoldenFox
+      //FCellControls[i].Visible:=true;	//Deleted by GoldenFox
+      //FCellControls[i].SetBounds(0,i * Grid.RowHeight,Width,Grid.RowHeight);	//Deleted by GoldenFox      //FCellControls[i].TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));	//Deleted by GoldenFox
+	  //FCellControls[i].Data:=V;	//Deleted by GoldenFox
+      TD2Control(FCellControls.Items[i]).Visible:=true;	//Added by GoldenFox
+      TD2Control(FCellControls.Items[i]).SetBounds(0, i * Grid.RowHeight, Width,Grid.RowHeight);	//Added by GoldenFox
+      TD2Control(FCellControls.Items[i]).TagString:=d2PointToString(d2Point(Index,Grid.TopRow + i));	//Added by GoldenFox
+      TD2Control(FCellControls.Items[i]).Data:=Grid.GetValue(Index,Grid.TopRow + i);	//Added by GoldenFox
     end;
     UpdateSelected;
   finally
@@ -535,41 +754,55 @@ begin
   if Grid=nil then Exit;
   if Grid.ReadOnly then Exit;
   if ReadOnly then Exit;
-  if Assigned(FCellControls) and  (FCellControls.Count > 0) then
-  begin
-    for i:=0 to Min(Grid.RowCount,Min(FCellControls.Count,Grid.VisibleRows)) - 1 do
-      with TD2Control(FCellControls.Items[i]) do
-        begin
-          HitTest:=false;
-          if IsFocused
-            then Grid.SetFocus;
+  //for i:=0 to Min(Grid.RowCount,Grid.VisibleRows) - 1 do	//Deleted by GoldenFox
+  //begin	//Deleted by GoldenFox
+  //  if Grid.IsSelected(Grid.TopRow + i) and (Grid.ColumnIndex=Index) then	//Deleted by GoldenFox
+  //  begin	//Deleted by GoldenFox
+  //   FCellControls[i].CanFocused:=true;	//Deleted by GoldenFox
+  //    FCellControls[i].HitTest:=true	//Deleted by GoldenFox
+  //  end	//Deleted by GoldenFox
+  //  else	//Deleted by GoldenFox
+  //  begin	//Deleted by GoldenFox
+  //    FCellControls[i].CanFocused:=false;	//Deleted by GoldenFox
+  //    FCellControls[i].HitTest:=false;	//Deleted by GoldenFox
+  //    if FCellControls[i].IsFocused then	//Deleted by GoldenFox
+  //      Grid.SetFocus;	//Deleted by GoldenFox
+  if Assigned(FCellControls) and  (FCellControls.Count > 0) then					//Added by GoldenFox
+  begin																				//Added by GoldenFox
+    for i:=0 to Min(Grid.RowCount,Min(FCellControls.Count,Grid.VisibleRows)) - 1 do	//Added by GoldenFox
+      with TD2Control(FCellControls.Items[i]) do	//Added by GoldenFox
+        begin										//Added by GoldenFox
+          HitTest:=false;							//Added by GoldenFox
+          if IsFocused								//Added by GoldenFox
+            then Grid.SetFocus;						//Added by GoldenFox
         end;
   end;
 end;
 
-procedure TD2Column.SetHeader(const Value:String);
+//procedure TD2Column.SetHeader(const Value:WideString);	//Deleted by GoldenFox
+procedure TD2Column.SetHeader(const Value:String);	//Added by GoldenFox
 begin
   if FHeader <> Value then
   begin
     FHeader := Value;
-    if (Grid <> nil) and (Grid.FHeader <> nil)
-      then Grid.FHeader.Items[Index].TextW := FHeader;
+    if (Grid <> nil) and (Grid.FHeader <> nil) then
+       Grid.FHeader.Items[Index].TextW := FHeader;
   end;
 end;
 
 //=============== TD2TextColumn ================================================
-function TD2TextColumn.CreateCellControl:TD2Control;
+function TD2TextColumn.CreateCellControl:TD2Control;	//function Added by GoldenFox
 begin
   Result:=inherited;
   TD2TextCell(Result).OnChange:=DoTextChanged;
 end;
 
-function TD2TextColumn.GetCellClass: TD2CellClass;
+function TD2TextColumn.GetCellClass: TD2CellClass;	//function Added by GoldenFox
 begin
   Result:=TD2TextCell;
 end;
 
-procedure TD2TextColumn.DoEnterFocus(Sender: TObject);
+procedure TD2TextColumn.DoEnterFocus(Sender: TObject);	//procedure Added by GoldenFox
 begin
   inherited;
   with TD2TextCell(Sender) do
@@ -579,7 +812,7 @@ begin
   end;
 end;
 
-procedure TD2TextColumn.DoKillFocus(Sender: TObject);
+procedure TD2TextColumn.DoKillFocus(Sender: TObject);	//procedure Added by GoldenFox
 begin
   inherited;
   with TD2TextCell(Sender) do
@@ -588,7 +821,7 @@ begin
   end;
 end;
 
-procedure TD2TextColumn.CellSetFocus(ARow: integer);
+procedure TD2TextColumn.CellSetFocus(ARow: integer);	//procedure Added by GoldenFox
 var C: TD2Control;
 begin
   inherited;
@@ -601,7 +834,7 @@ begin
   end;
 end;
 
-procedure TD2TextColumn.DoTextChanged(Sender:TObject);
+procedure TD2TextColumn.DoTextChanged(Sender:TObject);	//procedure Added by GoldenFox
 begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
@@ -616,9 +849,15 @@ end;
 
 //=============== TD2CheckColumn ================================================
 
+//constructor TD2CheckColumn.Create(AOwner:TComponent);	//constructor Deleted by GoldenFox
+//begin
+//  inherited;
+//end;
+
 function TD2CheckColumn.CreateCellControl:TD2Control;
 begin
-  Result:=inherited;
+  //Result:=TD2CheckCell.Create(Self);	//Deleted by GoldenFox
+  Result:=inherited;	//Added by GoldenFox
   TD2CheckCell(Result).OnChange:=DoCheckChanged;
 end;
 
@@ -626,7 +865,7 @@ procedure TD2CheckColumn.DoCheckChanged(Sender:TObject);
 begin
   if Grid=nil then Exit;
   if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
+  if FDisableChange then Exit;	//Added by GoldenFox
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin
     Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
@@ -635,7 +874,7 @@ begin
   end;
 end;
 
-function TD2CheckColumn.GetCellClass: TD2CellClass;
+function TD2CheckColumn.GetCellClass: TD2CellClass;	//function Added by GoldenFox
 begin
   Result:=TD2CheckCell;
 end;
@@ -650,12 +889,13 @@ end;
 
 function TD2ProgressColumn.CreateCellControl:TD2Control;
 begin
-  Result:=inherited;
+  //Result:=TD2ProgressCell.Create(Self);	//Deleted by GoldenFox
+  Result:=inherited;	//Added by GoldenFox
   TD2ProgressCell(Result).Min:=FMin;
   TD2ProgressCell(Result).Max:=FMax;
 end;
 
-function TD2ProgressColumn.GetCellClass: TD2CellClass;
+function TD2ProgressColumn.GetCellClass: TD2CellClass;	//function Added by GoldenFox
 begin
   Result:=TD2ProgressCell;
 end;
@@ -676,11 +916,12 @@ end;
 
 function TD2PopupColumn.CreateCellControl:TD2Control;
 begin
-  Result:=inherited;
+  //Result:=TD2PopupCell.Create(Self);	//Deleted by GoldenFox
+  Result:=inherited;	//Added by GoldenFox
   TD2PopupCell(Result).Items.Assign(FItems);
 end;
 
-function TD2PopupColumn.GetCellClass: TD2CellClass;
+function TD2PopupColumn.GetCellClass: TD2CellClass;	//function Added by GoldenFox
 begin
   Result:=TD2PopupCell;
 end;
@@ -692,13 +933,19 @@ end;
 
 //=============== TD2ImageColumn =============================================
 
+//constructor TD2ImageColumn.Create(AOwner:TComponent);	//constructor Deleted by GoldenFox
+//begin
+//  inherited;											   
+//end;
+
 function TD2ImageColumn.CreateCellControl:TD2Control;
 begin
-  Result:=inherited;
+  //Result:=TD2ImageCell.Create(Self);	//Deleted by GoldenFox
+  Result:=inherited;	//Added by GoldenFox
   TD2ImageCell(Result).EnableOpenDialog:=false;
 end;
 
-function TD2ImageColumn.GetCellClass: TD2CellClass;
+function TD2ImageColumn.GetCellClass: TD2CellClass;	//function Added by GoldenFox
 begin
   Result:=TD2ImageCell;
 end;
@@ -708,7 +955,7 @@ end;
 constructor TD2CustomGrid.Create(AOwner:TComponent);
 begin
   inherited;
-  FScrollDuration:=0.3;
+  FScrollDuration:=0.3;	//Added by GoldenFox
   FOddFill:=TD2Brush.Create(d2BrushSolid,$20000000);
   FLineFill:=TD2Brush.Create(d2BrushSolid,$FF202020);
   FShowSelectedCell:=true;
@@ -719,47 +966,55 @@ begin
   FRowCount:=100;
   CanFocused:=true;
   AutoCapture:=true;
-  Width:=200;
+  //Width:=100;	//Deleted by GoldenFox
+  Width:=200;	//Added by GoldenFox
   Height:=100;
-  //FItemHeight:=0;
-  SetLength(FSelectedRows, 128);
-  FSelected := 0;
-  FOldSelected := FSelected;
-  FSelectedRows[0] := 2;
-  FSelectedRows[1] := FSelected;
-  FSelectedRows[2] := FSelected;
-  FIsPreSelected := false;
-  FSortColumn := NoColumn;
-  FSortDirection := sdAscending;
+  //FItemHeight:=0;	//Deleted by GoldenFox
+  SetLength(FSelectedRows, 128);	//Added by GoldenFox
+  FSelected := 0;					//Added by GoldenFox
+  FOldSelected := FSelected;		//Added by GoldenFox
+  FSelectedRows[0] := 2;			//Added by GoldenFox
+  FSelectedRows[1] := FSelected;	//Added by GoldenFox
+  FSelectedRows[2] := FSelected;	//Added by GoldenFox
+  FIsPreSelected := false;			//Added by GoldenFox
+  FSortColumn := NoColumn;			//Added by GoldenFox
+  FSortDirection := sdAscending;	//Added by GoldenFox
 end;
 
 destructor TD2CustomGrid.Destroy;
-var i: integer;
+var i: integer;	//Added by GoldenFox
 begin
   if FSelections <> nil then
-  begin
-    for i:=0 to FSelections.Count-1 do
-      TObject(FSelections[i]).Free;
+  begin									//Added by GoldenFox
+    for i:=0 to FSelections.Count-1 do	//Added by GoldenFox
+      TObject(FSelections[i]).Free;		//Added by GoldenFox
     FSelections.Free;
-  end;
+  end;									//Added by GoldenFox
   FLineFill.Free;
   FOddFill.Free;
   inherited;
 end;
 
+procedure TD2CustomGrid.ApplyResource;	//procedure Added by GoldenFox
+begin
+  if FNeedResource and (FSelections <> nil) then FreeAndNil(FSelections);
+  inherited;
+end;
 
 function TD2CustomGrid.ItemClass:string;
 begin
-  Result:='TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';
+  //Result:='TD2Column;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';	//Deleted by GoldenFox
+  Result:='TD2TextColumn;TD2CheckColumn;TD2ProgressColumn;TD2PopupColumn;TD2ImageColumn';	//Added by GoldenFox
 end;
 
 procedure TD2CustomGrid.FreeStyle;
 begin
+  //inherited;	//Deleted by GoldenFox			
   FSelection:=nil;
-  FPreSelection := nil;
+  FPreSelection := nil;	//Added by GoldenFox
   FFocus:=nil;
   FHeader:=nil;
-  inherited;
+  inherited;	//Added by GoldenFox
 end;
 
 procedure TD2CustomGrid.ApplyStyle;
@@ -780,7 +1035,7 @@ begin
     FHeader.OnRealignItem:=DoRealignItem;
     FHeader.OnResizeItem:=DoResizeItem;
     FHeader.Visible:=FShowHeader;
-    FHeader.FGrid := Self; //Added by GoldenFox
+    FHeader.FGrid := Self; 		//Added by GoldenFox
   end;
   T:=FindResource('selection');
   if (T <> nil) and (T is TD2VisualObject) then
@@ -810,51 +1065,70 @@ begin
   begin
     FLineFill.Assign(TD2BrushObject(T).Brush);
   end;
-  Realign;
+  //UpdateColumns;		//Deleted by GoldenFox
+  //UpdateHeader;		//Deleted by GoldenFox
+  //UpdateSelection;	//Deleted by GoldenFox
+  Realign;			//Added by GoldenFox
 end;
 
 procedure TD2CustomGrid.UpdateSelection;   //обновить маркеры выбора строк
 var
   i:integer;
-  l,b: single;
+  l,b: single;	//Added by GoldenFox
   P:TD2Point;
   R:TD2Rect;
+  //Sel:boolean;	//Deleted by GoldenFox
   SelRects:array of TD2Rect;
   Clone:TD2VisualObject;
+  //Vis:boolean;	//Deleted by GoldenFox			  
 begin
   if FSelection=nil then Exit;
-  if (RowCount=0) or (ColumnCount=0) then
+  //if ColumnCount=0 then Exit;	//Deleted by GoldenFox
+  //if RowCount=0 then	//Deleted by GoldenFox
+  if (RowCount=0) or (ColumnCount=0) then	//Added by GoldenFox
   begin
-    FSelectedRows[0]:=0;			//обнулить длину массива выделенных строк
+    FSelectedRows[0]:=0;			//обнулить длину массива выделенных строк	//Added by GoldenFox
     if FSelections <> nil then
-      begin
         for i:=0 to FSelections.Count - 1 do
           TD2VisualObject(FSelections[i]).Visible:=false;	//сркыть все маркеры выделения
-      end;
-    if FPreSelection <> nil then FPreSelection.Visible := false;  //скрыть маркер предвыделения
+    if FPreSelection <> nil then FPreSelection.Visible := false;  //скрыть маркер предвыделения	//Added by GoldenFox
     if FFocus <> nil then
       FFocus.Visible:=false;
     Exit;
   end;
-  //делаем массив прямоугольников
+  // calc rects  делаем массив прямоугольников
+  //Vis:=true;	//Deleted by GoldenFox
+  //Sel:=false; //Deleted by GoldenFox
   SetLength(SelRects,0);
   i := 1;
   while (i <= FSelectedRows[0]) do
   begin
-    if (FSelectedRows[i] <= FSelectedRows[i+1]) and
-       (FSelectedRows[i+1] < RowCount) then
+    //if IsSelected(i) then	//Deleted by GoldenFox
+    if (FSelectedRows[i] <= FSelectedRows[i+1]) and	//Added by GoldenFox
+       (FSelectedRows[i+1] < RowCount) then			//Added by GoldenFox
     begin
-      P := d2Point(0, FSelectedRows[i] * FRowHeight);  //верхняя левая точка
+	  //P:=d2Point(0,i * FRowHeight);	//Deleted by GoldenFox
+      P := d2Point(0, FSelectedRows[i] * FRowHeight);  //верхняя левая точка	//Added by GoldenFox
       P := FContent.LocalToAbsolute(P);                //преобразуем в координаты контента
       if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
         P := FSelection.Parent.Visual.AbsoluteToLocal(P); //преобразуем в координаты владельца FSelection
-      if FContent.Width < ClientWidth
-        then R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )
-        else R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );
+      if FContent.Width < ClientWidth then
+	    //R:=d2Rect(P.X,P.Y,P.X + ClientWidth,P.Y + FRowHeight)	//Deleted by GoldenFox
+        R:= d2Rect(P.X, P.Y, P.X + ClientWidth,    P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) )	//Added by GoldenFox		  
+      else 
+		//R:=d2Rect(P.X,P.Y,P.X + FContent.Width,P.Y + FRowHeight);	//Deleted by GoldenFox
+		R:= d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight*(FSelectedRows[i+1] - FSelectedRows[i] + 1) );	//Added by GoldenFox
+
+      //if (Length(SelRects) > 0) and (i > 0) and (IsSelected(i - 1)) //then	//Deleted by GoldenFox
+      //  SelRects[High(SelRects)]:=d2UnionRect(R,SelRects[High(SelRects)])	//Deleted by GoldenFox
+      //else		//Deleted by GoldenFox
+      //begin		//Deleted by GoldenFox
       SetLength(SelRects,Length(SelRects) + 1);
       SelRects[High(SelRects)]:=R;
+	  //end;		//Deleted by GoldenFox
+	  //Sel:=true;	//Deleted by GoldenFox
     end;
-    i:=i+2;
+    i:=i+2;	//Added by GoldenFox
   end;
   // Create selection list
   if FSelections=nil then		//создаем список маркеров выделения если его нет
@@ -878,48 +1152,55 @@ begin
   // align selections  расставим маркеры выделения
   for i:=0 to High(SelRects) do
   begin
-    TD2VisualObject(FSelections[i]).Visible := true; //влючим очередной маркер
+    //TD2VisualObject(FSelections[i]).Visible:=Vis;	//Deleted by GoldenFox
+	TD2VisualObject(FSelections[i]).Visible := true; //влючим очередной маркер	//Added by GoldenFox
+	//if Vis then	//Deleted by GoldenFox
+    //begin		   	//Deleted by GoldenFox
       with SelRects[i] do
         TD2VisualObject(FSelections[i]).SetBounds(Left, Top, Right - Left, Bottom - Top); //установим границы маркера как у соотв. прямоугольника
       if (FFocus <> nil) then
       begin
-        if FShowSelectedCell and               // если разрешено выделять ячейку
-           IsOneRowSelected and                // и выделена только 1 строка
-           (FocusedColumn > NoColumn) then       // и есть выделенная колонка
+        if FShowSelectedCell and               // если разрешено выделять ячейку	//Added by GoldenFox
+           IsOneRowSelected and                // и выделена только 1 строка	//Added by GoldenFox
+           (FocusedColumn > NoColumn) then       // и есть выделенная колонка	//Added by GoldenFox
           begin
 	    FFocus.Visible:=true;
 	    FFocus.BringToFront;
-	    P:=d2Point(Columns[FocusedColumn].Position.X,0);
+		//P:=d2Point(Columns[ColumnIndex].Position.X,0);	//Deleted by GoldenFox
+	    P:=d2Point(Columns[FocusedColumn].Position.X,0);	//Added by GoldenFox
 	    P:=FContent.LocalToAbsolute(P);
 	    if (FSelection.Parent <> nil) and FSelection.Parent.IsVisual then
 	      P:=FSelection.Parent.Visual.AbsoluteToLocal(P);
-            if FShowHorzLines then b:=1 else b:=0;
-            if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;
-            with SelRects[i] do                                                                  //установить координаты маркера ячейки
-              FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,
-                              Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,
-                              SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);
-          end
-        else FFocus.Visible := false;  // иначе скрыть маркер ячейки
+            if FShowHorzLines then b:=1 else b:=0;							//Added by GoldenFox
+            if (FShowVertLines) and (FocusedColumn>0) then l:=1 else l:=0;	//Added by GoldenFox
+            with SelRects[i] do 	//установить координаты маркера ячейки
+			  //FFocus.SetBounds(P.X + FFocus.Padding.Left,SelRects[i].Top + FFocus.Padding.Top,	//Deleted by GoldenFox
+              //Columns[FColumnIndex].Width - (FFocus.Padding.Left + FFocus.Padding.Right),	//Deleted by GoldenFox
+              //SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom));	//Deleted by GoldenFox
+			  FFocus.SetBounds(P.X + FFocus.Padding.Left+l, SelRects[i].Top + FFocus.Padding.Top,						//Added by GoldenFox
+                              Columns[FFocusedColumn].Width - (FFocus.Padding.Left + FFocus.Padding.Right)-l,			//Added by GoldenFox
+                              SelRects[i].Bottom - SelRects[i].Top - (FFocus.Padding.Top + FFocus.Padding.Bottom)-b);	//Added by GoldenFox
+          end								//Added by GoldenFox
+        else FFocus.Visible := false;  // иначе скрыть маркер ячейки	//Added by GoldenFox
     end;
   end;
   //установим маркер пред.выбора
-  if FPreSelection <> nil then
-    begin
-      if FIsPreSelected then
-        begin
-          FPreSelection.Visible:=true;
-          FPreSelection.BringToFront;
-          P := d2Point(0, FSelected * FRowHeight);
-          P := FContent.LocalToAbsolute(P);
-          if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual
-            then P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);
-          if FContent.Width < ClientWidth
-            then R := d2Rect(P.X, P.Y, P.X + ClientWidth, P.Y + FRowHeight)
-            else R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight);
-          FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); //установим границы маркера пред.выбора
-        end
-        else  FPreSelection.Visible:=false;
+  if FPreSelection <> nil then	//Added by GoldenFox
+    begin	//Added by GoldenFox
+      if FIsPreSelected then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          FPreSelection.Visible:=true;	//Added by GoldenFox
+          FPreSelection.BringToFront;	//Added by GoldenFox
+          P := d2Point(0, FSelected * FRowHeight);	//Added by GoldenFox
+          P := FContent.LocalToAbsolute(P);	//Added by GoldenFox
+          if (FPreSelection.Parent <> nil) and FPreSelection.Parent.IsVisual	//Added by GoldenFox
+            then P := FPreSelection.Parent.Visual.AbsoluteToLocal(P);	//Added by GoldenFox
+          if FContent.Width < ClientWidth	//Added by GoldenFox
+            then R := d2Rect(P.X, P.Y, P.X + ClientWidth, P.Y + FRowHeight)	//Added by GoldenFox
+            else R := d2Rect(P.X, P.Y, P.X + FContent.Width, P.Y + FRowHeight);	//Added by GoldenFox
+          FPreSelection.SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top); 	//Added by GoldenFox  //установим границы маркера пред.выбора
+        end	//Added by GoldenFox
+        else  FPreSelection.Visible:=false;	//Added by GoldenFox
     end;
 
   for i := 0 to ColumnCount - 1 do   //обновить колонки
@@ -928,19 +1209,22 @@ end;
 
 procedure TD2CustomGrid.DoRealignItem(Sender:TObject; OldIndex,NewIndex:integer);
 begin
-  if FocusedColumn=OldIndex
-    then FocusedColumn:=NewIndex
-    else if (OldIndex<FocusedColumn) and (FocusedColumn<=NewIndex)
-           then FocusedColumn:=FocusedColumn-1
-           else if (OldIndex>FocusedColumn) and (FocusedColumn>=NewIndex)
-                  then FocusedColumn:=FocusedColumn+1;
+  //if ColumnIndex=Columns[OldIndex].Index then	//Deleted by GoldenFox
+  //  ColumnIndex:=NewIndex;	//Deleted by GoldenFox
 
-  if SortColumn=OldIndex
-    then SortColumn:=NewIndex
-    else if (OldIndex<SortColumn) and (SortColumn<=NewIndex)
-           then SortColumn:=SortColumn-1
-           else if (OldIndex>SortColumn) and (SortColumn>=NewIndex)
-                  then SortColumn:=SortColumn+1;
+  if FocusedColumn=OldIndex	//Added by GoldenFox
+    then FocusedColumn:=NewIndex	//Added by GoldenFox
+    else if (OldIndex<FocusedColumn) and (FocusedColumn<=NewIndex)	//Added by GoldenFox
+           then FocusedColumn:=FocusedColumn-1	//Added by GoldenFox
+           else if (OldIndex>FocusedColumn) and (FocusedColumn>=NewIndex)	//Added by GoldenFox
+                  then FocusedColumn:=FocusedColumn+1;	//Added by GoldenFox
+
+  if SortColumn=OldIndex	//Added by GoldenFox
+    then SortColumn:=NewIndex	//Added by GoldenFox
+    else if (OldIndex<SortColumn) and (SortColumn<=NewIndex)	//Added by GoldenFox
+           then SortColumn:=SortColumn-1	//Added by GoldenFox
+           else if (OldIndex>SortColumn) and (SortColumn>=NewIndex)	//Added by GoldenFox
+                  then SortColumn:=SortColumn+1;	//Added by GoldenFox
 
   Columns[OldIndex].Index:=NewIndex;
 end;
@@ -955,84 +1239,92 @@ end;
 procedure TD2CustomGrid.UpdateHeader;
 var
   i:integer;
-  c: integer;
-  Item:TD2HeaderItem;
-  b: boolean;
+  c: integer;	//Added by GoldenFox
+  Item: TD2HeaderItem;
+  b: boolean;	//Added by GoldenFox
 begin
   if FHeader = nil then Exit; //если нет заголовка, то выйти
-  FHeader.FOffset := -HScrollBar.Value;  //установить сдвиг заголовка
-  c:=FHeader.ItemsCount;                 //кол-во полей в заголовке
-  if c < ColumnCount then                //добавим поля в заголовок, если не хватает
-    for i := c to ColumnCount - 1 do
+  FHeader.FOffset:=-HScrollBar.Value;  //установить сдвиг заголовка
+  c:=FHeader.ItemsCount;	//Added by GoldenFox                 //кол-во полей в заголовке
+  if c < ColumnCount then	//Added by GoldenFox                //добавим поля в заголовок, если не хватает
+    //for i:=FHeader.ChildrenCount to ColumnCount - 1 do	//Deleted by GoldenFox
+	for i := c to ColumnCount - 1 do	//Added by GoldenFox
     begin
       Item:=TD2HeaderItem.Create(Self);
       Item.Parent:=FHeader;
       Item.Locked:=true;
       Item.Stored:=false;
     end;
-  if (c > ColumnCount) and (FHeader.FContent <> nil) then  //удалим лишние поля из заголовка
-    for i := ColumnCount to c - 1 do
-        begin
-          Item := FHeader.GetItem(i);
-          FHeader.FContent.RemoveObject(Item);
-          Item.Free;
-        end;
+  //FHeader.FChildren.Add(FHeader.FLastItem);	//Deleted by GoldenFox
+  if (c > ColumnCount) and (FHeader.FContent <> nil) then	//Added by GoldenFox  //удалим лишние поля из заголовка
+    for i := ColumnCount to c - 1 do	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          Item := FHeader.GetItem(i);	//Added by GoldenFox
+          FHeader.FContent.RemoveObject(Item);	//Added by GoldenFox
+          Item.Free;	//Added by GoldenFox
+        end;	//Added by GoldenFox
 
-  b:=false;
+  b:=false;	//Added by GoldenFox
   for i := 0 to ColumnCount - 1 do //обновим ширину и надписи полей заголовка
   begin
-    FHeader.Items[i].TextW := Columns[i].Header; //пропишем текст поля заголовка
-    FHeader.Items[i].Width := Columns[i].Width;  //установим ширину поля заголовка
-    if i=FSortColumn
-      then  begin
-              case FSortDirection of
-                sdAscending:
-                  if (FHeader.Items[i].IsSortedUp<>true) or
-                     (FHeader.Items[i].IsSortedDown<>false)
-                    then  begin
-                            FHeader.Items[i].IsSortedUp:=true;
-                            FHeader.Items[i].IsSortedDown:=false;
-                            b:=true;
-                          end;
-                sdDescending:
-                  if (FHeader.Items[i].IsSortedUp<>false) or
-                     (FHeader.Items[i].IsSortedDown<>true)
-                    then  begin
-                            FHeader.Items[i].IsSortedUp:=false;
-                            FHeader.Items[i].IsSortedDown:=true;
-                            b:=true;
-                          end;
-              end;
-            end
-      else if (FHeader.Items[i].IsSortedUp<>false) or
-              (FHeader.Items[i].IsSortedDown<>false)
-             then begin
-                    FHeader.Items[i].IsSortedUp:=false;
-                    FHeader.Items[i].IsSortedDown:=false;
-                    b:=true;
-                  end;
+    //TD2HeaderItem(FHeader.Children[i]).TextW:=Columns[i].Header;	//Deleted by GoldenFox
+	FHeader.Items[i].TextW := Columns[i].Header; //пропишем текст поля заголовка	//Added by GoldenFox
+	//TD2HeaderItem(FHeader.Children[i]).Width:=Columns[i].Width;	//Deleted by GoldenFox
+    FHeader.Items[i].Width := Columns[i].Width;	//Added by GoldenFox  //установим ширину поля заголовка
+    if i=FSortColumn	//Added by GoldenFox
+      then  begin	//Added by GoldenFox
+              case FSortDirection of	//Added by GoldenFox
+                sdAscending:	//Added by GoldenFox
+                  if (FHeader.Items[i].IsSortedUp<>true) or	//Added by GoldenFox
+                     (FHeader.Items[i].IsSortedDown<>false)	//Added by GoldenFox
+                    then  begin	//Added by GoldenFox
+                            FHeader.Items[i].IsSortedUp:=true;	//Added by GoldenFox
+                            FHeader.Items[i].IsSortedDown:=false;	//Added by GoldenFox
+                            b:=true;	//Added by GoldenFox
+                          end;	//Added by GoldenFox
+                sdDescending:	//Added by GoldenFox
+                  if (FHeader.Items[i].IsSortedUp<>false) or	//Added by GoldenFox
+                     (FHeader.Items[i].IsSortedDown<>true)	//Added by GoldenFox
+                    then  begin	//Added by GoldenFox
+                            FHeader.Items[i].IsSortedUp:=false;	//Added by GoldenFox
+                            FHeader.Items[i].IsSortedDown:=true;	//Added by GoldenFox
+                            b:=true;	//Added by GoldenFox
+                          end;	//Added by GoldenFox
+              end;	//Added by GoldenFox
+            end	//Added by GoldenFox
+      else if (FHeader.Items[i].IsSortedUp<>false) or	//Added by GoldenFox
+              (FHeader.Items[i].IsSortedDown<>false)	//Added by GoldenFox
+             then begin	//Added by GoldenFox
+                    FHeader.Items[i].IsSortedUp:=false;	//Added by GoldenFox
+                    FHeader.Items[i].IsSortedDown:=false;	//Added by GoldenFox
+                    b:=true;	//Added by GoldenFox
+                  end;	//Added by GoldenFox
   end;
-  if b                 //если требуется пересортировка,
-    then SortGrid          //то запустим сортировку с полным пререстроением грида
-    else FHeader.Realign;  //иначе перестроим только заголовок
+  //if FHeader <> nil then	//Deleted by GoldenFox
+  //  FHeader.Realign;	//Deleted by GoldenFox
+  
+  if b	//Added by GoldenFox                 //если требуется пересортировка,
+    then SortGrid 	//Added by GoldenFox         //то запустим сортировку с полным пререстроением грида
+    else FHeader.Realign;	//Added by GoldenFox  //иначе перестроим только заголовок
 end;
 
 procedure TD2CustomGrid.UpdateColumns;
 var
-  R:TD2Rect;
+  R:TD2Rect;	//Added by GoldenFox
   i: integer;
-  Y: single;
+  Y: single;	//Added by GoldenFox
 begin
-  if (ContentLayout <> nil) then
-  begin
-    R:=ContentLayout.LocalRect;
-    Y:= GetTopRowY;
+  if (ContentLayout <> nil) then	//Added by GoldenFox
+  begin	//Added by GoldenFox
+    R:=ContentLayout.LocalRect;	//Added by GoldenFox
+    Y:= GetTopRowY;	//Added by GoldenFox
     for i:=0 to ColumnCount - 1 do
     begin
-      Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R) + FVScrollBar.Value - Y);
+      //Columns[i].Position.Y:=(TopRow * FRowHeight);	//Deleted by GoldenFox
+	  Columns[i].SetBounds(R.Left, Y, Columns[i].Width, d2RectHeight(R) + FVScrollBar.Value - Y);	//Added by GoldenFox
       Columns[i].UpdateColumn;
-      R.Left:=R.Left + Columns[i].Width;
-    end;
+      R.Left:=R.Left + Columns[i].Width;	//Added by GoldenFox
+    end;	//Added by GoldenFox
   end;
 end;
 
@@ -1092,7 +1384,7 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);
+procedure TD2CustomGrid.GetColumnBounds(iColumn: integer; out sLeft, sRight: Single);	//procedure Added by GoldenFox
 // Возвращает левую и правую границу столбца Column. Если Column = NoColumn, то возвращается вся ширина клиетской части грида.
 // Returns the left and right bound of the given column. If Column is NoColumn then the entire client width is returned.
 begin
@@ -1114,21 +1406,46 @@ begin
 end;
 
 function TD2CustomGrid.GetContentBounds:TD2Rect;
+//var				//Deleted by GoldenFox
+//  Col,R:TD2Rect;	//Deleted by GoldenFox
+//  i,Idx:integer;	//Deleted by GoldenFox
 begin
   Result:= LocalRect;
   if FUpdating > 0 then Exit;
   if ContentLayout=nil then Exit;
-  Result:= ContentLayout.LocalRect;
-  Result.Right:= Result.Left + Max(GetContentWidth, ContentLayout.Width);
-  Result.Bottom:= Result.Top + Max(GetContentHeight, ContentLayout.Height);
+  //R:=ContentLayout.LocalRect;	//Deleted by GoldenFox
+  //if ColumnCount > 0 then	//Deleted by GoldenFox
+  //begin	//Deleted by GoldenFox
+  //  R.Right:=R.Left;	//Deleted by GoldenFox
+  //  R.Top:=R.Top;	//Deleted by GoldenFox
+  //  for i:=0 to ColumnCount - 1 do	//Deleted by GoldenFox
+  //  begin	//Deleted by GoldenFox
+  //    Col:=d2Rect(R.Right,R.Top,R.Right + Columns[i].Width,R.Bottom);	//Deleted by GoldenFox
+  //    R.Right:=R.Right + Columns[i].Width;	//Deleted by GoldenFox
+  //    Columns[i].SetBounds(Col.Left,(TopRow * FRowHeight),Columns[i].Width,ClientHeight);	//Deleted by GoldenFox
+  //    Columns[i].UpdateColumn;	//Deleted by GoldenFox
+  //  end;	//Deleted by GoldenFox
+  //  R.Bottom:=R.Top + (FRowCount * FRowHeight);	//Deleted by GoldenFox
+  //end;	//Deleted by GoldenFox
+  //if d2RectWidth(R) < ContentLayout.Width then	//Deleted by GoldenFox
+  //  R.Right:=R.Left + ContentLayout.Width;	//Deleted by GoldenFox
+  //if d2RectHeight(R) < ContentLayout.Height then	//Deleted by GoldenFox
+  //  R.Bottom:=R.Top + ContentLayout.Height;	//Deleted by GoldenFox
+  //Result:=R;	//Deleted by GoldenFox
+  //UpdateColumns;	//Deleted by GoldenFox
+  //UpdateHeader;	//Deleted by GoldenFox
+  //UpdateSelection;	//Deleted by GoldenFox
+  Result:= ContentLayout.LocalRect;	//Added by GoldenFox
+  Result.Right:= Result.Left + Max(GetContentWidth, ContentLayout.Width);	//Added by GoldenFox
+  Result.Bottom:= Result.Top + Max(GetContentHeight, ContentLayout.Height);	//Added by GoldenFox
 end;
 
-function TD2CustomGrid.GetContentHeight: Single;
+function TD2CustomGrid.GetContentHeight: Single;	//function Added by GoldenFox
 begin
   Result:= Max(0, FRowCount * FRowHeight);
 end;
 
-function TD2CustomGrid.GetContentWidth: Single;
+function TD2CustomGrid.GetContentWidth: Single;	//function Added by GoldenFox
 var i: integer;
 begin
   Result:=0;
@@ -1165,8 +1482,19 @@ begin
 end;
 
 function TD2CustomGrid.RowByPoint(const X, Y:single):integer;
+//var				//Deleted by GoldenFox
+//  i:integer;		//Deleted by GoldenFox
+//  P,P1:TD2Point;	//Deleted by GoldenFox
 begin
-  if FContent <> nil
+  //P:=LocalToAbsolute(d2Point(X,Y));	//Deleted by GoldenFox
+  //if FContent <> nil then				//Deleted by GoldenFox
+  //begin								//Deleted by GoldenFox
+  //  P:=FContent.AbsoluteToLocal(P);	//Deleted by GoldenFox
+  //  Result:=trunc(P.Y / FRowHeight);	//Deleted by GoldenFox
+  //  Exit;								//Deleted by GoldenFox
+  //end;								//Deleted by GoldenFox
+  //Result:=-1;							//Deleted by GoldenFox
+  if FContent <> nil			   
     then Result:=trunc(Y / FRowHeight)
     else Result:=-1;
 end;
@@ -1193,7 +1521,8 @@ end;
 function TD2CustomGrid.ColumnByPoint(const X,Y:single):TD2Column;
 var
   i:integer;
-  P: TD2Point;
+  //P,P1:TD2Point;	//Deleted by GoldenFox
+  P: TD2Point;		//Added by GoldenFox
 begin
   P:=LocalToAbsolute(d2Point(X,Y));
   if (FContent <> nil) and (FContent.ChildrenCount > 0) then
@@ -1211,7 +1540,7 @@ begin
   Result:=nil;
 end;
 
-procedure TD2CustomGrid.Realign;
+procedure TD2CustomGrid.Realign;	//procedure Added by GoldenFox
 begin
   if csDestroying in ComponentState then Exit;
   if csLoading in ComponentState then Exit;
@@ -1240,98 +1569,118 @@ begin
   inherited ;
   if RowCount > 0 then
   begin
-    if IsOneRowSelected then
+    //if (KeyChar <> #0) and not (ReadOnly) and not (Columns[ColumnIndex].ReadOnly) then	//Deleted by GoldenFox
+	if IsOneRowSelected then	//Added by GoldenFox
     begin
-      if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then
+      //if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then	//Deleted by GoldenFox
+	  if (KeyChar <> #0) and not (ReadOnly) and not (Columns[FocusedColumn].ReadOnly) then	//Added by GoldenFox
       begin
-        if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then
-        begin
-          Columns[FocusedColumn].CellSetFocus(Selected);
-          TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);
-        end;
+        //Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;	//Deleted by GoldenFox
+		//TD2HackVisualObject(Columns[ColumnIndex].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);	//Deleted by GoldenFox
+		if (Columns[FocusedColumn] <> nil) and (Columns[FocusedColumn].CellControlByRow(Selected) <> nil) then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          Columns[FocusedColumn].CellSetFocus(Selected);	//Added by GoldenFox
+          TD2HackVisualObject(Columns[FocusedColumn].CellControlByRow(Selected)).KeyDown(Key,KeyChar,Shift);	//Added by GoldenFox
+        end;	//Added by GoldenFox
       end;
       case Key of
         VK_F2:
           begin
-            if Columns[FocusedColumn] <> nil
-               then Columns[FocusedColumn].CellSetFocus(Selected);
+            //if (Columns[ColumnIndex] <> nil) and (Columns[ColumnIndex].CellControlByRow(Selected) <> nil) then	//Deleted by GoldenFox
+            //Columns[ColumnIndex].CellControlByRow(Selected).SetFocus;	//Deleted by GoldenFox
+			if Columns[FocusedColumn] <> nil	//Added by GoldenFox
+               then Columns[FocusedColumn].CellSetFocus(Selected);	//Added by GoldenFox
           end;
-        VK_LEFT:
-          begin
-            if (Shift = []) and (FocusedColumn > 0)
-              then FocusedColumn := FocusedColumn - 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)
-              then FocusedColumn := 0;
-            Key:=0;
-          end;
-        VK_RIGHT:
-          begin
-            if (Shift = []) and (FocusedColumn < ColumnCount - 1)
-              then FocusedColumn := FocusedColumn + 1;
-            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)
-               then FocusedColumn := ColumnCount - 1;
-            Key:=0;
-          end;
-      end;
-    end;
-    case Key of
-      VK_SPACE:
-        if MultiSelect and (Shift = [ssCtrl])  then
-        begin
-          ChangeSelectionRow(FSelected);
-          UpdateSelection;
-        end;
-      VK_A:
-        if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A
-          begin
-            FSelectedRows[0]:=2;
-            FSelectedRows[1]:=0;
-            FSelectedRows[2]:=RowCount - 1;
-            FIsPreSelected:=false;
-            UpdateSelection;
-          end;
-      VK_UP:
-        if FSelected > 0 then
-        begin
-          if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх
-          if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех
-          if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка
-        end;
-      VK_DOWN:
-        if FSelected < RowCount-1 then
-        begin
-          if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз
-          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз
-          if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка
+        VK_LEFT:	//Added by GoldenFox
+          begin	//Added by GoldenFox
+            if (Shift = []) and (FocusedColumn > 0)	//Added by GoldenFox
+              then FocusedColumn := FocusedColumn - 1;	//Added by GoldenFox
+            if (Shift = [ssCtrl]) and (FocusedColumn <> 0)	//Added by GoldenFox
+              then FocusedColumn := 0;	//Added by GoldenFox
+            Key:=0;	//Added by GoldenFox
+          end;	//Added by GoldenFox
+        VK_RIGHT:	//Added by GoldenFox
+          begin	//Added by GoldenFox
+            if (Shift = []) and (FocusedColumn < ColumnCount - 1)	//Added by GoldenFox
+              then FocusedColumn := FocusedColumn + 1;	//Added by GoldenFox
+            if (Shift = [ssCtrl]) and (FocusedColumn <> ColumnCount - 1)	//Added by GoldenFox
+               then FocusedColumn := ColumnCount - 1;	//Added by GoldenFox
+            Key:=0;	//Added by GoldenFox
+          end;	//Added by GoldenFox
+      end;	//Added by GoldenFox
+    end;	//Added by GoldenFox
+    case Key of	//Added by GoldenFox
+      VK_SPACE:	//Added by GoldenFox
+        if MultiSelect and (Shift = [ssCtrl])  then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          ChangeSelectionRow(FSelected);	//Added by GoldenFox
+          UpdateSelection;	//Added by GoldenFox
+        end;	//Added by GoldenFox
+      VK_A:	//Added by GoldenFox
+        if (Shift = [ssCtrl]) and MultiSelect then //Ctrl + A	//Added by GoldenFox
+          begin	//Added by GoldenFox
+            FSelectedRows[0]:=2;	//Added by GoldenFox
+            FSelectedRows[1]:=0;	//Added by GoldenFox
+            FSelectedRows[2]:=RowCount - 1;	//Added by GoldenFox
+            FIsPreSelected:=false;	//Added by GoldenFox
+            UpdateSelection;	//Added by GoldenFox
+          end;	//Added by GoldenFox
+      //VK_UP:if FSelected > 0 then Selected:=Selected - 1;	//Deleted by GoldenFox
+	  VK_UP:	//Added by GoldenFox
+        if FSelected > 0 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(FSelected - 1);  //нажата только вверх	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(Selected - 1); //если Shift + ввех	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected - 1);    //Ctrl + ввех  и выбрана не первая строка	//Added by GoldenFox
+        end;	//Added by GoldenFox
+      //VK_DOWN:if FSelected < FRowCount - 1 then Selected:=Selected + 1;	//Deleted by GoldenFox
+	  VK_DOWN:	//Added by GoldenFox
+        if FSelected < RowCount-1 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(FSelected + 1);  //нажата только вниз	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + 1); //если Shift + вниз	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected + 1);     //Ctrl + вниз и выбрана не последняя строка	//Added by GoldenFox
         end;
       VK_HOME:
-        if FSelected > 0 then
-        begin
-          if Shift = [] then SetSelected(0);  //нажата только Home
-          if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home
-          if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка
+	    //if ssCtrl in Shift then	//Deleted by GoldenFox
+        //  Selected:=0				//Deleted by GoldenFox
+        //else						//Deleted by GoldenFox
+        //  ColumnIndex:=0;			//Deleted by GoldenFox
+        if FSelected > 0 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(0);  //нажата только Home	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(0);   //если Shift + Home	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(0);  //Ctrl + Home и выбрана не первая строка	//Added by GoldenFox
         end;
       VK_END:
-        if FSelected < RowCount-1 then
-        begin
-          if Shift = [] then SetSelected(RowCount - 1);  //нажата только End
-          if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End
-          if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка
-        end;
-      VK_PRIOR:
-        if FSelected > 0 then
-        begin
-          if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End
-          if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End
-          if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-        end;
-      VK_NEXT:
-        if FSelected < RowCount-1 then
-        begin
-          if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End
-          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End
-          if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка
-        end;
+		//if ssCtrl in Shift then			//Deleted by GoldenFox
+        //  Selected:=RowCount - 1			//Deleted by GoldenFox
+        //else								//Deleted by GoldenFox
+        //  ColumnIndex:=ColumnCount - 1;	//Deleted by GoldenFox
+        if FSelected < RowCount-1 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(RowCount - 1);  //нажата только End	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(RowCount - 1);   //если Shift + End	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(RowCount - 1);  //Ctrl + End и выбрана не последняя строка	//Added by GoldenFox
+        end;	//Added by GoldenFox
+      //VK_PRIOR:if FSelected > 0 then Selected:=Selected - Min(RowCount,VisibleRows);	//Deleted by GoldenFox
+	  VK_PRIOR:	//Added by GoldenFox
+        if FSelected > 0 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(FSelected - Min(RowCount, VisibleRows-3));  //нажата только End	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected - Min(RowCount, VisibleRows-3));   //если Shift + End	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected - Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка	//Added by GoldenFox
+        end;	//Added by GoldenFox
+	  //VK_NEXT:if FSelected < FRowCount - 1 then Selected:=Selected + Min(RowCount,VisibleRows);		//Deleted by GoldenFox
+      VK_NEXT:	//Added by GoldenFox
+        if FSelected < RowCount-1 then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          if Shift = [] then SetSelected(FSelected + Min(RowCount, VisibleRows-3));  //нажата только End	//Added by GoldenFox
+          if Shift = [ssShift] then SetSelectedMoreRow(FSelected + Min(RowCount, VisibleRows-3));   //если Shift + End	//Added by GoldenFox
+          if Shift = [ssCtrl]  then SetPreSelected(FSelected + Min(RowCount, VisibleRows-3));  //Ctrl + End и выбрана не последняя строка	//Added by GoldenFox
+        end;	//Added by GoldenFox
+	  //VK_LEFT:if ColumnIndex > 0 then ColumnIndex:=ColumnIndex - 1;	//Deleted by GoldenFox
+      //VK_RIGHT:if ColumnIndex < ColumnCount - 1 then ColumnIndex:=ColumnIndex + 1;		//Deleted by GoldenFox
       else Exit;
     end;
     Key:=0;
@@ -1341,44 +1690,26 @@ end;
 procedure TD2CustomGrid.MouseDown(Button:TMouseButton; Shift:TShiftState; X, Y:single);
 var
   Column:TD2Column;
-  P: TD2Point;
+  P: TD2Point;	//Added by GoldenFox
 begin
   inherited;
-  if FContent = nil then exit;
-  P:=LocalToAbsolute(d2Point(X,Y));
-  P:=FContent.AbsoluteToLocal(P);
+  if FContent = nil then exit;	//Added by GoldenFox
+  P:=LocalToAbsolute(d2Point(X,Y));	//Added by GoldenFox
+  P:=FContent.AbsoluteToLocal(P);	//Added by GoldenFox
 
   if Button=mbLeft then
   begin
-    if (Shift = [ssLeft]) and not IsSelected(P.X, P.Y) //если нажата только ЛКМ и строка еще не выбрана
-      then SetSelectedByPoint(P.X, P.Y);                 //то выбрать эту строку
-    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y);          //если нажаты ЛКМ + Shift
-    if Shift = [ssLeft, ssShift, ssCtrl] then SetSelectedExtraRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift + Ctrl
-    //if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl
+    //Selected:=RowByPoint(X,Y);	//Deleted by GoldenFox
+    if (Shift = [ssLeft]) and not IsSelected(P.X, P.Y) //если нажата только ЛКМ и строка еще не выбрана	//Added by GoldenFox
+      then SetSelectedByPoint(P.X, P.Y);                 //то выбрать эту строку	//Added by GoldenFox
+    if Shift = [ssLeft, ssShift] then SetSelectedMoreRowByPoint(P.X, P.Y);          //если нажаты ЛКМ + Shift	//Added by GoldenFox
+    if Shift = [ssLeft, ssShift, ssCtrl] then SetSelectedExtraRowByPoint(P.X, P.Y); //если нажаты ЛКМ + Shift + Ctrl	//Added by GoldenFox
+    //if Shift = [ssLeft, ssCtrl] then ChangeSelectionRowByPoint(P.X, P.Y);           //если нажаты ЛКМ + Ctrl	//Added by GoldenFox
     Column:=ColumnByPoint(X, Y);
     if Column <> nil then
-      FocusedColumn:=Column.Index;
+      //ColumnIndex:=Column.Index;	//Deleted by GoldenFox
+	  FocusedColumn:=Column.Index;	//Added by GoldenFox
   end;
-end;
-
-procedure TD2CustomGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
-//обработка отпускания кнопок мыши
-var
-  P: TD2Point;
-begin
-  inherited;
-  if FContent = nil then exit;
-  P:=LocalToAbsolute(d2Point(X,Y));
-  P:=FContent.AbsoluteToLocal(P);
-
-  if Button=mbLeft then     //отпущена ЛКМ
-  begin
-    if (Shift = []) and IsSelected(P.X, P.Y) //больше ни чего не нажато и строка уже выбрана
-      then SetSelectedByPoint(P.X, P.Y);
-    if Shift = [ssCtrl]
-      then ChangeSelectionRowByPoint(P.X, P.Y);//если отпущена ЛКМ и нажат Ctrl
-  end;
-
 end;
 
 procedure TD2CustomGrid.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
@@ -1388,17 +1719,37 @@ begin
   inherited;
   if FPressed then
   begin
+	//Selected:=RowByPoint(X,Y);	//Deleted by GoldenFox						  
     Column:=ColumnByPoint(X,Y);
     if Column <> nil then
-      FocusedColumn:=Column.Index;
+      //ColumnIndex:=Column.Index;	//Deleted by GoldenFox
+	  FocusedColumn:=Column.Index;	//Added by GoldenFox
   end;
 end;
 
-function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean;  //Added by GoldenFox
+procedure TD2CustomGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: single);
+//обработка отпускания кнопок мыши
+var				//Added by GoldenFox
+  P: TD2Point;	//Added by GoldenFox
+begin
+  inherited;
+  if FContent = nil then exit;	//Added by GoldenFox
+  P:=LocalToAbsolute(d2Point(X,Y));	//Added by GoldenFox
+  P:=FContent.AbsoluteToLocal(P);	//Added by GoldenFox
+  if Button=mbLeft then     //отпущена ЛКМ	//Added by GoldenFox
+  begin	//Added by GoldenFox
+    if (Shift = []) and IsSelected(P.X, P.Y) //больше ни чего не нажато и строка уже выбрана	//Added by GoldenFox
+      then SetSelectedByPoint(P.X, P.Y);	//Added by GoldenFox
+    if Shift = [ssCtrl]	//Added by GoldenFox
+      then ChangeSelectionRowByPoint(P.X, P.Y);//если отпущена ЛКМ и нажат Ctrl	//Added by GoldenFox
+  end;	//Added by GoldenFox
+end;
+
+function TD2CustomGrid.ChangeSelectionRow(Idx: integer):boolean;  //function Added by GoldenFox
 //Инвертировать выделение строки c индексом Idx. Результат: true - строка выделена, false - развыделена
 var L, M, R: integer; //левая граница, середина, правая граница
     b: boolean;       //
-
+	
   procedure DelRange(t: integer);  //удаление строк t и t+1 из массива
   var i: integer;
   begin
@@ -1525,12 +1876,12 @@ begin
   UpdateSelection;
 end;
 
-function TD2CustomGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;
+function TD2CustomGrid.ChangeSelectionRowByPoint(const X, Y: single): boolean;	//function Added by GoldenFox
 begin
   Result:=ChangeSelectionRow(RowByPoint(X, Y));
 end;
 
-procedure TD2CustomGrid.SetSelectedMoreRow(Idx: integer);  //добавить выделенных строк procedure added by GoldenFox
+procedure TD2CustomGrid.SetSelectedMoreRow(Idx: integer);  //добавить выделенных строк  //procedure added by GoldenFox
 begin
   if FMultiSelect then
     begin
@@ -1577,19 +1928,19 @@ begin
     else SetSelected(Idx);
 end;
 
-procedure TD2CustomGrid.SetSelectedExtraRow(Idx: integer);
+procedure TD2CustomGrid.SetSelectedExtraRow(Idx: integer);	//procedure Added by GoldenFox
 //добавить к выбранным строки начиная с текущей до Idx без очистки ранее выбранных строк
 begin
   SetSelectedMoreRow(Idx);
 end;
 
-procedure TD2CustomGrid.SetSelectedMoreRowByPoint(const X, Y: single);
+procedure TD2CustomGrid.SetSelectedMoreRowByPoint(const X, Y: single);	//procedure Added by GoldenFox
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y с очисткой ранее выбранных строк
 begin
   SetSelectedMoreRow(RowByPoint(X, Y));
 end;
 
-procedure TD2CustomGrid.SetSelectedExtraRowByPoint(const X, Y: single);
+procedure TD2CustomGrid.SetSelectedExtraRowByPoint(const X, Y: single);	//procedure Added by GoldenFox
 //добавить к выбранным строки начиная с текущей до строки с координатами X, Y без очистки ранее выбранных строк
 begin
   SetSelectedExtraRow(RowByPoint(X, Y));
@@ -1605,35 +1956,31 @@ begin
   end
   else
     inherited;
-  if AObject is TD2Column then
-    begin
-      TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;
-      if Assigned(FScene) and (FScene.GetDesignTime) then
-        begin
-          FSelected:=0;
-          FOldSelected := FSelected;
-          FSelectedRows[0]:=2;
-          FSelectedRows[1]:=FSelected;
-          FSelectedRows[2]:=FSelected;
-          FIsPreSelected:=false;
-          UpdateSelection;
-        end;
-    end;
+  if AObject is TD2Column then	//Added by GoldenFox
+    begin	//Added by GoldenFox
+      TD2Column(AObject).FGrid:=TD2Column(AObject).GetGrid;	//Added by GoldenFox
+      if Assigned(FScene) and (FScene.GetDesignTime) then	//Added by GoldenFox
+        begin	//Added by GoldenFox
+          FSelected:=0;	//Added by GoldenFox
+          FOldSelected := FSelected;	//Added by GoldenFox
+          FSelectedRows[0]:=2;	//Added by GoldenFox
+          FSelectedRows[1]:=FSelected;	//Added by GoldenFox
+          FSelectedRows[2]:=FSelected;	//Added by GoldenFox
+          FIsPreSelected:=false;	//Added by GoldenFox
+          UpdateSelection;	//Added by GoldenFox
+        end;	//Added by GoldenFox
+    end;	//Added by GoldenFox
 end;
 
-procedure TD2CustomGrid.ApplyResource;
-begin
-  if FNeedResource and (FSelections <> nil) then FreeAndNil(FSelections);
-  inherited;
-end;
+//procedure TD2CustomGrid.RemoveObject(AObject:TD2Object);	//procedure Deleted by GoldenFox
+//begin
+//  inherited;
+//end;
 
-procedure TD2CustomGrid.ScrollToRow(ARow: integer);
-begin
-  if ARow <= TopRow then VScrollBar.Value := ARow * FRowHeight;
-  if ARow * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight
-    then VScrollBar.Value := ARow * FRowHeight - ClientHeight + FRowHeight;
-end;
-
+//procedure TD2CustomGrid.Notification(AComponent:TComponent; Operation:TOperation);	//procedure Deleted by GoldenFox
+//begin
+//  inherited;
+//end;
 function TD2CustomGrid.GetColumn(Index:integer):TD2Column;
 begin
   Result:=ColumnByIndex(Index);
@@ -1657,7 +2004,30 @@ begin
     FRowHeight:=Value;
     if FRowHeight < 5 then FRowHeight:=5;
     Realign;
-  end;
+  end;	  
+end;
+
+function TD2CustomGrid.GetTopRow:integer;
+begin
+  //if VScrollBar <> nil then						//Deleted by GoldenFox
+  //  Result:=trunc(VScrollBar.Value / FRowHeight)	//Deleted by GoldenFox
+  //else											//Deleted by GoldenFox
+  //  Result:=0;									//Deleted by GoldenFox
+  if FVScrollBar = nil		//Added by GoldenFox
+    then Result:=0			//Added by GoldenFox
+    else Result:=trunc(FVScrollBar.Value / FRowHeight);	//Added by GoldenFox
+end;
+
+function TD2CustomGrid.GetTopRowY: single;	//function Added by GoldenFox
+begin
+  Result:= TopRow * FRowHeight;
+end;
+
+procedure TD2CustomGrid.ScrollToRow(ARow: integer);	//procedure Added by GoldenFox
+begin
+  if ARow <= TopRow then VScrollBar.Value := ARow * FRowHeight;
+  if ARow * FRowHeight > VScrollBar.Value + ClientHeight - FRowHeight
+    then VScrollBar.Value := ARow * FRowHeight - ClientHeight + FRowHeight;
 end;
 
 function TD2CustomGrid.GetVisibleRows:integer;
@@ -1678,7 +2048,7 @@ begin
     FOnSetValue(Self,Col,Row,Value);
 end;
 
-procedure TD2CustomGrid.SortGrid;
+procedure TD2CustomGrid.SortGrid;	//procedure Added by GoldenFox
 //отсортировать грид в соответствии со значениями SortColumn и SortDirection
 begin
   Realign;
@@ -1709,31 +2079,42 @@ end;
 procedure TD2CustomGrid.SetSelected(const Value:integer);
 //сделать выбранной строку с номером Value
 begin
-  if (FSelected <> Value) or
-     (FSelectedRows[0] <> 2) or
-     (FSelectedRows[1] <> FSelectedRows[2]) then
+  //if FSelected <> Value then	//Deleted by GoldenFox
+  if (FSelected <> Value) or						//Added by GoldenFox
+     (FSelectedRows[0] <> 2) or						//Added by GoldenFox
+     (FSelectedRows[1] <> FSelectedRows[2]) then	//Added by GoldenFox
   begin
-    FOldSelected := FSelected;
+    FOldSelected := FSelected;	//Added by GoldenFox
     FSelected:=Value;
     if FSelected < 0 then FSelected:=0;
     if FSelected > FRowCount - 1 then FSelected:=FRowCount - 1;
-    FSelectedRows[0]:=2;
-    FSelectedRows[1]:=FSelected;
-    FSelectedRows[2]:=FSelected;
-    FIsPreSelected:=false;
-    ScrollToRow(FSelected);
+	//if FSelected <= TopRow then	//Deleted by GoldenFox
+    //  VScrollBar.Value:=FSelected * FRowHeight;	//Deleted by GoldenFox
+    //if FSelected * FRowHeight > VScrollBar.Value + ClientHeight - //FRowHeight then	//Deleted by GoldenFox
+    //  VScrollBar.Value:=FSelected * FRowHeight - ClientHeight + FRowHeight;	//Deleted by GoldenFox
+    FSelectedRows[0]:=2;			//Added by GoldenFox
+    FSelectedRows[1]:=FSelected;	//Added by GoldenFox
+    FSelectedRows[2]:=FSelected;	//Added by GoldenFox
+    FIsPreSelected:=false;			//Added by GoldenFox
+    ScrollToRow(FSelected);			//Added by GoldenFox
     UpdateSelection;
   end;
 end;
 
-procedure TD2CustomGrid.SetSelectedByPoint(const X, Y: single);
+procedure TD2CustomGrid.SetSelectedByPoint(const X, Y: single);	//procedure Added by GoldenFox
 //сделать выбранной строку по координатам X, Y
 begin
   SetSelected(RowByPoint(X, Y)); //выбрать строку
 end;
 
-function TD2CustomGrid.IsSelected(Row:integer):boolean; //проверить выбрана строка или нет
-var i: integer;
+//function TD2CustomGrid.IsSelected(Row:integer):boolean;	//function Deleted by GoldenFox
+//begin							  
+//  Result:=Row=FSelected;
+//end;
+
+function TD2CustomGrid.IsSelected(Row:integer):boolean; 	//function Added by GoldenFox
+//проверить выбрана строка или нет
+var i: integer;	//Added by GoldenFox
 begin
   if FSelectedRows[0] < 2
     then begin
@@ -1749,12 +2130,12 @@ begin
   Result := false;
 end;
 
-function TD2CustomGrid.IsSelected(const X, Y: single): boolean;
+function TD2CustomGrid.IsSelected(const X, Y: single): boolean;//function Added by GoldenFox
 begin
   Result:=IsSelected(RowByPoint(X, Y));
 end;
 
-function TD2CustomGrid.IsOneRowSelected: boolean;
+function TD2CustomGrid.IsOneRowSelected: boolean;	//function Added by GoldenFox
 begin
   if (FSelectedRows[0] = 2) and
      (FSelectedRows[1] = FSelectedRows[2]) and
@@ -1772,7 +2153,7 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.SetMultiSelect(const Value: boolean);
+procedure TD2CustomGrid.SetMultiSelect(const Value: boolean);	//procedure Added by GoldenFox
 begin
   if FMultiSelect <> Value then
   begin
@@ -1796,14 +2177,14 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.DblClick;
+procedure TD2CustomGrid.DblClick;	//procedure Added by GoldenFox
 begin
   inherited DblClick;
   if Columns[FocusedColumn] <> nil
     then Columns[FocusedColumn].CellSetFocus(Selected);
 end;
 
-procedure TD2CustomGrid.ContentRemoveObject(AObject: TD2Object);
+procedure TD2CustomGrid.ContentRemoveObject(AObject: TD2Object);	//procedure Added by GoldenFox
 begin
   inherited;
   Realign;
@@ -1827,7 +2208,20 @@ begin
   end;
 end;
 
-procedure TD2CustomGrid.SetSortColumn(AValue: integer);
+//procedure TD2CustomGrid.SetColumnIndex(const Value:integer);	//procedure Deleted by GoldenFox
+//begin
+//  if FColumnIndex <> Value then							   
+//  begin
+//    FColumnIndex:=Value;
+//    UpdateSelection;
+//    if Columns[FColumnIndex].Position.X < HScrollBar.Value then
+//      HScrollBar.Value:=Columns[FColumnIndex].Position.X;
+//    if Columns[FColumnIndex].Position.X + Columns[FColumnIndex].Width > HScrollBar.Value + ClientWidth then
+//      HScrollBar.Value:=Columns[FColumnIndex].Position.X + //Columns[FColumnIndex].Width - ClientWidth;
+//  end;
+//end;
+
+procedure TD2CustomGrid.SetSortColumn(AValue: integer);	//procedure Added by GoldenFox
 begin
   if AValue > ColumnCount-1 then AValue:=ColumnCount-1;
   if AValue < 0 then  AValue:=NoColumn;
@@ -1836,14 +2230,14 @@ begin
   SortGrid;
 end;
 
-procedure TD2CustomGrid.SetSortDirection(AValue: TD2SortDirection);
+procedure TD2CustomGrid.SetSortDirection(AValue: TD2SortDirection);	//procedure Added by GoldenFox
 begin
   if FSortDirection=AValue then Exit;
   FSortDirection:=AValue;
   SortGrid;
 end;
 
-procedure TD2CustomGrid.SetFocusedColumn(const Value:integer);
+procedure TD2CustomGrid.SetFocusedColumn(const Value:integer);	//procedure Added by GoldenFox
 begin
   if FFocusedColumn <> Value then
   begin
@@ -1864,8 +2258,8 @@ begin
     if FHeader <> nil then
       FHeader.Visible:=FShowHeader;
   end;
-  Realign;
-  UpdateSelection;
+  Realign;			//Added by GoldenFox
+  UpdateSelection;	//Added by GoldenFox
 end;
 
 procedure TD2CustomGrid.Reset;
@@ -1874,6 +2268,16 @@ begin
 end;
 
 //=============== TD2StringColumn =======================================================
+
+//constructor TD2StringColumn.Create(AOwner:TComponent);	//constructor Deleted by GoldenFox
+//begin
+//  inherited;
+//end;
+
+//destructor TD2StringColumn.Destroy;	//destructor Deleted by GoldenFox
+//begin
+//  inherited;
+//end;
 
 procedure TD2StringColumn.UpdateColumn;
 begin

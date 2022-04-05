@@ -15,6 +15,7 @@
  Адаптация для Lazarus (VirtualTreeView-Lazarus автор: Luiz Américo
  https://github.com/blikblum/VirtualTreeView-Lazarus)
 
+ Модуль адаптирован GoldenFox для пакета pl_ORCA.pkg 
 
 ***********************************************************************}
 

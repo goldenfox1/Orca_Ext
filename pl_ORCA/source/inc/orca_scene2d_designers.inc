@@ -91,7 +91,7 @@ end;
 function DesignResources(AResource:TD2Resources; Current:string):boolean;
 var
   SaveDesigner:TD2Designer;
-  //S:string;
+  //S:string;	//Deleted by GoldenFox
 begin
   Result:=false;
   if AResource <> nil then
@@ -684,11 +684,11 @@ begin
 end;
 
 procedure TD2LangDesigner.btnAddClick(Sender:TObject);
-//var
-//  List:TD2ListBox;
+//var	//Deleted by GoldenFox
+//  List:TD2ListBox;	//Deleted by GoldenFox
 begin
   { add new lang }
-  //List:=TD2ListBox.Create(Self);
+  //List:=TD2ListBox.Create(Self);	//Deleted by GoldenFox
 end;
 
 procedure TD2LangDesigner.DoTranslateChanged(Sender:TObject);
@@ -1008,19 +1008,11 @@ end;
 
 function TD2BrushDesign.UniqueName(S:string):string;
 begin
-
-
-
-
-
-
-
   if (FComp <> nil) and
      (FComp is TComponent) and
      (TComponent(FComp).Owner <> nil) and
      (TComponent(FComp).Owner is TCustomForm) and
      (TCustomForm(TComponent(FComp).Owner).Designer<> nil) then
-
        Result:=TCustomForm(TComponent(FComp).Owner).Designer.UniqueName(S)
   else
   if Designer <> nil then
@@ -1146,7 +1138,7 @@ end;
 
 procedure TD2BrushDesign.gradAngleChange(Sender:TObject);
 var
-  //Color:TD2Color;
+  //Color:TD2Color;	//Deleted by GoldenFox
   X,Y,Koef:single;
 begin
   { change grad brush alpha }

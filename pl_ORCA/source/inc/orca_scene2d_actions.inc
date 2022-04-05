@@ -107,7 +107,8 @@ end;
 
 //============== TEdtActionStack ===============================
 
-constructor TEdtActionStack.Create(AOwner:TD2CustomMemo);
+//constructor TEdtActionStack.Create(AOwner:TD2Memo);	//Deleted by GoldenFox
+constructor TEdtActionStack.Create(AOwner:TD2CustomMemo);	//Added by GoldenFox
 begin
   inherited Create;
   FOwner:=AOwner;

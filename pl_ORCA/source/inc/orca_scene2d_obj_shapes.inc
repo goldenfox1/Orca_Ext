@@ -126,13 +126,24 @@ end;
 
 
 //=============== TD2Line ================================
+//constructor TD2Line.Create(AOwner:TComponent);	//constructor Deleted by GoldenFox
+//begin
+//  inherited;
+//end;	
 procedure TD2Line.Paint;
-var
-  R: TD2Rect;
-  d: single;
+var	//Added by GoldenFox
+  R: TD2Rect;	//Added by GoldenFox
+  d: single;	//Added by GoldenFox
 begin
-  R:=GetShapeRect;
+  R:=GetShapeRect;	//Added by GoldenFox
   case FLineType of
+  {	//Deleted by GoldenFox  
+    d2LineHorizontal: Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Right,GetShapeRect.Top),AbsoluteOpacity); 
+	d2LineVertical: Canvas.DrawLine(GetShapeRect.TopLeft,d2Point(GetShapeRect.Left,GetShapeRect.Bottom),AbsoluteOpacity);
+  else
+    Canvas.DrawLine(GetShapeRect.TopLeft,GetShapeRect.BottomRight,AbsoluteOpacity);
+  }
+//----------- Block added by GoldenFox -----------
     d2LineHorizontal:
       begin
         d:=R.Top+d2RectHeight(R)/2;
@@ -151,8 +162,9 @@ begin
       Canvas.DrawLine(d2Point(R.Right,R.Top),d2Point(R.Right,R.Bottom),AbsoluteOpacity);
     d2LineBottom:
       Canvas.DrawLine(d2Point(R.Left,R.Bottom),d2Point(R.Right,R.Bottom),AbsoluteOpacity);
-  else //d2LineNormal:
-    Canvas.DrawLine(R.TopLeft,R.BottomRight,AbsoluteOpacity);
+    else //d2LineNormal:
+      Canvas.DrawLine(R.TopLeft,R.BottomRight,AbsoluteOpacity);
+//-------- End block added by GoldenFox ----------
   end;
 end;
 
@@ -602,6 +614,8 @@ begin
   inherited;
   FRecreate:=true;
 end;
+
+//----------- Block added by GoldenFox -----------
 
 { TD2Brace }
 
@@ -2410,6 +2424,7 @@ begin
         end;
     end;
 end;
+//-------- End block added by GoldenFox ----------
 
 //=============== TD2CalloutRectangle ====================================
 

@@ -5,7 +5,7 @@
  This unit is part of CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
-//=============== TD2Window ==========================================
+//=============== TD2Window ===========================================
 
 constructor TD2Window.Create(AOwner:TComponent);
 begin

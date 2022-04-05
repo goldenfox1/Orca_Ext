@@ -324,7 +324,7 @@ end;
 
 function TD2CustomTextBox.GetCoordinatePosition(x:single):integer;
 var
-  //CurX:double;
+  //CurX:double;	//Deleted by GoldenFox
   TmpX,
   WholeTextWidth,
   EditRectWidth :single;
@@ -569,9 +569,9 @@ begin
 end;
 
 procedure TD2CustomTextBox.PasteFromClipboard;
-//var
-  //Data:THandle;
-  //Insertion:WideString;
+//var	//Deleted by GoldenFox
+  //Data:THandle;	//Deleted by GoldenFox
+  //Insertion:WideString;	//Deleted by GoldenFox
 begin
   if ReadOnly then Exit;
 
@@ -621,8 +621,8 @@ begin
     VK_END:CaretPosition:=Length(TextW);
     VK_HOME:CaretPosition:=0;
     VK_LEFT:
-      if ssCtrl in Shift
-        then CaretPosition:=GetPrivWordBeging(CaretPosition)
+      if ssCtrl in Shift	
+        then CaretPosition:=GetPrivWordBeging(CaretPosition)	
         else CaretPosition:=CaretPosition - 1;
     VK_RIGHT:
       if ssCtrl in Shift
@@ -646,8 +646,8 @@ begin
                                     Delete(TmpS,CaretPosition + 1,1);
                                   end
                             else  begin {BackSpace key was pressed}
-                                    //if CaretPosition > 0 then
-                                    //  FActionStack.FragmentDeleted(CaretPosition,TmpS[CaretPosition]);
+                                    {if CaretPosition > 0 then
+									FActionStack.FragmentDeleted(CaretPosition,TmpS[CaretPosition]);}	
                                     Delete(TmpS,CaretPosition,1);
                                     CaretPosition:=CaretPosition - 1;
                                   end;
@@ -656,14 +656,15 @@ begin
                 end;
       end;
     VK_INSERT:
-      Begin
+      Begin	//Added by GoldenFox
         if Shift=[ssCtrl] then CopyToClipboard;
+		//else	//Deleted by GoldenFox
         if Shift=[ssShift]
           then  begin
                   PasteFromClipboard;
                   if Assigned(FOnTyping) then FOnTyping(Self);
                 end;
-      end;
+      end;	//Added by GoldenFox
   end;
 
   if (KeyChar <> #0) and (FFilterChar <> '') and (Pos(KeyChar,FFilterChar)=0)
@@ -713,7 +714,7 @@ begin
                     end
               else FSelLength:=0;
             Repaint;
-            Key:=0;
+            Key:=0;	//Added by GoldenFox
           end;
 
   if (Ord(KeyChar) >= 32) and not ReadOnly
@@ -721,7 +722,7 @@ begin
             S:=KeyChar;
             InsertText(S);
             if Assigned(FOnTyping) then FOnTyping(Self);
-            Key:=0;
+            Key:=0;	//Added by GoldenFox
           end;
   if FResourceLink <> nil
     then FResourceLink.Visual.UpdateEffects;
@@ -836,7 +837,8 @@ begin
   Change;
 end;
 
-procedure TD2CustomTextBox.SetTextW(const Value:WideString);
+//procedure TD2CustomTextBox.SetText(const Value:WideString);	//Deleted by GoldenFox
+procedure TD2CustomTextBox.SetTextW(const Value:WideString);	//Added by GoldenFox
 begin
   if FText <> Value then
   begin
@@ -854,16 +856,17 @@ procedure TD2CustomTextBox.SetText(const Value:String);
  var ss:WideString;
 begin
   ss:=UTF8Decode(Value);
-  SetTextW(ss);
+  //SetText(ss);	//Deleted by GoldenFox
+  SetTextW(ss);	//Added by GoldenFox
 end;
 
-Function TD2CustomTextBox.GetTextW:WideString;
+//Function TD2CustomTextBox.GetTextW:WideString;	//Deleted by GoldenFox
+Function TD2CustomTextBox.GetTextW:WideString;	//Added by GoldenFox
 begin
   Result:=ftext;
 end;
 
 Function TD2CustomTextBox.GetText:string;
-//var s: string;
 begin
   Result:=UTF8Encode(ftext);
 end;

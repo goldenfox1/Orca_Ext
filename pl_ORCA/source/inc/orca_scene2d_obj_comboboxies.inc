@@ -113,7 +113,8 @@ end;
 
 procedure TD2ComboBox.DropDown;
 var
-  Count{,i}:integer;
+  //Count,i:integer;	//Deleted by GoldenFox
+  Count:integer;	//Added by GoldenFox
 begin
   if not FPopup.IsOpen then
   begin
@@ -482,8 +483,8 @@ begin
 end;
 
 procedure TD2ComboColorBox.DropDown;
-//var
-  //i:integer;
+//var	//Deleted by GoldenFox
+  //i:integer;	//Deleted by GoldenFox
 begin
   if not FPopup.IsOpen then
   begin
@@ -737,7 +738,8 @@ end;
 
 procedure TD2ComboTextBox.DropDown;
 var
-  Count{,i}:integer;
+  //Count,i:integer;	//Deleted by GoldenFox
+  Count:integer;	//Added by GoldenFox
 begin
   if not FPopup.IsOpen then
   begin
@@ -937,8 +939,8 @@ begin
 end;
 
 procedure TD2ComboTrackBar.DropDown;
-//var
-  //i:integer;
+//var	//Deleted by GoldenFox
+  //i:integer;	//Deleted by GoldenFox
 begin
   if not FPopup.IsOpen then
   begin

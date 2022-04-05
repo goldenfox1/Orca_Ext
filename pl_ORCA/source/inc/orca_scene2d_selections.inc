@@ -34,9 +34,9 @@ begin
   ParentBounds:=true;
   FMinSize:=15;
   FGripSize:=3;
-  FSizingHoriz:=true;
-  FSizingVert:=true;
-  FSizingRoundTrip:=false;
+  FSizingHoriz:=true;		//Added by GoldenFox
+  FSizingVert:=true;		//Added by GoldenFox
+  FSizingRoundTrip:=false;	//Added by GoldenFox
 end;
 
 destructor TD2Selection.Destroy;
@@ -94,8 +94,10 @@ end;
 
 procedure TD2Selection.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
 var
-  P,{OldPos,}Size:TD2Point;
-  {S,}SaveW:single;
+  //P,OldPos,Size:TD2Point;	//Deleted by GoldenFox  
+  P,Size:TD2Point;	//Added by GoldenFox
+  //S,SaveW:single;	//Deleted by GoldenFox
+  SaveW:single;	//Added by GoldenFox
   R:TD2Rect;
 begin
   inherited;
@@ -175,6 +177,7 @@ begin
       if Assigned(FOnTrack) then FOnTrack(Self);
       Exit;
     end;
+	//OldPos:=Position.Point;	//Deleted by GoldenFox		   
     P:=LocalToAbsolute(FMovePos);
     if Parent <> nil then
       P:=TD2VisualObject(Parent).AbsolutetoLocal(P);
@@ -210,6 +213,16 @@ begin
       end
       else
       begin
+	  {	//Deleted by GoldenFox
+	    Width:=Width + Size.X;
+        Height:=Height + Size.Y;
+        Position.X:=P.X + FDownPos.X;   
+        Position.Y:=P.Y + FDownPos.Y;
+        if Width < FMinSize then Width:=FMinSize;			 
+        if Height < FMinSize then Height:=FMinSize;
+	  }
+	  
+	  //----------- Block added by GoldenFox -----------
         if FSizingHoriz then
           begin
             if FSizingRoundTrip
@@ -238,6 +251,7 @@ begin
                 Height:=FMinSize;
               end;
           end;
+	  //-------- End block added by GoldenFox ----------
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
@@ -251,9 +265,10 @@ begin
       if Parent <> nil then
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
+	  //Width:=Size.X;	//Deleted by GoldenFox				
       if FProportional then
       begin
-        Width:=Size.X;
+        Width:=Size.X;	//Added by GoldenFox
         if Width < FMinSize then Width:=FMinSize;
         if Width / FRatio < FMinSize then
           Width:=Round(FMinSize * FRatio);
@@ -262,6 +277,13 @@ begin
       end
       else
       begin
+	  {	//Deleted by GoldenFox
+	    Height:=Height + Size.Y;
+        Position.Y:=P.Y + FDownPos.Y;
+        if Width < FMinSize then Width:=FMinSize;
+        if Height < FMinSize then Height:=FMinSize;
+	  }
+	  //----------- Block added by GoldenFox -----------
         if FSizingHoriz then
           begin
             Width:=Size.X;
@@ -277,6 +299,7 @@ begin
                 Height:=FMinSize;
               end;
           end;
+	  //-------- End block added by GoldenFox ----------
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
@@ -289,7 +312,7 @@ begin
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
 
-      if FSizingHoriz then
+      if FSizingHoriz then	//Added by GoldenFox
         Width:=Size.X;
       if FProportional then
       begin
@@ -300,7 +323,14 @@ begin
       end
       else
       begin
-        if FSizingHoriz then
+      {	//Deleted by GoldenFox
+	    Height:=Size.Y;
+        if Width < FMinSize then Width:=FMinSize;
+        if Height < FMinSize then Height:=FMinSize;
+	  }		
+		
+		//----------- Block added by GoldenFox -----------
+		if FSizingHoriz then
           begin
             if Width < FMinSize then Width:=FMinSize;
           end;
@@ -309,6 +339,7 @@ begin
             Height:=Size.Y;
             if Height < FMinSize then Height:=FMinSize;
           end;
+		//-------- End block added by GoldenFox ----------		
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;
@@ -318,8 +349,8 @@ begin
     if FLeftBottom then
     begin
       Repaint;
-      //Size:=d2Point((Position.X - (P.X + FDownPos.X)),(P.Y{ + FDownPos.Y)}) - Position.Y);
-      Size:=d2Point((Position.X - (P.X + FDownPos.X)),(Position.Y - (P.Y + FDownPos.Y)));
+      //Size:=d2Point((Position.X - (P.X + FDownPos.X)),(P.Y{ + FDownPos.Y)}) - Position.Y);	//Deleted by GoldenFox
+      Size:=d2Point((Position.X - (P.X + FDownPos.X)),(Position.Y - (P.Y + FDownPos.Y)));	//Added by GoldenFox
       if Parent <> nil then
         Size:=d2PointFromVector(TD2VisualObject(Parent).LocalToAbsoluteVector(d2Vector(Size)));
       Size:=d2PointFromVector(AbsoluteToLocalVector(d2Vector(Size)));
@@ -336,6 +367,14 @@ begin
       end
       else
       begin
+	  {	//Deleted by GoldenFox
+	    Width:=Width + Size.X;		 
+        Position.X:=P.X + FDownPos.X;
+        Height:=Size.Y;
+        if Width < FMinSize then Width:=FMinSize;
+        if Height < FMinSize then Height:=FMinSize;
+	  }
+	    //----------- Block added by GoldenFox -----------
         if FSizingHoriz then
           begin
             if FSizingRoundTrip
@@ -361,11 +400,11 @@ begin
             if Height < FMinSize then
               begin
                 Height:=FMinSize;
-                //Position.Y:=Position.Y-(FMinSize-Height);
                 if FSizingRoundTrip
                   then Position.Y:=Position.Y-(FMinSize-Height)/2;
               end;
           end;
+  	    //-------- End block added by GoldenFox ----------
       end;
       if Assigned(FOnTrack) then FOnTrack(Self);
       Repaint;

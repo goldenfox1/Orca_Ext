@@ -454,20 +454,20 @@ end;
 
 //=============== TD2Content =========================================
 
-//constructor TD2Content.Create(AOwner:TComponent);
-//begin
-//  inherited;
-//end;
-//
-//destructor TD2Content.Destroy;
-//begin
-//  inherited;
-//end;
+{constructor TD2Content.Create(AOwner:TComponent); 	//Deleted by GoldenFox
 
-//function TD2Content.GetParentComponent:TComponent;
-//begin
-//  Result:=inherited GetParentComponent;
-//end;
+  inherited;
+end;
+
+destructor TD2Content.Destroy;	//Deleted by GoldenFox
+begin
+  inherited;
+end;
+
+function TD2Content.GetParentComponent:TComponent;	//Deleted by GoldenFox
+begin
+  Result:=inherited GetParentComponent;
+end;}
 
 procedure TD2Content.Realign;
 begin
@@ -482,10 +482,10 @@ begin
   end;
 end;
 
-//procedure TD2Content.Paint;
-//begin
-//  inherited;
-//end;     
+{procedure TD2Content.Paint;	//Deleted by GoldenFox
+begin
+  inherited;
+end;}
 
 
 //=============== TD2DropTarget ====================================
@@ -498,15 +498,18 @@ begin
   Height:=120;
 end;
 
-procedure TD2DropTarget.DragDrop(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2DropTarget.DragDrop(const Data:TD2DragObject;	//Deleted by GoldenFox
+procedure TD2DropTarget.DragDrop(const Data:TD2DragObject; Shift: TShiftState;	//Deleted by GoldenFox
   const Point:TD2Point);
 begin
   inherited;
   if Assigned(FOnDrop) then
-    FOnDrop(Self,Data,Shift,Point);
+    //FOnDrop(Self,Data,Point);	//Deleted by GoldenFox
+	FOnDrop(Self,Data,Shift,Point);	//Added by GoldenFox
 end;
 
-procedure TD2DropTarget.DragOver(const Data:TD2DragObject; Shift: TShiftState;
+//procedure TD2DropTarget.DragOver(const Data:TD2DragObject; Shift: TShiftState;	//Deleted by GoldenFox
+procedure TD2DropTarget.DragOver(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point; var Accept:boolean);
 begin
   inherited;
@@ -1587,7 +1590,7 @@ end;
 procedure TD2ColorPicker.SetColor(const Value:TD2Color);
 var
   H,S,L:single;
-  //SaveChange:TNotifyEvent;
+  //SaveChange:TNotifyEvent;	//Deleted by GoldenFox
 begin
   d2RGBtoHSL(Value,H,S,L);
   Hue:=H;

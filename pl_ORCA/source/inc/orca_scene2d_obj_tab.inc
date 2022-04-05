@@ -318,8 +318,8 @@ end;
 
 procedure TD2TabControl.MouseDown(Button:TMouseButton; Shift:TShiftState; X,
   Y:single);
-//var
-  //Item:TD2TabItem;
+//var	//Deleted by GoldenFox
+  //Item:TD2TabItem;	//Deleted by GoldenFox
 begin
   inherited;
   Realign;
@@ -333,8 +333,8 @@ begin
 end;
 
 procedure TD2TabControl.MouseMove(Shift:TShiftState; X,Y,Dx,Dy:single);
-//var
-//  Item:TD2TabItem;
+//var	//Deleted by GoldenFox
+//  Item:TD2TabItem;	//Deleted by GoldenFox
 begin
   inherited;
 {  if (ssLeft in Shift) and FMouseSelecting then
