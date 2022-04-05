@@ -3304,9 +3304,16 @@ TD2Selection = class(TD2VisualObject)
     FOnTrack:TNotifyEvent;
     FProportional:boolean;
     FGripSize:single;
+<<<<<<< HEAD
     FSizingHoriz: boolean;  //Изменять размер по горизонтали. Не влияет если Proportional = True	//Added by GoldenFox
     FSizingVert: boolean;   //Изменять размер по вертикали. Не влияет если Proportional = True	//Added by GoldenFox
     FSizingRoundTrip: boolean;  //изменять размер одновременно в противоположных направлениях	//Added by GoldenFox
+=======
+    FSizingHoriz: boolean;  //Изменять размер по горизонтали. Не влияет если Proportional = True
+    FSizingVert: boolean;   //Изменять размер по вертикали. Не влияет если Proportional = True
+    FSizingRoundTrip: boolean;  //изменять размер одновременно в противоположных направлениях
+	
+>>>>>>> 6059306f0c7abfa2d3b8a1cd5fadaf7c1e1fc4a0
     procedure SetHideSelection(const Value:boolean);
     procedure SetMinSize(const Value:integer);
     procedure SetGripSize(const Value:single);
