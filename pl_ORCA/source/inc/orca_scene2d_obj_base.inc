@@ -911,15 +911,17 @@ begin
   end;
 end;
 
-function TD2Object.GetTagString: string;	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+function TD2Object.GetTagString: string;
 begin
   Result:= FTagString;
 end;
 
-procedure TD2Object.SetTagString(const Value: string);	//Added by GoldenFox
+procedure TD2Object.SetTagString(const Value: string);
 begin
   FTagString:=Value;
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2Object.Exchange(AObject1,AObject2:TD2Object);
 var

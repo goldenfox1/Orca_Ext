@@ -607,9 +607,9 @@ begin
   if FNavigator <> nil then FNavigator.ActiveChanged;
 end;
 
-{*********************************************************************
+{******************************************************************
                       This part make by GoldenFox
-**********************************************************************}
+******************************************************************}
 
 { TD2FieldDataController =======================================================}
 
@@ -794,8 +794,8 @@ begin
   //FDataLink:=TFieldDataLink.Create;	//Deleted by GoldenFox
   //FDataLink.Control:=Self;	//Deleted by GoldenFox
   //FDataLink.OnDataChange:=DataChange;	//Deleted by GoldenFox
-  FDataController:=TD2FieldDataController.Create;
-  FDataController.OnDataChange:=DataChange;
+  FDataController:=TD2FieldDataController.Create;	//Added by GoldenFox
+  FDataController.OnDataChange:=DataChange;	//Added by GoldenFox
 end;
 
 procedure TD2DBLabel.DataChange(Sender:TObject);
@@ -810,12 +810,15 @@ begin
   inherited;
 end;
 
-{procedure TD2DBLabel.Notification(AComponent:TComponent; Operation:TOperation);	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+procedure TD2DBLabel.Notification(AComponent:TComponent; Operation:TOperation);							
 begin
   inherited Notification(AComponent,Operation);
   if (Operation=opRemove) and (FDataController <> nil) and
     (AComponent=DataSource) then FDataController.DataSource:=nil;
-end;}
+end;
+}
 
 function TD2DBLabel.GetFieldText:string;
 begin
@@ -830,7 +833,8 @@ begin
       Result:='';
 end;
 
-{	//Deleted by GoldenFox
+{	
+//Deleted by GoldenFox
 function TD2DBLabel.GetDataField:string;
 begin
   Result:=FDataLink.FieldName;
@@ -844,25 +848,30 @@ end;
 function TD2DBLabel.GetDataSource:TDataSource;
 begin
   Result:=FDataLink.DataSource;
-end;}
+end;
+}
 
 //procedure TD2DBLabel.SetDataSource(const Value:TDataSource);	//Deleted by GoldenFox
 procedure TD2DBLabel.SetDataController(const AValue: TD2FieldDataController);	//Added by GoldenFox
 begin
-  {	//Deleted by GoldenFox
+{	
+  //Deleted by GoldenFox
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
     FDataLink.DataSource:=Value;
-  if Value <> nil then Value.FreeNotification(Self);}  
+  if Value <> nil then Value.FreeNotification(Self);
+}  
   FDataController.Assign(AValue);	//Added by GoldenFox
 end;
 
-{	//Deleted by GoldenFox
+{	
+//Deleted by GoldenFox
 procedure TD2DBLabel.SetDataSource(const Value:TDataSource);
 begin
   if not (FDataController.DataSourceFixed and (csLoading in ComponentState)) then
     FDataController.DataSource:=Value;
   //if Value <> nil then Value.FreeNotification(Self);
-end;}
+end;
+}
 
 { TD2DBImage ===================================================================}
 
@@ -878,7 +887,9 @@ begin
   FDataController.OnUpdateData:=UpdateData;	//Added by GoldenFox
 end;
 
-{procedure TD2DBImage.DoBitmapChanged(Sender:TObject);	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+procedure TD2DBImage.DoBitmapChanged(Sender:TObject);	
 begin
   if (not Assigned(FDataLink.Field) or FDataLink.Field.IsBlob) then
   begin
@@ -892,9 +903,11 @@ begin
     end;
     Repaint;
   end;
-end;}
+end;
+}
 
-procedure TD2DBImage.DoBitmapChanged(Sender:TObject);	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+procedure TD2DBImage.DoBitmapChanged(Sender:TObject);
 begin
   if (not Assigned(FDataController.Field) or FDataController.Field.IsBlob) then
   begin
@@ -909,6 +922,7 @@ begin
     Repaint;
   end;
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2DBImage.UpdateData(Sender:TObject);
 var
@@ -966,12 +980,15 @@ begin
   end;
 end;
 
-{procedure TD2DBImage.Notification(AComponent:TComponent; Operation:TOperation);	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+procedure TD2DBImage.Notification(AComponent:TComponent; Operation:TOperation);							
 begin
   inherited Notification(AComponent,Operation);
   if (Operation=opRemove) and (FDataLink <> nil) and
     (AComponent=DataSource) then DataSource:=nil;
-end;}
+end;
+}
 
 function TD2DBImage.GetFieldText:string;
 begin
@@ -986,32 +1003,37 @@ begin
       Result:='';
 end;
 
-{function TD2DBImage.GetDataField:string;	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+function TD2DBImage.GetDataField:string;	
 begin
   Result:=FDataLink.FieldName;
 end;
 
-procedure TD2DBImage.SetDataField(const Value:string);	//Deleted by GoldenFox
+procedure TD2DBImage.SetDataField(const Value:string);
 begin
   FDataLink.FieldName:=Value;
 end;
 
-function TD2DBImage.GetDataSource:TDataSource;	//Deleted by GoldenFox
+function TD2DBImage.GetDataSource:TDataSource;
 begin
   Result:=FDataLink.DataSource;
 end;
 
-procedure TD2DBImage.SetDataSource(const Value:TDataSource);	//Deleted by GoldenFox
+procedure TD2DBImage.SetDataSource(const Value:TDataSource);
 begin
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
     FDataLink.DataSource:=Value;
   if Value <> nil then Value.FreeNotification(Self);
-end;}
+end;
+}
 
-procedure TD2DBImage.SetDataController(const AValue: TD2FieldDataController);	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+procedure TD2DBImage.SetDataController(const AValue: TD2FieldDataController);
 begin
   FDataController.Assign(AValue);
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBTextBox ===================================================================}
 
@@ -1038,10 +1060,12 @@ begin
   inherited;
 end;
 
-procedure TD2DBTextBox.SetDataController(const AValue: TD2FieldDataController);	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+procedure TD2DBTextBox.SetDataController(const AValue: TD2FieldDataController);
 begin
   FDataController.Assign(AValue);
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2DBTextBox.DataChange(Sender:TObject);
 begin
@@ -1054,13 +1078,16 @@ begin
   FDataController.Field.Text:=Text;	//Added by GoldenFox
 end;
 
-{procedure TD2DBTextBox.Notification(AComponent:TComponent;
+{
+//Deleted by GoldenFox
+	procedure TD2DBTextBox.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited Notification(AComponent,Operation);
   if (Operation=opRemove) and (FDataLink <> nil) and
     (AComponent=DataSource) then DataSource:=nil;
-end;}
+end;
+}
 
 function TD2DBTextBox.GetFieldText:string;
 begin
@@ -1076,27 +1103,30 @@ begin
       Result:='';
 end;
 
-{function TD2DBTextBox.GetDataField:string;	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+function TD2DBTextBox.GetDataField:string;	
 begin
   Result:=FDataLink.FieldName;
 end;
 
-procedure TD2DBTextBox.SetDataField(const Value:string);	//Deleted by GoldenFox
+procedure TD2DBTextBox.SetDataField(const Value:string);	
 begin
   FDataLink.FieldName:=Value;
 end;
 
-function TD2DBTextBox.GetDataSource:TDataSource;	//Deleted by GoldenFox
+function TD2DBTextBox.GetDataSource:TDataSource;
 begin
   Result:=FDataLink.DataSource;
 end;
 
-procedure TD2DBTextBox.SetDataSource(const Value:TDataSource);	//Deleted by GoldenFox
+procedure TD2DBTextBox.SetDataSource(const Value:TDataSource);	
 begin
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
     FDataLink.DataSource:=Value;
   if Value <> nil then Value.FreeNotification(Self);
-end;}
+end;
+}
 
 procedure TD2DBTextBox.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
@@ -1181,10 +1211,12 @@ begin
   inherited;
 end;
 
-procedure TD2DBMemo.SetDataController(const AValue: TD2FieldDataController);	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+procedure TD2DBMemo.SetDataController(const AValue: TD2FieldDataController);	
 begin
   FDataController.Assign(AValue);
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2DBMemo.DataChange(Sender:TObject);
 begin
@@ -1204,12 +1236,15 @@ begin
   FDataController.Field.AsString:=UTF8Encode(TextW);	//Added by GoldenFox
 end;
 
-{procedure TD2DBMemo.Notification(AComponent:TComponent; Operation:TOperation);	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+procedure TD2DBMemo.Notification(AComponent:TComponent; Operation:TOperation);							
 begin
   inherited Notification(AComponent,Operation);
   if (Operation=opRemove) and (FDataLink <> nil) and
     (AComponent=DataSource) then DataSource:=nil;
-end;}
+end;
+}
 
 function TD2DBMemo.GetFieldText:string;
 begin
@@ -1224,27 +1259,30 @@ begin
       Result:='';
 end;
 
-{function TD2DBMemo.GetDataField:string;	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+function TD2DBMemo.GetDataField:string;	
 begin
   Result:=FDataLink.FieldName;
 end;
 
-procedure TD2DBMemo.SetDataField(const Value:string);	//Deleted by GoldenFox
+procedure TD2DBMemo.SetDataField(const Value:string);	
 begin
   FDataLink.FieldName:=Value;
 end;
 
-function TD2DBMemo.GetDataSource:TDataSource;	//Deleted by GoldenFox
+function TD2DBMemo.GetDataSource:TDataSource;
 begin
   Result:=FDataLink.DataSource;
 end;
 
-procedure TD2DBMemo.SetDataSource(const Value:TDataSource);	//Deleted by GoldenFox
+procedure TD2DBMemo.SetDataSource(const Value:TDataSource);	
 begin
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
     FDataLink.DataSource:=Value;
   if Value <> nil then Value.FreeNotification(Self);
-end;}
+end;
+}
 
 procedure TD2DBMemo.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
@@ -1303,31 +1341,32 @@ begin
   FDataController.Reset;	//Added by GoldenFox
 end;
 {
+//Deleted by GoldenFox
 type
-  EInvalidGridOperation=class(Exception);	//Deleted by GoldenFox
+  EInvalidGridOperation=class(Exception);	
 
-procedure RaiseGridError(const S:string);	//Deleted by GoldenFox
+procedure RaiseGridError(const S:string);	
 begin
   raise EInvalidGridOperation.Create(S);
 end;
 
 type
-  TIntArraydb=array[0..MaxMapSize] of Integer;	//Deleted by GoldenFox
-  PIntArraydb=^TIntArraydb;	//Deleted by GoldenFox
+  TIntArraydb=array[0..MaxMapSize] of Integer;	
+  PIntArraydb=^TIntArraydb;	
 
-constructor TD2GridDataLink.Create(AGrid:TD2DBGrid);	//Deleted by GoldenFox
+constructor TD2GridDataLink.Create(AGrid:TD2DBGrid);	
 begin
   inherited Create;
   FGrid:=AGrid;
   VisualControl:=True;
 end;
 
-destructor TD2GridDataLink.Destroy;	//Deleted by GoldenFox					
+destructor TD2GridDataLink.Destroy;				
 begin
   inherited Destroy;
 end;
 
-function TD2GridDataLink.GetDefaultFields:boolean;	//Deleted by GoldenFox
+function TD2GridDataLink.GetDefaultFields:boolean;	
 var
   I:integer;
 begin
@@ -1342,7 +1381,7 @@ begin
     end;
 end;
 
-function TD2GridDataLink.GetFields(I:integer):TField;	//Deleted by GoldenFox
+function TD2GridDataLink.GetFields(I:integer):TField;	
 begin
   if (0 <= I) and (I < FFieldCount) and (FFieldMap[I] >= 0) then
     Result:=DataSet.Fields[FFieldMap[I]]
@@ -1350,7 +1389,7 @@ begin
     Result:=nil;
 end;
 
-procedure TD2GridDataLink.ActiveChanged;	//Deleted by GoldenFox
+procedure TD2GridDataLink.ActiveChanged;	
 begin
   if Active and Assigned(DataSource) then
     if Assigned(DataSource.DataSet) then
@@ -1360,28 +1399,28 @@ begin
   FModified:=False;
 end;
 
-procedure TD2GridDataLink.Modified;	//Deleted by GoldenFox
+procedure TD2GridDataLink.Modified;	
 begin
   FModified:=True;
 end;
 
-procedure TD2GridDataLink.DataSetChanged;	//Deleted by GoldenFox
+procedure TD2GridDataLink.DataSetChanged;	
 begin
   FGrid.DataSetChanged;
   FModified:=False;
 end;
 
-procedure TD2GridDataLink.DataSetScrolled(Distance:integer);	//Deleted by GoldenFox
+procedure TD2GridDataLink.DataSetScrolled(Distance:integer);	
 begin
   FGrid.DataChanged;
 end;
 
-procedure TD2GridDataLink.LayoutChanged;	//Deleted by GoldenFox
+procedure TD2GridDataLink.LayoutChanged;	
 begin
   inherited LayoutChanged;
 end;
 
-procedure TD2GridDataLink.FocusControl(Field:TFieldRef);	//Deleted by GoldenFox
+procedure TD2GridDataLink.FocusControl(Field:TFieldRef);	
 begin
   if Assigned(Field) and Assigned(Field^) then
   begin
@@ -1389,18 +1428,18 @@ begin
   end;
 end;
 
-procedure TD2GridDataLink.EditingChanged;	//Deleted by GoldenFox
+procedure TD2GridDataLink.EditingChanged;	
 begin
   FGrid.EditingChanged;
 end;
 
-procedure TD2GridDataLink.RecordChanged(Field:TField);	//Deleted by GoldenFox
+procedure TD2GridDataLink.RecordChanged(Field:TField);	
 begin
   FGrid.RecordChanged(Field);
   FModified:=False;
 end;
 
-procedure TD2GridDataLink.UpdateData;	//Deleted by GoldenFox
+procedure TD2GridDataLink.UpdateData;	
 begin
   FInUpdateData:=True;
   try
@@ -1411,7 +1450,7 @@ begin
   end;
 end;
 
-function TD2GridDataLink.GetMappedIndex(ColIndex:integer):integer;	//Deleted by GoldenFox
+function TD2GridDataLink.GetMappedIndex(ColIndex:integer):integer;	
 begin
   if (0 <= ColIndex) and (ColIndex < FFieldCount) then
     Result:=FFieldMap[ColIndex]
@@ -1419,40 +1458,47 @@ begin
     Result:=-1;
 end;
 
-procedure TD2GridDataLink.Reset;	//Deleted by GoldenFox
+procedure TD2GridDataLink.Reset;	
 begin
   if FModified then RecordChanged(nil) else Dataset.Cancel;
 end;
 
-function TD2GridDataLink.IsAggRow(Value:integer):boolean;	//Deleted by GoldenFox
+function TD2GridDataLink.IsAggRow(Value:integer):boolean;	
 begin
   Result:=False;
 end;
 
-procedure TD2GridDataLink.BuildAggMap;	//Deleted by GoldenFox
+procedure TD2GridDataLink.BuildAggMap;	
 begin											
 end;
 }
 
+//----------- Block added by GoldenFox -----------
 { TD2GridDataController }
 
-function TD2GridDataController.GetRecordCount: Integer;	//Added by GoldenFox
+function TD2GridDataController.GetRecordCount: Integer;	
 begin
   Result:=inherited GetRecordCount;
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBColumn }
 
-{constructor TD2DBColumn.Create(AOwner:TComponent);	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+constructor TD2DBColumn.Create(AOwner:TComponent);	
 begin
-  inherited;
-end;}
-
-destructor TD2DBColumn.Destroy;
-begin
-  FField:=nil;	//Added by GoldenFox
   inherited;
 end;
+}
+
+//----------- Block added by GoldenFox -----------
+destructor TD2DBColumn.Destroy;
+begin
+  FField:=nil;
+  inherited;
+end;
+//-------- End block added by GoldenFox ----------
 
 function TD2DBColumn.GetField:TField;
 //var	//Deleted by GoldenFox
@@ -1467,7 +1513,8 @@ begin    { Returns Nil if FieldName can't be found in dataset }
   Result:=FField;
 end;
 
-procedure TD2DBColumn.LinkField; //Added by GoldenFox устанавливает FField
+//----------- Block added by GoldenFox -----------
+procedure TD2DBColumn.LinkField; // устанавливает FField
 var f: TField;
 begin
   f:= nil;
@@ -1478,11 +1525,12 @@ begin
         then f:=FindField(FieldName);
   SetField(f);
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2DBColumn.SetField(Value:TField);
 begin
   if FField=Value then Exit;
-  //if Assigned(FField) and (Grid <> nil) then 	//Added by GoldenFox
+  //if Assigned(FField) and (Grid <> nil) then	//Deleted by GoldenFox
   //FField.RemoveFreeNotification(Grid);	//Deleted by GoldenFox									
   if Assigned(Value) and (csDestroying in Value.ComponentState) then
     Value:=nil;    // don't acquire references to fields being destroyed
@@ -1521,6 +1569,7 @@ begin
     Field.Value:=Value
 end;
 
+//----------- Block added by GoldenFox -----------
 { TD2DBTextColumn }
 
 procedure TD2DBTextColumn.DoTextChanged(Sender: TObject);	//Added by GoldenFox
@@ -1571,6 +1620,7 @@ function TD2DBTextColumn.GetCellClass: TD2CellClass;	//Added by GoldenFox
 begin
   Result:=TD2TextCell;
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBCheckColumn }
 
@@ -1589,7 +1639,7 @@ begin
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin	//Added by GoldenFox
   //TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);	//Deleted by GoldenFox
-	Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);
+	Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);	//Added by GoldenFox
     if Assigned(Grid.FOnEdititingDone) then	//Added by GoldenFox
       Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));	//Added by GoldenFox
   end;	//Added by GoldenFox
@@ -1601,10 +1651,12 @@ begin
     Result:=Field.AsBoolean
 end;
 
-function TD2DBCheckColumn.GetCellClass: TD2CellClass;	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+function TD2DBCheckColumn.GetCellClass: TD2CellClass;
 begin
   Result:=TD2CheckCell;
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBPopupColumn }
 
@@ -1636,7 +1688,7 @@ procedure TD2DBPopupColumn.DoPopupChanged(Sender:TObject);
 begin
   if Grid = nil then Exit;
   if FUpdateColumn then Exit;
-  if FDisableChange then Exit;
+  if FDisableChange then Exit;	//Added by GoldenFox
   with d2StringToPoint(TD2Object(Sender).TagString) do
   begin	//Added by GoldenFox
     //TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);	//Deleted by GoldenFox
@@ -1646,10 +1698,12 @@ begin
   end;	//Added by GoldenFox
 end;
 
-function TD2DBPopupColumn.GetCellClass: TD2CellClass;	//Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+function TD2DBPopupColumn.GetCellClass: TD2CellClass;
 begin
   Result:=TD2PopupCell;
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBImageColumn }
 
@@ -1675,12 +1729,12 @@ begin
   //if not TD2DBGrid(Grid).CanEditModify then Exit;	//Deleted by GoldenFox
   if not Grid.CanEditModify then Exit;	//Added by GoldenFox
   with d2StringToPoint(TD2Object(Sender).TagString) do
-  begin	//Deleted by GoldenFox
+  begin	//Added by GoldenFox
     //TD2DBGrid(Grid).SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);	//Deleted by GoldenFox
 	Grid.SetValue(trunc(x),trunc(y),TD2Control(Sender).Data);	//Added by GoldenFox
     if Assigned(Grid.FOnEdititingDone) then	//Added by GoldenFox
       Grid.FOnEdititingDone(Grid,trunc(x),trunc(y));	//Added by GoldenFox
-  end;	//Deleted by GoldenFox
+  end;	//Added by GoldenFox
 end;
 
 function TD2DBImageColumn.GetData:Variant;
@@ -1696,10 +1750,12 @@ begin
     Result:=NULL;
 end;
 
+//----------- Block added by GoldenFox -----------
 function TD2DBImageColumn.GetCellClass: TD2CellClass;	//Added by GoldenFox
 begin
   Result:=TD2ImageCell;
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2DBImageColumn.SetData(Value:Variant);
 var
@@ -1731,15 +1787,18 @@ begin
   TD2ProgressCell(Result).Max:=FMax;
 end;
 
+//----------- Block added by GoldenFox -----------
 function TD2DBProgressColumn.GetCellClass: TD2CellClass;	//Added by GoldenFox												
 begin
   Result:=TD2ProgressCell;
 end;
+//-------- End block added by GoldenFox ----------
 
 { TD2DBGrid }
 
-{	//Deleted by GoldenFox
-constructor TD2DBGrid.Create(AOwner:TComponent);	//Deleted by GoldenFox
+{	
+//Deleted by GoldenFox
+constructor TD2DBGrid.Create(AOwner:TComponent);
 begin
   inherited;
   FResource:='gridstyle';
@@ -1747,28 +1806,28 @@ begin
   RowCount:=0;
 end;
 
-destructor TD2DBGrid.Destroy;	//Deleted by GoldenFox
+destructor TD2DBGrid.Destroy;
 begin
   FDataLink.Free;
   FDataLink:=nil;
   inherited;
 end;
 
-procedure TD2DBGrid.Loaded;	//Deleted by GoldenFox
+procedure TD2DBGrid.Loaded;
 begin
   inherited ;
   DataChanged;
 end;
 
-function TD2DBGrid.ItemClass:string;	//Deleted by GoldenFox
+function TD2DBGrid.ItemClass:string;
 begin
   Result:='TD2DBColumn;TD2DBCheckColumn;TD2DBPopupColumn;TD2DBImageColumn;TD2DBProgressColumn';
 end;
 
 type
-  THack=class(TDataSet);	//Deleted by GoldenFox
+  THack=class(TDataSet);
 
-procedure TD2DBGrid.UpdateRowCount;	//Deleted by GoldenFox
+procedure TD2DBGrid.UpdateRowCount;
 begin
   if FDataLink.Active then
   begin
@@ -1782,24 +1841,24 @@ begin
     RowCount:=0;					   
 end;
 
-procedure TD2DBGrid.LinkActive(Value:boolean);	//Deleted by GoldenFox
+procedure TD2DBGrid.LinkActive(Value:boolean);
 begin
   UpdateRowCount;
   UpdateSelection;
 end;
 
-procedure TD2DBGrid.EditingChanged;	//Deleted by GoldenFox
+procedure TD2DBGrid.EditingChanged;
 begin
   LinkActive(FDataLink.Active);						
 end;
 
-procedure TD2DBGrid.RecordChanged(Field:TField);	//Deleted by GoldenFox
+procedure TD2DBGrid.RecordChanged(Field:TField);
 begin
   if DataSource.State <> dsInactive then
     UpdateColumns;
 end;
 
-procedure TD2DBGrid.DataChanged;	//Deleted by GoldenFox
+procedure TD2DBGrid.DataChanged;
 begin
   if (DataSource <> nil) and (DataSource.State <> dsInactive) then
   begin
@@ -1811,7 +1870,7 @@ begin
   end;						 
 end;
 
-procedure TD2DBGrid.DataSetChanged;	//Deleted by GoldenFox
+procedure TD2DBGrid.DataSetChanged;
 begin
   if (FDataLink.DataSet <> nil) then					   
   begin
@@ -1824,7 +1883,7 @@ begin
   end;
 end;
 
-function TD2DBGrid.GetValue(Col,Row:integer):Variant;	//Deleted by GoldenFox
+function TD2DBGrid.GetValue(Col,Row:integer):Variant;
 var
   C:TD2DBColumn;
   F,OldActive:integer;
@@ -1842,7 +1901,7 @@ begin
         begin
           FDatalink.ActiveRecord:=Row - F;
           Result:=C.GetData;
-        end;
+        end; 
       finally
         FDatalink.ActiveRecord:=OldActive;
       end;
@@ -1850,7 +1909,7 @@ begin
   end;
 end;
 
-procedure TD2DBGrid.SetValue(Col,Row:integer; const Value:Variant);	//Deleted by GoldenFox
+procedure TD2DBGrid.SetValue(Col,Row:integer; const Value:Variant);
 var
   C:TD2DBColumn;
 begin
@@ -1867,12 +1926,12 @@ begin
   end;
 end;
 
-function TD2DBGrid.GetDataSource:TDataSource;	//Deleted by GoldenFox
+function TD2DBGrid.GetDataSource:TDataSource;
 begin
   Result:=FDataLink.DataSource;
 end;
 
-procedure TD2DBGrid.SetDataSource(const Value:TDataSource);	//Deleted by GoldenFox
+procedure TD2DBGrid.SetDataSource(const Value:TDataSource);
 begin
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
   begin
@@ -1881,7 +1940,7 @@ begin
   if Value <> nil then Value.FreeNotification(Self);
 end;
 
-procedure TD2DBGrid.Notification(AComponent:TComponent;	//Deleted by GoldenFox
+procedure TD2DBGrid.Notification(AComponent:TComponent;
   Operation:TOperation);
 begin
   inherited;
@@ -1889,7 +1948,7 @@ begin
     (AComponent=DataSource) then DataSource:=nil;
 end;
 
-procedure TD2DBGrid.UpdateData;	//Deleted by GoldenFox
+procedure TD2DBGrid.UpdateData;
 var
   C:TD2DBColumn;
 begin
@@ -1900,7 +1959,7 @@ begin
   FNeedUpdate:=false;
 end;
 
-procedure TD2DBGrid.KeyDown(var Key:Word; var KeyChar:System.WideChar;	//Deleted by GoldenFox
+procedure TD2DBGrid.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
   procedure DoSelection(Select:boolean; Direction:integer);
   begin
@@ -1912,7 +1971,7 @@ procedure TD2DBGrid.KeyDown(var Key:Word; var KeyChar:System.WideChar;	//Deleted
     end;
   end;
 
-  procedure NextRow(Select:boolean);	//Deleted by GoldenFox
+  procedure NextRow(Select:boolean);
   begin
     with FDatalink.Dataset do
     begin
@@ -1925,7 +1984,7 @@ procedure TD2DBGrid.KeyDown(var Key:Word; var KeyChar:System.WideChar;	//Deleted
     end;
   end;
 
-  procedure PriorRow(Select:boolean);	//Deleted by GoldenFox
+  procedure PriorRow(Select:boolean);
   begin
     with FDatalink.Dataset do
       if (State=dsInsert) and not Modified and FDataLink.EOF and
@@ -1977,7 +2036,7 @@ begin
   inherited ;
 end;
 
-procedure TD2DBGrid.SetSelected(const Value:integer);	//Deleted by GoldenFox
+procedure TD2DBGrid.SetSelected(const Value:integer);
 var
   S:integer;
 begin
@@ -1994,12 +2053,12 @@ begin
   end; 
 end;
 
-function TD2DBGrid.GetSelectedField:TField;	//Deleted by GoldenFox
+function TD2DBGrid.GetSelectedField:TField;
 begin
   Result:=TD2DBColumn(Columns[ColumnIndex]).Field;
 end;
 
-procedure TD2DBGrid.SetSelectedField(const Value:TField);	//Deleted by GoldenFox
+procedure TD2DBGrid.SetSelectedField(const Value:TField);
 var
   i:integer;
 begin
@@ -2013,13 +2072,13 @@ begin
   end;
 end;
 
-function TD2DBGrid.CanEditAcceptKey(Key:System.WideChar):boolean;	//Deleted by GoldenFox
+function TD2DBGrid.CanEditAcceptKey(Key:System.WideChar):boolean;
 begin
   with TD2DBColumn(Columns[ColumnIndex]) do
     Result:=FDatalink.Active and Assigned(Field) and Field.IsValidChar(Char(Key));			 
 end;
 
-function TD2DBGrid.CanEditModify:boolean;	//Deleted by GoldenFox
+function TD2DBGrid.CanEditModify:boolean;
 begin
   Result:=False;
   if not ReadOnly and FDatalink.Active and not FDatalink.Readonly then
@@ -2032,14 +2091,14 @@ begin
     end;
 end;
 
-procedure TD2DBGrid.Reset;	//Deleted by GoldenFox
+procedure TD2DBGrid.Reset;
 begin
   inherited;
   if FDatalink.Active then
     FDatalink.Reset;
 end;
 
-procedure TD2DBGrid.VScrollChange(Sender:TObject);	//Deleted by GoldenFox
+procedure TD2DBGrid.VScrollChange(Sender:TObject);
 begin
   inherited;
   if FDataLink.Active then
@@ -2054,16 +2113,16 @@ begin
   end;			  
 end;
 
-function TD2DBGrid.GetContentBounds:TD2Rect;	//Deleted by GoldenFox
+function TD2DBGrid.GetContentBounds:TD2Rect;
 begin
   Result:=inherited GetContentBounds;
   UpdateRowCount;
 end;
 }
 
-{*********************************************************************
+{*****************************************************************
                       This part make by GoldenFox
-**********************************************************************}
+*****************************************************************}
 
 { TD2CustomDBGrid }
 

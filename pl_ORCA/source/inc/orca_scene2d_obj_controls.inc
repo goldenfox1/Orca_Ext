@@ -454,20 +454,22 @@ end;
 
 //=============== TD2Content =========================================
 
-{constructor TD2Content.Create(AOwner:TComponent); 	//Deleted by GoldenFox
-
+{
+//Deleted by GoldenFox
+constructor TD2Content.Create(AOwner:TComponent); 	
   inherited;
 end;
 
-destructor TD2Content.Destroy;	//Deleted by GoldenFox
+destructor TD2Content.Destroy;
 begin
   inherited;
 end;
 
-function TD2Content.GetParentComponent:TComponent;	//Deleted by GoldenFox
+function TD2Content.GetParentComponent:TComponent;
 begin
   Result:=inherited GetParentComponent;
-end;}
+end;
+}
 
 procedure TD2Content.Realign;
 begin
@@ -482,10 +484,13 @@ begin
   end;
 end;
 
-{procedure TD2Content.Paint;	//Deleted by GoldenFox
+{
+//Deleted by GoldenFox
+procedure TD2Content.Paint;	
 begin
   inherited;
-end;}
+end;
+}
 
 
 //=============== TD2DropTarget ====================================
@@ -499,7 +504,7 @@ begin
 end;
 
 //procedure TD2DropTarget.DragDrop(const Data:TD2DragObject;	//Deleted by GoldenFox
-procedure TD2DropTarget.DragDrop(const Data:TD2DragObject; Shift: TShiftState;	//Deleted by GoldenFox
+procedure TD2DropTarget.DragDrop(const Data:TD2DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD2Point);
 begin
   inherited;

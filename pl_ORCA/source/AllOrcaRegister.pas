@@ -577,10 +577,12 @@ begin
     TD2Line, TD2CalloutRectangle, TD2Text, TD2Image, TD2SidesRectangle, TD2Ellipse, 
     TD2RoundRect, TD2TextBoxClearBtn, TD2TextBox, TD2ComboTextBox, TD2NumberBox, TD2RoundTextBox, 
     TD2Memo, TD2CalendarTextBox, TD2SpinBox, TD2ComboTrackBar, TD2StatusBar, TD2ToolButton, 
-    TD2ToolPathButton, TD2ToolBar, TD2TreeView, TD2SizeGrip, TD2Background, TD2CloseButton,
+	//TD2ToolPathButton, TD2ToolBar, TD2TreeView, TD2SizeGrip, TD2Background, TD2CloseButton	//Deleted by GoldenFox		  
+    //]);	//Deleted by GoldenFox    
     {*********************************************************************
                           This part make by GoldenFox
     **********************************************************************}
+	TD2ToolPathButton, TD2ToolBar, TD2TreeView, TD2SizeGrip, TD2Background, TD2CloseButton,
     TD2DirectionRectangle, TD2Parallelogram, TD2Trapezium, TD2Brace,
     TD2DBColumn, TD2DBTextColumn, TD2DBProgressColumn, TD2DBImageColumn,  TD2DBPopupColumn, TD2DBCheckColumn,
     TD2DockingPlace, TD2DockingPanel, TD2DockingTab,
@@ -613,7 +615,6 @@ begin
   RegisterComponentEditor(TD2ImageList, TD2ImgListEditor);
   RegisterComponentEditor(TD2Lang, TD2LangEditor);
 end;
-
 
 initialization
 

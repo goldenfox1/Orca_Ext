@@ -45,7 +45,7 @@ uses
   Classes, Variants, SysUtils, Contnrs, Forms, Controls, Dialogs, Graphics,
   //StdCtrls, DB, DBCtrls, ExtCtrls, Menus, Clipbrd, ActnList, ImgList;	//Deleted by GoldenFox
   StdCtrls, DB, DBGrids, ExtCtrls, Menus, Clipbrd, ActnList, ImgList, //Added by GoldenFox  
-  SyncObjs;  Added by GoldenFox Поддержка многопоточности. Thread support
+  SyncObjs;  //Added by GoldenFox Поддержка многопоточности. Thread support
 //=============================================================================
 //=============== GLobal const/Emu Types ======================================
 //=============================================================================
@@ -880,7 +880,7 @@ TD2Visual = class(TPersistent)
     property VisualObject: TD2VisualObject read FVisualObject write SetVisualObject;
   end;
 
-{ TD2Brush }
+{ TD2Brush }	//Added by GoldenFox
 
 TD2Brush = class(TPersistent)
   private
@@ -972,7 +972,7 @@ Id2Scene = interface
     function  HideKeyboardForControl(AObject: TD2Object):boolean;
   end;
 
-{ TD2WideStrings }
+{ TD2WideStrings }	//Added by GoldenFox
 
 TD2WideStrings = class(TPersistent)
   private
@@ -1442,7 +1442,7 @@ TD2Canvas = class(TPersistent)
   end;
   TD2CanvasClass = class of TD2Canvas;
 
-{ TD2Object }
+{ TD2Object }	//Added by GoldenFox
 
 TD2Object = class(TComponent)
   private
@@ -1631,7 +1631,7 @@ TD2Effect = class(TD2Object)
 
   TD2Popup = class;
 
-{ TD2VisualObject }
+{ TD2VisualObject }	//Added by GoldenFox
 
 TD2VisualObject = class(TD2Object)
   private
@@ -2033,12 +2033,14 @@ TD2Content = class(TD2VisualObject)
   protected
     FParentAligning:boolean;
   public
+  {	//Deleted by GoldenFox ???
     //constructor Create(AOwner: TComponent);  override;	//почему-то удалено
     //destructor Destroy;  override;	//почему-то удалено
     //function GetParentComponent: TComponent;  override;	//почему-то удалено
     procedure Realign;  override;
     //procedure Paint;  override;	//почему-то удалено
   //published
+  }
   end;
 
 TD2Resources = class(TComponent)
@@ -2140,15 +2142,14 @@ TD2Frame = class(TD2VisualObject)
     property SceneObject: TD2CustomScene read FSceneObject write SetSceneObject;
   end;
 
-
-{ TD2CustomScene }
+{ TD2CustomScene }	//Added by GoldenFox
 
 TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$ENDIF})
   private
     {$IFDEF WINDOWS}
     FDC: THandle;
     PrevWndProc: WNDPROC;
-    //FWStyle: string; //почему-то удалено
+    //FWStyle: string; //почему-то удалено	//Deleted by GoldenFox
     {$ENDIF}
     FShift: TShiftState;
     FCanvas: TD2Canvas;
@@ -2183,7 +2184,7 @@ TD2CustomScene = class(TCustomControl, Id2Scene {$IFDEF WINDOWS},IDropTarget{$EN
     FDrawing:boolean;
     FOnFlush:TNotifyEvent;
     FShowTimer: TD2Timer;
-    //FDBCSLeadChar: Word; //почему-то удалено
+    //FDBCSLeadChar: Word; //почему-то удалено	//Deleted by GoldenFox
     FStyle: TD2Resources;
     FShowUpdateRects:boolean;
     FLoadCursor: TCursor;
@@ -2714,17 +2715,18 @@ TD2PathAnimation = class(TD2Animation)
 TD2PathSwitcher = class(TD2Animation)
   private
     //FPath, FPropertyName: AnsiString;	//Deleted by GoldenFox
-    FPropertyName: AnsiString;	//Added by GoldenFox
+    //FInstance: TObject;	//Deleted by GoldenFox
+	FPropertyName: AnsiString;	//Added by GoldenFox
     FPathTrue: string;
     FPathFalse: string;
     procedure SetPathFalse(const Value:string);
     procedure SetPathTrue(const Value:string);
-  //protected
-  //  procedure ProcessAnimation;  override; //почему-то удалено
+  //protected	//Deleted by GoldenFox
+  //  procedure ProcessAnimation;  override; //почему-то удалено	//Deleted by GoldenFox
   public
     constructor Create(AOwner: TComponent);  override;
-	//destructor Destroy;  override;	//почему-то удалено
-    //procedure Start;  override;	//почему-то удалено  
+	//destructor Destroy;  override;	//почему-то удалено	//Deleted by GoldenFox
+    //procedure Start;  override;	//почему-то удалено  	//Deleted by GoldenFox
   published
     property PathTrue: string read FPathTrue write SetPathTrue;
     property PathFalse: string read FPathFalse write SetPathFalse;
@@ -3251,7 +3253,7 @@ TD2Image = class(TD2VisualObject)
   private
     FBitmap: TD2Bitmap;
     FBuffer: TD2Bitmap;
-    //FStretchThread: TThread;	//почему-то удалено
+    //FStretchThread: TThread;	//почему-то удалено	//Deleted by GoldenFox
     FOnBitmapLoaded:TNotifyEvent;
     FBitmapMargins: TD2Bounds;
     FWrapMode: TD2ImageWrap;
@@ -3292,7 +3294,7 @@ TD2PaintBox = class(TD2VisualObject)
     property OnPaint: TD2PaintEvent read FOnPaint write FOnPaint;
   end;
 
-{ TD2Selection }
+{ TD2Selection }	//Added by GoldenFox
 
 TD2Selection = class(TD2VisualObject)
   private
@@ -3518,7 +3520,7 @@ TD2CustomLabel = class(TD2TextControl)	//Added by GoldenFox
     property Font;
     property TextAlign;
     property VertTextAlign;
-	//property Text;	//почему-то удалено			  
+	//property Text;	//почему-то удалено	//Deleted by GoldenFox
     property Resource;
     property HitTest  default false;
     property WordWrap: boolean read FWordWrap write SetWordWrap  default true;
@@ -3807,7 +3809,7 @@ TD2CornerButton = class(TD2CustomButton)
     property Sides: TD2Sides read FSides write SetSides stored IsSidesStored;
   end;
 
-{ TD2CheckBox }
+{ TD2CheckBox }	//Added by GoldenFox
 
 TD2CheckBox = class(TD2TextControl)
   private
@@ -4153,7 +4155,7 @@ TD2SmallScrollBar = class(TD2ScrollBar)
 
 TD2AniIndicator = class(TD2Control)
   private
-    //FDragTimer: TD2Timer;	//почему-то удалено
+    //FDragTimer: TD2Timer;	//почему-то удалено	//Added by GoldenFox
     FLayout: TD2VisualObject;
     FAni: TD2FloatAnimation;
     FEnabled:boolean;
@@ -4557,7 +4559,7 @@ TD2ScrollContent = class(TD2Content)
 TD2CustomScrollBox = class;	//Added by GoldenFox
 TD2ScrollEvent = procedure(Sender: TD2CustomScrollBox; DeltaX, DeltaY: single) of object;	//Added by GoldenFox
 
-{ TD2CustomScrollBox }
+{ TD2CustomScrollBox }	//Added by GoldenFox
 
 //TD2ScrollBox = class(TD2Control)	//Deleted by GoldenFox
 TD2CustomScrollBox = class(TD2Control)	//Added by GoldenFox
@@ -4634,7 +4636,7 @@ TD2CustomScrollBox = class(TD2Control)	//Added by GoldenFox
   end;
 
 //----------- Block added by GoldenFox -----------
-TD2ScrollBox = class(TD2CustomScrollBox) 	//Class added by GoldenFox
+TD2ScrollBox = class(TD2CustomScrollBox)
   published
     property AutoHide;  //true - автоматически скрывать скроллеры
     property Animated;
@@ -5020,7 +5022,7 @@ TD2Nond2Layout = class(TD2Layout)
 
   TD2ImageListBox = class(TD2ListBox)
   private
-    //FFolder: string;	//почему-то удалено
+    //FFolder: string;	//почему-то удалено	//Deleted by GoldenFox
     FShowFileName:boolean;
     FItemHeight:single;
     FUseThumbnails:boolean;
@@ -5162,7 +5164,7 @@ TD2Nond2Layout = class(TD2Layout)
   TOnCompareTreeViewItemEvent = function(Item1, Item2: TD2TreeViewItem): integer of object;
   TOnTreeViewDragChange = procedure (SourceItem, DestItem: TD2TreeViewItem; Allow: boolean) of object;
 
-  { TD2TreeView }
+  { TD2TreeView }	//Added by GoldenFox
 
   TD2TreeView = class(TD2ScrollBox)
   private
@@ -5597,10 +5599,10 @@ TD2CustomTextBox = class(TD2Control)
   end;
 
 
-//type
+//type	//Deleted by GoldenFox
 
+//TD2Memo = class;	//Deleted by GoldenFox
  TD2CustomMemo = class;	//Added by GoldenFox
- //TD2Memo = class;	//Deleted by GoldenFox
 
 TEdtActionStack = class(TStack)
   private
@@ -6912,9 +6914,9 @@ TD2StyleDesigner = class(TForm)
   public
   end;
 
-{*********************************************************************
+{*****************************************************************
                       This part make by GoldenFox
-**********************************************************************}
+*****************************************************************}
 
 //type
  TD2DockingAlign = (daNone, daClient, daBottom, daLeft, daRight, daTop); //набор мест присоединения панелей
@@ -7208,24 +7210,29 @@ type
 TD2CustomGrid = class;
 TD2Header = class;
 
-{ TD2HeaderItem }
+{ TD2HeaderItem }	//Added by GoldenFox
 
 TD2HeaderItem = class(TD2CornerButton)
   private
 	FSplitter: TD2VisualObject;  //указатель на сплиттер
     //FLeftSplitter: TD2VisualObject;	//Deleted by GoldenFox
-    FLastPosition: TD2Point;     //последняя позиция закладки	//Added by GoldenFox
-    FMouseDownPos: TD2Point;     //положение мыши при нажатии	//Added by GoldenFox
-    FOldIndex: integer;          //индекс элемента до начала перемещения	//Added by GoldenFox
-    FNewIndex: integer;          //индекс элемента после начала перемещения	//Added by GoldenFox
-    FIsPositioning: boolean;     //true - идет процесс изменения позиции	//Added by GoldenFox
-    FIsSortedUp: boolean;        //true - сортировка от меньшего к большему	//Added by GoldenFox
-    FIsSortedDown: boolean;      //true - сортировка от большего к меньшему	//Added by GoldenFox
-    procedure SetIsSortedDown(AValue: boolean);	//Added by GoldenFox
-    procedure SetIsSortedUp(AValue: boolean);	//Added by GoldenFox
+	//protected	//Deleted by GoldenFox
+	
+	//----------- Block added by GoldenFox -----------
+    FLastPosition: TD2Point;     //последняя позиция закладки	
+    FMouseDownPos: TD2Point;     //положение мыши при нажатии
+    FOldIndex: integer;          //индекс элемента до начала перемещения
+    FNewIndex: integer;          //индекс элемента после начала перемещения
+    FIsPositioning: boolean;     //true - идет процесс изменения позиции
+    FIsSortedUp: boolean;        //true - сортировка от меньшего к большему
+    FIsSortedDown: boolean;      //true - сортировка от большего к меньшему
+    procedure SetIsSortedDown(AValue: boolean);
+    procedure SetIsSortedUp(AValue: boolean);	
   protected
-    procedure ApplyStyle;  override; //применить стиль	//Added by GoldenFox
-    procedure FreeStyle;  override;	 //освободить стиль	//Added by GoldenFox
+    procedure ApplyStyle;  override; //применить стиль
+    procedure FreeStyle;  override;	 //освободить стиль
+	//-------- End block added by GoldenFox ----------
+	
 	//procedure DragOver(const Data: TD2DragObject; const Point: TD2Point; var Accept: Boolean);  override;	//Deleted by GoldenFox
     //procedure DragDrop(const Data: TD2DragObject; const Point: TD2Point);  override;	//Deleted by GoldenFox
     //procedure DragEnd;  override;		//Deleted by GoldenFox						 
@@ -7313,7 +7320,7 @@ end;
 
 TD2CellClass = class of TD2Control;	//Added by GoldenFox
 
-{ TD2Column }
+{ TD2Column }	//Added by GoldenFox
 
 TD2Column = class(TD2Control)
   private
@@ -7338,11 +7345,12 @@ TD2Column = class(TD2Control)
               //создать специфическую ячейку столбца
     function CreateCellControl: TD2Control;  virtual;
              //инициализировать специфическую ячейку столбца
-    //procedure InitCellControl(ACellControl: TD2Control); virtual;
+    //procedure InitCellControl(ACellControl: TD2Control); virtual;	//Deleted by GoldenFox
     //procedure DoTextChanged(Sender: TObject);	//Deleted by GoldenFox
 	//procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean);	//Deleted by GoldenFox
     //procedure DoEnterFocus(Sender: TObject);	//Deleted by GoldenFox
 	//procedure DoKeyDown(Sender: TObject; var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);	//Deleted by GoldenFox
+	
 	//----------- Block added by GoldenFox -----------
 	procedure DoCanFocused(Sender: TObject; var ACanFocused: boolean); virtual;
     procedure DoEnterFocus(Sender: TObject); virtual;
@@ -7352,6 +7360,7 @@ TD2Column = class(TD2Control)
     procedure SetWidth(const Value:single);  override;
     function GetCellClass: TD2CellClass; virtual;
 	//-------- End block added by GoldenFox ----------
+	
   public
     constructor Create(AOwner: TComponent);  override;
     destructor Destroy; override;	//Added by GoldenFox
@@ -7366,10 +7375,11 @@ TD2Column = class(TD2Control)
     property ReadOnly: boolean read FReadOnly write FReadOnly  default false;
     property ClipChildren default true;	//Added by GoldenFox
   end;
-
-{ TD2TextColumn }
+  
 //----------- Block added by GoldenFox -----------
-TD2TextColumn = class(TD2Column)	//Class Added by GoldenFox
+{ TD2TextColumn }
+
+TD2TextColumn = class(TD2Column)
   protected
     function CreateCellControl: TD2Control;  override;
     function GetCellClass: TD2CellClass; override;
@@ -7380,7 +7390,7 @@ TD2TextColumn = class(TD2Column)	//Class Added by GoldenFox
   end;
 //-------- End block added by GoldenFox ----------
 
-{ TD2CheckColumn }
+{ TD2CheckColumn }	//Added by GoldenFox
 
 TD2CheckColumn = class(TD2Column)
   private
@@ -7392,7 +7402,7 @@ TD2CheckColumn = class(TD2Column)
     function GetCellClass: TD2CellClass; override;	//Added by GoldenFox
   end;
 
-{ TD2ProgressColumn }
+{ TD2ProgressColumn }	//Added by GoldenFox
 
 TD2ProgressColumn = class(TD2Column)
   private
@@ -7408,7 +7418,7 @@ TD2ProgressColumn = class(TD2Column)
     property Max:single read FMax write FMax;
   end;
 
-{ TD2PopupColumn }
+{ TD2PopupColumn }	//Added by GoldenFox
 
 TD2PopupColumn = class(TD2Column)
   private
@@ -7424,13 +7434,13 @@ TD2PopupColumn = class(TD2Column)
     property Items: TD2WideStrings read FItems write SetItems;
 end;
 
-{ TD2ImageColumn }
+{ TD2ImageColumn }	//Added by GoldenFox
 
 TD2ImageColumn = class(TD2Column)
   //private	//Deleted by GoldenFox
   //public	//Deleted by GoldenFox
     //constructor Create(AOwner: TComponent);  override;	//Deleted by GoldenFox    
-  protected										  
+  protected	//Added by GoldenFox					  
     function CreateCellControl: TD2Control;  override;
     function GetCellClass: TD2CellClass; override;	//Added by GoldenFox
 end;
@@ -7439,9 +7449,9 @@ end;
   TOnSetValue = procedure (Sender: TObject; const Col, Row:integer; const Value:Variant) of object;
   TOnEdititingDone = procedure (Sender: TObject; const Col, Row: integer) of object;
 
-{ TD2CustomGrid }
+{ TD2CustomGrid }	//Added by GoldenFox
 
-{  //class Deleted by GoldenFox
+{  // Deleted by GoldenFox
 TD2CustomGrid = class(TD2ScrollBox) 	
   private
     FMouseSelecting:boolean;
@@ -7735,7 +7745,8 @@ TD2CustomGrid = class(TD2CustomScrollBox)	//class Added by GoldenFox
 end;
 //-------- End block added by GoldenFox ----------
   
-{	//class Deleted by GoldenFox
+{	
+//Deleted by GoldenFox
 TD2Grid = class(TD2CustomGrid)	
   private
   public
@@ -7743,7 +7754,8 @@ TD2Grid = class(TD2CustomGrid)
     property RowCount;
     property OnGetValue;
     property OnSetValue;
-  end; }
+  end; 
+}
  
 //----------- Block added by GoldenFox ----------- 
 TD2Grid = class(TD2CustomGrid)	//Added by GoldenFox
@@ -7773,7 +7785,7 @@ TD2Grid = class(TD2CustomGrid)	//Added by GoldenFox
 end;
 //-------- End block added by GoldenFox ----------
 
-{ TD2StringColumn }
+{ TD2StringColumn }	//Added by GoldenFox
 
 //TD2StringColumn = class(TD2Column)	//Deleted by GoldenFox
 TD2StringColumn = class(TD2TextColumn)	//Added by GoldenFox
@@ -7803,7 +7815,7 @@ private
     property OnScroll;	//Added by GoldenFox
   end;
 
-//type
+//type	//Deleted by GoldenFox
   TD2NavButton = class;
   TD2NavDataLink = class;
 
@@ -7950,11 +7962,11 @@ TD2FieldDataController=class(TDataLink)   //class Added by GoldenFox  Based on T
 end;
 //-------- End block added by GoldenFox ----------
 
-{ TD2DBLabel }
+{ TD2DBLabel }	//Added by GoldenFox
 
 //TD2DBLabel = class(TD2Label)	//Deleted by GoldenFox
 TD2DBLabel = class(TD2CustomLabel)	//Added by GoldenFox
-  private
+  private	//Added by GoldenFox
     //FDataLink: TFieldDataLink;	//Deleted by GoldenFox
     FDataController: TD2FieldDataController;	//Added by GoldenFox
     procedure DataChange(Sender: TObject);
@@ -7990,7 +8002,7 @@ TD2DBImage = class(TD2Image)
     function  GetFieldText: string;
   protected
     procedure DoBitmapChanged(Sender: TObject);  override;
-    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    //procedure Notification(AComponent: TComponent; Operation: TOperation);  override;	//Deleted by GoldenFox
     procedure Paint;  override;
   public
     constructor Create(AOwner: TComponent);  override;
@@ -7998,7 +8010,6 @@ TD2DBImage = class(TD2Image)
   published	
     //property DataField: string read GetDataField write SetDataField;	//Deleted by GoldenFox
     //property DataSource: TDataSource read GetDataSource write SetDataSource;	//Deleted by GoldenFox
-
     property DataController: TD2FieldDataController read FDataController write SetDataController;	//Added by GoldenFox
   end;
 
@@ -8060,10 +8071,10 @@ TD2DBMemo = class(TD2CustomMemo)	//Added by GoldenFox
   end;
 
 {
+//Deleted by GoldenFox
 TD2DBGrid = class;	//class Deleted by GoldenFox
 
-//class Deleted by GoldenFox
-TD2GridDataLink = class(TDataLink)	
+TD2GridDataLink = class(TDataLink)	//class Deleted by GoldenFox
   private
     FGrid: TD2DBGrid;
     FFieldCount: Integer;
@@ -8098,7 +8109,7 @@ TD2GridDataLink = class(TDataLink)
   end;
 }
   
-{ TD2DBColumn }
+{ TD2DBColumn }	//Added by GoldenFox
 
 TD2DBColumn = class(TD2Column)
   private
@@ -8108,9 +8119,9 @@ TD2DBColumn = class(TD2Column)
     function GetField: TField;
     procedure SetField(Value:TField);
     procedure LinkField;	//Added by GoldenFox
-  protected
+  protected								   
     function GetData: Variant;  virtual;
-    procedure SetData(Value:Variant);  virtual;	//Added by GoldenFox
+    procedure SetData(Value:Variant);  virtual;
   public
 	//constructor Create(AOwner: TComponent);  override;	//Deleted by GoldenFox
     destructor Destroy;  override;
@@ -8119,9 +8130,10 @@ TD2DBColumn = class(TD2Column)
     property FieldName: String read FFieldName write SetFieldName;
   end;
 
+//----------- Block added by GoldenFox -----------
+
 { TD2DBTextColumn }
 
-//----------- Block added by GoldenFox -----------
 TD2DBTextColumn = class(TD2DBColumn)	//Class Added by GoldenFox
   protected
     function CreateCellControl: TD2Control;  override;
@@ -8133,7 +8145,7 @@ TD2DBTextColumn = class(TD2DBColumn)	//Class Added by GoldenFox
 end;
 //-------- End block added by GoldenFox ----------
 
-{ TD2DBCheckColumn }
+{ TD2DBCheckColumn }	//Added by GoldenFox
 
 TD2DBCheckColumn = class(TD2DBColumn)
   protected
@@ -8143,7 +8155,7 @@ TD2DBCheckColumn = class(TD2DBColumn)
     function GetCellClass: TD2CellClass; override;	//Added by GoldenFox
 end;
 
-{ TD2DBPopupColumn }
+{ TD2DBPopupColumn }	//Added by GoldenFox
 
 TD2DBPopupColumn = class(TD2DBColumn)
   private
@@ -8160,7 +8172,7 @@ TD2DBPopupColumn = class(TD2DBColumn)
     property Items: TD2WideStrings read FItems write SetItems;
 end;
 
-{ TD2DBImageColumn }
+{ TD2DBImageColumn }	//Added by GoldenFox
 
 TD2DBImageColumn = class(TD2DBColumn)
   private
@@ -8175,7 +8187,7 @@ TD2DBImageColumn = class(TD2DBColumn)
     destructor Destroy;  override;
 end;
 
-{ TD2DBProgressColumn }
+{ TD2DBProgressColumn }	//Added by GoldenFox
 
 TD2DBProgressColumn = class(TD2DBColumn)
   private
@@ -8191,9 +8203,52 @@ TD2DBProgressColumn = class(TD2DBColumn)
     property Max:single read FMax write FMax;
   end;
 
-{**********************************************************************
+{
+//Deleted by GoldenFox
+TD2DBGrid = class(TD2CustomGrid)
+  private
+    FDataLink: TD2GridDataLink;
+    FDisableMove:boolean;
+    FEditValue:Variant;
+    FNeedUpdate:boolean;
+    FFirstRecord:integer;
+    function GetDataSource: TDataSource;
+    procedure SetDataSource(const Value:TDataSource);
+    function GetSelectedField: TField;
+    procedure SetSelectedField(const Value:TField);
+    procedure UpdateRowCount;
+  protected
+    function  GetValue(Col, Row: integer): Variant;  override;
+    procedure SetValue(Col, Row:integer; const Value:Variant);  override;
+    function  CanEditAcceptKey(Key: System.WideChar): Boolean;  override;
+    function  CanEditModify: Boolean;  override;
+    procedure KeyDown(var Key: Word; var KeyChar: System.WideChar; Shift: TShiftState);  override;
+    procedure Reset;  override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);  override;
+    procedure Loaded;  override;
+    procedure DataSetChanged;
+    procedure DataChanged;
+    procedure EditingChanged;
+    procedure RecordChanged(Field: TField);
+    procedure UpdateData;
+    procedure LinkActive(Value:Boolean);
+    function  GetContentBounds: TD2Rect;  override;
+    procedure VScrollChange(Sender: TObject);  override;
+    procedure SetSelected(const Value:integer);  override;
+  public
+    constructor Create(AOwner: TComponent);  override;
+    destructor Destroy;  override;
+    function ItemClass: string;  override;
+    property DataLink: TD2GridDataLink read FDataLink;
+    property SelectedField: TField read GetSelectedField write SetSelectedField;
+  published
+    property DataSource: TDataSource read GetDataSource write SetDataSource;
+  end;
+ }
+  
+{*****************************************************************
                           This part make by GoldenFox
-**********************************************************************}
+*****************************************************************}
 
 { TD2GridDataController }
 
@@ -10996,7 +11051,6 @@ function  d2VectorAngle(const V, N: TD2Vector):single;
 
 // Colors
 
-
 function  d2AppendColor(start, stop: TD2Color): TD2Color;
 
 function  d2SubtractColor(start, stop: TD2Color): TD2Color;
@@ -11054,7 +11108,6 @@ function d2InterpolateBack(T, B, C, D, S: Double; aType: TD2AnimationType): Doub
 
 // Help functions
 
-
 procedure d2ReverseBytes(p: Pointer; Count: integer);
 
 procedure d2MoveLongword(const Src: Pointer; Dst: Pointer; Count: Integer);
@@ -11083,7 +11136,6 @@ function  d2MinFloat(A1, A2:single):single;
 function  d2MinMax(x, mi, ma:single):single;
 
 // Other
-
 
 procedure Blur(const Canvas: TD2Canvas; const Bitmap: TD2Bitmap; const Radius:integer; UseAlpha: boolean = true);
 
@@ -12263,9 +12315,9 @@ initialization
                    TD2NavButton, TD2DBColumn, TD2DBCheckColumn, TD2DBPopupColumn,
                    //TD2DBImageColumn, TD2DBProgressColumn]);	//Deleted by GoldenFox
 				   
-{**************************************************************************************************
+{****************************************************************
                        This part make by GoldenFox
-***************************************************************************************************}
+****************************************************************}
                    TD2DBImageColumn, TD2DBProgressColumn,
 				   TD2DBTextColumn, TD2DockingTab, TD2Column,
                    TD2TextColumn, TD2CheckColumn, TD2ProgressColumn, TD2PopupColumn, TD2ImageColumn,
@@ -12273,9 +12325,8 @@ initialization
                    TD2TreePopupColumn, TD2TreeImageColumn, TD2TreeProgressColumn,
                    TD2DBTreeColumn, TD2DBTreeTextColumn, TD2DBTreeCheckColumn, TD2DBTreePopupColumn,
                    TD2DBTreeImageColumn, TD2DBTreeProgressColumn, TD2DrakonButton]);				   
-//======================= End part of make by GoldenFox =======================
+//============== End part of make by GoldenFox ==================
                    
-
   Registerd2Objects('Resources', [TD2BrushObject, TD2PathObject, TD2BitmapObject]);
 
   Registerd2Objects('Layout', [TD2Frame,TD2Layout, TD2ScaledLayout, TD2GridLayout, TD2SplitLayout,TD2Nond2Layout]);

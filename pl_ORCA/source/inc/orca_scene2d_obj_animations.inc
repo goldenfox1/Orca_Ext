@@ -29,11 +29,14 @@ begin
 end;
 
 procedure TD2AniThread.DoSyncTimer(Sender:TObject);
-//begin
-//  OneStep;
-//end;
+{
+//Deleted by GoldenFox
+begin
+  OneStep;
+end;
 
-//procedure TD2AniThread.OneStep;
+procedure TD2AniThread.OneStep;
+}
 var
   i:integer;
   NewTime:single;
@@ -52,20 +55,21 @@ begin
     if TD2Animation(FAniList[i]).FRunning then
     begin
       if (TD2Animation(FAniList[i]).BindingName <> '') and
-         (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0)
-        then  begin
-                TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
-                if TD2Animation(FAniList[i]).Tag mod 3=0 then
-                begin
-                  TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
-                end;
-              end
-        else TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
+         (CompareText(TD2Animation(FAniList[i]).BindingName,'caret')=0) then
+	  begin
+		TD2Animation(FAniList[i]).Tag:=TD2Animation(FAniList[i]).Tag + 1;
+		if TD2Animation(FAniList[i]).Tag mod 3=0 then
+		begin
+		  TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
+		end;
+	  end			
+ 	  else 
+	    TD2Animation(FAniList[i]).ProcessTick(FTime,FDeltaTime);
     end;
     
-	//Dec(i);	//Added by GoldenFox
-      //if i >= FAniList.Count then i:=FAniList.Count - 1;	//Added by GoldenFox	
-    //end;  
+	//Dec(i);	//Deleted by GoldenFox
+      //if i >= FAniList.Count then i:=FAniList.Count - 1;	//Deleted by GoldenFox
+    //end;	//Deleted by GoldenFox  
 	Inc(i);	//Added by GoldenFox						  
   end;
 end;
@@ -1062,7 +1066,8 @@ begin
   Duration:=0.001;
 end;
 
-{	//Deleted by GoldenFox
+{	
+//Deleted by GoldenFox
 destructor TD2PathSwitcher.Destroy;
 begin
   inherited;

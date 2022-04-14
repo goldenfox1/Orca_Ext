@@ -45,13 +45,14 @@ begin
   Insert(Result,S);
 end;
 
-
-function TD2WideStrings.Add(const S: String): Integer;	//function Added by GoldenFox
+//----------- Block added by GoldenFox -----------
+function TD2WideStrings.Add(const S: String): Integer;	
 var ss:WideString;
 begin
   ss:=UTF8Decode(S);
   Add(ss);
 end;
+//-------- End block added by GoldenFox ----------
 
 function TD2WideStrings.Items(AIndex:integer):WideString;
 begin

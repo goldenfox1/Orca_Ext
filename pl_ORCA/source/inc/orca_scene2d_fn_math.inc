@@ -12,9 +12,9 @@ const
   Z=2;
   W=3;
 
-{*********************************************************************
+{******************************************************************
                       This part make by GoldenFox
-**********************************************************************}
+******************************************************************}
 
 //Вычисляет значение A1 * A2 / A3
 function d2MulDiv(A1, A2, A3:single):single;
@@ -34,7 +34,7 @@ begin
   A1:= A1 - A2;
 end;
 
-{------------------- End part of make by GoldenFox -------------------}
+{------------ End part of make by GoldenFox -------------------}
 
 //Возвращает наибольшее из A1 и A2
 function d2MaxFloat(A1,A2:single):single;
@@ -258,8 +258,7 @@ end;
 //True - если прямоугольники Rect1 и Rect2 пересекаются
 function d2IntersectRect(const Rect1,Rect2:TD2Rect):boolean;
 begin
-  Result:=(Rect1.Left <= Rect2.Right) and (Rect1.Right >= Rect2.Left) and
-          (Rect1.Top <= Rect2.Bottom) and (Rect1.Bottom >= Rect2.Top);
+  Result:=(Rect1.Left <= Rect2.Right) and (Rect1.Right >= Rect2.Left) and (Rect1.Top <= Rect2.Bottom) and (Rect1.Bottom >= Rect2.Top);
 end;
 
 //True - если прямоугольники SrcRect1 и SrcRect2 пересекаются
@@ -334,6 +333,7 @@ end;
 begin
   Result:='(' + d2FloatToStr(R.X) + ',' + d2FloatToStr(R.Y) + ')';
 end;}
+
 //Возвращает стоковое представление точки P вида '(X,Y)', где X и Y
 //строковые представления значений P.X и P.Y соответственно
 function d2PointToString(P:TD2Point):Ansistring;	//Added by GoldenFox
@@ -398,7 +398,6 @@ begin
    M.M[Y].V[Z]:=-(a1*b3-b1*a3);
    M.M[Z].V[Z]:= (a1*b2-b1*a2);
 end;
-
 
 procedure d2ScaleMatrix(var M:TD2Matrix; const factor:single);
 var

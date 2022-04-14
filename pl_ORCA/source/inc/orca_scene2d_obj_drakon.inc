@@ -5,6 +5,8 @@
  This unit is part of CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
+//----------- Block added by GoldenFox -----------
+
 var
   DrakonBtnPath:array[TD2DrakonIcon] of string=(
     //drdSilhouette =
@@ -1259,7 +1261,7 @@ begin
 end;
 
 
-
+//-------- End block added by GoldenFox ----------
 
 
 

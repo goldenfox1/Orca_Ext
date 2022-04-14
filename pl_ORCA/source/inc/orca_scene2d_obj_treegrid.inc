@@ -19,6 +19,7 @@
 
 ***********************************************************************}
 
+//----------- Block added by GoldenFox -----------
 { TD2TreeCellControl }
 
 procedure TD2TreeCellControl.Realign;
@@ -11344,3 +11345,4 @@ begin
   FRangeY := FRoot.TotalHeight - FRoot.NodeHeight + FBottomSpace;
 end;
 
+//-------- End block added by GoldenFox ----------

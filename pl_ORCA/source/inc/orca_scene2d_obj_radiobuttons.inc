@@ -40,6 +40,7 @@ begin
       IsChecked:=false;
 end;
 
+//----------- Block added by GoldenFox -----------
 //function AdjustHeight(AText: TD2Text): single;	//Deleted by GoldenFox
 function TD2RadioButton.AdjustHeight: single;	//function Added by GoldenFox
 
@@ -56,6 +57,7 @@ begin
     end
   else Result:=0;
 end;
+//-------- End block added by GoldenFox ----------
 
 procedure TD2RadioButton.ApplyStyle;
 begin

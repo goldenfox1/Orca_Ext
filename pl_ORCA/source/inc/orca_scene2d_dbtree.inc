@@ -6,6 +6,8 @@
  for CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
+//----------- Block added by GoldenFox -----------
+
 //============== TD2DBTreeViewItem =============================
 
 constructor TD2DBTreeViewItem.Create(AOwner: TComponent);
@@ -210,3 +212,4 @@ begin
       end;
   Result := nil;
 end;
+//-------- End block added by GoldenFox ----------

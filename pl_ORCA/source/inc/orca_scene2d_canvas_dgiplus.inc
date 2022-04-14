@@ -1766,8 +1766,8 @@ var
   FGraphics:TGPGraphics;
   Bits:Cardinal;
   i:integer;
-  //SP,	//Deleted by GoldenFox
-  CP1,CP2:TD2Point;
+  //SP,CP1,CP2:TD2Point;	//Deleted by GoldenFox
+  CP1,CP2:TD2Point;	//Added by GoldenFox
   Data:TPathData;
   SavePoints:PGPPointF;
 begin

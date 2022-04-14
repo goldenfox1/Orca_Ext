@@ -84,7 +84,7 @@ begin
 end;
 
 destructor TD2VisualObject.Destroy;
-//var i: integer;
+//var i: integer;	//Deleted by GoldenFox
 begin
   //if FTabList <> nil then	//Deleted by GoldenFox
   //  for i:=0 to FTabList.Count-1 do	//Deleted by GoldenFox
@@ -1534,9 +1534,9 @@ begin
   MouseLeaveChildren;		//Added by GoldenFox
 end;
 
-{**********************************************************************
+{*****************************************************************
                           This part Added by GoldenFox
- **********************************************************************}
+ ****************************************************************}
 procedure TD2VisualObject.MouseEnterChildren;
 begin
   SetMouseOverChildren(Self, true);
@@ -1557,7 +1557,7 @@ begin
     then if Assigned(FOnMouseEnterChildren) then FOnMouseEnterChildren(Self)
     else if Assigned(FOnMouseLeaveChildren) then FOnMouseLeaveChildren(Self);
 end;
-//======================= End part of Added by GoldenFox =======================
+//============== End part of Added by GoldenFox ================
 
 function TD2VisualObject.EnterFocusChildren(AObject:TD2VisualObject):boolean;
 begin

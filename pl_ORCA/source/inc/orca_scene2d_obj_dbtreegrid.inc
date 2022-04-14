@@ -6,7 +6,7 @@
  for CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
-
+//----------- Block added by GoldenFox -----------
 
 { TD2TreeDataController }
 
@@ -883,4 +883,4 @@ begin
   Result:='TD2DBTreeTextColumn;TD2DBTreeCheckColumn;TD2DBTreePopupColumn;TD2DBTreeImageColumn;TD2DBTreeProgressColumn';
 end;
 
-
+//-------- End block added by GoldenFox ----------

@@ -286,7 +286,7 @@ begin
 end;
 
 destructor TD2TreeView.Destroy;
-var i: integer;
+var i: integer;	//Added by GoldenFox
 begin
   if FSelections <> nil then
   begin	//Added by GoldenFox

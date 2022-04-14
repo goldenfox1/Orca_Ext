@@ -864,7 +864,8 @@ begin
   inherited ;
 end;
 
-function MessagePopup(const ACaption,AMessage:{Wide}String; AType:TD2MessageType;	//Edit by GoldenFox
+//function MessagePopup(const ACaption,AMessage:WideString; AType:TD2MessageType;	//Deleted by GoldenFox
+function MessagePopup(const ACaption,AMessage: String; AType:TD2MessageType;	//Added by GoldenFox
   Buttons:TD2MessageButtons; const AOwner:Id2Scene; const Target:TD2VisualObject=nil;
   const ADisableScene:boolean=true;
   const ABitmap:TD2Bitmap=nil;

@@ -5,7 +5,7 @@
  This unit is part of CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
-//=============== TD2StorageItem =============================================================}
+//=============== TD2StorageItem ==============================================================}
 
 constructor TD2StorageItem.Create;
 begin

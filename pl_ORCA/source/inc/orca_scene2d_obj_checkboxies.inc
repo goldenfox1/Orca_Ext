@@ -77,9 +77,11 @@ begin
   begin
     FPressing:=false;
     FIsPressed:=false;
-    if d2PtInRect(d2Point(X,Y),LocalRect)
-      //then IsChecked:=not IsChecked;	//Deleted by GoldenFox
-	  then DoCheckChange;	//Added by GoldenFox
+    if d2PtInRect(d2Point(X,Y),LocalRect) then
+	begin	 
+      //IsChecked:=not IsChecked;	//Deleted by GoldenFox
+	  DoCheckChange;	//Added by GoldenFox
+	end
   end;
 end;
 
@@ -87,12 +89,30 @@ procedure TD2CheckBox.KeyDown(var Key:Word; var KeyChar:System.WideChar;
   Shift:TShiftState);
 begin
   inherited;
-  if (Key=VK_RETURN) or (Key=VK_SPACE)
+  if (Key=VK_RETURN) or (Key=VK_SPACE) then
+  begin
+    IsChecked:=not IsChecked;
+  end;
+end;	   
 
+{
+//Deleted by GoldenFox
+procedure TD2CheckBox.SetIsChecked(const Value:boolean);
+begin
+  if FIsChecked <> Value then
+  begin
+    FIsChecked:=Value;
+    StartTriggerAnimation(Self,'IsChecked');
+    if Assigned(FOnChange) then
+    begin
+      FOnChange(Self);
+    end;
+  end;
+}
 
-{*********************************************************************
+{******************************************************************
                       This part make by GoldenFox
-**********************************************************************}
+******************************************************************}
 
 procedure TD2CheckBox.SetIsGrayed(const Value: boolean);
 begin
@@ -129,9 +149,7 @@ begin
     end
     else IsChecked:=not IsChecked;
 end;
-
-{------------------- End part of make by GoldenFox -------------------}
-
+{----------- End part of make by GoldenFox -------------------}
 
 //=============== TD2PathCheckBox =============================================
 

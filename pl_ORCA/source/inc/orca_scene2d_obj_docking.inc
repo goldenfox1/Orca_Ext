@@ -6,6 +6,8 @@
  for CodeTyphon Studio  (http://www.pilotlogic.com/)
 ***********************************************************************}
 
+//----------- Block added by GoldenFox -----------
+
  { TD2DockingTab }
 
 procedure TD2DockingTab.ApplyStyle;
@@ -1616,7 +1618,7 @@ begin
   if AObject is TD2DockingTab then Realign;
 end;
 
-
+//-------- End block added by GoldenFox ----------
 
 
 
