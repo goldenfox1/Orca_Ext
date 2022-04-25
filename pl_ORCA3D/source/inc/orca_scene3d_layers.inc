@@ -3153,7 +3153,8 @@ end;
 var
   FTarget:TD2VisualObject=nil;
 
-procedure TD3CustomObjectLayer.DragOver(const Data:TD3DragObject; Shift: TShiftState;
+//procedure TD3CustomObjectLayer.DragOver(const Data:TD3DragObject;	//Deleted by GoldenFox
+  procedure TD3CustomObjectLayer.DragOver(const Data:TD3DragObject; Shift: TShiftState;	//Added by GoldenFox
   const Point:TD3Point; var Accept:boolean);
 var
   P:TD2Point;
@@ -3199,7 +3200,8 @@ begin
     d2Data.Files[i]:=Data.Files[i];
   d2Data.Data:=Data.Data;
   d2Data.Source:=Data.Source;
-  NewTarget:=Root.Visual.FindTarget(Shift,P,d2Data);
+  //NewTarget:=Root.Visual.FindTarget(P,d2Data);	//Deleted by GoldenFox
+  NewTarget:=Root.Visual.FindTarget(Shift,P,d2Data);	//Added by GoldenFox
   if (NewTarget <> FTarget) then
   begin
     if FTarget <> nil then
@@ -3214,7 +3216,8 @@ begin
 end;
 
 procedure TD3CustomObjectLayer.DragDrop(const Data: TD3DragObject;
-  Shift: TShiftState; const Point: TD3Point);
+//  const Point:TD3Point);	//Deleted by GoldenFox
+  Shift: TShiftState; const Point: TD3Point);	//Added by GoldenFox
 var
   P:TD2Point;
   i:integer;
@@ -3261,7 +3264,8 @@ begin
   if (FTarget <> nil) then
   begin
     TD2HackVisualObject(FTarget).DragLeave;
-    TD2HackVisualObject(FTarget).DragDrop(d2Data,Shift,P);
+    //TD2HackVisualObject(FTarget).DragDrop(d2Data,P);	//Deleted by GoldenFox
+	TD2HackVisualObject(FTarget).DragDrop(d2Data,Shift,P);	//Added by GoldenFox
   end;
   FTarget:=nil;
 end;

@@ -1040,7 +1040,8 @@ TD3PaintEvent=procedure(Sender: TObject; const Canvas: TD3Canvas) of object;
   end;
 
   TD3DragEnterEvent=procedure(Sender: TObject; const Data: TD3DragObject; const Point: TD3Point) of object;
-  TD3DragOverEvent=procedure(Sender: TObject; const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean) of object;
+  //TD3DragOverEvent=procedure(Sender: TObject; const Data: TD3DragObject; const Point: TD3Point; var Accept: boolean) of object;	//Deleted by GoldenFox
+  TD3DragOverEvent=procedure(Sender: TObject; const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean) of object;	//Added by GoldenFox
   TD3DragDropEvent=procedure(Sender: TObject; const Data: TD3DragObject; const Point: TD3Point) of object;
   TD3DragLeaveEvent=procedure(Sender: TObject) of object;
 
@@ -1166,8 +1167,10 @@ TD3VisualObject=class(TD3Object)
     procedure DblClick;  virtual;
     procedure ContextMenu(const ScreenPosition: TD2Point);  virtual;
     procedure DragEnter(const Data: TD3DragObject; const Point: TD3Point);  virtual;
-    procedure DragOver(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean);  virtual;
-    procedure DragDrop(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point);  virtual;
+    //procedure DragOver(const Data: TD3DragObject; const Point: TD3Point; var Accept: boolean);  virtual;	//Deleted by GoldenFox
+    //procedure DragDrop(const Data: TD3DragObject; const Point: TD3Point);  virtual;	//Deleted by GoldenFox
+    procedure DragOver(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean);  virtual;	//Added by GoldenFox
+    procedure DragDrop(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point);  virtual;	//Added by GoldenFox
     procedure DragLeave;  virtual;
     procedure DragEnd;  virtual;
     function  DoHintShow(var Message: TLMessage):boolean;  virtual;
@@ -1199,7 +1202,8 @@ TD3VisualObject=class(TD3Object)
     function ObjectByPoint(X,Y:single; AProjection: TD3Projection; var Distance:single): TD3VisualObject;
     function RayCastIntersect(const RayPos,RayDir: TD3Vector; var Intersection: TD3Vector):boolean;  virtual;
     procedure ResetRotateAngle;
-    function FindTarget(Shift: TShiftState; const APoint: TD3Point; AProjection: TD3Projection; const Data: TD3DragObject; var Distance:single): TD3VisualObject;
+    //function FindTarget(const APoint: TD3Point; AProjection: TD3Projection; const Data: TD3DragObject; var Distance:single): TD3VisualObject;	//Deleted by GoldenFox
+    function FindTarget(Shift: TShiftState; const APoint: TD3Point; AProjection: TD3Projection; const Data: TD3DragObject; var Distance:single): TD3VisualObject;	//Added by GoldenFox
     procedure ProcessTick(time,deltaTime:single);  override;
     // physics
     procedure Back;
@@ -2202,8 +2206,10 @@ TD3CustomObjectLayer=class(TD3CustomBufferLayer,Id2Scene)
     procedure KeyUp(var Key: word; var char: System.widechar; Shift: TShiftState);  override;
     procedure KeyDown(var Key: word; var char: System.widechar; Shift: TShiftState);  override;
     procedure DragEnter(const Data: TD3DragObject; const Point: TD3Point);  override;
-    procedure DragOver(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean);  override;
-    procedure DragDrop(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point);  override;
+	//procedure DragOver(const Data: TD3DragObject; const Point: TD3Point; var Accept: boolean);  override;	//Deleted by GoldenFox
+    //procedure DragDrop(const Data: TD3DragObject; const Point: TD3Point);  override;	//Deleted by GoldenFox
+    procedure DragOver(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point; var Accept: boolean);  override;	//Added by GoldenFox
+    procedure DragDrop(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point);  override;	//Added by GoldenFox
     procedure DragLeave;  override;
     procedure DragEnd;  override;
     function DoHintShow(var Message: TLMessage):boolean;  override;

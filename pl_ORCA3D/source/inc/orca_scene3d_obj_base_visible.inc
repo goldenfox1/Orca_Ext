@@ -552,7 +552,8 @@ begin
   end;
 end;
 
-function TD3VisualObject.FindTarget(Shift: TShiftState; const APoint:TD3Point; AProjection:TD3Projection; const Data:TD3DragObject; var Distance:single):TD3VisualObject;
+//function TD3VisualObject.FindTarget(const APoint:TD3Point; AProjection:TD3Projection; const Data:TD3DragObject; var Distance:single):TD3VisualObject;	//Deleted by GoldenFox
+function TD3VisualObject.FindTarget(Shift: TShiftState; const APoint:TD3Point; AProjection:TD3Projection; const Data:TD3DragObject; var Distance:single):TD3VisualObject;	//Added by GoldenFox
 var
   i:integer;
   Obj,NewObj:TD3VisualObject;
@@ -571,7 +572,8 @@ begin
       if (Obj.Locked) and (Assigned(FScene) and (FScene.DesignTime)) then Continue;
       if FDesignHide and (Assigned(FScene) and (FScene.DesignTime)) then Continue;
 
-      NewObj:=Obj.FindTarget(Shift,APoint,AProjection,Data,Distance);
+      //NewObj:=Obj.FindTarget(APoint,AProjection,Data,Distance);	//Deleted by GoldenFox
+	  NewObj:=Obj.FindTarget(Shift,APoint,AProjection,Data,Distance);	//Added by GoldenFox
       if NewObj <> nil then
       begin
         Result:=NewObj;
@@ -587,7 +589,8 @@ begin
       begin
         Distance:=d3VectorLength(d3VectorSubtract(IP,rPos));
         Accept:=false;
-        DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);
+        //DragOver(Data,AbsoluteToLocal(APoint),Accept);	//Deleted by GoldenFox
+		DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);	//Added by GoldenFox
         if Accept then
           Result:=Self;
       end;
@@ -595,7 +598,8 @@ begin
       begin
         Distance:=d3VectorLength(d3VectorSubtract(IP,Canvas.FCurrentCamera.AbsolutePosition));
         Accept:=false;
-        DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);
+        //DragOver(Data,AbsoluteToLocal(APoint),Accept);	//Deleted by GoldenFox
+		DragOver(Data,Shift,AbsoluteToLocal(APoint),Accept);	//Added by GoldenFox
         if Accept then
           Result:=Self;
       end;
@@ -1489,14 +1493,16 @@ end;
 
 { events }
 
-procedure TD3VisualObject.KeyDown(var Key: word; var KeyChar: System.widechar;
+//procedure TD3VisualObject.KeyDown(var Key:Word; var KeyChar:System.WideChar;	//Deleted by GoldenFox
+procedure TD3VisualObject.KeyDown(var Key: word; var KeyChar: System.widechar;	//Added by GoldenFox
   Shift: TShiftState);
 begin
   if Assigned(FOnKeyDown) then
     FOnKeyDown(Key,KeyChar,Shift);
 end;
 
-procedure TD3VisualObject.KeyUp(var Key: word; var KeyChar: System.widechar;
+//procedure TD3VisualObject.KeyUp(var Key:Word; var KeyChar:System.WideChar;	//Deleted by GoldenFox
+procedure TD3VisualObject.KeyUp(var Key: word; var KeyChar: System.widechar;	//Added by GoldenFox
   Shift: TShiftState);
 begin
   if Assigned(FOnKeyUp) then
@@ -1693,14 +1699,16 @@ begin
   Result:=false;
 end;
 
-procedure TD3VisualObject.DragOver(const Data:TD3DragObject; Shift: TShiftState; const Point:TD3Point; var Accept:boolean);
+//procedure TD3VisualObject.DragOver(const Data:TD3DragObject; const Point:TD3Point; var Accept:boolean);	//Deleted by GoldenFox
+procedure TD3VisualObject.DragOver(const Data:TD3DragObject; Shift: TShiftState; const Point:TD3Point; var Accept:boolean);	//Added by GoldenFox
 begin
   if Assigned(OnDragOver) then
-    OnDragOver(Self,Data,Shift,Point,Accept);
+    //OnDragOver(Self,Data,Point,Accept);	//Deleted by GoldenFox
+	OnDragOver(Self,Data,Shift,Point,Accept);	//Added by GoldenFox
 end;
 
-procedure TD3VisualObject.DragDrop(const Data: TD3DragObject;
-  Shift: TShiftState; const Point: TD3Point);
+//procedure TD3VisualObject.DragDrop(const Data:TD3DragObject; const Point:TD3Point);	//Deleted by GoldenFox
+procedure TD3VisualObject.DragDrop(const Data: TD3DragObject; Shift: TShiftState; const Point: TD3Point);	//Added by GoldenFox
 begin
   FIsDragOver:=false;
   Repaint;
